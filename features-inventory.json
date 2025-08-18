@@ -1,0 +1,392 @@
+{
+  "application": "React/Express Scholarship Management Platform",
+  "version": "1.0.0",
+  "architecture": "Full-stack web application",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/auth/user",
+      "auth": "required",
+      "description": "Get authenticated user profile",
+      "responseModel": "User"
+    },
+    {
+      "method": "GET",
+      "path": "/api/profile",
+      "auth": "required",
+      "description": "Get student academic profile",
+      "responseModel": "StudentProfile"
+    },
+    {
+      "method": "POST",
+      "path": "/api/profile",
+      "auth": "required",
+      "description": "Create or update student profile",
+      "requestModel": "InsertStudentProfile",
+      "responseModel": "StudentProfile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/scholarships",
+      "auth": "required",
+      "description": "Get all available scholarships",
+      "responseModel": "Scholarship[]"
+    },
+    {
+      "method": "GET",
+      "path": "/api/scholarships/:id",
+      "auth": "required",
+      "description": "Get specific scholarship details",
+      "responseModel": "Scholarship"
+    },
+    {
+      "method": "GET",
+      "path": "/api/matches",
+      "auth": "required",
+      "description": "Get AI-powered scholarship matches for student",
+      "responseModel": "ScholarshipMatch[]"
+    },
+    {
+      "method": "POST",
+      "path": "/api/matches/generate",
+      "auth": "required",
+      "description": "Generate new AI-powered scholarship matches",
+      "responseModel": "MatchGenerationResult"
+    },
+    {
+      "method": "POST",
+      "path": "/api/matches/:id/bookmark",
+      "auth": "required",
+      "description": "Bookmark or unbookmark scholarship match",
+      "requestModel": "BookmarkRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/matches/:id/dismiss",
+      "auth": "required",
+      "description": "Dismiss scholarship match"
+    },
+    {
+      "method": "GET",
+      "path": "/api/applications",
+      "auth": "required",
+      "description": "Get student's scholarship applications",
+      "responseModel": "Application[]"
+    },
+    {
+      "method": "POST",
+      "path": "/api/applications",
+      "auth": "required",
+      "description": "Create new scholarship application",
+      "requestModel": "InsertApplication",
+      "responseModel": "Application"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/applications/:id",
+      "auth": "required",
+      "description": "Update scholarship application",
+      "requestModel": "PartialApplication",
+      "responseModel": "Application"
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "auth": "required",
+      "description": "Get student's uploaded documents",
+      "responseModel": "Document[]"
+    },
+    {
+      "method": "POST",
+      "path": "/api/documents",
+      "auth": "required",
+      "description": "Create document record",
+      "requestModel": "InsertDocument",
+      "responseModel": "Document"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/documents/:id",
+      "auth": "required",
+      "description": "Delete document record"
+    },
+    {
+      "method": "GET",
+      "path": "/api/essays",
+      "auth": "required",
+      "description": "Get student's essays",
+      "responseModel": "Essay[]"
+    },
+    {
+      "method": "GET",
+      "path": "/api/essays/:id",
+      "auth": "required",
+      "description": "Get specific essay",
+      "responseModel": "Essay"
+    },
+    {
+      "method": "POST",
+      "path": "/api/essays",
+      "auth": "required",
+      "description": "Create new essay",
+      "requestModel": "InsertEssay",
+      "responseModel": "Essay"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/essays/:id",
+      "auth": "required",
+      "description": "Update essay content",
+      "requestModel": "PartialEssay",
+      "responseModel": "Essay"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/essays/:id",
+      "auth": "required",
+      "description": "Delete essay"
+    },
+    {
+      "method": "POST",
+      "path": "/api/essays/:id/analyze",
+      "auth": "required",
+      "description": "AI-powered essay analysis and feedback",
+      "responseModel": "EssayFeedback"
+    },
+    {
+      "method": "POST",
+      "path": "/api/essays/generate-outline",
+      "auth": "required",
+      "description": "Generate AI-powered essay outline",
+      "requestModel": "OutlineRequest",
+      "responseModel": "EssayOutline"
+    },
+    {
+      "method": "POST",
+      "path": "/api/essays/improve-content",
+      "auth": "required",
+      "description": "AI-powered content improvement",
+      "requestModel": "ContentImprovementRequest",
+      "responseModel": "ImprovedContent"
+    },
+    {
+      "method": "POST",
+      "path": "/api/essays/generate-ideas",
+      "auth": "required",
+      "description": "Generate personalized essay topic ideas",
+      "requestModel": "EssayIdeaRequest",
+      "responseModel": "EssayIdeas"
+    },
+    {
+      "method": "GET",
+      "path": "/objects/:objectPath(*)",
+      "auth": "required",
+      "description": "Download protected document files",
+      "aclControlled": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/objects/upload",
+      "auth": "required",
+      "description": "Get presigned URL for document upload",
+      "responseModel": "UploadURL"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/documents/upload",
+      "auth": "required",
+      "description": "Set ACL policy for uploaded document",
+      "requestModel": "DocumentAclRequest",
+      "responseModel": "DocumentPath"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard/stats",
+      "auth": "required",
+      "description": "Get dashboard statistics",
+      "responseModel": "DashboardStats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/login",
+      "auth": "public",
+      "description": "Initiate Replit OAuth login flow"
+    },
+    {
+      "method": "GET",
+      "path": "/api/callback",
+      "auth": "public",
+      "description": "OAuth callback handler"
+    },
+    {
+      "method": "GET",
+      "path": "/api/logout",
+      "auth": "public",
+      "description": "Logout and end session"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "auth": "public",
+      "description": "Serve React frontend application"
+    }
+  ],
+  "security": {
+    "authentication": {
+      "provider": "Replit OpenID Connect (OIDC)",
+      "middleware": "Passport.js with custom strategy",
+      "sessionStorage": "PostgreSQL with connect-pg-simple",
+      "sessionTtl": "7 days",
+      "tokenRefresh": "Automatic with refresh tokens"
+    },
+    "authorization": {
+      "routeProtection": "isAuthenticated middleware",
+      "userClaims": ["sub", "email", "first_name", "last_name", "profile_image_url"],
+      "aclSystem": "Object-level ACL for document access"
+    },
+    "headers": {
+      "trustProxy": true,
+      "secure": true,
+      "httpOnly": true
+    }
+  },
+  "configVars": [
+    {
+      "name": "DATABASE_URL",
+      "requiredInProd": true,
+      "description": "PostgreSQL connection string"
+    },
+    {
+      "name": "REPL_ID",
+      "requiredInProd": true,
+      "description": "Replit application ID for OAuth"
+    },
+    {
+      "name": "SESSION_SECRET",
+      "requiredInProd": true,
+      "description": "Session signing secret"
+    },
+    {
+      "name": "REPLIT_DOMAINS",
+      "requiredInProd": true,
+      "description": "Allowed domains for OAuth callbacks"
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "requiredInProd": true,
+      "description": "OpenAI API key for AI features"
+    },
+    {
+      "name": "ISSUER_URL",
+      "requiredInProd": false,
+      "default": "https://replit.com/oidc",
+      "description": "OpenID Connect issuer URL"
+    },
+    {
+      "name": "PORT",
+      "requiredInProd": false,
+      "default": "5000",
+      "description": "Server port"
+    },
+    {
+      "name": "NODE_ENV",
+      "requiredInProd": false,
+      "default": "development",
+      "description": "Environment mode"
+    }
+  ],
+  "models": [
+    {
+      "name": "User",
+      "fields": ["id", "email", "firstName", "lastName", "profileImageUrl", "createdAt", "updatedAt"]
+    },
+    {
+      "name": "StudentProfile",
+      "fields": ["id", "userId", "gpa", "major", "academicLevel", "graduationYear", "school", "location", "demographics", "interests", "extracurriculars", "achievements", "financialNeed", "completionPercentage"]
+    },
+    {
+      "name": "Scholarship",
+      "fields": ["id", "title", "organization", "amount", "description", "requirements", "eligibilityCriteria", "deadline", "applicationUrl", "estimatedApplicants", "isActive"]
+    },
+    {
+      "name": "ScholarshipMatch",
+      "fields": ["id", "studentId", "scholarshipId", "matchScore", "matchReason", "chanceLevel", "isBookmarked", "isDismissed", "createdAt"]
+    },
+    {
+      "name": "Application",
+      "fields": ["id", "studentId", "scholarshipId", "status", "progressPercentage", "submittedAt", "notes", "createdAt", "updatedAt"]
+    },
+    {
+      "name": "Document",
+      "fields": ["id", "studentId", "type", "title", "fileName", "filePath", "fileSize", "uploadedAt"]
+    },
+    {
+      "name": "Essay",
+      "fields": ["id", "studentId", "title", "prompt", "content", "outline", "feedback", "wordCount", "createdAt", "updatedAt"]
+    }
+  ],
+  "aiCapabilities": {
+    "essayAssistance": {
+      "analysis": "Content quality scoring, strengths/weaknesses identification",
+      "generation": "Outline creation, topic ideation, content improvement",
+      "feedback": "Detailed suggestions for improvement"
+    },
+    "scholarshipMatching": {
+      "analysis": "Profile-scholarship compatibility scoring",
+      "reasoning": "Detailed match explanations",
+      "chanceAssessment": "High Chance, Competitive, Long Shot classifications"
+    },
+    "model": "OpenAI GPT-4o",
+    "features": ["JSON response format", "Temperature control", "Token management"]
+  },
+  "frontendCapabilities": {
+    "pages": [
+      "Landing (unauthenticated users)",
+      "Dashboard (authenticated home)",
+      "Scholarship Search & Discovery",
+      "Application Tracking",
+      "Document Management",
+      "Essay Assistant",
+      "Student Profile Management"
+    ],
+    "components": [
+      "Navigation with mobile responsiveness",
+      "ScholarshipCard with bookmark/dismiss",
+      "ObjectUploader with drag-drop",
+      "AI-powered essay analysis tools",
+      "Progress tracking visualizations"
+    ],
+    "framework": "React 18 with TypeScript",
+    "styling": "Tailwind CSS with shadcn/ui components",
+    "routing": "Wouter for client-side navigation",
+    "stateManagement": "TanStack React Query for server state"
+  },
+  "storageCapabilities": {
+    "database": {
+      "provider": "PostgreSQL (Neon Database)",
+      "orm": "Drizzle ORM with type safety",
+      "migrations": "Push-based schema updates"
+    },
+    "fileStorage": {
+      "provider": "Google Cloud Storage",
+      "integration": "Replit sidecar with presigned URLs",
+      "acl": "Object-level access control system",
+      "uploadMethod": "Direct browser-to-cloud uploads"
+    }
+  },
+  "errorHandling": {
+    "unifiedSchema": {
+      "fields": ["message", "status"],
+      "httpCodes": [400, 401, 404, 500]
+    },
+    "authErrors": "Automatic redirect to login flow",
+    "validation": "Zod schema validation with detailed error messages"
+  },
+  "limitations": [
+    "Development environment uses localhost (production uses actual domain)",
+    "File uploads limited to authenticated users only",
+    "AI features require valid OpenAI API key",
+    "Object storage requires Replit sidecar service",
+    "Session storage requires PostgreSQL connection"
+  ]
+}
