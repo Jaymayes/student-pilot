@@ -144,6 +144,7 @@ export default function EssayAssistant() {
     title: "",
     prompt: "",
   });
+  const [essayIdeas, setEssayIdeas] = useState<string[]>([]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -280,6 +281,124 @@ export default function EssayAssistant() {
     },
   });
 
+  // AI-powered mutations
+  const analyzeEssayMutation = useMutation({
+    mutationFn: async (essayId: string) => {
+      const response = await apiRequest("POST", `/api/essays/${essayId}/analyze`);
+      return response.json();
+    },
+    onSuccess: (feedback) => {
+      if (selectedEssay) {
+        const newFeedback = [...(selectedEssay.feedback || []), 
+          `AI Analysis Score: ${feedback.overallScore}/10`,
+          `Strengths: ${feedback.strengths.join(', ')}`,
+          `Improvements: ${feedback.improvements.join(', ')}`,
+          `Suggestions: ${feedback.suggestions}`
+        ];
+        updateEssayMutation.mutate({
+          id: selectedEssay.id,
+          data: { feedback: newFeedback }
+        });
+      }
+      toast({
+        title: "AI Analysis Complete",
+        description: `Essay scored ${feedback.overallScore}/10`,
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to analyze essay",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const generateOutlineMutation = useMutation({
+    mutationFn: async ({ prompt, essayType }: { prompt: string; essayType: string }) => {
+      const response = await apiRequest("POST", "/api/essays/generate-outline", {
+        prompt,
+        essayType
+      });
+      return response.json();
+    },
+    onSuccess: (outline) => {
+      if (selectedEssay) {
+        updateEssayMutation.mutate({
+          id: selectedEssay.id,
+          data: { outline }
+        });
+      }
+      toast({
+        title: "AI Outline Generated",
+        description: "Smart outline created based on your prompt",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to generate outline",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const generateIdeasMutation = useMutation({
+    mutationFn: async (essayType: string) => {
+      const response = await apiRequest("POST", "/api/essays/generate-ideas", {
+        essayType
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setEssayIdeas(data.ideas);
+      toast({
+        title: "AI Ideas Generated",
+        description: `Generated ${data.ideas.length} personalized essay ideas`,
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to generate ideas",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreateEssay = () => {
     if (!newEssayForm.title || !newEssayForm.prompt) {
       toast({
@@ -294,7 +413,7 @@ export default function EssayAssistant() {
       title: newEssayForm.title,
       prompt: newEssayForm.prompt,
       content: "",
-      wordCount: 0,
+      outline: null,
     });
   };
 
@@ -572,11 +691,53 @@ export default function EssayAssistant() {
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">
                         <Lightbulb className="w-5 h-5" />
-                        <span>Writing Tools</span>
+                        <span>AI Writing Assistant</span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button
+                          onClick={() => analyzeEssayMutation.mutate(selectedEssay.id)}
+                          disabled={analyzeEssayMutation.isPending}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                          data-testid="button-ai-analyze"
+                        >
+                          {analyzeEssayMutation.isPending ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          ) : (
+                            <Target className="w-4 h-4 mr-2" />
+                          )}
+                          AI Essay Analysis
+                        </Button>
+                        <Button
+                          onClick={() => generateOutlineMutation.mutate({
+                            prompt: selectedEssay.prompt,
+                            essayType: "scholarship"
+                          })}
+                          disabled={generateOutlineMutation.isPending}
+                          className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
+                          data-testid="button-ai-outline"
+                        >
+                          {generateOutlineMutation.isPending ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          ) : (
+                            <BookOpen className="w-4 h-4 mr-2" />
+                          )}
+                          AI Generate Outline
+                        </Button>
+                        <Button
+                          onClick={() => generateIdeasMutation.mutate("scholarship")}
+                          disabled={generateIdeasMutation.isPending}
+                          className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                          data-testid="button-ai-ideas"
+                        >
+                          {generateIdeasMutation.isPending ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          ) : (
+                            <Lightbulb className="w-4 h-4 mr-2" />
+                          )}
+                          AI Essay Ideas
+                        </Button>
                         <Button
                           variant="outline"
                           onClick={() => generateOutline('personal_challenge')}
@@ -584,34 +745,7 @@ export default function EssayAssistant() {
                           data-testid="button-generate-personal-outline"
                         >
                           <Target className="w-4 h-4 mr-2" />
-                          Personal Challenge Outline
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => generateOutline('leadership')}
-                          disabled={updateEssayMutation.isPending}
-                          data-testid="button-generate-leadership-outline"
-                        >
-                          <BookOpen className="w-4 h-4 mr-2" />
-                          Leadership Essay Outline
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => addFeedback("Consider strengthening your introduction with a more compelling hook.")}
-                          disabled={updateEssayMutation.isPending}
-                          data-testid="button-add-feedback"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Add Feedback
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => addFeedback("Remember to show, not just tell. Use specific examples and vivid details.")}
-                          disabled={updateEssayMutation.isPending}
-                          data-testid="button-add-writing-tip"
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Writing Tips
+                          Template: Personal Challenge
                         </Button>
                       </div>
                     </CardContent>
@@ -669,21 +803,48 @@ export default function EssayAssistant() {
                     </CardContent>
                   </Card>
 
+                  {/* AI Essay Ideas */}
+                  {essayIdeas.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                          <Lightbulb className="w-5 h-5 text-yellow-600" />
+                          <span>AI-Generated Essay Ideas</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {essayIdeas.map((idea, index) => (
+                            <div key={index} className="bg-blue-50 border border-blue-200 rounded p-3">
+                              <p className="text-sm text-gray-800" data-testid={`text-essay-idea-${index}`}>
+                                💡 {idea}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {/* Feedback Section */}
                   {selectedEssay.feedback && selectedEssay.feedback.length > 0 && (
                     <Card>
                       <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                           <CheckCircle className="w-5 h-5" />
-                          <span>Feedback & Suggestions</span>
+                          <span>Feedback & AI Analysis</span>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
                           {selectedEssay.feedback.map((feedback, index) => (
-                            <div key={index} className="bg-yellow-50 border border-yellow-200 rounded p-3">
+                            <div key={index} className={`rounded p-3 ${
+                              feedback.includes('AI Analysis') 
+                                ? 'bg-purple-50 border border-purple-200' 
+                                : 'bg-yellow-50 border border-yellow-200'
+                            }`}>
                               <p className="text-sm text-gray-800" data-testid={`text-feedback-${index}`}>
-                                {feedback}
+                                {feedback.includes('AI Analysis') ? '🤖 ' : '📝 '}{feedback}
                               </p>
                             </div>
                           ))}

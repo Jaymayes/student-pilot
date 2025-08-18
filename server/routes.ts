@@ -5,6 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { insertStudentProfileSchema, insertApplicationSchema, insertEssaySchema } from "@shared/schema";
+import { openaiService } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -116,6 +117,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error dismissing match:", error);
       res.status(500).json({ message: "Failed to dismiss match" });
+    }
+  });
+
+  // AI-powered scholarship matching
+  app.post('/api/matches/generate', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profile = await storage.getStudentProfile(userId);
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+
+      const scholarships = await storage.getScholarships();
+      const existingMatches = await storage.getScholarshipMatches(profile.id);
+      const existingScholarshipIds = new Set(existingMatches.map(m => m.scholarshipId));
+      
+      const newMatches = [];
+
+      // Generate AI-powered matches for scholarships that don't have matches yet
+      for (const scholarship of scholarships) {
+        if (!existingScholarshipIds.has(scholarship.id)) {
+          try {
+            const analysis = await openaiService.analyzeScholarshipMatch(profile, {
+              title: scholarship.title,
+              requirements: scholarship.requirements,
+              eligibilityCriteria: scholarship.eligibilityCriteria,
+              amount: scholarship.amount,
+              organization: scholarship.organization,
+            });
+
+            const match = await storage.createScholarshipMatch({
+              studentId: profile.id,
+              scholarshipId: scholarship.id,
+              matchScore: analysis.matchScore,
+              matchReason: analysis.matchReason,
+              chanceLevel: analysis.chanceLevel,
+              isBookmarked: false,
+              isDismissed: false,
+            });
+
+            newMatches.push(match);
+          } catch (error) {
+            console.error(`Error analyzing match for scholarship ${scholarship.id}:`, error);
+            // Continue with next scholarship if one fails
+          }
+        }
+      }
+
+      res.json({ 
+        message: `Generated ${newMatches.length} new matches`,
+        newMatches: newMatches.length 
+      });
+    } catch (error) {
+      console.error("Error generating matches:", error);
+      res.status(500).json({ message: "Failed to generate matches" });
     }
   });
 
@@ -289,6 +345,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting essay:", error);
       res.status(500).json({ message: "Failed to delete essay" });
+    }
+  });
+
+  // AI-powered essay assistance routes
+  app.post('/api/essays/:id/analyze', isAuthenticated, async (req, res) => {
+    try {
+      const essay = await storage.getEssayById(req.params.id);
+      if (!essay) {
+        return res.status(404).json({ message: "Essay not found" });
+      }
+
+      const feedback = await openaiService.analyzeEssay(
+        essay.content || "",
+        essay.prompt || ""
+      );
+      
+      res.json(feedback);
+    } catch (error) {
+      console.error("Error analyzing essay:", error);
+      res.status(500).json({ message: "Failed to analyze essay" });
+    }
+  });
+
+  app.post('/api/essays/generate-outline', isAuthenticated, async (req, res) => {
+    try {
+      const { prompt, essayType } = req.body;
+      if (!prompt) {
+        return res.status(400).json({ message: "Prompt is required" });
+      }
+
+      const outline = await openaiService.generateEssayOutline(prompt, essayType);
+      res.json(outline);
+    } catch (error) {
+      console.error("Error generating outline:", error);
+      res.status(500).json({ message: "Failed to generate outline" });
+    }
+  });
+
+  app.post('/api/essays/improve-content', isAuthenticated, async (req, res) => {
+    try {
+      const { content, focusArea } = req.body;
+      if (!content) {
+        return res.status(400).json({ message: "Content is required" });
+      }
+
+      const improvedContent = await openaiService.improveEssayContent(content, focusArea);
+      res.json({ improvedContent });
+    } catch (error) {
+      console.error("Error improving content:", error);
+      res.status(500).json({ message: "Failed to improve content" });
+    }
+  });
+
+  app.post('/api/essays/generate-ideas', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profile = await storage.getStudentProfile(userId);
+      const { essayType } = req.body;
+
+      if (!profile) {
+        return res.status(404).json({ message: "Student profile not found" });
+      }
+
+      const ideas = await openaiService.generateEssayIdeas(profile, essayType || "general");
+      res.json({ ideas });
+    } catch (error) {
+      console.error("Error generating essay ideas:", error);
+      res.status(500).json({ message: "Failed to generate essay ideas" });
     }
   });
 

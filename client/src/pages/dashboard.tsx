@@ -68,6 +68,40 @@ export default function Dashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // AI-powered scholarship matching
+  const generateMatchesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/matches/generate");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/matches"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "AI Analysis Complete",
+        description: data.message,
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to generate AI-powered matches",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -276,14 +310,37 @@ export default function Dashboard() {
             <Card className="border border-gray-200">
               <CardHeader className="border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <CardTitle>New Scholarship Matches</CardTitle>
-                  <Link href="/scholarships">
-                    <Button variant="ghost" size="sm" data-testid="button-view-all-matches">
-                      View All
+                  <div>
+                    <CardTitle>AI-Powered Scholarship Matches</CardTitle>
+                    <p className="text-gray-600 text-sm">Intelligent matches based on your profile</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      onClick={() => generateMatchesMutation.mutate()}
+                      disabled={generateMatchesMutation.isPending}
+                      size="sm"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      data-testid="button-generate-matches"
+                    >
+                      {generateMatchesMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="h-4 w-4 mr-2" />
+                          AI Match
+                        </>
+                      )}
                     </Button>
-                  </Link>
+                    <Link href="/scholarships">
+                      <Button variant="ghost" size="sm" data-testid="button-view-all-matches">
+                        View All
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-                <p className="text-gray-600 text-sm">Scholarships matching your profile</p>
               </CardHeader>
               <CardContent className="p-6">
                 {matchesLoading ? (
