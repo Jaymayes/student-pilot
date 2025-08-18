@@ -16,7 +16,7 @@ import {
   Search, 
   Clock, 
   Trophy, 
-  User, 
+  User as UserIcon, 
   PenTool, 
   Folder,
   TriangleAlert,
@@ -32,15 +32,15 @@ interface DashboardStats {
   totalApplied: number;
 }
 
-interface ScholarshipMatch {
+interface DashboardScholarshipMatch {
   id: string;
   studentId: string;
   scholarshipId: string;
-  matchScore: number;
-  matchReason: string[];
-  chanceLevel: string;
-  isBookmarked: boolean;
-  isDismissed: boolean;
+  matchScore: number | null;
+  matchReason: string[] | null;
+  chanceLevel: string | null;
+  isBookmarked: boolean | null;
+  isDismissed: boolean | null;
   createdAt: string;
   scholarship: {
     id: string;
@@ -123,12 +123,12 @@ export default function Dashboard() {
     retry: false,
   });
 
-  const { data: matches, isLoading: matchesLoading } = useQuery<ScholarshipMatch[]>({
+  const { data: matches, isLoading: matchesLoading } = useQuery<DashboardScholarshipMatch[]>({
     queryKey: ["/api/matches"],
     retry: false,
   });
 
-  const { data: applications, isLoading: applicationsLoading } = useQuery<Application[]>({
+  const { data: applications, isLoading: applicationsLoading } = useQuery<any[]>({
     queryKey: ["/api/applications"],
     retry: false,
   });
@@ -468,7 +468,7 @@ export default function Dashboard() {
                     data-testid="button-update-profile"
                   >
                     <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
-                      <User className="text-primary" />
+                      <UserIcon className="text-primary" />
                     </div>
                     <div className="text-left">
                       <p className="font-medium text-gray-900">Update Profile</p>

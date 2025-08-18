@@ -1,0 +1,203 @@
+Title
+ScholarLink: Fix all reported issues and make app deployment-ready (client + server, TypeScript/Node/Prisma)
+
+Context
+Project: ScholarLink (full-stack TypeScript)
+Stacks likely in repo:
+
+Client: React/Next.js (client/src/…)
+Server: Node + Express/Next API routes (server/…)
+ORM: Prisma (package.json shows db:push)
+AI: OpenAI integration (server/openai.ts) Goal: Resolve 23 reported issues (3 Critical, 4 High, 9 Medium, 7 Low) without weakening security. Keep existing security controls, CORS policy, and any unified error format already present on the server. Improve type-safety, error handling, and DX. Make the app build, pass type checks, run locally, and be deployable with health checks passing.
+Non-negotiables
+
+Do not weaken authentication, authorization, or CORS rules.
+Do not remove input validation or security headers.
+Maintain consistent error response shape on the server.
+Do not log secrets (keys/tokens/passwords).
+Top Issues To Fix First (Critical/High)
+C001 Navigation.tsx TS errors (client/src/components/Navigation.tsx:141,145)
+
+Missing user typing: firstName not on {}.
+Action:
+Define a shared User type (client/src/types/user.ts) and use it in Navigation.
+Provide a safe initial state and optional chaining: user?.firstName.
+If user is from context, type the context properly (React.Context<User | null>).
+C002 Dashboard date type mismatches (client/src/pages/dashboard.tsx:234,361)
+
+createdAt typed inconsistently (Date vs string).
+Action:
+Normalize createdAt to string ISO or Date across API and client.
+If API returns string, parse once at boundary: new Date(createdAtString).
+Update component props/types accordingly; avoid mixing.
+C003 Auth middleware type error (server/routes.ts:421)
+
+Property 'claims' missing on type User.
+Action:
+Create server/src/types/auth.d.ts to augment Express Request: declare global { namespace Express { interface Request { user?: { id: string; email?: string; claims?: JwtClaims } } } }
+Define JwtClaims type.
+Update middleware to set req.user with claims after JWT verify; handle missing claims safely.
+Fix downstream handlers to read req.user?.claims with guards; return 401 when absent.
+H001 Authentication failure (all protected endpoints return 401)
+
+Action:
+Verify JWT retrieval (Authorization: Bearer <token> OR secure cookie).
+Verify JWT_SECRET in env is set. In dev, allow ephemeral secret with clear warning.
+Ensure CORS allows credentials/headers needed for auth in dev; prod stays whitelist.
+Confirm middleware runs before routes; ensure route protection uses the same middleware.
+Add a test route to verify auth success.
+Return 401 with consistent error payload on invalid/expired tokens.
+H002 documents.tsx undefined handling (client/src/pages/documents.tsx:179-180,194)
+
+result.successful possibly undefined.
+Action:
+Guard optional chaining: result?.successful?.length ?? 0
+Add runtime invariant checks and user-friendly fallback UI.
+H003 scholarships.tsx createdAt mismatch (client/src/pages/scholarships.tsx:361)
+
+Same as C002: normalize createdAt typing and usage.
+H004 essay-assistant.tsx missing state variable (client/src/pages/essay-assistant.tsx:376)
+
+setEssayIdeas called but state not initialized.
+Action:
+Add: const [essayIdeas, setEssayIdeas] = useState<string[]>([]);
+Initialize dependent states before use; add loading and error states.
+Medium Issues (implement after above)
+M001 server/openai.ts error handling
+
+Action:
+Validate OPENAI_API_KEY presence; return 503 or 401 with safe message if missing.
+Wrap calls in try/catch and return structured error. Add timeouts and input validation (zod or similar).
+M002 DB indexing (Prisma)
+
+Action:
+Identify frequent foreign keys; add @index/@unique in schema.prisma.
+Create migrations: npx prisma migrate dev -n "add_fks_indexes"
+Add script: "db:migrate": "prisma migrate deploy", "db:status": "prisma migrate status", "db:reset": "prisma migrate reset -f"
+M003 schema null/undefined consistency (shared/schema.ts)
+
+Action:
+Standardize nullable vs optional fields (optional = may be omitted; nullable = can be null). Update zod/yup/TS types consistently.
+M004 File uploads validation
+
+Action:
+Enforce max file size and allowed mime types on client and server; return friendly error.
+M005 React Query error boundary
+
+Action:
+Add an ErrorBoundary around key routes/components and show a fallback UI. Configure queryClient default onError handler.
+M006 Session cleanup/expiration
+
+Action:
+On server, add periodic cleanup job (node-cron or setInterval) to purge expired sessions/tokens if applicable, or rely on DB TTL.
+M007 Mobile nav state (Navigation)
+
+Action:
+Ensure mobile menu closes on route change; persist minimal state if desired; add aria-expanded for accessibility.
+M008 Dashboard statistics error handling
+
+Action:
+Guard against division by zero/null data; show placeholder values.
+M009 AI rate limiting/usage tracking
+
+Action:
+Add express-rate-limit or a lightweight limiter on /ai/* routes. Log usage counts per user (no PII in logs).
+Low Issues (batch)
+L001 Migrations scripts
+
+Add scripts:
+"db:up": "prisma migrate deploy"
+"db:down": "echo 'Down migrations require manual plan or reset; see docs'"
+"db:status": "prisma migrate status"
+"db:reset": "prisma migrate reset -f"
+L002 Browserslist update
+
+Run: npx update-browserslist-db@latest and update package.json browserslist if present.
+L003 Accessibility
+
+Add aria-labels/roles to interactive components, focus states, and alt text on images.
+L004 Responsive patterns
+
+Normalize container widths and breakpoints; test key pages on mobile/tablet/desktop.
+L005 User-friendly errors
+
+Replace technical messages with plain-language toasts/snackbars where appropriate; keep technical details in logs only.
+L006 Loading states
+
+Add skeletons/spinners for slow queries and AI operations; disable buttons while pending.
+L007 JSDoc
+
+Add JSDoc for complex functions/components and public APIs (client + server).
+Implementation Details
+
+TypeScript and Types
+
+Turn on strict mode if not already (tsconfig.json "strict": true).
+Add shared types:
+client/src/types/user.ts
+shared/types/index.ts for DTOs
+Ensure server and client agree on DTO shapes (createdAt as ISO string recommended). Parse to Date only at the client boundary.
+Server auth typing
+
+server/src/types/auth.d.ts: declare global { namespace Express { interface Request { user?: { id: string; email?: string; claims?: JwtClaims }; } } } export interface JwtClaims { sub: string; role?: string; scopes?: string[]; iat?: number; exp?: number; }
+Ensure tsconfig includes "typeRoots": ["./node_modules/@types", "./server/src/types"]
+Server middleware order (Express)
+
+helmet/security headers
+trust proxy if behind proxy (app.set('trust proxy', 1))
+CORS
+body parsers
+auth/JWT extraction middleware
+routers
+error handler (centralized, unified error shape)
+CORS
+
+Dev: allow localhost/replit preview; Prod: strict whitelist via env CORS_ORIGINS.
+Prisma
+
+Add indexes in schema.prisma and generate migrations.
+Run prisma generate after edits.
+Rate limiting
+
+Use express-rate-limit for /api/ai/* and potentially auth endpoints; configure retry-after headers.
+File upload
+
+If using multer/busboy, set limits: fileSize and fileFilter for allowed mimetypes.
+Tests and Checks
+
+npm run check (tsc --noEmit) must pass.
+Build: npm run build must succeed (client + server).
+Add minimal unit tests where easy (date parsing, auth middleware success/failure, openai error handling).
+Manual smoke: start app, verify:
+GET /health → 200 fast, no DB
+Auth flow: protected endpoint returns 401 without token, 200 with valid token
+Document upload: rejects large/invalid types with friendly errors
+AI endpoints: reject if key missing, return graceful errors on OpenAI failure
+Dashboard/Scholarships pages render without TS runtime errors
+Deployment Readiness
+
+Ensure start command runs the correct server entry (e.g., node dist/server/index.js or next start — adapt to repo).
+If Replit Deployment/health checks used, set health path to /health or /healthz returning 200.
+Bind to 0.0.0.0 and use $PORT env.
+Update README with:
+Env vars and their purpose (JWT_SECRET, DATABASE_URL, OPENAI_API_KEY, CORS_ORIGINS, etc.)
+Run scripts: dev, check, build, start
+Prisma migration commands
+Acceptance Criteria
+
+tsc --noEmit passes with 0 errors.
+npm run build succeeds for client and server.
+Authentication works: protected endpoints → 401 without token, 200 with valid token.
+Critical and High issues (C001–C003, H001–H004) fully resolved.
+Medium issues addressed as specified (error handling, indices, schema consistency, uploads validation, error boundary, session cleanup, mobile nav, dashboard guards, AI rate limit).
+Low issues implemented (migrations scripts, browserslist updated, a11y attributes, responsive fixes, user-friendly messages, loading states, JSDoc stubs).
+Health endpoint returns 200 quickly; deployment health checks pass.
+No security regression; no secrets logged.
+Deliverables
+
+Commits fixing the above with brief inline comments where non-obvious.
+Updated types, middleware, and routes as needed.
+Updated Prisma schema and migrations.
+Updated package.json scripts and README.
+Short CHANGELOG/PR summary mapping each Issue ID (C001–L007) to the fix.
+Please begin by running npm run check and paste the first 20 TypeScript errors; fix them iteratively starting with C001/C002/C003 and H001. Then run the server and client, complete the smoke tests, and proceed through the Medium/Low items until all acceptance criteria are met.

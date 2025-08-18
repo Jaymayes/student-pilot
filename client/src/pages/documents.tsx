@@ -176,7 +176,7 @@ export default function Documents() {
   };
 
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful.length > 0) {
+    if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       const uploadURL = uploadedFile.uploadURL as string;
       
@@ -191,7 +191,7 @@ export default function Documents() {
         createDocumentMutation.mutate({
           type: uploadForm.type,
           title: uploadForm.title,
-          fileName: uploadedFile.name,
+          fileName: uploadedFile.name || 'untitled',
           filePath: aclData.objectPath,
           fileSize: uploadedFile.size || 0,
         });

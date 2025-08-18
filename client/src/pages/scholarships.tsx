@@ -18,11 +18,11 @@ interface ScholarshipMatch {
   id: string;
   studentId: string;
   scholarshipId: string;
-  matchScore: number;
-  matchReason: string[];
-  chanceLevel: string;
-  isBookmarked: boolean;
-  isDismissed: boolean;
+  matchScore: number | null;
+  matchReason: string[] | null;
+  chanceLevel: string | null;
+  isBookmarked: boolean | null;
+  isDismissed: boolean | null;
   createdAt: string;
   scholarship: {
     id: string;

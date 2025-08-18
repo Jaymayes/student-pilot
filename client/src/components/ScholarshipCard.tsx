@@ -1,10 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bookmark, X, Calendar, Users } from "lucide-react";
-import { ScholarshipMatch, Scholarship } from "@shared/schema";
-
 interface ScholarshipCardProps {
-  match: ScholarshipMatch & { scholarship: Scholarship };
+  match: {
+    id: string;
+    studentId: string;
+    scholarshipId: string;
+    matchScore: number | null;
+    matchReason: string[] | null;
+    chanceLevel: string | null;
+    isBookmarked: boolean | null;
+    isDismissed: boolean | null;
+    createdAt: string; // ISO string format
+    scholarship: {
+      id: string;
+      title: string;
+      organization: string;
+      amount: number;
+      description?: string;
+      deadline: string; // ISO string format
+      estimatedApplicants?: number;
+    };
+  };
   onBookmark: (id: string, bookmarked: boolean) => void;
   onDismiss: (id: string) => void;
 }

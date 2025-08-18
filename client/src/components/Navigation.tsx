@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import type { User } from "@/types/user";
 import { 
   GraduationCap, 
   Bell, 
@@ -10,7 +11,7 @@ import {
   Search, 
   FileText, 
   Folder, 
-  User 
+  User as UserIcon 
 } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -32,7 +33,7 @@ export function Navigation() {
     { path: "/scholarships", label: "Search", icon: Search },
     { path: "/applications", label: "Applications", icon: FileText },
     { path: "/documents", label: "Documents", icon: Folder },
-    { path: "/profile", label: "Profile", icon: User },
+    { path: "/profile", label: "Profile", icon: UserIcon },
   ];
 
   if (isMobile) {
@@ -138,7 +139,7 @@ export function Navigation() {
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
-                  {getInitials(user?.firstName, user?.lastName)}
+                  {getInitials(user?.firstName || undefined, user?.lastName || undefined)}
                 </span>
               </div>
               <span className="text-sm font-medium">
