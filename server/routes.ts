@@ -6,10 +6,21 @@ import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { insertStudentProfileSchema, insertApplicationSchema, insertEssaySchema } from "@shared/schema";
 import { openaiService } from "./openai";
+import { agentBridge, type Task } from "./agentBridge";
+import rateLimit from "express-rate-limit";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // Rate limiter for agent endpoints
+  const agentRateLimit = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5, // 5 requests per minute
+    message: { error: 'Too many agent requests' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
@@ -521,6 +532,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Agent Bridge endpoints
+  app.post('/agent/register', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or invalid authorization header' });
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = agentBridge.verifyToken(token);
+
+      res.json({
+        agent_id: process.env.AGENT_ID || 'student-pilot',
+        name: process.env.AGENT_NAME || 'student_pilot',
+        capabilities: agentBridge.getCapabilities(),
+        version: '1.0.0',
+        health: 'ok',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Agent registration error:', error);
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
+  app.post('/agent/task', agentRateLimit, async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      const agentId = req.headers['x-agent-id'];
+      const traceId = req.headers['x-trace-id'];
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or invalid authorization header' });
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = agentBridge.verifyToken(token);
+
+      // Validate task structure
+      const task: Task = req.body;
+      if (!task.task_id || !task.action || !task.trace_id) {
+        return res.status(400).json({ error: 'Invalid task structure' });
+      }
+
+      // Respond immediately with 202 Accepted
+      res.status(202).json({ status: 'accepted', task_id: task.task_id });
+
+      // Process task asynchronously
+      setImmediate(() => {
+        agentBridge.processTask(task).catch(error => {
+          console.error('Async task processing error:', error);
+        });
+      });
+
+    } catch (error) {
+      console.error('Agent task error:', error);
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
+  app.get('/agent/capabilities', async (req, res) => {
+    res.json({
+      agent_id: process.env.AGENT_ID || 'student-pilot',
+      name: process.env.AGENT_NAME || 'student_pilot',
+      capabilities: agentBridge.getCapabilities(),
+      version: '1.0.0',
+      health: 'ok'
+    });
+  });
+
+  app.post('/agent/events', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or invalid authorization header' });
+      }
+
+      const token = authHeader.substring(7);
+      const decoded = agentBridge.verifyToken(token);
+
+      const event = req.body;
+      await agentBridge.sendEvent(event);
+      
+      res.json({ status: 'ok' });
+    } catch (error) {
+      console.error('Agent event error:', error);
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
+  // Override health endpoint to include agent information
+  app.get('/health', async (req, res) => {
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      agent_id: process.env.AGENT_ID || 'student-pilot',
+      last_seen: new Date().toISOString(),
+      version: '1.0.0',
+      capabilities: agentBridge.getCapabilities()
+    });
+  });
+
   const httpServer = createServer(app);
+
+  // Start agent bridge when server is ready
+  httpServer.on('listening', () => {
+    agentBridge.start().catch(error => {
+      console.error('Failed to start agent bridge:', error);
+    });
+  });
+
+  // Cleanup on server close
+  httpServer.on('close', () => {
+    agentBridge.stop();
+  });
+
   return httpServer;
 }

@@ -23,6 +23,8 @@ Preferred communication style: Simple, everyday language.
 - **Authentication**: Replit's OpenID Connect (OIDC) authentication system with Passport.js
 - **Session Management**: Express sessions stored in PostgreSQL
 - **File Storage**: Google Cloud Storage integration for document uploads
+- **AI Integration**: OpenAI GPT-4o for intelligent essay assistance and scholarship matching
+- **Agent Bridge**: Microservices orchestration integration with Auto Com Center
 
 ## Database Design
 The schema includes core entities for:
@@ -59,6 +61,8 @@ The schema includes core entities for:
 - **Neon Database**: Serverless PostgreSQL database hosting
 - **Google Cloud Storage**: Object storage for document uploads
 - **Replit Sidecar**: Service proxy for Google Cloud API access
+- **OpenAI GPT-4o**: AI services for essay analysis and scholarship matching
+- **Auto Com Center**: Orchestration hub for distributed task execution
 
 ## UI and Frontend Libraries
 - **shadcn/ui**: Pre-built accessible React components
