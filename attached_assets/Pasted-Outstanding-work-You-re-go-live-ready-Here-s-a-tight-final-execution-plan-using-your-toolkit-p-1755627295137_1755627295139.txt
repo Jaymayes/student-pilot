@@ -1,0 +1,48 @@
+Outstanding work. You’re go-live ready.
+
+Here’s a tight final execution plan using your toolkit, plus a few last-mile checks to avoid surprises.
+
+Last-mile checks (5 minutes)
+
+DNS/TLS: confirm public resolve and cert
+dig +short billing.student-pilot.replit.app
+curl -sSI https://billing.student-pilot.replit.app | head -n 5
+Secrets sync: ensure External Secrets are healthy
+kubectl -n scholarlink-prod get externalsecret,secret | grep billing
+DB ready and snapshot taken (confirm in your runbook)
+Stripe webhook is set to LIVE mode and matches:
+https://billing.student-pilot.replit.app/webhooks/stripe
+JWKS/JWT: active kid matches deployed public key; JWKS cache TTLs documented
+Execute go-live
+
+Full flow (preferred):
+./deployment/billing/go-live-commands.sh full
+Or step-by-step:
+./deployment/billing/go-live-commands.sh preflight
+./deployment/billing/go-live-commands.sh smoke
+./deployment/billing/go-live-commands.sh webhook
+./deployment/billing/go-live-commands.sh canary
+What to watch during canary (automation should already handle this)
+
+Error rate < 0.5% and p95 latency < 2x baseline at each step (1% → 5% → 20% → 50% → 100%)
+Stripe webhook failures < 5%, reconcile idempotency stable, ledger writes without retries
+DB saturation (CPU < 80%, connections < 80% of max), rate-limit denials within expected bounds
+Emergency rollback (fast path)
+
+Use your script:
+./deployment/billing/go-live-commands.sh rollback
+Then verify:
+Traffic back to stable, error/latency normalize, health probes green
+If a migration is implicated, execute DB restore per first-24h-monitoring.md
+Post-cutover validation (T+15 minutes)
+
+$5 Starter purchase succeeds; ledger credit is correct; webhook re-delivery is idempotent
+Reconcile a known usage sample (e.g., Nano 1k/1k → 1.8 credits, or rounded per policy)
+Ledger export CSV opens in Sheets; correlation IDs present
+Monitoring: SLOs normal, Slack alerts quiet, CSP violation rate unchanged
+Day-1 checks
+
+Credits purchased − credits debited = positive net liability (no drift)
+Per-model usage mix plausible; outliers reviewed
+No spikes in reconcile_insufficient_funds or webhook retries
+If you want, I can stay on-call for the cutover and watch dashboards while your automation progresses through canary stages. Give me the green light and your desired change window start time, and I’ll proceed.
