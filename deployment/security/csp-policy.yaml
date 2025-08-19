@@ -1,0 +1,181 @@
+# Content Security Policy Configuration for ScholarLink
+# Implements strict CSP with nonce-based script execution
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarlink-csp-config
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    component: security
+data:
+  # Production CSP Policy (enforced)
+  csp-policy.conf: |
+    # Default policy - restrict everything by default
+    default-src 'none';
+    
+    # Scripts - use nonce-based execution for maximum security
+    script-src 'self' 'nonce-$CSP_NONCE' 'strict-dynamic' https://cdn.jsdelivr.net;
+    script-src-elem 'self' 'nonce-$CSP_NONCE' https://cdn.jsdelivr.net;
+    
+    # Styles - allow inline with nonces and external fonts
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    
+    # Fonts - allow Google Fonts and self
+    font-src 'self' https://fonts.gstatic.com data:;
+    
+    # Images - allow self, data URLs, and HTTPS
+    img-src 'self' data: https: blob:;
+    
+    # Media - allow self and blob for user uploads
+    media-src 'self' blob:;
+    
+    # Connections - allow self, WebSocket, and external APIs
+    connect-src 'self' https: wss: blob:;
+    
+    # Object/embed - block all plugins
+    object-src 'none';
+    embed-src 'none';
+    
+    # Forms - only allow posting to self
+    form-action 'self';
+    
+    # Frames - completely block framing
+    frame-src 'none';
+    frame-ancestors 'none';
+    
+    # Base URI - restrict to self
+    base-uri 'self';
+    
+    # Manifest - allow self for PWA
+    manifest-src 'self';
+    
+    # Worker scripts - allow self with nonce
+    worker-src 'self' blob:;
+    
+    # Upgrade insecure requests
+    upgrade-insecure-requests;
+    
+    # Block mixed content
+    block-all-mixed-content;
+  
+  # Report-only policy for testing new restrictions
+  csp-report-only.conf: |
+    default-src 'none';
+    script-src 'self' 'nonce-$CSP_NONCE' 'strict-dynamic' https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com data:;
+    img-src 'self' data: https: blob:;
+    connect-src 'self' https: wss: blob:;
+    frame-ancestors 'none';
+    form-action 'self';
+    base-uri 'self';
+    upgrade-insecure-requests;
+    report-uri https://scholarlink.report-uri.com/r/d/csp/enforce;
+  
+  # NGINX configuration for CSP injection
+  nginx-csp.conf: |
+    # Generate unique nonce for each request
+    set $csp_nonce $request_id;
+    
+    # Add CSP header with nonce
+    add_header Content-Security-Policy "
+      default-src 'none';
+      script-src 'self' 'nonce-$csp_nonce' 'strict-dynamic' https://cdn.jsdelivr.net;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com data:;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https: wss: blob:;
+      frame-ancestors 'none';
+      form-action 'self';
+      base-uri 'self';
+      upgrade-insecure-requests;
+      report-uri https://scholarlink.report-uri.com/r/d/csp/enforce;
+    " always;
+    
+    # Pass nonce to application
+    proxy_set_header X-CSP-Nonce $csp_nonce;
+
+---
+# Ingress annotation for CSP (if using NGINX Ingress)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarlink-ingress-csp
+  namespace: scholarlink-prod
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # Generate CSP nonce
+      set $csp_nonce $request_id;
+      
+      # Content Security Policy with nonce
+      more_set_headers "Content-Security-Policy: default-src 'none'; script-src 'self' 'nonce-$csp_nonce' 'strict-dynamic' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https: wss: blob:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; upgrade-insecure-requests; report-uri https://scholarlink.report-uri.com/r/d/csp/enforce";
+      
+      # Additional security headers
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      
+      # Pass nonce to backend
+      proxy_set_header X-CSP-Nonce $csp_nonce;
+
+---
+# CSP Violation Report Collector (optional)
+apiVersion: v1
+kind: Service
+metadata:
+  name: csp-report-collector
+  namespace: scholarlink-prod
+spec:
+  selector:
+    app: csp-report-collector
+  ports:
+  - port: 80
+    targetPort: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csp-report-collector
+  namespace: scholarlink-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: csp-report-collector
+  template:
+    metadata:
+      labels:
+        app: csp-report-collector
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: collector
+        image: scholarlink/csp-collector:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL

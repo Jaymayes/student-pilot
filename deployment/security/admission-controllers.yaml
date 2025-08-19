@@ -1,0 +1,301 @@
+# Admission Controller Policies for ScholarLink Security
+# Uses Kyverno for policy enforcement
+
+---
+# Require images to be signed and from trusted registries
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-signed-images
+  annotations:
+    policies.kyverno.io/title: Require Signed Images
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/description: >-
+      Requires all container images to be signed with Cosign and from trusted registries.
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: verify-signature
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+    validate:
+      message: "Image signature verification failed"
+      deny:
+        conditions:
+          any:
+          - key: "{{ request.object.spec.containers[?contains(image, 'scholarlink')] | length(@) }}"
+            operator: GreaterThan
+            value: 0
+    verifyImages:
+    - imageReferences:
+      - "ghcr.io/scholarlink/*"
+      attestors:
+      - entries:
+        - keys:
+            publicKeys: |-
+              -----BEGIN PUBLIC KEY-----
+              # Add your Cosign public key here
+              -----END PUBLIC KEY-----
+
+---
+# Require image digests (no tags)
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-image-digest
+  annotations:
+    policies.kyverno.io/title: Require Image Digest
+    policies.kyverno.io/category: Security
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: check-image-digest
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+          namespaces:
+          - scholarlink-prod
+    validate:
+      message: "Images must use digest references (sha256:...) in production"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            image: "*@sha256:*"
+
+---
+# Enforce security contexts
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-security-context
+  annotations:
+    policies.kyverno.io/title: Require Security Context
+    policies.kyverno.io/category: Security
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: check-pod-security-context
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+          namespaces:
+          - scholarlink-prod
+    validate:
+      message: "Pod must have security context with runAsNonRoot=true"
+      pattern:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: ">0"
+            fsGroup: ">0"
+            seccompProfile:
+              type: RuntimeDefault
+  
+  - name: check-container-security-context
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+          namespaces:
+          - scholarlink-prod
+    validate:
+      message: "Containers must have secure security context"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - ALL
+
+---
+# Require resource limits and requests
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-resources
+  annotations:
+    policies.kyverno.io/title: Require Resource Limits
+    policies.kyverno.io/category: Resource Management
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: validate-resources
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+          namespaces:
+          - scholarlink-prod
+    validate:
+      message: "Resource requests and limits are required"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            resources:
+              requests:
+                memory: "?*"
+                cpu: "?*"
+              limits:
+                memory: "?*"
+                cpu: "?*"
+
+---
+# Enforce network policies exist
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-network-policy
+  annotations:
+    policies.kyverno.io/title: Require Network Policy
+    policies.kyverno.io/category: Networking
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: check-network-policy
+    match:
+      any:
+      - resources:
+          kinds:
+          - Namespace
+    validate:
+      message: "Namespace must have at least one NetworkPolicy"
+      deny:
+        conditions:
+          any:
+          - key: "{{ request.object.metadata.name }}"
+            operator: Equals
+            value: "scholarlink-prod"
+          - key: "{{ query_resources('NetworkPolicy', '{{ request.object.metadata.name }}') | length(@) }}"
+            operator: LessThan
+            value: 1
+
+---
+# Block privileged containers
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged
+  annotations:
+    policies.kyverno.io/title: Disallow Privileged Containers
+    policies.kyverno.io/category: Security
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: check-privileged
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+    validate:
+      message: "Privileged containers are not allowed"
+      pattern:
+        spec:
+          =(securityContext):
+            =(privileged): "false"
+          containers:
+          - name: "*"
+            =(securityContext):
+              =(privileged): "false"
+
+---
+# Generate default network policy for new namespaces
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: generate-network-policy
+  annotations:
+    policies.kyverno.io/title: Generate Default Network Policy
+    policies.kyverno.io/category: Networking
+spec:
+  rules:
+  - name: default-deny-all
+    match:
+      any:
+      - resources:
+          kinds:
+          - Namespace
+          names:
+          - "scholarlink-*"
+    generate:
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      name: default-deny-all
+      namespace: "{{ request.object.metadata.name }}"
+      data:
+        spec:
+          podSelector: {}
+          policyTypes:
+          - Ingress
+          - Egress
+
+---
+# Validate image pull policies
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-image-pull-policy
+  annotations:
+    policies.kyverno.io/title: Require Image Pull Policy
+    policies.kyverno.io/category: Security
+spec:
+  validationFailureAction: enforce
+  background: false
+  rules:
+  - name: validate-image-pull-policy
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Deployment
+          - StatefulSet
+          - DaemonSet
+          namespaces:
+          - scholarlink-prod
+    validate:
+      message: "imagePullPolicy must be Always in production"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            imagePullPolicy: Always

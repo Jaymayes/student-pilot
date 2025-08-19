@@ -1,0 +1,46 @@
+Outstanding—Option C is fully in place. You’re ready to cut over safely.
+
+Recommended next step: Option D (post-deploy observability and security guardrails) plus a brief go/no-go before triggering the first canary.
+
+Fast go/no-go (15–30 minutes)
+
+Change window and comms: announce to stakeholders; status page ready.
+Backups: latest snapshot taken and restore-tested within the last 24h.
+Secrets: initial rotation complete (fresh JWT/DB creds), kid enabled, dual-key window configured.
+TLS/edge: HTTPS-only redirect, TLS 1.2+, strong ciphers, OCSP stapling; HSTS enabled (preload optional).
+CSP and headers: move from report-only to enforced CSP if validated; verify Helmet headers in prod mode.
+CI gate: image pinned by digest and signed (cosign verify) in prod pipeline.
+Access: prod console/cluster access restricted via SSO/JIT; audit logging enabled.
+If all green, you can start the 1% canary and let automation drive the rollout.
+
+Option D deliverables I can add now
+
+Observability
+
+SLIs/SLOs and alerts: error rate, latency, saturation, rate-limit denials, auth failures, DB saturation, queue lengths.
+Grafana dashboards: RED/USE, auth and rate limit views, migration/DB health, ingress/canary.
+Tracing: OpenTelemetry SDK config and sampling policy; span/trace correlation in logs.
+Log redaction policies: scrub PII, tokens, secrets; correlation IDs end-to-end.
+Security guardrails
+
+WAF/bot protection at the edge (Cloudflare/AWS WAF): block common exploits, burst/bot patterns, geo/risk rules.
+CSP hardening with nonces/strict-dynamic and a report-uri; automated violation triage.
+Admission controls: image by digest only, signed images required (Kyverno/Gatekeeper), seccomp=RuntimeDefault, drop all capabilities.
+Runtime alerts: Falco or equivalent for container anomalies; Kubernetes audit policy for sensitive ops.
+Secrets rotation automation: AWS SM rotation for DB; JWKS/kid-based JWT key rotation runbook and CI job.
+Vulnerability management: Trivy/Snyk in CI (SCA + image scan) with policy gate; weekly reports.
+SBOM/provenance: generate SBOM (CycloneDX), attach to releases; cosign attestations.
+What I need to tailor Option D
+
+Edge/WAF provider (Cloudflare, AWS WAF, other) and domains.
+Current logging/trace stack (e.g., Loki/ELK + OpenTelemetry) and error tracker (Sentry?).
+Alerting channels (Slack, PagerDuty) and on-call escalation policy.
+Any regulatory constraints (e.g., FERPA/GDPR) to finalize retention/redaction.
+Optional: quick Option B pass
+If you’d like a second set of eyes, I can run a 1-hour manifest hardening check and return a patch set. Focus areas: securityContext completeness, probes/terminationGracePeriod, image digests, NetworkPolicy default-deny, HPA/PDB tuning, and ingress header annotations.
+
+Your call:
+
+Proceed with Option D now (share the details above), or
+Green-light the first canary rollout and I’ll monitor the metrics while preparing Option D, or
+Send the k8s/ folder for a rapid Option B review in parallel.

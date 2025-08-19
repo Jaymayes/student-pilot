@@ -1,0 +1,262 @@
+# SLO-based Alerting Rules for ScholarLink Production
+# Defines Service Level Objectives and corresponding alerts
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: scholarlink-slo-alerts
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    prometheus: kube-prometheus
+spec:
+  groups:
+  - name: scholarlink.slo.rules
+    interval: 30s
+    rules:
+    
+    # SLI: Request Success Rate (target: 99.9%)
+    - record: scholarlink:request_success_rate
+      expr: |
+        (
+          rate(http_requests_total{job="scholarlink-service",status_code!~"5.."}[5m]) /
+          rate(http_requests_total{job="scholarlink-service"}[5m])
+        ) * 100
+    
+    # SLI: Request Latency P95 (target: < 500ms)
+    - record: scholarlink:request_latency_p95
+      expr: |
+        histogram_quantile(0.95, 
+          rate(http_request_duration_seconds_bucket{job="scholarlink-service"}[5m])
+        ) * 1000
+    
+    # SLI: Request Latency P99 (target: < 2s)
+    - record: scholarlink:request_latency_p99
+      expr: |
+        histogram_quantile(0.99, 
+          rate(http_request_duration_seconds_bucket{job="scholarlink-service"}[5m])
+        ) * 1000
+    
+    # SLI: Database Connection Success Rate
+    - record: scholarlink:database_success_rate
+      expr: |
+        (
+          rate(database_operations_total{job="scholarlink-service",status="success"}[5m]) /
+          rate(database_operations_total{job="scholarlink-service"}[5m])
+        ) * 100
+    
+    # SLI: Authentication Success Rate
+    - record: scholarlink:auth_success_rate
+      expr: |
+        (
+          rate(http_requests_total{job="scholarlink-service",endpoint=~"/api/auth.*",status_code!~"4.."}[5m]) /
+          rate(http_requests_total{job="scholarlink-service",endpoint=~"/api/auth.*"}[5m])
+        ) * 100
+
+  - name: scholarlink.slo.alerts
+    rules:
+    
+    # Critical: SLO Violation - Error Rate
+    - alert: ScholarLinkSLOViolationErrorRate
+      expr: scholarlink:request_success_rate < 99.9
+      for: 5m
+      labels:
+        severity: critical
+        service: scholarlink
+        slo: availability
+        team: platform
+      annotations:
+        summary: "ScholarLink SLO violation: Error rate too high"
+        description: |
+          Request success rate is {{ $value | humanizePercentage }} over the last 5 minutes.
+          SLO target: 99.9% success rate.
+          Current error budget consumption: {{ printf "%.2f" (sub 100 $value) }}%
+        runbook_url: "https://runbooks.scholarlink.app/slo-violations/error-rate"
+        dashboard_url: "https://grafana.scholarlink.app/d/scholarlink-slo"
+    
+    # Critical: SLO Violation - Latency P95
+    - alert: ScholarLinkSLOViolationLatencyP95
+      expr: scholarlink:request_latency_p95 > 500
+      for: 10m
+      labels:
+        severity: critical
+        service: scholarlink
+        slo: latency
+        team: platform
+      annotations:
+        summary: "ScholarLink SLO violation: P95 latency too high"
+        description: |
+          P95 request latency is {{ $value | humanizeDuration }} over the last 10 minutes.
+          SLO target: < 500ms P95 latency.
+          This may impact user experience significantly.
+        runbook_url: "https://runbooks.scholarlink.app/slo-violations/latency"
+    
+    # Warning: SLO Violation - Latency P99
+    - alert: ScholarLinkSLOViolationLatencyP99
+      expr: scholarlink:request_latency_p99 > 2000
+      for: 15m
+      labels:
+        severity: warning
+        service: scholarlink
+        slo: latency
+        team: platform
+      annotations:
+        summary: "ScholarLink SLO violation: P99 latency degraded"
+        description: |
+          P99 request latency is {{ $value | humanizeDuration }} over the last 15 minutes.
+          SLO target: < 2s P99 latency.
+    
+    # Critical: Database SLO Violation
+    - alert: ScholarLinkSLOViolationDatabase
+      expr: scholarlink:database_success_rate < 99.5
+      for: 3m
+      labels:
+        severity: critical
+        service: scholarlink
+        slo: database
+        team: platform
+      annotations:
+        summary: "ScholarLink SLO violation: Database error rate too high"
+        description: |
+          Database success rate is {{ $value | humanizePercentage }} over the last 3 minutes.
+          SLO target: 99.5% database success rate.
+    
+    # Rate Limiting SLO
+    - alert: ScholarLinkHighRateLimitHits
+      expr: rate(rate_limit_hits_total{job="scholarlink-service"}[5m]) > 50
+      for: 5m
+      labels:
+        severity: warning
+        service: scholarlink
+        slo: rate_limiting
+        team: platform
+      annotations:
+        summary: "ScholarLink high rate limit hits detected"
+        description: |
+          Rate limiting is being triggered at {{ $value }} hits/sec over the last 5 minutes.
+          This may indicate abuse or insufficient rate limits.
+    
+    # Authentication SLO
+    - alert: ScholarLinkAuthFailureRate
+      expr: scholarlink:auth_success_rate < 95
+      for: 10m
+      labels:
+        severity: warning
+        service: scholarlink
+        slo: authentication
+        team: platform
+      annotations:
+        summary: "ScholarLink authentication failure rate high"
+        description: |
+          Authentication success rate is {{ $value | humanizePercentage }} over the last 10 minutes.
+          This may indicate authentication service issues or attacks.
+
+  - name: scholarlink.infrastructure.alerts
+    rules:
+    
+    # Infrastructure: Pod Availability
+    - alert: ScholarLinkPodAvailability
+      expr: |
+        (
+          kube_deployment_status_replicas_available{deployment="scholarlink-app",namespace="scholarlink-prod"} /
+          kube_deployment_spec_replicas{deployment="scholarlink-app",namespace="scholarlink-prod"}
+        ) < 0.8
+      for: 5m
+      labels:
+        severity: critical
+        service: scholarlink
+        component: infrastructure
+        team: platform
+      annotations:
+        summary: "ScholarLink pod availability below threshold"
+        description: |
+          Only {{ $value | humanizePercentage }} of ScholarLink pods are available.
+          This may impact service reliability and SLO compliance.
+    
+    # Infrastructure: Memory Usage
+    - alert: ScholarLinkHighMemoryUsage
+      expr: |
+        (
+          container_memory_working_set_bytes{container="scholarlink",namespace="scholarlink-prod"} /
+          container_spec_memory_limit_bytes{container="scholarlink",namespace="scholarlink-prod"}
+        ) > 0.85
+      for: 15m
+      labels:
+        severity: warning
+        service: scholarlink
+        component: infrastructure
+        team: platform
+      annotations:
+        summary: "ScholarLink memory usage high"
+        description: |
+          Memory usage is {{ $value | humanizePercentage }} of limit for container {{ $labels.pod }}.
+          Consider scaling up or optimizing memory usage.
+    
+    # Infrastructure: CPU Throttling
+    - alert: ScholarLinkCPUThrottling
+      expr: |
+        rate(container_cpu_cfs_throttled_seconds_total{container="scholarlink",namespace="scholarlink-prod"}[5m]) /
+        rate(container_cpu_cfs_periods_total{container="scholarlink",namespace="scholarlink-prod"}[5m]) > 0.1
+      for: 10m
+      labels:
+        severity: warning
+        service: scholarlink
+        component: infrastructure
+        team: platform
+      annotations:
+        summary: "ScholarLink CPU throttling detected"
+        description: |
+          CPU throttling rate is {{ $value | humanizePercentage }} for container {{ $labels.pod }}.
+          Consider increasing CPU limits or optimizing CPU usage.
+
+  - name: scholarlink.security.alerts
+    rules:
+    
+    # Security: Suspicious Authentication Patterns
+    - alert: ScholarLinkSuspiciousAuthPattern
+      expr: |
+        rate(http_requests_total{job="scholarlink-service",endpoint="/api/login",status_code="401"}[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+        service: scholarlink
+        component: security
+        team: security
+      annotations:
+        summary: "ScholarLink suspicious authentication pattern detected"
+        description: |
+          High rate of failed login attempts: {{ $value }} per second over 5 minutes.
+          This may indicate a brute force attack.
+        runbook_url: "https://runbooks.scholarlink.app/security/brute-force"
+    
+    # Security: JWT Token Anomalies
+    - alert: ScholarLinkJWTAnomalies
+      expr: |
+        rate(jwt_validation_failures_total{job="scholarlink-service"}[5m]) > 5
+      for: 3m
+      labels:
+        severity: warning
+        service: scholarlink
+        component: security
+        team: security
+      annotations:
+        summary: "ScholarLink JWT validation failures"
+        description: |
+          High rate of JWT validation failures: {{ $value }} per second.
+          This may indicate token manipulation attempts or key rotation issues.
+    
+    # Security: Rate Limit Bypass Attempts
+    - alert: ScholarLinkRateLimitBypass
+      expr: |
+        rate(http_requests_total{job="scholarlink-service",status_code="429"}[1m]) > 100
+      for: 2m
+      labels:
+        severity: critical
+        service: scholarlink
+        component: security
+        team: security
+      annotations:
+        summary: "ScholarLink potential rate limit bypass attempt"
+        description: |
+          Extremely high rate of 429 responses: {{ $value }} per second.
+          This may indicate automated attack or rate limit bypass attempts.

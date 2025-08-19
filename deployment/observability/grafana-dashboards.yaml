@@ -1,0 +1,362 @@
+# Comprehensive Grafana Dashboards for ScholarLink Production
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarlink-slo-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  scholarlink-slo.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "uid": "scholarlink-slo",
+        "title": "ScholarLink - SLO Dashboard",
+        "description": "Service Level Objectives and Error Budget tracking",
+        "tags": ["scholarlink", "slo", "production"],
+        "timezone": "UTC",
+        "editable": false,
+        "time": {"from": "now-1h", "to": "now"},
+        "refresh": "30s",
+        "panels": [
+          {
+            "id": 1,
+            "title": "SLO: Request Success Rate",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "scholarlink:request_success_rate",
+                "legendFormat": "Success Rate",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "min": 99.5,
+                "max": 100,
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 99.9},
+                    {"color": "green", "value": 99.95}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "SLO: P95 Latency",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "scholarlink:request_latency_p95",
+                "legendFormat": "P95 Latency",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "thresholds": {
+                  "steps": [
+                    {"color": "green", "value": 0},
+                    {"color": "yellow", "value": 400},
+                    {"color": "red", "value": 500}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Error Budget Consumption",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "100 - scholarlink:request_success_rate",
+                "legendFormat": "Error Rate",
+                "refId": "A"
+              }
+            ],
+            "yAxes": [
+              {
+                "unit": "percent",
+                "max": 0.5
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 4,
+            "title": "Request Volume",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service\"}[5m])",
+                "legendFormat": "{{ method }} {{ status_code }}",
+                "refId": "A"
+              }
+            ],
+            "yAxes": [{"unit": "reqps"}],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "id": 5,
+            "title": "Database SLO",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "scholarlink:database_success_rate",
+                "legendFormat": "DB Success Rate",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 99.5},
+                    {"color": "green", "value": 99.8}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8}
+          },
+          {
+            "id": 6,
+            "title": "Authentication SLO",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "scholarlink:auth_success_rate",
+                "legendFormat": "Auth Success Rate",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": 0},
+                    {"color": "yellow", "value": 95},
+                    {"color": "green", "value": 98}
+                  ]
+                }
+              }
+            },
+            "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8}
+          }
+        ]
+      }
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarlink-security-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  scholarlink-security.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "uid": "scholarlink-security",
+        "title": "ScholarLink - Security Dashboard",
+        "description": "Security metrics, authentication, and threat detection",
+        "tags": ["scholarlink", "security", "production"],
+        "timezone": "UTC",
+        "time": {"from": "now-4h", "to": "now"},
+        "refresh": "1m",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Authentication Events",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service\",endpoint=~\"/api/(login|logout|auth).*\"}[5m])",
+                "legendFormat": "{{ method }} {{ endpoint }} {{ status_code }}",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "Rate Limiting Activity",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(rate_limit_hits_total{job=\"scholarlink-service\"}[5m])",
+                "legendFormat": "Rate Limit Hits",
+                "refId": "A"
+              },
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service\",status_code=\"429\"}[5m])",
+                "legendFormat": "429 Responses",
+                "refId": "B"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Failed Login Attempts by IP",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "topk(10, sum by (client_ip) (rate(http_requests_total{job=\"scholarlink-service\",endpoint=\"/api/login\",status_code=\"401\"}[5m])))",
+                "format": "table",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+          },
+          {
+            "id": 4,
+            "title": "JWT Validation Failures",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(jwt_validation_failures_total{job=\"scholarlink-service\"}[5m])",
+                "legendFormat": "{{ reason }}",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          },
+          {
+            "id": 5,
+            "title": "Security Events Timeline",
+            "type": "logs",
+            "targets": [
+              {
+                "expr": "{job=\"scholarlink-service\"} |= \"security\" or \"auth\" or \"rate_limit\"",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+          }
+        ]
+      }
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarlink-canary-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  scholarlink-canary.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "uid": "scholarlink-canary",
+        "title": "ScholarLink - Canary Deployment",
+        "description": "Canary deployment monitoring and comparison",
+        "tags": ["scholarlink", "canary", "deployment"],
+        "timezone": "UTC",
+        "time": {"from": "now-30m", "to": "now"},
+        "refresh": "15s",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Error Rate Comparison",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service\",status_code=~\"5..\"}[2m]) / rate(http_requests_total{job=\"scholarlink-service\"}[2m]) * 100",
+                "legendFormat": "Stable - Error Rate",
+                "refId": "A"
+              },
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service-canary\",status_code=~\"5..\"}[2m]) / rate(http_requests_total{job=\"scholarlink-service-canary\"}[2m]) * 100",
+                "legendFormat": "Canary - Error Rate",
+                "refId": "B"
+              }
+            ],
+            "yAxes": [{"unit": "percent"}],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "Latency Comparison (P95)",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"scholarlink-service\"}[2m])) * 1000",
+                "legendFormat": "Stable - P95 Latency",
+                "refId": "A"
+              },
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"scholarlink-service-canary\"}[2m])) * 1000",
+                "legendFormat": "Canary - P95 Latency",
+                "refId": "B"
+              }
+            ],
+            "yAxes": [{"unit": "ms"}],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Traffic Split",
+            "type": "piechart",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total{job=\"scholarlink-service\"}[5m]))",
+                "legendFormat": "Stable",
+                "refId": "A"
+              },
+              {
+                "expr": "sum(rate(http_requests_total{job=\"scholarlink-service-canary\"}[5m]))",
+                "legendFormat": "Canary",
+                "refId": "B"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 6, "x": 0, "y": 8}
+          },
+          {
+            "id": 4,
+            "title": "Canary Pod Health",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "kube_deployment_status_replicas_available{deployment=\"scholarlink-app-canary\",namespace=\"scholarlink-prod\"}",
+                "legendFormat": "Available Pods",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8}
+          },
+          {
+            "id": 5,
+            "title": "Deployment Status",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "kube_deployment_status_replicas{namespace=\"scholarlink-prod\"}",
+                "format": "table",
+                "refId": "A"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          }
+        ]
+      }
+    }

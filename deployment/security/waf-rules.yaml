@@ -1,0 +1,221 @@
+# Web Application Firewall Rules for ScholarLink
+# Compatible with Cloudflare WAF, AWS WAF, and NGINX ModSecurity
+
+# Cloudflare WAF Configuration
+cloudflare_waf_rules:
+  # Basic protection rules
+  - name: "Block Common Exploits"
+    expression: |
+      (http.request.uri.path contains "wp-admin") or
+      (http.request.uri.path contains "phpmyadmin") or  
+      (http.request.uri.path contains ".env") or
+      (http.request.uri.path contains "config.php") or
+      (http.request.uri.query contains "union select") or
+      (http.request.uri.query contains "base64_decode") or
+      (http.request.body contains "<script") or
+      (http.request.body contains "javascript:")
+    action: "block"
+    description: "Block common web application exploits and admin interfaces"
+  
+  - name: "Rate Limit Aggressive Patterns"
+    expression: |
+      (ip.src ne ip_ranges.trusted) and
+      (rate(5m) > 300)
+    action: "challenge"
+    description: "Challenge aggressive request patterns from non-trusted IPs"
+  
+  - name: "Block Suspicious User Agents"
+    expression: |
+      (http.user_agent contains "sqlmap") or
+      (http.user_agent contains "nikto") or
+      (http.user_agent contains "nessus") or
+      (http.user_agent contains "nmap") or
+      (http.user_agent eq "")
+    action: "block"
+    description: "Block known security scanners and empty user agents"
+  
+  - name: "Geographic Restrictions"
+    expression: |
+      (ip.geoip.country in {"CN" "RU" "KP"}) and
+      (not ip.src in $trusted_ips)
+    action: "challenge"
+    description: "Challenge requests from high-risk countries (excluding trusted IPs)"
+  
+  - name: "API Rate Limiting"
+    expression: |
+      (http.request.uri.path matches "^/api/") and
+      (rate(1m) > 100)
+    action: "block"
+    description: "Strict rate limiting for API endpoints"
+  
+  - name: "Authentication Endpoint Protection"
+    expression: |
+      (http.request.uri.path eq "/api/login") and
+      (rate(5m) > 20)
+    action: "block"
+    description: "Protect login endpoint from brute force attacks"
+
+# AWS WAF Rules Configuration  
+aws_waf_rules:
+  - name: "AWSManagedRulesCommonRuleSet"
+    priority: 1
+    statement:
+      managed_rule_group_statement:
+        vendor_name: "AWS"
+        name: "AWSManagedRulesCommonRuleSet"
+    action: "block"
+    visibility_config:
+      sampled_requests_enabled: true
+      cloud_watch_metrics_enabled: true
+      metric_name: "CommonRuleSetMetric"
+
+  - name: "AWSManagedRulesKnownBadInputsRuleSet"
+    priority: 2
+    statement:
+      managed_rule_group_statement:
+        vendor_name: "AWS"
+        name: "AWSManagedRulesKnownBadInputsRuleSet"
+    action: "block"
+
+  - name: "AWSManagedRulesSQLiRuleSet"
+    priority: 3
+    statement:
+      managed_rule_group_statement:
+        vendor_name: "AWS"
+        name: "AWSManagedRulesSQLiRuleSet"
+    action: "block"
+
+  - name: "ScholarLinkCustomRateLimit"
+    priority: 10
+    statement:
+      rate_based_statement:
+        limit: 2000
+        aggregate_key_type: "IP"
+        scope_down_statement:
+          byte_match_statement:
+            search_string: "/api/"
+            field_to_match:
+              uri_path: {}
+            text_transformations:
+            - priority: 0
+              type: "LOWERCASE"
+            positional_constraint: "STARTS_WITH"
+    action: "block"
+
+# NGINX ModSecurity Core Rule Set Configuration
+nginx_modsecurity_rules: |
+  # Enable OWASP Core Rule Set
+  Include /etc/modsecurity/owasp-crs/crs-setup.conf
+  Include /etc/modsecurity/owasp-crs/rules/*.conf
+  
+  # Custom rules for ScholarLink
+  SecRule ARGS "@detectSQLi" \
+    "id:1001,\
+    phase:2,\
+    block,\
+    msg:'SQL Injection Attack Detected',\
+    logdata:'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}',\
+    tag:'application-multi',\
+    tag:'language-multi',\
+    tag:'platform-multi',\
+    tag:'attack-sqli'"
+  
+  SecRule ARGS "@detectXSS" \
+    "id:1002,\
+    phase:2,\
+    block,\
+    msg:'XSS Attack Detected',\
+    logdata:'Matched Data: %{MATCHED_VAR} found within %{MATCHED_VAR_NAME}',\
+    tag:'application-multi',\
+    tag:'language-multi',\
+    tag:'platform-multi',\
+    tag:'attack-xss'"
+  
+  # Rate limiting per IP
+  SecAction \
+    "id:1003,\
+    phase:1,\
+    nolog,\
+    pass,\
+    initcol:ip=%{REMOTE_ADDR},\
+    setvar:ip.requests_per_minute=+1,\
+    expirevar:ip.requests_per_minute=60"
+  
+  SecRule IP:REQUESTS_PER_MINUTE "@gt 300" \
+    "id:1004,\
+    phase:1,\
+    deny,\
+    status:429,\
+    msg:'Rate limit exceeded',\
+    tag:'rate-limiting'"
+  
+  # Block known bad bots
+  SecRule REQUEST_HEADERS:User-Agent "@pmFromFile /etc/modsecurity/bad-bots.txt" \
+    "id:1005,\
+    phase:1,\
+    deny,\
+    status:403,\
+    msg:'Blocked bad bot',\
+    tag:'bot-protection'"
+
+# Kubernetes Network Policy for additional security
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: scholarlink-security-policy
+  namespace: scholarlink-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: scholarlink
+  policyTypes:
+  - Ingress
+  - Egress
+  
+  ingress:
+  # Allow from ingress controller only
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 5000
+  
+  # Allow health checks from monitoring
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 5000
+  
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  
+  # Allow HTTPS for external APIs
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow database connections
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  
+  # Deny all other traffic
+  - to: []
+    ports: []
