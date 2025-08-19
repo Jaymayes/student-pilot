@@ -1,0 +1,106 @@
+Phenomenal work. Yes—let’s finalize environment variables and deployment. Below is a concise, production-ready checklist you can apply now. If you share your prod namespace, secret names, and domain, I’ll tailor exact manifests and commands.
+
+Environment variables (billing service)
+Required secrets
+
+DATABASE_URL: Postgres URI (TLS on; least-privileged user)
+JWT_PUBLIC_KEY or JWT_JWKS_URI: RS256 verification (prefer JWKS if you already serve it)
+JWT_ISSUER, JWT_AUDIENCE: exact values enforced during verification
+STRIPE_SECRET_KEY: live key for purchases
+STRIPE_WEBHOOK_SECRET: from Stripe endpoint after creation
+WEBHOOK_SHARED_SECRET: HMAC secret for monitoring webhooks Recommended config (non-secrets)
+NODE_ENV=production
+PORT=3000
+LOG_LEVEL=info
+TRUST_PROXY=true (behind ingress/proxy)
+CORS_ALLOWED_ORIGINS=https://your-app.example.com,https://admin.example.com
+BILLING_ROUNDING_MODE=precise or ceil (ceil rounds each charge up)
+RATE_CARD_VERSION=v1 (or your current version tag)
+REQUESTS_PER_MINUTE=100 (matches your rate limiter)
+PRISMA_POOL_MIN=2, PRISMA_POOL_MAX=10 (adjust to cluster limits)
+READINESS_STARTUP_GRACE_SECONDS=30
+Stripe webhook setup
+
+URL: https://your-billing-domain.example.com/webhooks/stripe
+Events: payment_intent.succeeded, checkout.session.completed (plus any you use)
+After creating the endpoint, copy the signing secret into STRIPE_WEBHOOK_SECRET.
+Test with Stripe CLI to confirm signature verification and idempotent credits.
+AWS Secrets Manager structure (example)
+
+/prod/scholarlink/billing/DATABASE_URL
+/prod/scholarlink/billing/JWT_PUBLIC_KEY or /prod/scholarlink/billing/JWT_JWKS_URI
+/prod/scholarlink/billing/JWT_ISSUER
+/prod/scholarlink/billing/JWT_AUDIENCE
+/prod/scholarlink/billing/STRIPE_SECRET_KEY
+/prod/scholarlink/billing/STRIPE_WEBHOOK_SECRET
+/prod/scholarlink/billing/WEBHOOK_SHARED_SECRET
+Kubernetes integration (External Secrets + Deployment)
+
+Create ExternalSecret mapping the keys above into a single K8s Secret (e.g., scholarlink-billing-env).
+Put non-secrets into a ConfigMap (e.g., scholarlink-billing-config).
+Deployment should:
+Mount env from Secret + ConfigMap
+Run as non-root, readOnlyRootFilesystem, allowPrivilegeEscalation=false, drop ALL caps, seccompProfile RuntimeDefault
+Liveness: GET /health (interval 10s, timeout 2s)
+Readiness: GET /readyz (includes DB) with initialDelaySeconds ~30
+Resources: requests (CPU 100m, Mem 256Mi), limits (CPU 500m, Mem 512Mi) as a starting point
+HPA: CPU target 60%, min 2, max per workload
+NetworkPolicy:
+Default deny egress; allow to Postgres, Stripe, monitoring endpoint
+Allow ingress only via your ingress controller namespace
+Database migrations
+
+Run prisma migrate deploy as a pre-deploy Job tied to the same Secret/ConfigMap.
+Ensure a fresh DB snapshot exists and a restore runbook is ready (you already have this in Option C).
+Ingress and security headers
+
+Reuse your hardened ingress annotations (HSTS, CSP via app headers, rate limiting).
+Expose /health and /metrics (Prometheus) as needed to your monitoring namespace.
+Monitoring integration
+
+Configure the billing service to POST rollup metrics every 60s to your monitoring endpoint using WEBHOOK_SHARED_SECRET.
+Emit daily usage summary webhook (credits debited by model) at 00:05 UTC.
+Go-live steps (concise)
+
+Secrets
+Put secrets in AWS Secrets Manager under /prod/scholarlink/billing/*
+ExternalSecret synced and K8s Secret present
+2. Config
+
+Apply ConfigMap with non-secrets
+Confirm CORS origins are exact, not wildcards
+3. DB and migrations
+
+Create RDS snapshot (or equivalent)
+Run migration Job; verify completion
+4. Deploy
+
+Build image, sign with cosign, pin by digest
+Apply Deployment/Service/Ingress
+Verify /readyz green, pods scaled per HPA
+5. Canary
+
+Start at 1% traffic via NGINX canary ingress
+Let automation drive 1 → 5 → 20 → 50 → 100% with your thresholds
+6. Stripe
+
+Create live webhook endpoint; set STRIPE_WEBHOOK_SECRET
+Perform $5 purchase test; verify ledger credit and idempotency on retry
+7. Final checks
+
+Reconcile sample usage; verify debit matches rate card and rounding policy
+Ledger export CSV opens in Sheets; correlation IDs visible
+Monitoring shows SLOs normal; Slack alerts functional
+Inputs I can use to generate exact manifests and commands
+
+Prod namespace
+K8s Secret and ConfigMap names you prefer
+Your billing service image (registry + digest)
+Domain for the billing API and Stripe webhook
+AWS Secrets Manager ARNs or key paths
+Postgres hostname/port and TLS mode (so I can craft NetworkPolicy)
+If you’d like, I can:
+
+Produce ExternalSecret, ConfigMap, Deployment, Service, Ingress, Migration Job YAML tailored to your names.
+Provide a .env.production.example mirroring the above.
+Create a short GitHub Actions job snippet to build, sign (cosign), push by digest, and deploy with kubectl apply and server-side diff.
