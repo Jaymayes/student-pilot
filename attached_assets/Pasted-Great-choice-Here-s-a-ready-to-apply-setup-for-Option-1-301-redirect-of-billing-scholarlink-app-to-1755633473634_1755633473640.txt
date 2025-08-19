@@ -1,0 +1,78 @@
+Great choice. Here’s a ready-to-apply setup for Option 1 (301 redirect of billing.scholarlink.app to an in‑app route), with Stripe webhook preserved.
+
+Apply these two Ingress objects
+
+Keep Stripe webhook on billing.scholarlink.app (no redirect)
+Replace service name/port if yours differ.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+name: billing-webhook
+namespace: scholarlink-prod
+annotations:
+cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+ingressClassName: nginx
+tls:
+- hosts: [billing.scholarlink.app]
+secretName: billing-scholarlink-app-tls
+rules:
+- host: billing.scholarlink.app
+http:
+paths:
+- path: /webhooks/stripe
+pathType: Prefix
+backend:
+service:
+name: billing-api
+port:
+number: 80
+
+2. Redirect everything else to the in-app route (301)
+
+Adjust the destination host/path if needed.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+name: billing-redirect
+namespace: scholarlink-prod
+annotations:
+cert-manager.io/cluster-issuer: letsencrypt-prod
+nginx.ingress.kubernetes.io/permanent-redirect: https://app.scholarlink.app/account/billing$request_uri
+nginx.ingress.kubernetes.io/permanent-redirect-code: "301"
+nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+ingressClassName: nginx
+tls:
+- hosts: [billing.scholarlink.app]
+secretName: billing-scholarlink-app-tls
+rules:
+- host: billing.scholarlink.app
+http:
+paths:
+- path: /
+pathType: Prefix
+backend:
+service:
+name: billing-api
+port:
+number: 80
+
+Why two objects
+
+The webhook path matches first (longest path), so it won’t be redirected.
+All other paths 301 to https://app.scholarlink.app/account/billing.
+DNS/TLS
+
+Keep DNS: CNAME billing → <ingress LB FQDN> (TTL 300).
+cert-manager issues/serves TLS for billing.scholarlink.app.
+App config
+
+Update links: VITE_BILLING_PORTAL_URL=https://app.scholarlink.app/account/billing
+Keep Stripe webhook in Stripe set to https://billing.scholarlink.app/webhooks/stripe (unchanged).
+Verify
+
+curl -I https://billing.scholarlink.app → 301 Location: https://app.scholarlink.app/account/billing…
+curl -I https://billing.scholarlink.app/webhooks/stripe → 2xx from your billing-api (no redirect).
+Stripe CLI/live test: webhook delivers 200 and is idempotent.
+If you prefer to move the webhook off this host entirely, update Stripe to a stable API host (e.g., https://api.scholarlink.app/webhooks/stripe) and remove the webhook ingress above; then the single redirect ingress will cover everything.

@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: billing-redirect
+  namespace: scholarlink-prod
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/permanent-redirect: https://app.scholarlink.app/account/billing$request_uri
+    nginx.ingress.kubernetes.io/permanent-redirect-code: "301"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  labels:
+    app: scholarlink-billing
+    component: redirect
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - billing.scholarlink.app
+    secretName: billing-scholarlink-app-tls
+  rules:
+  - host: billing.scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: billing-api
+            port:
+              number: 80
