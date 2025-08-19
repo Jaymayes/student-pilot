@@ -1,0 +1,54 @@
+# TLS Certificate Configuration for ScholarLink Production
+# Uses cert-manager with Let's Encrypt ACME
+
+---
+# ClusterIssuer for Let's Encrypt Production
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: cert-manager
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@scholarlink.app # Replace with your email
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+
+---
+# Cloudflare API Token for DNS01 Challenge (if using Cloudflare)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token-secret
+  namespace: cert-manager
+type: Opaque
+stringData:
+  api-token: "your-cloudflare-api-token" # Replace with actual token
+
+---
+# TLS Certificate for ScholarLink Domain
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: scholarlink-tls
+  namespace: scholarlink-prod
+spec:
+  secretName: scholarlink-tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - scholarlink.app                    # Replace with your domain
+  - www.scholarlink.app               # Replace with your domain  
+  - api.scholarlink.app               # Replace with your domain
+  - agent.scholarlink.app             # Replace with your domain

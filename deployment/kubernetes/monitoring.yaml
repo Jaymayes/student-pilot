@@ -1,0 +1,213 @@
+# Monitoring and Observability Configuration for ScholarLink
+
+---
+# ServiceMonitor for Prometheus scraping
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: scholarlink-metrics
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: scholarlink
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+
+---
+# Grafana Dashboard ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarlink-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  scholarlink.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "ScholarLink Production Monitoring",
+        "description": "ScholarLink application performance and health metrics",
+        "tags": ["scholarlink", "production"],
+        "timezone": "UTC",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service\"}[5m])",
+                "legendFormat": "{{method}} {{status_code}}"
+              }
+            ],
+            "yAxes": [{"unit": "reqps"}],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          },
+          {
+            "id": 2,
+            "title": "Response Time",
+            "type": "graph", 
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"scholarlink-service\"}[5m]))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"scholarlink-service\"}[5m]))",
+                "legendFormat": "50th percentile"
+              }
+            ],
+            "yAxes": [{"unit": "s"}],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "Error Rate",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"scholarlink-service\",status_code=~\"5..\"}[5m]) / rate(http_requests_total{job=\"scholarlink-service\"}[5m])",
+                "legendFormat": "Error Rate"
+              }
+            ],
+            "thresholds": "0.01,0.05",
+            "colorBackground": true,
+            "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8}
+          },
+          {
+            "id": 4,
+            "title": "Active Database Connections",
+            "type": "singlestat",
+            "targets": [
+              {
+                "expr": "database_connections_active{job=\"scholarlink-service\"}",
+                "legendFormat": "Active Connections"
+              }
+            ],
+            "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8}
+          },
+          {
+            "id": 5,
+            "title": "Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "process_memory_usage_bytes{job=\"scholarlink-service\"}",
+                "legendFormat": "Memory Usage"
+              }
+            ],
+            "yAxes": [{"unit": "bytes"}],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+          }
+        ],
+        "time": {"from": "now-1h", "to": "now"},
+        "refresh": "30s"
+      }
+    }
+
+---
+# PrometheusRule for Alerting
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: scholarlink-alerts
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    prometheus: kube-prometheus
+spec:
+  groups:
+  - name: scholarlink.rules
+    rules:
+    # High error rate alert
+    - alert: ScholarLinkHighErrorRate
+      expr: rate(http_requests_total{job="scholarlink-service",status_code=~"5.."}[5m]) / rate(http_requests_total{job="scholarlink-service"}[5m]) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        service: scholarlink
+      annotations:
+        summary: "ScholarLink high error rate detected"
+        description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+    
+    # High response time alert
+    - alert: ScholarLinkHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="scholarlink-service"}[5m])) > 2
+      for: 10m
+      labels:
+        severity: warning
+        service: scholarlink
+      annotations:
+        summary: "ScholarLink high response time detected"
+        description: "95th percentile response time is {{ $value }}s for the last 10 minutes"
+    
+    # Database connection alert
+    - alert: ScholarLinkDatabaseDown
+      expr: up{job="scholarlink-service"} == 0 or database_connections_active{job="scholarlink-service"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        service: scholarlink
+      annotations:
+        summary: "ScholarLink database connection issue"
+        description: "ScholarLink cannot connect to database or has no active connections"
+    
+    # Pod crash loop alert
+    - alert: ScholarLinkPodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total{namespace="scholarlink-prod"}[15m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+        service: scholarlink
+      annotations:
+        summary: "ScholarLink pod is crash looping"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently"
+    
+    # Memory usage alert
+    - alert: ScholarLinkHighMemoryUsage
+      expr: process_memory_usage_bytes{job="scholarlink-service"} / (1024*1024*1024) > 0.8
+      for: 15m
+      labels:
+        severity: warning
+        service: scholarlink
+      annotations:
+        summary: "ScholarLink high memory usage"
+        description: "Memory usage is {{ $value | humanize }}GB, approaching limits"
+    
+    # Rate limit alert
+    - alert: ScholarLinkHighRateLimitHits
+      expr: rate(rate_limit_hits_total{job="scholarlink-service"}[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+        service: scholarlink
+      annotations:
+        summary: "ScholarLink high rate limit hits"
+        description: "Rate limiting is being triggered frequently: {{ $value }} hits/sec"
+
+---
+# PodMonitor for additional pod-level metrics
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: scholarlink-pods
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+spec:
+  selector:
+    matchLabels:
+      app: scholarlink
+  podMetricsEndpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

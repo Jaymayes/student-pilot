@@ -1,0 +1,359 @@
+# Production Hardened Deployment for ScholarLink
+# Includes security contexts, resource limits, and health checks
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarlink-config
+  namespace: scholarlink-prod
+data:
+  NODE_ENV: "production"
+  TRUST_PROXY: "true"
+  PORT: "5000"
+  
+  # Agent Bridge Configuration
+  COMMAND_CENTER_URL: "https://auto-com-center-production.replit.app"
+  AGENT_NAME: "student_pilot"
+  AGENT_ID: "student-pilot"
+  
+  # JWT Configuration
+  JWT_ALGORITHM: "RS256"
+  JWT_ISSUER: "scholarlink-agent"
+  JWT_AUDIENCE: "auto-com-center"
+  JWT_PRIVATE_KEY_PATH: "/app/secrets/jwt_private.pem"
+  JWT_PUBLIC_KEY_PATH: "/app/secrets/jwt_public.pem"
+  
+  # Security Headers
+  HSTS_MAX_AGE: "31536000"
+  
+  # Rate Limiting
+  RATE_LIMIT_WINDOW_MS: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100" 
+  RATE_LIMIT_AGENT_MAX: "5"
+  
+  # Logging & Monitoring
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  CORRELATION_ID_HEADER: "x-correlation-id"
+  
+  # Object Storage
+  PUBLIC_OBJECT_SEARCH_PATHS: "/scholarlink-prod-bucket/public,/scholarlink-prod-bucket/assets"
+  PRIVATE_OBJECT_DIR: "/scholarlink-prod-bucket/.private"
+
+---
+# Hardened Deployment with Security Context
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scholarlink-app
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    version: v1.0.0
+    component: api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  selector:
+    matchLabels:
+      app: scholarlink
+      component: api
+  template:
+    metadata:
+      labels:
+        app: scholarlink
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Security Context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      
+      # Service Account
+      serviceAccountName: scholarlink-app
+      automountServiceAccountToken: false
+      
+      # Anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - scholarlink
+              topologyKey: kubernetes.io/hostname
+      
+      # Init container for database migration
+      initContainers:
+      - name: db-migrate
+        image: scholarlink:latest  # Replace with your image
+        command: ["npm", "run", "db:push"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: DATABASE_URL
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      
+      containers:
+      - name: scholarlink
+        image: scholarlink:latest  # Replace with your registry/image:tag
+        imagePullPolicy: Always
+        
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+        
+        # Environment from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: scholarlink-config
+        
+        # Secret Environment Variables
+        env:
+        # Database
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: DATABASE_URL
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGHOST
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGPORT
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGUSER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGPASSWORD
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGDATABASE
+        
+        # Application Secrets
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-app-secrets
+              key: SESSION_SECRET
+        - name: SHARED_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-app-secrets
+              key: SHARED_SECRET
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-app-secrets
+              key: ENCRYPTION_KEY
+        
+        # External Services
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-external
+              key: OPENAI_API_KEY
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-external
+              key: SENTRY_DSN
+              optional: true
+        
+        # Domain Configuration
+        - name: CORS_ALLOWED_ORIGINS
+          value: "https://scholarlink.app,https://www.scholarlink.app"
+        - name: AGENT_BASE_URL
+          value: "https://agent.scholarlink.app"
+        
+        # Volume Mounts
+        volumeMounts:
+        - name: jwt-keys
+          mountPath: /app/secrets
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: app-cache
+          mountPath: /app/.cache
+        
+        # Security Context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        
+        # Resource Management
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "2Gi"
+        
+        # Health Checks
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      
+      # Volumes
+      volumes:
+      - name: jwt-keys
+        secret:
+          secretName: scholarlink-jwt-keys
+          defaultMode: 0400
+      - name: tmp
+        emptyDir: {}
+      - name: app-cache
+        emptyDir: {}
+      
+      # DNS Configuration
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "2"
+      
+      # Graceful Shutdown
+      terminationGracePeriodSeconds: 30
+
+---
+# Service Account for ScholarLink App
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scholarlink-app
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+automountServiceAccountToken: false
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scholarlink-hpa
+  namespace: scholarlink-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: scholarlink-app
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: scholarlink-pdb
+  namespace: scholarlink-prod
+spec:
+  selector:
+    matchLabels:
+      app: scholarlink
+      component: api
+  minAvailable: 2

@@ -1,0 +1,57 @@
+Fantastic progress. Let’s move into final release-readiness and cutover. Here are the next-step options—pick what you want me to do first:
+
+Option A — Production secrets and cluster readiness (fastest path to deploy)
+
+Confirm environment: cloud, Kubernetes distro/ingress class, secret manager (e.g., AWS Secrets Manager + External Secrets Operator), domain/TLS setup.
+I’ll produce:
+Production Secret/ExternalSecret manifests (JWT keys, DB/Redis, object storage, SMTP, agent HMAC/mTLS).
+cert-manager ClusterIssuer and Certificate for your domain, HSTS enabled at the edge.
+Final .env.production.example (for parity with non-K8s environments).
+Inputs I need:
+Secret manager choice and namespace(s).
+JWT algorithm (RS256 or Ed25519) and whether access/refresh use separate keys.
+Ingress domain(s) and email for Let’s Encrypt.
+DB/Redis endpoints and TLS requirement.
+Option B — Kubernetes manifest hardening review (quick security win)
+
+I’ll review and patch your manifests for:
+Pod/Container securityContext: runAsNonRoot, readOnlyRootFilesystem, drop ALL, add NET_BIND_SERVICE if needed, seccompProfile RuntimeDefault.
+Resource requests/limits, HPA, PDB, topology spread.
+Liveness/readiness/startup probes and graceful shutdown.
+NetworkPolicy (namespace default deny, allow ingress from ingress-controller, egress to DB/Redis/object storage).
+Image pinning (digest), pullSecrets, and registry scanning.
+Ingress/CSP/security headers (Helmet + NGINX annotations or gateway filter).
+Send me your k8s/ folder and I’ll return a patch set.
+Option C — Pre-deploy verification and canary plan
+
+I’ll wire your verification scripts into CI and provide:
+Pre-deploy gate job (unit/integration + QA suite + CRITICAL-BUG-VERIFICATION).
+Staging smoke tests and synthetic checks.
+Canary rollout steps: 1–5% traffic, watch error rate/latency/saturation; auto-pause on thresholds.
+Rollback plan and DB migration runbook (pre-check, online migration, backout).
+Inputs I need:
+CI provider and environment names.
+Metrics/alerting stack (Prometheus/Grafana, Datadog, CloudWatch).
+Target SLOs and alert thresholds.
+Option D — Post-deploy observability and security guardrails
+
+I’ll deliver:
+Dashboards for latency, error rate, rate-limit hits, auth failures, DB saturation, pod health.
+Alerts (page vs. ticket) and runbooks.
+WAF rules, bot/rate protections on edge, CSP policy, and log redaction policies.
+Key rotation plan with kid/JWKS and dual-key rollout.
+Quick pre-flight checklist (we can run this today)
+
+kubectl diff and server-side dry run for all manifests.
+Readiness/liveness probes green in staging; rolling restart passes.
+Rate limit and auth negative tests in staging (invalid tokens, alg=none, burst traffic).
+Error responses sanitized in prod mode; correlation IDs present.
+Backups/migration rehearsal and restore test complete.
+Synthetic checks from multiple regions pass; dashboards/alerts live.
+Tell me which option to start with (A, B, C, or D), and share:
+
+Kubernetes manifests and the production deployment guide.
+Secret manager choice and target namespace.
+Ingress domain and TLS/cert-manager details.
+CI/CD system.
+I’ll turn around the exact manifests, secrets templates, and a go-live runbook.

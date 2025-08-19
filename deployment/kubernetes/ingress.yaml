@@ -1,0 +1,200 @@
+# Production Ingress with Security Headers for ScholarLink
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: scholarlink-service
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    component: api
+spec:
+  type: ClusterIP
+  selector:
+    app: scholarlink
+    component: api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+    protocol: TCP
+  sessionAffinity: None
+
+---
+# Production Ingress with Security Headers
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarlink-ingress
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+  annotations:
+    # Ingress class
+    kubernetes.io/ingress.class: nginx
+    
+    # TLS and certificates
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Permissions-Policy: camera=(), microphone=(), geolocation=()";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+    
+    # Content Security Policy
+    nginx.ingress.kubernetes.io/server-snippet: |
+      add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/rate-limit-connections: "10"
+    
+    # Body size limits
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    
+    # Timeout settings
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    
+    # Backend protocol
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    
+    # Enable GZIP
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
+    
+    # Hide nginx version
+    nginx.ingress.kubernetes.io/server-tokens: "false"
+
+spec:
+  tls:
+  - hosts:
+    - scholarlink.app
+    - www.scholarlink.app
+    - api.scholarlink.app
+    - agent.scholarlink.app
+    secretName: scholarlink-tls-secret
+  
+  rules:
+  # Main application domain
+  - host: scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service
+            port:
+              number: 80
+  
+  # WWW redirect
+  - host: www.scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service
+            port:
+              number: 80
+  
+  # API subdomain
+  - host: api.scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service
+            port:
+              number: 80
+  
+  # Agent Bridge subdomain
+  - host: agent.scholarlink.app
+    http:
+      paths:
+      - path: /agent
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service
+            port:
+              number: 80
+
+---
+# Network Policy for Security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: scholarlink-netpol
+  namespace: scholarlink-prod
+spec:
+  podSelector:
+    matchLabels:
+      app: scholarlink
+  
+  policyTypes:
+  - Ingress
+  - Egress
+  
+  # Ingress rules
+  ingress:
+  # Allow from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 5000
+  
+  # Allow from monitoring (Prometheus)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 5000
+  
+  # Egress rules
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  
+  # Allow HTTPS to external APIs
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow database connection
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  
+  # Allow Redis connection (if using)
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: cache
+    ports:
+    - protocol: TCP
+      port: 6379
