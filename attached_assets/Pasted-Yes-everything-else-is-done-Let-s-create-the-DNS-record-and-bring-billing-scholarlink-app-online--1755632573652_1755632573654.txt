@@ -1,0 +1,45 @@
+Yes—everything else is done. Let’s create the DNS record and bring billing.scholarlink.app online.
+
+What I need from you
+
+The Kubernetes Ingress Load Balancer FQDN (e.g., a1b2c3…elb.amazonaws.com)
+Your DNS provider (Route53, Cloudflare, Google Cloud DNS, etc.)
+Create the DNS record (choose your provider)
+
+Generic (any DNS portal)
+
+Host/Name: billing
+Type: CNAME
+Value: <INGRESS_LB_FQDN> (no https://)
+TTL: 300
+Note: Use billing (not billing.scholarlink) as the host.
+Route53 (AWS CLI)
+
+export ZONEID=ZXXXXXXXXXXXX
+export LB_FQDN=a1b2c3d4e5f6.elb.amazonaws.com
+aws route53 change-resource-record-sets --hosted-zone-id $ZONEID --change-batch '{ "Changes":[{"Action":"UPSERT","ResourceRecordSet":{ "Name":"billing.scholarlink.app","Type":"CNAME","TTL":300, "ResourceRecords":[{"Value":"'"$LB_FQDN"'"}]}}]}'
+Cloudflare (DNS only until cert is issued)
+
+Set the CNAME to “DNS only” (gray cloud) first.
+Re‑enable proxy after the certificate is Ready if desired.
+Google Cloud DNS
+
+gcloud dns record-sets transaction start --zone=scholarlink
+gcloud dns record-sets transaction add $LB_FQDN --name=billing.scholarlink.app. --ttl=300 --type=CNAME --zone=scholarlink
+gcloud dns record-sets transaction execute --zone=scholarlink
+Verify and go live
+
+DNS propagation (5–10 min)
+dig +short billing.scholarlink.app @1.1.1.1
+Certificate issuance (2–5 min after DNS resolves)
+kubectl -n scholarlink-prod get certificate billing-scholarlink-app-tls -w
+Expect Ready=True
+Final check
+curl -I https://billing.scholarlink.app
+Browser loads with no warnings
+After DNS is live
+
+Run: ./deployment/billing/production-validation.sh all
+Confirm Stripe LIVE webhook endpoint is https://billing.scholarlink.app/webhooks/stripe and STRIPE_WEBHOOK_SECRET is updated.
+Do a $5 Starter purchase to validate credits and idempotency.
+If you share the LB FQDN (and provider), I’ll confirm the exact value and stay on standby to watch cert issuance and first access. Ready to create the DNS record now?
