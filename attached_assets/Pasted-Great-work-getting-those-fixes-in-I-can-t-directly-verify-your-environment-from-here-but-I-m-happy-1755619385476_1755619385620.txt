@@ -1,0 +1,78 @@
+Great work getting those fixes in. I can’t directly verify your environment from here, but I’m happy to help you finish the production setup and do a final pre-flight. If you can share the latest CI run (tests + lint + build), the output of your health/ready endpoints, or logs from a staging smoke test, I can review them right away.
+
+Yes—let’s configure production secrets. Below is a concise, battle-tested secrets checklist and how to generate/store them. Tell me your deployment target (Kubernetes/ECS/Docker, cloud provider, and secret manager), and I’ll tailor exact manifests or files.
+
+Recommended production secrets and config
+
+JWT and auth
+JWT_ALG: RS256 or EdDSA (recommended if your libs support it)
+JWT_PRIVATE_KEY (PEM)
+JWT_PUBLIC_KEY (PEM)
+JWT_ISSUER, JWT_AUDIENCE
+REFRESH_TOKEN_PRIVATE_KEY / PUBLIC_KEY (if using separate keys)
+COOKIE_SECRET (if using signed/encrypted cookies)
+CSRF_SECRET (if CSRF tokens used)
+Database and cache
+DATABASE_URL (use least-privileged user; TLS required)
+REDIS_URL (TLS + AUTH) for rate limiting/sessions/queues
+Object storage
+S3/Blob: ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION, BUCKET
+Enforce private ACLs; public-access-block enabled
+Agents/integrations
+AGENT_HMAC_SECRET or mTLS certs (prefer mTLS if possible)
+SMTP: HOST, PORT, USER, PASS, FROM_ADDRESS
+OAuth/OIDC provider secrets (if applicable)
+App/security config
+NODE_ENV=production
+TRUST_PROXY=true (behind a proxy/load balancer)
+CORS_ALLOWED_ORIGINS (exact origins only)
+CSP configuration (nonce/strict-dynamic if you use Helmet)
+RATE_LIMIT: per-route/token settings
+ENCRYPTION_KEY (for any at-rest field encryption)
+Observability
+SENTRY_DSN or equivalent
+LOG_LEVEL=info (or warn) + structured JSON logs
+METRICS_ENABLE=true and METRICS_AUTH if needed
+Safe key generation (run on a secure workstation or CI secrets job)
+
+RS256 keys
+Private: openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out jwt_private.pem
+Public: openssl rsa -in jwt_private.pem -pubout -out jwt_public.pem
+Ed25519 keys
+Private: openssl genpkey -algorithm Ed25519 -out ed25519_private.pem
+Public: openssl pkey -in ed25519_private.pem -pubout -out ed25519_public.pem
+Strong random secrets
+openssl rand -base64 48
+Storage and rotation
+
+Use a managed secret store (AWS Secrets Manager, GCP Secret Manager, Azure Key Vault, or HashiCorp Vault). Do not commit .env files.
+Bind IAM/roles to service identity only; prevent console download by humans where possible.
+Rotate JWT and HMAC keys at least quarterly; support key IDs (kid) and JWKS if you serve tokens to other services.
+Store DB credentials separately from application config; use short-lived credentials if supported (IAM auth, Cloud SQL Auth Proxy).
+Kubernetes/ECS/Docker notes
+
+Kubernetes: mount secrets as files for PEM keys, env for non-files; set fsGroup/readOnly mounts. Add readiness/liveness probes and PodSecurity standards.
+Docker/ECS: use task secrets integration; mount PEM keys from secrets, not baked into images.
+Ensure all outbound traffic uses TLS; enforce HTTPS only (HSTS on the edge).
+Final pre-flight (fast checklist)
+
+CI: all tests pass, including your qa-comprehensive-test-suite.js and CRITICAL-BUG-VERIFICATION.md steps.
+Security headers: HSTS, CSP, X-Content-Type-Options, Referrer-Policy, X-Frame-Options.
+Auth: invalid/expired/alg=none tokens rejected uniformly; timing-safe comparisons in place.
+Rate limit: enforced per token/client behind proxy; XFF spoofing does not bypass.
+Errors: prod returns generic messages; correlation IDs present; no stack traces/PII.
+Migrations and backups: schema migrations tested; automated backups/restores verified.
+Observability: dashboards for error rate, latency, saturation; alerts wired.
+Next steps I can take
+
+Generate production-ready secret templates (.env.production.example and/or Kubernetes Secret manifests) tailored to your stack.
+Review your current env config for pitfalls (e.g., missing trust proxy, loose CORS).
+Provide a key rotation plan and a rollout procedure (dual-key window with kid).
+Help with a canary rollout checklist and post-deploy verification script.
+To proceed, please share:
+
+Your deployment target (K8s/ECS/VMs/Docker) and cloud provider.
+Preferred JWT algorithm (RS256 or Ed25519).
+Secret manager in use (Secrets Manager, Vault, etc.).
+Whether agents will use HMAC or mTLS.
+Once I have that, I’ll prepare exact config and manifests for you.
