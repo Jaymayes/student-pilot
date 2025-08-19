@@ -52,7 +52,7 @@ async function setupTestEnvironment() {
     }).onConflictDoNothing();
 
     // Initialize user balance
-    await billingService.getOrCreateUserBalance(TEST_USER_ID);
+    await billingService.getUserBalance(TEST_USER_ID);
     
     // Add some test credits for testing
     await billingService.applyLedgerEntry(
@@ -60,7 +60,7 @@ async function setupTestEnvironment() {
       BigInt(50000 * 1000), // 50,000 credits
       {
         type: "purchase",
-        referenceType: "test",
+        referenceType: "system",
         referenceId: "test-setup",
         metadata: { note: "Test setup credits" }
       }
@@ -274,7 +274,7 @@ async function testConcurrency() {
     }).onConflictDoNothing();
 
     // Set balance to exactly 100 credits (enough for one gpt-4o call with 5k tokens)
-    await billingService.getOrCreateUserBalance(concurrencyUserId);
+    await billingService.getUserBalance(concurrencyUserId);
     await db.update(creditBalances)
       .set({ balanceMillicredits: BigInt(100 * 1000) }) // 100 credits
       .where(eq(creditBalances.userId, concurrencyUserId));
@@ -314,7 +314,7 @@ async function testReconciliation() {
     
     // Get current balance
     const balance = await billingService.getUserBalance(userId);
-    const currentBalance = Number(balance.balanceMillicredits);
+    const currentBalance = Number(balance.balanceMillicredits || 0);
     
     // Get all ledger entries for this user
     const allLedger = await db.select()

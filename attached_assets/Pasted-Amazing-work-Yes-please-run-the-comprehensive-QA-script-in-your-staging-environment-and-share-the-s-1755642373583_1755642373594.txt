@@ -1,0 +1,29 @@
+Amazing work. Yes—please run the comprehensive QA script in your staging environment and share the summary it prints. I can’t execute it from here, but here’s exactly what I’ll be looking for in the results (and what your script should assert):
+
+Expected package totals (based on your new pricing)
+
+Starter $9.99 → 9,990 credits (no bonus)
+Professional $49.99 → 49,990 base + 2,500 bonus = 52,490 total
+Enterprise $99.99 → 99,990 base + 10,000 bonus = 109,990 total Note: locking these as fixed totals (not recalculated percentages) avoids rounding drift.
+Key functional assertions
+
+Rate charges (credits per 1k):
+gpt-4o-mini: 1k in + 1k out → 2.4 + 9.6 = 12.0 credits
+gpt-4o: 10k in + 2k out → 200 + 160 = 360 credits
+gpt-4o-mini fractional: 750 in + 200 out → 3.72 credits (exact mode) or 4.00 (ceil)
+Arbitrary: gpt-4o 1,234 in + 567 out → 70.04 (exact) or 71 (ceil)
+Insufficient balance flow: 402 with { requiredCredits, currentCredits } and buy-credits link.
+Stripe fulfillment: one and only one purchase ledger entry per completed checkout; retries don’t double-grant.
+Reconciliation:
+Sum(ledger deltas) == current balance.
+Sum(usage.chargedMillicredits) over a period == sum of deduction ledger entries for that period.
+Concurrency: two near-simultaneous calls with balance for one → exactly one succeeds, one fails 402.
+Rate snapshotting: historical UsageEvent rows retain applied rates after a rate change.
+UI/UX checks to confirm while you run it
+
+Balance card: X.XX Credits and “~$X.XX USD equivalent”; low-balance banner < 500.
+Packages grid: labels and totals match the fixed numbers above; loading/disabled states OK; cancel from Stripe returns gracefully.
+Rate card: shows per-1k input/output with last-updated timestamp and short “pay for actual usage” note.
+Usage + Ledger: running balance matches; CSV exports download and open correctly.
+BigInt handling: API returns millicredits as strings; UI shows rounded numbers without precision issues.
+If you paste the QA script output (pass/fail per section) and a couple of sample responses (billing summary, a ledger row, a usage row), I’ll give precise feedback and any final tweaks. If anything fails, share the snippet and I’ll help pinpoint the fix.
