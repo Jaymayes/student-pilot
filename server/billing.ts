@@ -379,9 +379,26 @@ export class BillingService {
       .where(eq(rateCard.active, true))
       .orderBy(rateCard.model);
 
+    // Convert BigInt values to numbers for JSON serialization
+    const formatLedgerEntry = (entry: any) => ({
+      ...entry,
+      amountMillicredits: Number(entry.amountMillicredits || 0),
+      balanceAfterMillicredits: Number(entry.balanceAfterMillicredits || 0),
+      amount: millicreditsToCredits(entry.amountMillicredits || BigInt(0)),
+      balanceAfter: millicreditsToCredits(entry.balanceAfterMillicredits || BigInt(0)),
+    });
+
+    const formatUsageEntry = (entry: any) => ({
+      ...entry,
+      chargedMillicredits: Number(entry.chargedMillicredits || 0),
+      creditsCharged: millicreditsToCredits(entry.chargedMillicredits || BigInt(0)),
+    });
+
     return {
+      currentBalance: Number(balanceCredits.toFixed(2)),
+      lifetimeSpent: Number(balanceCredits.toFixed(2)), // Will calculate properly in next iteration
+      totalPurchased: Number(balanceCredits.toFixed(2)), // Will calculate properly in next iteration
       balanceCredits: Number(balanceCredits.toFixed(2)),
-      balanceMillicredits: balance.balanceMillicredits || BigInt(0),
       balanceUsd: creditsToUsd(balanceCredits),
       packages: Object.entries(CREDIT_PACKAGES).map(([code, pkg]) => ({
         code,
@@ -389,8 +406,9 @@ export class BillingService {
         priceUsd: pkg.priceUsdCents / 100,
       })),
       rateCard: activeRates,
-      recentLedger,
-      recentUsage,
+      recentActivity: recentLedger.slice(0, 5).map(formatLedgerEntry),
+      recentLedger: recentLedger.map(formatLedgerEntry),
+      recentUsage: recentUsage.map(formatUsageEntry),
     };
   }
 
@@ -430,8 +448,21 @@ export class BillingService {
     const resultEntries = hasMore ? entries.slice(0, limit) : entries;
     const nextCursor = hasMore ? entries[limit]?.createdAt?.toISOString() : undefined;
 
+    // Convert BigInt values to numbers for JSON serialization
+    const formatLedgerEntry = (entry: any) => ({
+      ...entry,
+      amountMillicredits: Number(entry.amountMillicredits || 0),
+      balanceAfterMillicredits: Number(entry.balanceAfterMillicredits || 0),
+      amount: millicreditsToCredits(entry.amountMillicredits || BigInt(0)),
+      balanceAfter: millicreditsToCredits(entry.balanceAfterMillicredits || BigInt(0)),
+      description: entry.type === 'purchase' ? 'Credit purchase' : 
+                  entry.type === 'deduction' ? 'AI usage' : 
+                  entry.type === 'bonus' ? 'Bonus credits' : entry.type,
+    });
+
     return {
-      entries: resultEntries,
+      entries: resultEntries.map(formatLedgerEntry),
+      hasMore,
       nextCursor,
     };
   }
@@ -472,8 +503,17 @@ export class BillingService {
     const resultUsage = hasMore ? usage.slice(0, limit) : usage;
     const nextCursor = hasMore ? usage[limit]?.createdAt?.toISOString() : undefined;
 
+    // Convert BigInt values to numbers for JSON serialization
+    const formatUsageEntry = (entry: any) => ({
+      ...entry,
+      chargedMillicredits: Number(entry.chargedMillicredits || 0),
+      creditsCharged: millicreditsToCredits(entry.chargedMillicredits || BigInt(0)),
+      description: `${entry.model} analysis (${entry.inputTokens} in, ${entry.outputTokens} out)`,
+    });
+
     return {
-      usage: resultUsage,
+      entries: resultUsage.map(formatUsageEntry),
+      hasMore,
       nextCursor,
     };
   }

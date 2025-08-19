@@ -23,24 +23,44 @@ import { useState } from "react";
 
 interface BillingSummary {
   currentBalance: number;
-  lifetimeSpent: number;
-  totalPurchased: number;
+  balanceCredits: number;
+  balanceUsd: number;
+  lifetimeSpent?: number;
+  totalPurchased?: number;
+  packages: Array<{
+    code: string;
+    baseCredits: number;
+    bonusCredits: number;
+    totalCredits: number;
+    priceUsd: number;
+    recommended?: boolean;
+  }>;
+  rateCard: Array<{
+    id: string;
+    model: string;
+    inputCreditsPer1k: string;
+    outputCreditsPer1k: string;
+    active: boolean;
+  }>;
   recentActivity: Array<{
     id: string;
-    type: 'purchase' | 'usage' | 'bonus';
+    type: 'purchase' | 'deduction' | 'bonus';
     amount: number;
     description: string;
     createdAt: string;
+    balanceAfter: number;
   }>;
 }
 
 interface LedgerEntry {
   id: string;
-  type: 'purchase' | 'usage' | 'bonus';
+  type: 'purchase' | 'deduction' | 'bonus';
   amount: number;
   description: string;
   createdAt: string;
   balanceAfter: number;
+  referenceType?: string;
+  referenceId?: string;
 }
 
 interface UsageEntry {
@@ -346,9 +366,9 @@ export default function Billing() {
                       </div>
                     </div>
                     <div className={`font-medium text-sm ${
-                      entry.type === 'usage' ? 'text-red-600' : 'text-green-600'
+                      entry.type === 'deduction' ? 'text-red-600' : 'text-green-600'
                     }`}>
-                      {entry.type === 'usage' ? '-' : '+'}{entry.amount.toLocaleString()}
+                      {entry.type === 'deduction' ? '-' : '+'}{entry.amount.toLocaleString()}
                     </div>
                   </div>
                 ))}

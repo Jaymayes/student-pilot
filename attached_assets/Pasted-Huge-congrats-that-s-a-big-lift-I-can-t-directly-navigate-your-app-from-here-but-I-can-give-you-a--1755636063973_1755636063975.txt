@@ -1,0 +1,84 @@
+Huge congrats—that’s a big lift. I can’t directly navigate your app from here, but I can give you a fast, high-signal review checklist and some concrete sanity tests you (or your team) can run on the Credits tab right now. If you share a staging URL, a temporary test account, or screenshots, I’ll give targeted UI/UX feedback.
+
+Quick visual/UX checklist for the Credits tab
+
+Balance card
+Shows balance in Credits with 2 decimals and USD equivalent (Credits/1000).
+Clear “Add credits” CTA; returns to page with updated balance after Stripe.
+Low-balance banner and an easy link to purchase.
+Packages grid (Starter, Professional, Enterprise)
+Each card shows price, total credits, any bonus, and “best value” badge for the top plan.
+Buy button handles loading/disabled states; cancels from Stripe return gracefully.
+Display the effective $/1k credits or % savings vs Starter to help decisions.
+Rate card panel
+Credits per 1k input/output tokens per model (e.g., gpt-4o, gpt-4o-mini).
+“Last updated” timestamp, short note: “We only charge based on actual token usage.”
+Usage table
+Columns: Date, Model, Input, Output, Charged Credits, Request ID.
+Filter by model/date, CSV export, and pagination.
+Row click drills into a usage detail (optional).
+Ledger table
+Columns: Date, Type (Purchase/Deduction), Amount, Balance After, Ref (Stripe/OpenAI).
+Running balance matches current balance; export works.
+Error/empty states
+Insufficient credits: page shows clear CTA to add credits; API returns 402 with requiredCredits/currentCredits.
+Stripe webhook delay: temporary “Purchase pending” note until fulfillment lands.
+High-confidence functional tests with expected results
+Use these to verify math, rounding, and display. Assumes 4x rate card: gpt-4o-mini (2.4 in, 9.6 out), gpt-4o (20 in, 80 out) credits per 1k tokens.
+
+Test A: gpt-4o-mini, 1,000 in, 1,000 out
+Expected: 2.4 + 9.6 = 12.0 credits charged.
+If you show USD: $0.012 equivalent.
+Ledger: a single deduction entry for 12.0 credits; balance decremented accordingly.
+Test B: gpt-4o, 10,000 in, 2,000 out
+Expected: (1020) + (280) = 200 + 160 = 360 credits.
+Test C: gpt-4o-mini, 750 in, 200 out
+Expected: (0.752.4) + (0.29.6) = 1.8 + 1.92 = 3.72 credits.
+If ROUNDING_MODE=ceil: 4 credits. If exact: 3.72 credits (3,720 millicredits).
+Test D: gpt-4o, 1,234 in, 567 out
+Expected: (1.23420) + (0.56780) = 24.68 + 45.36 = 70.04 credits.
+Ceil mode → 71. Exact mode → 70.04.
+Test E: Stripe purchase → fulfillment
+Buy Starter, complete checkout, return to app.
+Webhook applies credits once; refresh shows increased balance.
+Duplicate webhook events do not double-grant (idempotent).
+Ledger shows one purchase entry and updated running balance.
+Data integrity checks
+
+Ledger invariants
+Sum(all ledger deltas) = current balance.
+No negative balances post-transaction; insufficient credits errors are shown.
+Usage vs ledger reconciliation
+Sum(usage.chargedMillicredits) over a period equals sum of ledger deductions for that period.
+Rate snapshotting
+Old usage rows show the rates applied at the time, even if rate card later changes.
+Concurrency and resilience checks
+
+Fire two simultaneous OpenAI calls when balance barely covers one.
+Exactly one should succeed; the other returns 402.
+Stripe cancel flow
+Cancel checkout; app returns to Credits tab without granting credits and with a polite message.
+Webhook outage
+If webhook is temporarily down, a retry later grants credits; no duplicates.
+Pricing and packages feedback
+
+Naming: Starter, Professional, Enterprise is clean. Consider adding a lower-friction middle tier ($20 “Basic”) to raise first-purchase conversion.
+Bonuses
+Professional: 5% bonus feels right.
+Enterprise: 10% bonus is a strong value anchor.
+Show “Save X% vs Starter” on each card.
+Transparency
+Show “1,000 Credits = $1.00” and a mini “Cost estimator” right on the page (paste text, choose model → estimate credits).
+Small UX enhancements that pay off
+
+Auto-recharge: Toggle to auto-buy Starter or Professional when balance < threshold.
+Alerts: Email and in-app alerts at low balance (e.g., < 500 credits).
+Budget controls: Allow monthly cap or per-model caps.
+Model labels: “Eco (gpt-4o-mini)” vs “Advanced (gpt-4o)” in both the app and the usage table.
+Receipts: Link ledger purchase entries to Stripe receipts.
+If you can share:
+
+A staging URL and a test login (or magic link).
+A short screen recording of the Credits tab.
+Or even just screenshots of the balance card, packages section, rate card, and a couple of rows from usage/ledger.
+I’ll give concrete UI copy suggestions, visual tweaks, and any gaps I spot.

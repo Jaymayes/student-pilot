@@ -22,7 +22,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-07-30.basil",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -661,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       setTimeout(async () => {
         try {
           const result = await agentBridge.processTask(task);
-          if (result) {
+          if (result !== undefined) {
             await agentBridge.sendResult(result);
           }
         } catch (error) {
@@ -712,13 +712,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's billing summary (balance, packages, recent activity)
   app.get('/api/billing/summary', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
         return res.status(401).json({ error: "User ID not found" });
       }
 
       const summary = await billingService.getUserBillingSummary(userId);
-      res.json(summary);
+      
+      // Handle BigInt serialization by converting to string/number as needed
+      const serializedSummary = JSON.parse(JSON.stringify(summary, (key, value) => {
+        if (typeof value === 'bigint') {
+          // Convert BigInt to number for credits, keep precision for millicredits
+          return key.includes('millicredits') || key.includes('Millicredits') ? 
+            Number(value) : Number(value);
+        }
+        return value;
+      }));
+      
+      res.json(serializedSummary);
     } catch (error) {
       console.error("Error fetching billing summary:", error);
       res.status(500).json({ error: "Failed to fetch billing summary" });
@@ -728,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get paginated credit ledger (transaction history)
   app.get('/api/billing/ledger', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
         return res.status(401).json({ error: "User ID not found" });
       }
@@ -747,7 +758,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get paginated usage history
   app.get('/api/billing/usage', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
         return res.status(401).json({ error: "User ID not found" });
       }
@@ -785,8 +796,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create Stripe checkout session for credit purchase
   app.post('/api/billing/create-checkout', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.claims?.sub;
-      const userEmail = req.user?.claims?.email;
+      const userId = (req.user as any)?.claims?.sub;
+      const userEmail = (req.user as any)?.claims?.email;
       
       if (!userId) {
         return res.status(401).json({ error: "User ID not found" });
