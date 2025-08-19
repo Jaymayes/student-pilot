@@ -11,7 +11,8 @@ import {
   Search, 
   FileText, 
   Folder, 
-  User as UserIcon 
+  User as UserIcon,
+  CreditCard
 } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -33,6 +34,7 @@ export function Navigation() {
     { path: "/scholarships", label: "Search", icon: Search },
     { path: "/applications", label: "Applications", icon: FileText },
     { path: "/documents", label: "Documents", icon: Folder },
+    { path: "/billing", label: "Credits", icon: CreditCard },
     { path: "/profile", label: "Profile", icon: UserIcon },
   ];
 

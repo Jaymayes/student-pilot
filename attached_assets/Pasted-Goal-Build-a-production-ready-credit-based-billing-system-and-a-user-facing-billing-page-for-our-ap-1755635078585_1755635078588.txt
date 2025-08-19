@@ -1,0 +1,254 @@
+Goal
+Build a production-ready credit-based billing system and a user-facing billing page for our app. Users prepay for Credits, and all OpenAI API usage deducts Credits based on a rate card with a 4x markup. The system must be auditable, secure, and easy to update when OpenAI pricing changes.
+
+Key Business Rules
+
+Exchange rate: 1,000 Credits = $1.00 USD. Therefore 1 Credit = $0.001.
+Rounding: Track balances precisely using millicredits (1 Credit = 1,000 millicredits). Display to users rounded to 2 decimals. Transactions are exact; do not round up by default. Provide an env switch ROUNDING_MODE=exact|ceil to optionally ceil to whole credits at deduction time.
+Rate card (4x markup, credits per 1k tokens):
+gpt-5-nano: input 0.2, output 1.6
+gpt-5-mini: input 1.0, output 8.0
+gpt-4o-mini: input 2.4, output 9.6
+gpt-5: input 5.0, output 40.0
+gpt-4o: input 20.0, output 80.0
+Credit packages (sell credits; 1,000 credits per $1):
+Starter $5 → 5,000 credits, no bonus
+Basic $20 → 20,000 credits, no bonus
+Pro $50 → 50,000 base + 2,500 bonus = 52,500 credits
+Business $100 → 100,000 base + 10,000 bonus = 110,000 credits
+Minimum purchase: $5. Users cannot use the system without credits if their balance is insufficient.
+Every API call must be profitable at the set rates. The ledger must be immutable and auditable.
+If OpenAI prices change, we update only the internal rate card; the credit exchange rate and packages stay fixed.
+Tech/Project Setup
+
+Stack: Node.js 18+, Express, TypeScript, Prisma ORM.
+Database: default to SQLite in dev, Postgres in prod via DATABASE_URL. Use decimal-safe storage for money and integer millicredits for credits.
+Auth: Assume an existing users table with id. Provide a simple middleware stub currentUser() that resolves req.user.id. We will integrate with our real auth later.
+Payments: Stripe Checkout for purchasing credit packages + webhook for fulfillment.
+OpenAI: Provide a server-side wrapper for calls that records usage and deducts credits atomically.
+Frontend: React (Vite) served by the same Express app or as a separate client folder. Keep it simple and clean.
+Environment Variables
+
+OPENAI_API_KEY
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+APP_URL (e.g., http://localhost:3000)
+DATABASE_URL (optional; use SQLite by default)
+ROUNDING_MODE=exact|ceil (default exact)
+Database Schema (Prisma)
+
+User
+id (string/UUID, PK)
+email (string, unique, optional for this module)
+createdAt, updatedAt
+CreditBalance
+id (PK)
+userId (FK -> User.id, unique)
+balanceMillicredits (bigint) // 1 credit = 1000 millicredits
+updatedAt
+CreditLedger
+id (PK)
+userId (FK)
+type (enum: purchase, deduction, refund, adjustment)
+amountMillicredits (bigint, positive for additions, negative for deductions)
+balanceAfterMillicredits (bigint) // snapshot after entry
+referenceType (string enum: stripe, openai, admin, system)
+referenceId (string) // e.g., Stripe session id, OpenAI request id
+metadata (JSON)
+createdAt
+Purchase
+id (PK)
+userId (FK)
+packageCode (enum: starter, basic, pro, business)
+priceUsdCents (int) // price charged
+baseCredits (int) // in credits
+bonusCredits (int) // in credits
+totalCredits (int) // in credits
+status (enum: created, paid, fulfilled, canceled, failed)
+stripeSessionId (string, unique nullable)
+stripePaymentIntentId (string, unique nullable)
+createdAt, updatedAt
+RateCard
+id (PK)
+model (string) // must match OpenAI model ID usage
+inputCreditsPer1k (decimal(10,4))
+outputCreditsPer1k (decimal(10,4))
+effectiveFrom (datetime)
+active (boolean)
+UsageEvent
+id (PK)
+userId (FK)
+model (string)
+inputTokens (int)
+outputTokens (int)
+appliedInputCreditsPer1k (decimal(10,4)) // snapshot
+appliedOutputCreditsPer1k (decimal(10,4)) // snapshot
+chargedMillicredits (bigint)
+openaiRequestId (string)
+createdAt
+Seed Data
+
+Insert RateCard rows for:
+gpt-5-nano: input 0.2, output 1.6
+gpt-5-mini: input 1.0, output 8.0
+gpt-4o-mini: input 2.4, output 9.6
+gpt-5: input 5.0, output 40.0
+gpt-4o: input 20.0, output 80.0
+Create test user with 0 balance and another with 10,000 credits.
+Core Functions (Server)
+
+getCurrentRate(model): returns the active RateCard for that model.
+creditsToMillicredits(credits: number): bigint
+calculateChargeMillicredits({ model, inputTokens, outputTokens }, roundingMode):
+Fetch rate card.
+costCredits = (inputTokens/1000)*inputRate + (outputTokens/1000)*outputRate
+If ROUNDING_MODE=ceil → ceil to whole credits before converting to millicredits; else keep full precision to millicredits.
+Return millicredits (bigint).
+withUserBalanceLock(userId, fn): apply a per-user DB transaction/lock to prevent race conditions.
+applyLedgerEntry(userId, deltaMillicredits, { type, referenceType, referenceId, metadata }): validates non-negative final balance for deductions; returns new balance.
+chargeForUsage(userId, { model, inputTokens, outputTokens, openaiRequestId }): atomic:
+compute charge
+ensure sufficient balance else throw PaymentRequired (402)
+write UsageEvent with applied rates and charged amount
+write CreditLedger deduction and update CreditBalance
+awardPurchaseCredits(userId, purchaseId): idempotent:
+compute millicredits from totalCredits
+write CreditLedger purchase addition
+update CreditBalance
+mark Purchase fulfilled
+Stripe Integration
+
+POST /api/billing/create-checkout-session
+Body: { packageCode } among: starter, basic, pro, business
+Map to price, base credits, bonus credits, total credits:
+starter: $5 → 5,000 credits
+basic: $20 → 20,000 credits
+pro: $50 → 52,500 credits
+business: $100 → 110,000 credits
+Create Stripe Checkout Session (mode=payment), metadata contains userId, packageCode, baseCredits, bonusCredits, totalCredits.
+Return url to client.
+POST /api/billing/stripe-webhook
+Verify signature.
+On checkout.session.completed or payment_intent.succeeded:
+Upsert Purchase by stripeSessionId or paymentIntentId.
+If not fulfilled and paid, call awardPurchaseCredits (idempotent).
+Respond 200.
+Purchases table mirrors status; all credit grants come only via webhook; frontend should poll or refresh when returning from Checkout.
+OpenAI Wrapper
+
+Create a server-side OpenAI client wrapper: callOpenAI({ userId, model, messages, ... })
+Make the actual OpenAI API call using OPENAI_API_KEY.
+Extract usage: inputTokens, outputTokens, request id.
+Immediately call chargeForUsage(userId, { model, inputTokens, outputTokens, openaiRequestId }).
+Return the OpenAI response to the caller.
+Provide a dryRun flag for estimating cost before calling OpenAI:
+estimateCharge({ model, inputTokens, outputTokens }) returns credits and USD equivalents (using exchange rate).
+API Endpoints (Authenticated)
+
+GET /api/billing/me
+Returns: { balanceCredits (number with 2 decimals), balanceMillicredits, packages[], rateCard[], recentLedger[], recentUsage[] }
+POST /api/billing/create-checkout-session
+Body: { packageCode }
+Returns: { checkoutUrl }
+GET /api/billing/ledger?limit=100&cursor=...
+Paginated credit ledger.
+GET /api/billing/usage?limit=100&cursor=...
+Paginated usage events with model, tokens, charged credits, timestamp.
+GET /api/billing/rates
+Active rate card entries.
+POST /api/openai/chat
+Body: { model, messages }
+Uses callOpenAI wrapper. On insufficient credits, return 402 with { requiredCredits, currentCredits }.
+Optional admin (protect with simple env ADMIN_EMAIL or stub role):
+POST /api/admin/rates
+Body: { model, inputCreditsPer1k, outputCreditsPer1k, effectiveFrom, active }
+GET /api/admin/purchases
+POST /api/admin/adjust-credits
+Body: { userId, deltaCredits, reason }
+Writes ledger adjustment entry.
+Frontend: User Billing Page (React)
+
+Route: /billing
+Sections:
+Balance card:
+Current balance: X.XX Credits (and USD equivalent: balanceCredits/1000 dollars).
+Button: Add Credits.
+Purchase packages grid:
+Starter $5 → 5,000 Credits
+Basic $20 → 20,000 Credits
+Pro $50 → 52,500 Credits (5% bonus)
+Business $100 → 110,000 Credits (10% bonus)
+Each has a “Buy” button that calls create-checkout-session and redirects to Stripe Checkout.
+Usage table:
+Columns: Date, Model, Input Tokens, Output Tokens, Charged Credits, OpenAI Request ID.
+Filters by model and date range. Button “Export CSV”.
+Credit ledger table:
+Columns: Date, Type, Amount, Balance After, Ref, Notes.
+Rate card panel:
+Show current rates per model (credits per 1k input/output).
+Optional: Auto-recharge toggle (stubbed; no actual card on file storage; can simulate by showing a modal “coming soon”).
+Loading states and error handling for insufficient credits.
+CSV download for both tables.
+Admin Page (basic)
+
+Route: /admin/rates
+List and edit active rate card entries, create new entries with future effectiveFrom.
+Simple auth gate via current user email equals ADMIN_EMAIL env.
+Data Integrity and Concurrency
+
+All credit mutations must be inside a DB transaction, with a per-user lock (e.g., SELECT ... FOR UPDATE or Prisma transaction pattern).
+Never allow negative balances.
+CreditLedger is append-only; no updates, only corrections via reversal entries (adjustment).
+awardPurchaseCredits is idempotent; if called twice with same purchaseId, do nothing after the first success.
+Store applied rate snapshots in UsageEvent so historical charges remain accurate even if rates change later.
+Error Handling
+
+Insufficient credits: respond with 402 and include computed required credits and a link to /billing.
+Stripe webhook: gracefully handle duplicate events and signature errors.
+OpenAI usage missing: if OpenAI doesn’t return token usage, do not charge; return error with instructions to retry. Provide a feature flag to estimate based on tokens counted client-side, but default off.
+Utilities
+
+Formatter: formatCredits(millicredits) → “X.XX” credits.
+USD equivalent helper: creditsToUsd(credits) = credits / 1000.
+Export CSV endpoints or client-side CSV from displayed data.
+Tests
+
+Unit tests for:
+calculateChargeMillicredits across all models and rounding modes, including Example 1 and Example 2 below.
+applyLedgerEntry prevents negative balances.
+awardPurchaseCredits idempotency.
+Integration tests:
+Purchase flow: create checkout session → simulate webhook → balance increases.
+OpenAI wrapper flow: charge deducted after API call.
+Example validations (mirror business examples):
+Example 1 (gpt-5-nano): 1k in, 1k out → 0.2 + 1.6 = 1.8 credits = 1800 millicredits.
+Example 2 (gpt-5): 10k in, 2k out → 50 + 80 = 130 credits = 130,000 millicredits.
+Developer UX
+
+Scripts:
+npm run dev: concurrently run server and client.
+npm run prisma:generate, npm run prisma:migrate
+npm run seed
+npm run test
+Readme with:
+env setup
+how to start
+how to test webhook locally (Stripe CLI)
+how to switch ROUNDING_MODE.
+Acceptance Criteria
+
+Users can see their balance, rates, ledger, and usage.
+Users can buy credits via Stripe and see credits applied on return to the app (webhook fulfillment).
+OpenAI calls made via our wrapper deduct credits with precise, audited ledger entries.
+No operation can drive a balance negative.
+Admin can update rates without redeploy; historic charges remain unchanged.
+Exports to CSV work for usage and ledger.
+Code is typed (TypeScript), linted, and includes tests for core billing logic.
+Deliverables
+
+Working Express + Prisma backend with migrations and seed.
+React billing page at /billing and simple admin rates page.
+Stripe Checkout integration + webhook.
+OpenAI wrapper with usage-based charging.
+Tests passing and documentation.
+Please implement now.

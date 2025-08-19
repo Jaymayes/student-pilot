@@ -11,6 +11,7 @@ import {
   decimal,
   pgEnum,
   boolean,
+  bigint,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -262,3 +263,194 @@ export type Document = typeof documents.$inferSelect;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type Essay = typeof essays.$inferSelect;
 export type InsertEssay = z.infer<typeof insertEssaySchema>;
+
+// ========== BILLING SYSTEM SCHEMA ==========
+
+// Enums for billing system
+export const ledgerTypeEnum = pgEnum("ledger_type", [
+  "purchase",
+  "deduction", 
+  "refund",
+  "adjustment"
+]);
+
+export const referenceTypeEnum = pgEnum("reference_type", [
+  "stripe",
+  "openai",
+  "admin", 
+  "system"
+]);
+
+export const purchaseStatusEnum = pgEnum("purchase_status", [
+  "created",
+  "paid",
+  "fulfilled", 
+  "canceled",
+  "failed"
+]);
+
+export const packageCodeEnum = pgEnum("package_code", [
+  "starter",
+  "basic",
+  "pro",
+  "business"
+]);
+
+// Credit balance table - tracks user's current credit balance in millicredits
+export const creditBalances = pgTable("credit_balances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
+  balanceMillicredits: bigint("balance_millicredits", { mode: "bigint" }).default(sql`0`),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Credit ledger - immutable audit trail of all credit transactions
+export const creditLedger = pgTable("credit_ledger", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: ledgerTypeEnum("type").notNull(),
+  amountMillicredits: bigint("amount_millicredits", { mode: "bigint" }).notNull(), // positive for additions, negative for deductions
+  balanceAfterMillicredits: bigint("balance_after_millicredits", { mode: "bigint" }).notNull(),
+  referenceType: referenceTypeEnum("reference_type").notNull(),
+  referenceId: varchar("reference_id"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_credit_ledger_user_created").on(table.userId, table.createdAt),
+  index("idx_credit_ledger_reference").on(table.referenceType, table.referenceId),
+]);
+
+// Purchase records for credit packages
+export const purchases = pgTable("purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  packageCode: packageCodeEnum("package_code").notNull(),
+  priceUsdCents: integer("price_usd_cents").notNull(), // price charged in cents
+  baseCredits: integer("base_credits").notNull(), // base credits without bonus
+  bonusCredits: integer("bonus_credits").notNull().default(0), // bonus credits
+  totalCredits: integer("total_credits").notNull(), // total credits (base + bonus)
+  status: purchaseStatusEnum("status").default("created"),
+  stripeSessionId: varchar("stripe_session_id").unique(),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id").unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_purchases_user_created").on(table.userId, table.createdAt),
+  index("idx_purchases_stripe_session").on(table.stripeSessionId),
+  index("idx_purchases_stripe_payment").on(table.stripePaymentIntentId),
+]);
+
+// Rate card for OpenAI model pricing
+export const rateCard = pgTable("rate_card", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  model: varchar("model").notNull(), // must match OpenAI model ID
+  inputCreditsPer1k: decimal("input_credits_per_1k", { precision: 10, scale: 4 }).notNull(),
+  outputCreditsPer1k: decimal("output_credits_per_1k", { precision: 10, scale: 4 }).notNull(),
+  effectiveFrom: timestamp("effective_from").defaultNow(),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_rate_card_model_active").on(table.model, table.active),
+  index("idx_rate_card_effective").on(table.effectiveFrom),
+]);
+
+// Usage events - tracks all OpenAI API usage and charges
+export const usageEvents = pgTable("usage_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  model: varchar("model").notNull(),
+  inputTokens: integer("input_tokens").notNull(),
+  outputTokens: integer("output_tokens").notNull(),
+  appliedInputCreditsPer1k: decimal("applied_input_credits_per_1k", { precision: 10, scale: 4 }).notNull(),
+  appliedOutputCreditsPer1k: decimal("applied_output_credits_per_1k", { precision: 10, scale: 4 }).notNull(),
+  chargedMillicredits: bigint("charged_millicredits", { mode: "bigint" }).notNull(),
+  openaiRequestId: varchar("openai_request_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_usage_events_user_created").on(table.userId, table.createdAt),
+  index("idx_usage_events_model").on(table.model),
+  index("idx_usage_events_openai_request").on(table.openaiRequestId),
+]);
+
+// Billing system relations
+export const creditBalancesRelations = relations(creditBalances, ({ one }) => ({
+  user: one(users, {
+    fields: [creditBalances.userId],
+    references: [users.id],
+  }),
+}));
+
+export const creditLedgerRelations = relations(creditLedger, ({ one }) => ({
+  user: one(users, {
+    fields: [creditLedger.userId],
+    references: [users.id],
+  }),
+}));
+
+export const purchasesRelations = relations(purchases, ({ one }) => ({
+  user: one(users, {
+    fields: [purchases.userId],
+    references: [users.id],
+  }),
+}));
+
+export const usageEventsRelations = relations(usageEvents, ({ one }) => ({
+  user: one(users, {
+    fields: [usageEvents.userId],
+    references: [users.id],
+  }),
+}));
+
+// Update users relations to include billing
+export const usersRelationsUpdated = relations(users, ({ one, many }) => ({
+  profile: one(studentProfiles, {
+    fields: [users.id],
+    references: [studentProfiles.userId],
+  }),
+  creditBalance: one(creditBalances, {
+    fields: [users.id],
+    references: [creditBalances.userId],
+  }),
+  creditLedger: many(creditLedger),
+  purchases: many(purchases),
+  usageEvents: many(usageEvents),
+}));
+
+// Billing insert schemas
+export const insertCreditBalanceSchema = createInsertSchema(creditBalances).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertCreditLedgerSchema = createInsertSchema(creditLedger).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPurchaseSchema = createInsertSchema(purchases).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRateCardSchema = createInsertSchema(rateCard).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Billing types
+export type CreditBalance = typeof creditBalances.$inferSelect;
+export type InsertCreditBalance = z.infer<typeof insertCreditBalanceSchema>;
+export type CreditLedgerEntry = typeof creditLedger.$inferSelect;
+export type InsertCreditLedgerEntry = z.infer<typeof insertCreditLedgerSchema>;
+export type Purchase = typeof purchases.$inferSelect;
+export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
+export type RateCardEntry = typeof rateCard.$inferSelect;
+export type InsertRateCardEntry = z.infer<typeof insertRateCardSchema>;
+export type UsageEvent = typeof usageEvents.$inferSelect;
+export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;

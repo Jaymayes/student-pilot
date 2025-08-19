@@ -10,6 +10,20 @@ import { openaiService } from "./openai";
 import { agentBridge, type Task } from "./agentBridge";
 import { SecureJWTVerifier, AuthError } from "./auth";
 import rateLimit from "express-rate-limit";
+import { billingService, CREDIT_PACKAGES } from "./billing";
+import { db } from "./db";
+import { purchases } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import Stripe from "stripe";
+import express from "express";
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -690,6 +704,204 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ status: 'ok' });
     } catch (error) {
       handleError(error, req, res);
+    }
+  });
+
+  // ========== BILLING SYSTEM ROUTES ==========
+  
+  // Get user's billing summary (balance, packages, recent activity)
+  app.get('/api/billing/summary', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const summary = await billingService.getUserBillingSummary(userId);
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching billing summary:", error);
+      res.status(500).json({ error: "Failed to fetch billing summary" });
+    }
+  });
+
+  // Get paginated credit ledger (transaction history)
+  app.get('/api/billing/ledger', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+      const cursor = req.query.cursor as string;
+
+      const result = await billingService.getUserLedger(userId, limit, cursor);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching ledger:", error);
+      res.status(500).json({ error: "Failed to fetch transaction history" });
+    }
+  });
+
+  // Get paginated usage history
+  app.get('/api/billing/usage', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+      const cursor = req.query.cursor as string;
+
+      const result = await billingService.getUserUsage(userId, limit, cursor);
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching usage history:", error);
+      res.status(500).json({ error: "Failed to fetch usage history" });
+    }
+  });
+
+  // Estimate cost for potential OpenAI usage
+  app.post('/api/billing/estimate', isAuthenticated, async (req, res) => {
+    try {
+      const { model, inputTokens, outputTokens } = req.body;
+      
+      if (!model || typeof inputTokens !== 'number' || typeof outputTokens !== 'number') {
+        return res.status(400).json({ 
+          error: "Missing or invalid parameters: model, inputTokens, outputTokens required" 
+        });
+      }
+
+      const estimate = await billingService.estimateCharge(model, inputTokens, outputTokens);
+      res.json(estimate);
+    } catch (error) {
+      console.error("Error estimating cost:", error);
+      res.status(500).json({ error: "Failed to estimate cost" });
+    }
+  });
+
+  // Create Stripe checkout session for credit purchase
+  app.post('/api/billing/create-checkout', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const userEmail = req.user?.claims?.email;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const { packageCode } = req.body;
+      
+      if (!packageCode || !CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES]) {
+        return res.status(400).json({ error: "Invalid package code" });
+      }
+
+      const packageData = CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES];
+
+      // Create purchase record
+      const [purchase] = await db.insert(purchases).values({
+        userId,
+        packageCode: packageCode as any,
+        priceUsdCents: packageData.priceUsdCents,
+        baseCredits: packageData.baseCredits,
+        bonusCredits: packageData.bonusCredits,
+        totalCredits: packageData.totalCredits,
+        status: "created",
+      }).returning();
+
+      // Create Stripe checkout session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `ScholarLink Credits - ${packageCode.charAt(0).toUpperCase() + packageCode.slice(1)}`,
+              description: `${packageData.baseCredits.toLocaleString()} credits${packageData.bonusCredits > 0 ? ` + ${packageData.bonusCredits.toLocaleString()} bonus credits` : ''}`,
+            },
+            unit_amount: packageData.priceUsdCents,
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${req.protocol}://${req.headers.host}/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.protocol}://${req.headers.host}/billing?canceled=true`,
+        customer_email: userEmail || undefined,
+        metadata: {
+          purchaseId: purchase.id,
+          userId: userId,
+          packageCode: packageCode,
+        },
+      });
+
+      // Update purchase with Stripe session ID
+      await db
+        .update(purchases)
+        .set({ stripeSessionId: session.id })
+        .where(eq(purchases.id, purchase.id));
+
+      res.json({ 
+        sessionId: session.id,
+        url: session.url,
+        purchaseId: purchase.id 
+      });
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ error: "Failed to create checkout session" });
+    }
+  });
+
+  // Stripe webhook handler for payment completion
+  app.post('/api/billing/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!endpointSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET not configured");
+      return res.status(400).send("Webhook secret not configured");
+    }
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig as string, endpointSecret);
+    } catch (err) {
+      console.error("Webhook signature verification failed:", err);
+      return res.status(400).send(`Webhook Error: ${err}`);
+    }
+
+    try {
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as any;
+        const purchaseId = session.metadata?.purchaseId;
+        
+        if (!purchaseId) {
+          console.error("Purchase ID not found in session metadata");
+          return res.status(400).send("Purchase ID missing");
+        }
+
+        // Mark purchase as paid
+        await db
+          .update(purchases)
+          .set({ 
+            status: "paid",
+            stripePaymentIntentId: session.payment_intent,
+            updatedAt: new Date(),
+          })
+          .where(eq(purchases.id, purchaseId));
+
+        // Award credits to user
+        await billingService.awardPurchaseCredits(purchaseId);
+        
+        console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      res.status(500).json({ error: "Webhook processing failed" });
     }
   });
 

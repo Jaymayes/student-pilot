@@ -18,8 +18,120 @@ export interface ScholarshipMatchAnalysis {
 }
 
 export class OpenAIService {
-  // Generate essay feedback and suggestions
-  async analyzeEssay(content: string, prompt?: string): Promise<EssayFeedback> {
+  private openai: OpenAI;
+
+  constructor() {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY environment variable is required");
+    }
+  }
+
+  // Core method: Make OpenAI call with automatic billing
+  async callOpenAIWithBilling(params: {
+    userId: string;
+    model: string;
+    messages: Array<{ role: string; content: string }>;
+    maxTokens?: number;
+    temperature?: number;
+    dryRun?: boolean;
+  }): Promise<{
+    response: any;
+    usage: {
+      inputTokens: number;
+      outputTokens: number;
+      chargedCredits: number;
+      chargedUsd: number;
+    };
+  }> {
+    const { userId, model, messages, maxTokens, temperature = 0.7, dryRun = false } = params;
+
+    // Import billing service here to avoid circular imports
+    const { billingService, PaymentRequiredError, millicreditsToCredits } = await import("./billing");
+    
+    // Get rounding mode from environment
+    const roundingMode = (process.env.ROUNDING_MODE as "exact" | "ceil") || "exact";
+
+    if (dryRun) {
+      // For dry run, estimate tokens (simplified estimation)
+      const estimatedInputTokens = JSON.stringify(messages).length / 4; // rough estimate
+      const estimatedOutputTokens = maxTokens || 500; // use maxTokens or reasonable default
+
+      const estimate = await billingService.estimateCharge(
+        model,
+        estimatedInputTokens,
+        estimatedOutputTokens
+      );
+
+      // Return mock response for dry run
+      return {
+        response: {
+          choices: [{
+            message: { content: "[DRY RUN - No actual API call made]" }
+          }]
+        },
+        usage: {
+          inputTokens: estimatedInputTokens,
+          outputTokens: estimatedOutputTokens,
+          chargedCredits: estimate.creditsRequired,
+          chargedUsd: estimate.usdEquivalent,
+        },
+      };
+    }
+
+    // Make the actual OpenAI API call
+    const response = await openai.chat.completions.create({
+      model,
+      messages,
+      max_tokens: maxTokens,
+      temperature,
+    });
+
+    // Extract usage information
+    const usage = response.usage;
+    if (!usage) {
+      throw new Error("OpenAI response missing usage information. Cannot charge without token counts.");
+    }
+
+    const inputTokens = usage.prompt_tokens;
+    const outputTokens = usage.completion_tokens;
+
+    // Charge the user for usage
+    try {
+      const billingResult = await billingService.chargeForUsage(
+        userId,
+        model,
+        inputTokens,
+        outputTokens,
+        response.id,
+        roundingMode
+      );
+
+      const chargedCredits = millicreditsToCredits(billingResult.chargedMillicredits);
+
+      return {
+        response,
+        usage: {
+          inputTokens,
+          outputTokens,
+          chargedCredits,
+          chargedUsd: chargedCredits / 1000, // credits to USD
+        },
+      };
+    } catch (error) {
+      if (error instanceof PaymentRequiredError) {
+        // Re-throw with more context for API consumers
+        throw new PaymentRequiredError(
+          error.requiredCredits,
+          error.currentCredits,
+          `Insufficient credits for ${model} usage. Required: ${error.requiredCredits.toFixed(2)} credits, Available: ${error.currentCredits.toFixed(2)} credits`
+        );
+      }
+      throw error;
+    }
+  }
+
+  // Generate essay feedback and suggestions (with billing)
+  async analyzeEssay(content: string, prompt?: string, userId?: string): Promise<EssayFeedback & { usage?: any }> {
     try {
       const systemPrompt = `You are an expert essay coach helping students improve their scholarship applications. Analyze the essay and provide constructive feedback. Respond with JSON in this format:
       {
@@ -34,15 +146,34 @@ export class OpenAIService {
         ? `Essay Prompt: ${prompt}\n\nEssay Content: ${content}`
         : `Essay Content: ${content}`;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.7,
-      });
+      let response, usage;
+      
+      if (userId) {
+        // Use billing-enabled version
+        const result = await this.callOpenAIWithBilling({
+          userId,
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          maxTokens: 800,
+          temperature: 0.7,
+        });
+        response = result.response;
+        usage = result.usage;
+      } else {
+        // Legacy mode without billing
+        response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.7,
+        });
+      }
 
       const result = JSON.parse(response.choices[0].message.content || "{}");
       
@@ -52,6 +183,7 @@ export class OpenAIService {
         improvements: Array.isArray(result.improvements) ? result.improvements : [],
         suggestions: result.suggestions || "",
         wordCount: result.wordCount || content.trim().split(/\s+/).length,
+        ...(usage && { usage }), // Include usage info if billing was used
       };
     } catch (error) {
       console.error("Error analyzing essay:", error);
