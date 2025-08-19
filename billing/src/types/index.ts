@@ -1,38 +1,51 @@
 // Type definitions for ScholarLink Billing Service
 
+import { Decimal } from 'decimal.js';
 import { Request } from 'express';
-import { User, LedgerEntry, Purchase, RateCard } from '@prisma/client';
-import Decimal from 'decimal.js';
 
-// Extend Express Request with authenticated user
-export interface AuthenticatedRequest extends Request {
-  user?: JWTPayload;
+// User types
+export interface User {
+  id: string;
+  email: string;
+  role: 'user' | 'admin';
+  balanceCredits: Decimal;
+  createdAt: Date;
 }
 
-// JWT Payload structure
+// JWT payload
 export interface JWTPayload {
-  sub: string; // User ID (subject)
-  email?: string;
-  role?: string;
-  iss: string; // Issuer
-  aud: string; // Audience
-  iat: number; // Issued at
-  exp: number; // Expires at
-  kid?: string; // Key ID
+  sub: string;
+  email: string;
+  role: 'user' | 'admin';
+  iss: string;
+  aud: string;
+  exp: number;
+  iat: number;
 }
 
-// API Response types
-export interface ApiResponse<T = any> {
-  data?: T;
-  error?: string;
-  message?: string;
-  correlationId?: string;
+// Authenticated request
+export interface AuthenticatedRequest extends Request {
+  user: JWTPayload;
 }
 
-export interface PaginatedResponse<T> extends ApiResponse<T> {
-  nextCursor?: string;
-  hasMore: boolean;
-  total?: number;
+// Ledger entry types
+export type LedgerKind = 'credit' | 'debit' | 'adjustment' | 'reversal';
+
+export interface LedgerEntry {
+  id: string;
+  userId: string;
+  kind: LedgerKind;
+  amountCredits: Decimal;
+  usdCents?: number;
+  model?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  rateVersion: string;
+  reason: string;
+  requestId?: string;
+  idempotencyKey?: string;
+  metadata: Record<string, any>;
+  createdAt: Date;
 }
 
 // Rate card configuration
@@ -48,30 +61,23 @@ export interface ModelRate {
   outputPer1k: number;
 }
 
-// Usage tracking and billing
-export interface UsageReconciliation {
+// Purchase types
+export type PurchaseStatus = 'succeeded' | 'pending' | 'failed';
+export type PurchaseProvider = 'stripe' | 'manual';
+
+export interface Purchase {
+  id: string;
   userId: string;
-  model: string;
-  inputTokens: number;
-  outputTokens: number;
-  requestId?: string;
-  idempotencyKey: string;
+  packageCode: string;
+  usdCents: number;
+  creditsGranted: Decimal;
+  provider: PurchaseProvider;
+  providerRef: string;
+  status: PurchaseStatus;
+  createdAt: Date;
 }
 
-export interface UsageResult {
-  success?: boolean;
-  error?: 'INSUFFICIENT_CREDITS' | 'INVALID_MODEL' | 'DUPLICATE_REQUEST';
-  ledgerEntry?: LedgerEntry;
-  newBalance?: Decimal;
-  debitAmount?: Decimal;
-  details?: {
-    required?: string;
-    available?: string;
-    shortfall?: string;
-  };
-}
-
-// Credit packages
+// Package definitions
 export interface CreditPackage {
   code: string;
   name: string;
@@ -80,88 +86,71 @@ export interface CreditPackage {
   bonusPercentage?: number;
 }
 
-// Ledger operations
-export interface LedgerQuery {
-  cursor?: string;
-  limit: number;
+// API request/response types
+export interface UsageReconcileRequest {
+  userId: string;
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  requestId: string;
+  idempotencyKey: string;
 }
 
-export interface LedgerResult {
-  entries: LedgerEntry[];
-  nextCursor?: string;
-  hasMore: boolean;
+export interface UsageReconcileResponse {
+  success: boolean;
+  balanceCredits: string;
+  chargedCredits: string;
+  ledgerEntryId: string;
 }
 
-export interface AdjustmentResult {
-  ledgerEntry: LedgerEntry;
-  newBalance: Decimal;
+export interface InsufficientCreditsError {
+  error: 'insufficient_credits';
+  required: string;
+  available: string;
+  shortfall: string;
 }
 
-// Database enums
-export enum LedgerEntryKind {
-  CREDIT = 'credit',
-  DEBIT = 'debit',
-  ADJUSTMENT = 'adjustment',
-  REVERSAL = 'reversal'
+export interface PurchaseRequest {
+  packageCode: string;
 }
 
-export enum PurchaseStatus {
-  PENDING = 'pending',
-  SUCCEEDED = 'succeeded',
-  FAILED = 'failed'
+export interface PurchaseResponse {
+  purchaseId: string;
+  paymentUrl: string;
+  status: PurchaseStatus;
 }
 
-export enum PurchaseProvider {
-  STRIPE = 'stripe',
-  MANUAL = 'manual'
-}
-
-export enum UserRole {
-  USER = 'user',
-  ADMIN = 'admin'
-}
-
-// Metrics and monitoring
-export interface ServiceMetrics {
-  requestsTotal: number;
-  reconcileDebitsTotal: number;
-  reconcileInsufficientFunds: number;
-  ledgerWriteFailures: number;
-  averageResponseTime: number;
-}
-
-// Health check status
-export interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  timestamp: string;
-  version?: string;
-  components?: {
-    database: 'healthy' | 'unhealthy';
-    rateCard: 'healthy' | 'unhealthy';
-  };
+export interface UserProfileResponse {
+  id: string;
+  email: string;
+  role: string;
+  balanceCredits: string;
+  displayBalance: string;
+  createdAt: string;
 }
 
 // Stripe webhook types
 export interface StripeWebhookEvent {
+  id: string;
   type: string;
   data: {
     object: any;
   };
-  created: number;
-  livemode: boolean;
 }
 
-// Configuration validation
-export interface ConfigValidation {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
+// Admin adjustment request
+export interface AdminAdjustmentRequest {
+  userId: string;
+  amountCredits: string;
+  reason: string;
 }
 
-// Export commonly used Prisma types with proper naming
-export type {
-  User as DatabaseUser,
-  LedgerEntry as DatabaseLedgerEntry,
-  Purchase as DatabasePurchase,
-  RateCard as DatabaseRateCard,
-} from '@prisma/client';
+// Metrics types
+export interface Metrics {
+  reconcile_debits_total: number;
+  reconcile_insufficient_funds: number;
+  ledger_write_failures: number;
+  active_users: number;
+  total_credits_issued: string;
+  total_credits_spent: string;
+}

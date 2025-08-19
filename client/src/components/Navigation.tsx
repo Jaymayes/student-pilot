@@ -1,9 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { BillingLink } from "@/components/BillingLink";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import type { User } from "@/types/user";
 import { 
   GraduationCap, 
@@ -14,8 +11,7 @@ import {
   Search, 
   FileText, 
   Folder, 
-  User as UserIcon,
-  LogOut
+  User as UserIcon 
 } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -61,71 +57,13 @@ export function Navigation() {
                     3
                   </span>
                 </button>
-                
-                {/* Mobile Menu Sheet */}
-                <Sheet open={showMobileMenu} onOpenChange={setShowMobileMenu}>
-                  <SheetTrigger asChild>
-                    <button 
-                      className="text-gray-600 hover:text-primary"
-                      data-testid="button-mobile-menu"
-                    >
-                      <Menu className="h-6 w-6" />
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-80">
-                    <div className="flex flex-col space-y-6 mt-6">
-                      {/* User Info */}
-                      <div className="flex items-center space-x-3 pb-4 border-b">
-                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium">
-                            {getInitials(user?.firstName || undefined, user?.lastName || undefined)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium">{user?.firstName || 'User'}</p>
-                          <p className="text-sm text-gray-500">{user?.email}</p>
-                        </div>
-                      </div>
-                      
-                      {/* Navigation Links */}
-                      <div className="space-y-2">
-                        {navItems.map((item) => {
-                          const Icon = item.icon;
-                          const isActive = location === item.path;
-                          return (
-                            <Link key={item.path} href={item.path}>
-                              <button
-                                onClick={() => setShowMobileMenu(false)}
-                                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left transition-colors ${
-                                  isActive ? 'bg-primary text-white' : 'hover:bg-gray-100'
-                                }`}
-                                data-testid={`mobile-nav-${item.label.toLowerCase()}`}
-                              >
-                                <Icon className="h-5 w-5" />
-                                <span>{item.label}</span>
-                              </button>
-                            </Link>
-                          );
-                        })}
-                        
-                        {/* Billing Link in Mobile Menu */}
-                        <BillingLink variant="menu" source="mobile-menu" className="w-full px-3 py-2 rounded-md hover:bg-gray-100" />
-                      </div>
-                      
-                      {/* Logout */}
-                      <div className="border-t pt-4">
-                        <button
-                          onClick={() => window.location.href = '/api/logout'}
-                          className="w-full flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100 text-red-600"
-                          data-testid="mobile-logout"
-                        >
-                          <LogOut className="h-5 w-5" />
-                          <span>Log out</span>
-                        </button>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                <button 
+                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  className="text-gray-600 hover:text-primary"
+                  data-testid="button-mobile-menu"
+                >
+                  <Menu className="h-6 w-6" />
+                </button>
               </div>
             </div>
           </div>
@@ -186,9 +124,6 @@ export function Navigation() {
                 </Link>
               );
             })}
-            
-            {/* Billing & Credits Link */}
-            <BillingLink variant="nav" source="header-nav" />
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
@@ -201,48 +136,22 @@ export function Navigation() {
                 3
               </span>
             </button>
-            
-            {/* User Menu Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className="flex items-center space-x-3 hover:bg-gray-50 rounded-md px-2 py-2 transition-colors"
-                  data-testid="button-user-menu"
-                >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {getInitials(user?.firstName || undefined, user?.lastName || undefined)}
-                    </span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {user?.firstName || 'User'}
-                  </span>
-                  <ChevronDown className="text-gray-400 h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <BillingLink variant="menu" source="user-menu" className="justify-start" />
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <button 
-                    onClick={() => window.location.href = '/api/logout'}
-                    className="flex w-full items-center"
-                    data-testid="button-logout"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  {getInitials(user?.firstName || undefined, user?.lastName || undefined)}
+                </span>
+              </div>
+              <span className="text-sm font-medium">
+                {user?.firstName || 'User'}
+              </span>
+              <button 
+                onClick={() => window.location.href = '/api/logout'}
+                data-testid="button-logout"
+              >
+                <ChevronDown className="text-gray-400 h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

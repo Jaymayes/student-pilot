@@ -125,12 +125,3 @@ export function limitBodySize(maxBytes: number) {
     next();
   };
 }
-
-// Export the functions with aliases to match routes expectations
-export const validateRequest = validateBody;
-export const validateAuth = () => (req: any, res: any, next: any) => next(); // Stub for now
-
-// Setup function for app-level validation middleware
-export function setupValidation(app: any): void {
-  // Global validation setup if needed
-}

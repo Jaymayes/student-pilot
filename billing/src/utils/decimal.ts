@@ -1,63 +1,77 @@
 // Decimal utility functions for precise credit calculations
 
-import Decimal from 'decimal.js';
+import { Decimal } from 'decimal.js';
 import { appConfig } from '@/config';
 
-// Configure Decimal for financial calculations
-Decimal.config({
+// Configure Decimal.js for precise financial calculations
+Decimal.set({
   precision: 28,
   rounding: Decimal.ROUND_HALF_UP,
-  toExpNeg: -28,
-  toExpPos: 28,
+  toExpNeg: -9e15,
+  toExpPos: 9e15,
 });
 
 /**
- * Create a new Decimal instance from various input types
+ * Create a Decimal from a number or string with validation
  */
-export function decimal(value: string | number | Decimal): Decimal {
-  return new Decimal(value);
+export function createDecimal(value: number | string | Decimal): Decimal {
+  try {
+    const decimal = new Decimal(value);
+    if (!decimal.isFinite()) {
+      throw new Error(`Invalid decimal value: ${value}`);
+    }
+    return decimal;
+  } catch (error) {
+    throw new Error(`Failed to create decimal from ${value}: ${error}`);
+  }
 }
 
 /**
- * Convert USD cents to credits (1000 credits per dollar)
+ * Convert USD cents to credits (1000 credits = $1.00)
  */
-export function usdCentsToCredits(cents: number): Decimal {
-  return decimal(cents).dividedBy(100).times(1000);
+export function usdCentsToCredits(usdCents: number): Decimal {
+  return createDecimal(usdCents).div(100).mul(1000);
 }
 
 /**
  * Convert credits to USD cents
  */
 export function creditsToUsdCents(credits: Decimal): number {
-  return credits.dividedBy(1000).times(100).toNumber();
+  return credits.div(1000).mul(100).toNumber();
 }
 
 /**
- * Calculate usage cost based on token counts and rates
+ * Calculate usage cost in credits with 4x markup
  */
 export function calculateUsageCost(
   inputTokens: number,
   outputTokens: number,
-  inputRate: number,
-  outputRate: number
+  inputRatePer1k: number,
+  outputRatePer1k: number
 ): Decimal {
-  const inputCost = decimal(inputTokens).dividedBy(1000).times(inputRate);
-  const outputCost = decimal(outputTokens).dividedBy(1000).times(outputRate);
+  const inputCost = createDecimal(inputTokens)
+    .div(1000)
+    .mul(inputRatePer1k);
+    
+  const outputCost = createDecimal(outputTokens)
+    .div(1000)
+    .mul(outputRatePer1k);
+    
+  const totalCost = inputCost.add(outputCost);
   
-  const totalCost = inputCost.plus(outputCost);
+  // Apply 4x markup
+  const markedUpCost = totalCost.mul(4);
   
-  // Apply 4x markup as specified in requirements
-  return totalCost.times(4);
+  return markedUpCost;
 }
 
 /**
- * Apply rounding policy for display
+ * Apply rounding policy based on configuration
  */
-export function applyRoundingPolicy(amount: Decimal, mode: 'precise' | 'ceil'): Decimal {
-  if (mode === 'ceil' && !amount.isInteger()) {
+export function applyRounding(amount: Decimal): Decimal {
+  if (appConfig.BILLING_ROUNDING_MODE === 'ceil') {
     return amount.ceil();
   }
-  
   return amount;
 }
 
@@ -69,136 +83,60 @@ export function formatCreditsForDisplay(credits: Decimal): string {
 }
 
 /**
- * Format USD amount for display
+ * Format credits for storage/API (full precision)
  */
-export function formatUsdForDisplay(cents: number): string {
-  return (cents / 100).toFixed(2);
+export function formatCreditsForStorage(credits: Decimal): string {
+  return credits.toString();
 }
 
 /**
- * Validate that a decimal string represents a valid credit amount
+ * Validate that a decimal is positive
  */
-export function isValidCreditAmount(value: string): boolean {
-  try {
-    const amount = new Decimal(value);
-    
-    // Must be finite and not NaN
-    if (!amount.isFinite()) return false;
-    
-    // Must not be negative
-    if (amount.isNegative()) return false;
-    
-    // Must have reasonable precision (max 18 decimal places)
-    if (amount.decimalPlaces() > 18) return false;
-    
-    // Must be within reasonable bounds (max 1 trillion credits)
-    if (amount.greaterThan('1000000000000')) return false;
-    
-    return true;
-  } catch (error) {
-    return false;
+export function validatePositiveDecimal(value: Decimal, fieldName: string): void {
+  if (value.isNegative() || value.isZero()) {
+    throw new Error(`${fieldName} must be positive`);
   }
 }
 
 /**
- * Safely parse a decimal string
+ * Compare decimals safely (timing-safe for security-sensitive operations)
  */
-export function parseDecimal(value: string): Decimal | null {
-  try {
-    if (!isValidCreditAmount(value)) {
-      return null;
-    }
-    
-    return new Decimal(value);
-  } catch (error) {
-    return null;
+export function timingSafeDecimalCompare(a: Decimal, b: Decimal): boolean {
+  const aStr = a.toString().padEnd(50, '0');
+  const bStr = b.toString().padEnd(50, '0');
+  
+  let result = 0;
+  for (let i = 0; i < Math.max(aStr.length, bStr.length); i++) {
+    result |= (aStr.charCodeAt(i) || 0) ^ (bStr.charCodeAt(i) || 0);
   }
+  
+  return result === 0;
 }
 
 /**
- * Calculate percentage bonus
+ * Add two decimals with overflow protection
  */
-export function calculateBonus(amount: Decimal, bonusPercentage: number): Decimal {
-  const bonus = amount.times(bonusPercentage).dividedBy(100);
-  return amount.plus(bonus);
-}
-
-/**
- * Check if user has sufficient credits for an operation
- */
-export function hasSufficientCredits(
-  available: Decimal,
-  required: Decimal
-): boolean {
-  return available.greaterThanOrEqualTo(required);
-}
-
-/**
- * Calculate credit shortfall
- */
-export function calculateShortfall(
-  available: Decimal,
-  required: Decimal
-): Decimal {
-  const shortfall = required.minus(available);
-  return shortfall.isPositive() ? shortfall : decimal(0);
-}
-
-/**
- * Aggregate multiple decimal values
- */
-export function sumDecimals(values: Decimal[]): Decimal {
-  return values.reduce((sum, value) => sum.plus(value), decimal(0));
-}
-
-/**
- * Convert Decimal to database-safe string
- */
-export function toDbString(value: Decimal): string {
-  return value.toString();
-}
-
-/**
- * Convert database string to Decimal
- */
-export function fromDbString(value: string): Decimal {
-  return new Decimal(value);
-}
-
-/**
- * Validate and normalize credit input from API
- */
-export function normalizeCreditsFromAPI(input: string | number): Decimal | null {
-  try {
-    const value = typeof input === 'string' ? input : input.toString();
-    
-    if (!isValidCreditAmount(value)) {
-      return null;
-    }
-    
-    return new Decimal(value);
-  } catch (error) {
-    return null;
+export function safeAdd(a: Decimal, b: Decimal): Decimal {
+  const result = a.add(b);
+  
+  // Check for reasonable bounds (prevent overflow)
+  if (result.gt(new Decimal('1e15'))) {
+    throw new Error('Calculation overflow detected');
   }
+  
+  return result;
 }
 
 /**
- * Create zero decimal
+ * Subtract two decimals with underflow protection
  */
-export function zero(): Decimal {
-  return new Decimal(0);
-}
-
-/**
- * Check if decimal is zero
- */
-export function isZero(value: Decimal): boolean {
-  return value.equals(0);
-}
-
-/**
- * Get minimum credit amount for operations
- */
-export function getMinimumCreditAmount(): Decimal {
-  return new Decimal('0.001'); // 0.001 credits minimum
+export function safeSubtract(a: Decimal, b: Decimal): Decimal {
+  const result = a.sub(b);
+  
+  // Prevent negative balances in most contexts
+  if (result.isNegative()) {
+    throw new Error('Insufficient balance for operation');
+  }
+  
+  return result;
 }

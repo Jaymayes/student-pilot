@@ -1,40 +1,81 @@
 // User service for managing user accounts and balances
 
 import { Decimal } from 'decimal.js';
-import { prisma } from './database';
-import { JWTPayload } from '@/types';
+import { prisma, withTransaction } from './database';
+import { User, UserProfileResponse, JWTPayload } from '@/types';
 import { 
-  decimal, 
+  createDecimal, 
   formatCreditsForDisplay, 
-  toDbString,
-  fromDbString
+  formatCreditsForStorage,
+  applyRounding
 } from '@/utils/decimal';
 import pino from 'pino';
 
 const logger = pino({ name: 'user-service' });
 
 /**
- * Get user with balance
+ * Get or create user from JWT payload
  */
-export async function getUserWithBalance(userId: string) {
+export async function getOrCreateUser(jwtPayload: JWTPayload): Promise<User> {
+  try {
+    // Try to find existing user
+    let user = await prisma.user.findUnique({
+      where: { id: jwtPayload.sub },
+    });
+
+    if (!user) {
+      // Create new user
+      user = await prisma.user.create({
+        data: {
+          id: jwtPayload.sub,
+          email: jwtPayload.email,
+          role: jwtPayload.role,
+          balanceCredits: new Decimal(0),
+        },
+      });
+
+      logger.info(
+        { userId: user.id, email: user.email }, 
+        'Created new user account'
+      );
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role as 'user' | 'admin',
+      balanceCredits: new Decimal(user.balanceCredits.toString()),
+      createdAt: user.createdAt,
+    };
+  } catch (error) {
+    logger.error({ error, userId: jwtPayload.sub }, 'Failed to get or create user');
+    throw error;
+  }
+}
+
+/**
+ * Get user profile response
+ */
+export async function getUserProfile(userId: string): Promise<UserProfileResponse> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
 
   if (!user) {
-    return null;
+    throw new Error('User not found');
   }
 
+  const balanceCredits = createDecimal(user.balanceCredits.toString());
+
   return {
-    ...user,
-    balanceCredits: fromDbString(user.balanceCredits.toString()),
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    balanceCredits: formatCreditsForStorage(balanceCredits),
+    displayBalance: formatCreditsForDisplay(applyRounding(balanceCredits)),
+    createdAt: user.createdAt.toISOString(),
   };
 }
-
-/**
- * Format credits for display with proper rounding
- */
-export { formatCreditsForDisplay };
 
 /**
  * Get user balance

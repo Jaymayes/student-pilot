@@ -2,25 +2,9 @@
 
 ScholarLink is a comprehensive scholarship management platform that helps students discover, apply for, and manage scholarships. The application provides personalized scholarship matching, application tracking, document management, and essay writing assistance. Built as a full-stack web application with a React frontend and Express backend, it integrates with Replit's authentication system and uses Google Cloud Storage for file management.
 
-**Latest Update (August 19, 2025)**: ScholarLink has achieved enterprise-grade production readiness with comprehensive security hardening, complete deployment infrastructure, and now includes a **comprehensive credit-based billing system**. All 12 critical security vulnerabilities have been resolved including data validation bypass, race conditions, and JWT timing attacks. The platform features production-ready security controls with timing-safe authentication, comprehensive input validation, enhanced error handling, and complete rate limiting. Agent Bridge integration provides secure, JWT-authenticated task dispatch with 9 intelligent capabilities for AI-powered scholarship assistance.
+**Latest Update (August 19, 2025)**: ScholarLink has achieved enterprise-grade production readiness with comprehensive security hardening and deployment infrastructure. All 12 critical security vulnerabilities have been resolved including data validation bypass, race conditions, and JWT timing attacks. The platform now features production-ready security controls with timing-safe authentication, comprehensive input validation, enhanced error handling, and complete rate limiting. Agent Bridge integration provides secure, JWT-authenticated task dispatch with 9 intelligent capabilities for AI-powered scholarship assistance. 
 
-**Domain Migration Complete (August 19, 2025)**: Successfully resolved SSL certificate issues by migrating billing portal from billing.student-pilot.replit.app to billing.scholarlink.app with proper Let's Encrypt certificate provisioning. Full canary deployment completed with 100% traffic routing to new domain. All security compliance maintained with HTTPS enforcement, CSP hardening, and comprehensive monitoring.
-
-**Production Deployment Ready (August 19, 2025)**: Complete infrastructure deployed with DNS configuration requirements documented. Production validation suite created with comprehensive testing for DNS resolution, SSL certificates, security headers, Stripe webhooks, and performance metrics. All application components updated for billing.scholarlink.app domain. Awaiting DNS record creation to activate full production environment.
-
-**Final Status (August 19, 2025)**: ScholarLink billing portal infrastructure 100% complete and production-ready. Single DNS CNAME record (billing → k8s-load-balancer-fqdn) required in scholarlink.app zone for immediate activation. Upon DNS resolution, Let's Encrypt will automatically issue valid SSL certificates and billing.scholarlink.app will be fully operational with all enterprise features, security controls, and monitoring systems active.
-
-**DNS Activation Ready (August 19, 2025)**: Complete DNS activation monitoring and validation suite created. All technical components prepared for immediate billing portal activation upon DNS record creation. Comprehensive verification tools and production validation scripts ready for post-activation testing.
-
-**Option 1 Redirect Implementation (August 19, 2025)**: Implemented smart 301 redirect architecture that preserves Stripe webhooks on billing.scholarlink.app/webhooks/stripe while redirecting user traffic to integrated in-app billing at app.scholarlink.app/account/billing. Maintains enterprise security with single SSL certificate while providing seamless user experience and simplified infrastructure.
-
-**Final Execution Ready (August 19, 2025)**: Complete Option 1 execution sequence prepared with Kubernetes manifests, DNS commands, monitoring scripts, and validation procedures. All components ready for immediate deployment - apply ingresses, create DNS record, monitor activation. Expected timeline: 10-15 minutes from DNS creation to full operation. 
-
-**Billing System**: Complete credit-based monetization system with $1 = 1000 credits conversion, Stripe integration, JWT authentication (RS256), precise decimal accounting, auditable ledger, rate cards for OpenAI models (4x markup), progressive credit packages (5%-20% bonuses), and production-grade security with timing-safe operations.
-
-**UI Integration Complete**: Added comprehensive "Billing & Credits" access throughout the interface including header navigation, user menu dropdown, mobile menu, footer, and contextual alerts. Features secure external links with UTM tracking, accessibility compliance, and feature flag control. Includes comprehensive Help/FAQ documentation with credit purchasing guidance and ledger access instructions.
-
-**Production Deployment Infrastructure**: Complete Kubernetes deployment with progressive canary rollouts (1%→5%→20%→50%→100%), automated health monitoring, SLO-based alerting, WAF protection, CSP hardening, admission controllers, vulnerability scanning, and secrets rotation. Platform ready for immediate production deployment with enterprise security guardrails and comprehensive billing infrastructure.
+**Production Deployment Infrastructure**: Complete Kubernetes deployment with progressive canary rollouts (1%→5%→20%→50%→100%), automated health monitoring, SLO-based alerting, WAF protection, CSP hardening, admission controllers, vulnerability scanning, and secrets rotation. Platform ready for immediate production deployment with enterprise security guardrails.
 
 # User Preferences
 
@@ -90,16 +74,6 @@ The schema includes core entities for:
 - **Rate Limiting**: 5 tasks/minute protection for AI services
 - **Event Monitoring**: Comprehensive audit trail and monitoring
 - **Security Enforcement**: Request validation and unauthorized access rejection
-
-## Credit-Based Billing System (Production Ready)
-- **Monetization Model**: $1 = 1000 credits with 18-decimal precision accounting
-- **Payment Processing**: Stripe integration with live webhook validation
-- **Authentication**: JWT RS256 with timing-safe operations
-- **Rate Cards**: OpenAI models with 4x markup (GPT-4o: 20/60 credits per 1k tokens)
-- **Credit Packages**: 5 tiers with progressive bonuses (Starter $5 → Enterprise $100)
-- **Usage Tracking**: Real-time token reconciliation with idempotency protection
-- **Auditable Ledger**: Complete transaction history with correlation IDs
-- **Production Security**: Request validation, rate limiting, comprehensive error handling
 
 ## UI and Frontend Libraries
 - **shadcn/ui**: Pre-built accessible React components
