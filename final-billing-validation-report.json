@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-08-19T18:27:59.560Z",
+  "timestamp": "2025-08-19T18:31:15.284Z",
   "status": "READY_FOR_PRODUCTION",
   "billing_portal_url": "https://billing.student-pilot.replit.app",
   "feature_flag": "VITE_BILLING_LINK_ENABLED",
