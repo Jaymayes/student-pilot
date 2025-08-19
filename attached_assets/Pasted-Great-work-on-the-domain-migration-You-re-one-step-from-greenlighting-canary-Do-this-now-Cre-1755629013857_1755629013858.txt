@@ -1,0 +1,47 @@
+Great work on the domain migration. You’re one step from greenlighting canary.
+
+Do this now
+
+Create DNS
+CNAME billing.scholarlink.app -> <your-ingress-LB-DNS>
+Verify propagation:
+dig +short billing.scholarlink.app
+dig +short CNAME billing.scholarlink.app
+Validate cert-manager
+kubectl -n scholarlink-prod get certificate,order,challenge
+kubectl -n scholarlink-prod describe certificate billing-scholarlink-app-tls
+When Ready=True:
+curl -sSI https://billing.scholarlink.app | head -n 5
+openssl s_client -connect billing.scholarlink.app:443 -servername billing.scholarlink.app </dev/null 2>/dev/null | openssl x509 -noout -issuer -subject -dates
+Important updates to finish the cutover
+
+Ingress/Service
+Primary and canary Ingress hosts: billing.scholarlink.app
+TLS secret: billing-scholarlink-app-tls on both
+App config
+CORS allowlist must include https://billing.scholarlink.app
+CSP: allow navigation to the new domain (no tokens in URL)
+Stripe
+Create/replace LIVE webhook endpoint:
+https://billing.scholarlink.app/webhooks/stripe
+Update STRIPE_WEBHOOK_SECRET (new signing secret) in AWS Secrets Manager, let External Secrets sync
+Test with Stripe CLI (or live $5 canary purchase)
+Monitoring
+Update any hardcoded endpoint to the new billing domain
+Confirm metrics and webhooks are flowing after domain cutover
+Cloudflare (only if used)
+If the DNS record is proxied (orange cloud), either set DNS only (gray cloud) for HTTP-01 or switch your ClusterIssuer to DNS-01. Otherwise issuance will hang.
+Quick go-live sequence (after cert Ready)
+
+./deployment/billing/update-domain.sh
+./deployment/billing/go-live-commands.sh preflight
+./deployment/billing/go-live-commands.sh smoke
+./deployment/billing/go-live-commands.sh webhook
+./deployment/billing/go-live-commands.sh canary
+What I can do next
+
+Review cert-manager and Ingress status if you paste the outputs of:
+kubectl -n scholarlink-prod get ingress,certificate,order,challenge
+Provide a DNS-01 ClusterIssuer snippet (Route53 or Cloudflare) if you prefer that solver.
+Stay on-call while you run the canary and watch error rate, p95 latency, webhook success, and ledger integrity.
+Once DNS is live and the Certificate shows Ready=True, you’re clear to start the canary rollout.
