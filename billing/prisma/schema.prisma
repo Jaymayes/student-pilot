@@ -1,0 +1,82 @@
+// Prisma schema for ScholarLink Billing Service
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  role           String    @default("user") // 'user' | 'admin'
+  balanceCredits Decimal   @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  ledgerEntries  LedgerEntry[]
+  purchases      Purchase[]
+
+  @@map("users")
+}
+
+model LedgerEntry {
+  id              String    @id @default(cuid())
+  userId          String
+  kind            String    // 'credit' | 'debit' | 'adjustment' | 'reversal'
+  amountCredits   Decimal
+  usdCents        Int?
+  model           String?
+  inputTokens     Int?
+  outputTokens    Int?
+  rateVersion     String
+  reason          String
+  requestId       String?
+  idempotencyKey  String?   @unique
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([idempotencyKey])
+  @@map("ledger_entries")
+}
+
+model RateCard {
+  id         String    @id @default(cuid())
+  version    String    @unique
+  config     Json
+  activeFrom DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+
+  @@index([activeFrom])
+  @@map("rate_cards")
+}
+
+model Purchase {
+  id            String    @id @default(cuid())
+  userId        String
+  packageCode   String
+  usdCents      Int
+  creditsGranted Decimal
+  provider      String    // 'stripe' | 'manual'
+  providerRef   String
+  status        String    // 'succeeded' | 'pending' | 'failed'
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([providerRef])
+  @@map("purchases")
+}

@@ -1,0 +1,113 @@
+Prompt 1 — Build the credit-based billing system (student-pilot-jamarrlmayes.replit.app)
+Goal
+Implement a production-grade credit billing service for ScholarLink with $1 = 1000 credits, $5 minimum purchase, 4x markup, fractional-credit accounting, idempotent deduction, and an auditable ledger.
+
+Stack and project setup
+
+Node 20 + Express + TypeScript
+Prisma ORM with SQLite (local dev) and easy switch to Postgres via DATABASE_URL
+Zod for validation, Helmet for headers, CORS (allowlist), express-rate-limit, pino for JSON logs
+Decimal.js for exact credit arithmetic (no floats)
+JWT auth (RS256) with kid/JWKS support, timing-safe verification
+OpenAPI (swagger-ui + yaml/json) generated from routes
+Environment variables
+
+NODE_ENV=production
+PORT=3000
+DATABASE_URL (sqlite: file:./dev.db for dev)
+JWT_PUBLIC_KEY (PEM), JWT_ISSUER, JWT_AUDIENCE
+STRIPE_WEBHOOK_SECRET (optional; include stub if not available)
+BILLING_ROUNDING_MODE=precise|ceil
+RATE_CARD_VERSION (string; default “v1”)
+Core business rules
+
+Exchange: 1000 credits = $1.00 USD; 1 credit = $0.001
+4x markup applied to input/output token costs
+Rate card (credits per 1k tokens) to implement as versioned config (use below values as v1)
+GPT-5 Nano: input 0.2, output 1.6
+GPT-5 Mini: input 1.0, output 8.0
+GPT-4o Mini: input 2.4, output 9.6
+GPT-5: input 5.0, output 40.0
+GPT-4o: input 20.0, output 80.0
+Rounding policy:
+Internal: always track fractional credits with Decimal to maintain exact math
+Display: show 2 decimals; if BILLING_ROUNDING_MODE=ceil, round each charge up to next whole credit
+$5 minimum purchase; offer packages:
+Starter $5 → 5,000 credits
+Basic $20 → 20,000 credits
+Pro $50 → 52,500 credits (5% bonus)
+Business $100 → 110,000 credits (10% bonus)
+Data model (Prisma schema)
+
+User: id (uuid), email (unique), role (‘user’|’admin’), balanceCredits (Decimal, default 0), createdAt
+LedgerEntry: id, userId, kind (‘credit’|’debit’|’adjustment’|’reversal’), amountCredits (Decimal), usdCents (int, nullable), model (nullable), inputTokens (int, nullable), outputTokens (int, nullable), rateVersion (string), reason (string), requestId (string, nullable), idempotencyKey (string, unique, nullable), metadata (Json), createdAt
+RateCard: id, version (unique), config (Json), activeFrom
+Purchase: id, userId, packageCode, usdCents, creditsGranted (Decimal), provider (‘stripe’|’manual’), providerRef (string), status (‘succeeded’|’pending’|’failed’), createdAt
+Indexes on LedgerEntry(userId, createdAt desc) and (idempotencyKey)
+APIs (all JSON; prefix /api/v1; validate with Zod; RBAC via JWT)
+
+Auth (stub if auth is elsewhere)
+GET /me: returns user profile + precise balance (Decimal string) and displayBalance (rounded per policy)
+Rate card
+GET /billing/rate-card: returns active version and per-model rates
+POST /admin/billing/rate-card: admin only, creates new version with config JSON; does not auto-migrate existing ledger
+Purchases
+POST /billing/purchase: body {packageCode} → creates pending Purchase, returns payment link placeholder
+POST /webhooks/stripe: verifies signature (if STRIPE_WEBHOOK_SECRET). On payment success, create Purchase(status=succeeded), add LedgerEntry(kind=‘credit’), increase User.balanceCredits in a transaction
+Usage charging
+POST /usage/reconcile: body {userId, model, inputTokens, outputTokens, requestId, idempotencyKey}
+Validates model is in rate card; computes debit = (inputTokens/1000)*inputRate + (outputTokens/1000)*outputRate using Decimal
+Applies rounding policy if ceil mode
+Uses a DB transaction with SELECT … FOR UPDATE (or Prisma equivalent) to:
+Check idempotencyKey; if exists, return previous result
+Ensure balanceCredits >= debit; if insufficient, return 402 with needed additional credits
+Insert LedgerEntry(kind=‘debit’, …) and decrement balance
+Return new balance and ledger entry
+Ledger and exports
+GET /billing/ledger?cursor=…&limit=…: paginated user ledger
+GET /admin/billing/ledger/:userId: admin view
+GET /billing/ledger/export.csv: CSV for Google Sheets (include headers: timestamp, kind, amountCredits, usdCents, model, tokens, requestId, idempotencyKey, rateVersion)
+Admin adjustments
+POST /admin/billing/adjust: body {userId, amountCredits, reason} → credit or debit; creates LedgerEntry(kind=‘adjustment’)
+Security and hardening
+
+JWT RS256 verification with algorithm allowlist and timingSafeEqual; enforce iss/aud; uniform 401/403 messages
+Input validation with strict schemas (strip unknowns), body size limits, and content-type checks
+Global error handler with generic prod messages; correlation ID middleware; pino logs
+Rate limiting per IP and per user (if auth present); trust proxy configurable
+Transactions for all balance mutations; idempotency on reconcile and webhooks
+Decimal math only (no floats). Unit tests guard rounding and concurrency
+CORS allowlist; Helmet security headers; CSP report-only acceptable in Replit
+Observability and ops
+
+/healthz (liveness), /readyz (DB + rate card loaded), /metrics (Prometheus format: request counts, reconcile_debits_total, reconcile_insufficient_funds, ledger_write_failures)
+Seed script: creates rate card v1 and one demo user with 5,000 credits
+OpenAPI docs at /docs with auth and example requests
+Jest tests:
+Rate calculations for all models
+Idempotency behavior
+Concurrency test charging same user concurrently
+Rounding modes precise vs ceil
+Rate card v1 config (JSON to store in RateCard.config)
+{
+"currency": "USD",
+"creditPerDollar": 1000,
+"rounding": "precise",
+"models": {
+"gpt-5-nano": { "inputPer1k": 0.2, "outputPer1k": 1.6 },
+"gpt-5-mini": { "inputPer1k": 1.0, "outputPer1k": 8.0 },
+"gpt-4o-mini": { "inputPer1k": 2.4, "outputPer1k": 9.6 },
+"gpt-5": { "inputPer1k": 5.0, "outputPer1k": 40.0 },
+"gpt-4o": { "inputPer1k": 20.0, "outputPer1k": 80.0 }
+}
+}
+
+Deliverables
+
+Working API with routes above
+Database schema and migration
+README with curl examples for purchase, reconcile, ledger export
+Postman collection and OpenAPI file
+Seed script and example flow:
+Seed user → credit 5,000 → reconcile Nano 1k/1k (should charge 1.8 credits) → ledger shows fractional debit
+Minimal HTML status page linking to docs and CSV export
