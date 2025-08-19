@@ -13,6 +13,7 @@ import {
   Zap,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
   Clock,
@@ -73,28 +74,31 @@ interface UsageEntry {
   createdAt: string;
 }
 
-// Credit packages (must match backend)
+// Credit packages (must match backend) - 1,000 credits = $1.00
 const CREDIT_PACKAGES = {
   starter: {
-    baseCredits: 1000,
+    baseCredits: 9990,
     bonusCredits: 0,
-    totalCredits: 1000,
+    totalCredits: 9990,
     priceUsdCents: 999, // $9.99
-    recommended: false
+    recommended: false,
+    label: "Good for occasional use"
   },
   professional: {
-    baseCredits: 5000,
-    bonusCredits: 500,
-    totalCredits: 5500,
+    baseCredits: 49990,
+    bonusCredits: 2500, // ~5% bonus
+    totalCredits: 52490,
     priceUsdCents: 4999, // $49.99
-    recommended: true
+    recommended: true,
+    label: "Best for frequent use • Save vs Starter"
   },
   enterprise: {
-    baseCredits: 12000,
-    bonusCredits: 2000,
-    totalCredits: 14000,
+    baseCredits: 99990,
+    bonusCredits: 10000, // ~10% bonus
+    totalCredits: 109990,
     priceUsdCents: 9999, // $99.99
-    recommended: false
+    recommended: false,
+    label: "Best value • Highest bonus"
   }
 };
 
@@ -111,7 +115,6 @@ export default function Billing() {
   // Fetch transaction history
   const { data: ledgerData, isLoading: ledgerLoading } = useQuery<{
     entries: LedgerEntry[];
-    hasMore: boolean;
     nextCursor?: string;
   }>({
     queryKey: ['/api/billing/ledger'],
@@ -121,7 +124,6 @@ export default function Billing() {
   // Fetch usage history  
   const { data: usageData, isLoading: usageLoading } = useQuery<{
     entries: UsageEntry[];
-    hasMore: boolean;
     nextCursor?: string;
   }>({
     queryKey: ['/api/billing/usage'],
@@ -181,6 +183,21 @@ export default function Billing() {
         </p>
       </div>
 
+      {/* Low Balance Warning */}
+      {summary && summary.currentBalance < 500 && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <div>
+              <p className="font-medium text-yellow-800 dark:text-yellow-200">Low Credit Balance</p>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                You have {summary.currentBalance} credits remaining. Consider adding more credits to continue using AI features.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Current Balance Cards */}
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
@@ -193,7 +210,10 @@ export default function Billing() {
               {summary?.currentBalance?.toLocaleString() || 0} credits
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Available for AI assistance
+              ~${((summary?.currentBalance || 0) / 1000).toFixed(2)} USD equivalent
+            </p>
+            <p className="text-xs text-muted-foreground">
+              1,000 Credits = $1.00. You only pay for actual token usage.
             </p>
           </CardContent>
         </Card>
@@ -281,7 +301,7 @@ export default function Billing() {
                   </div>
                   
                   <div className="text-center text-xs text-muted-foreground">
-                    ~{Math.floor(pkg.totalCredits / 30)} essay analyses
+                    {pkg.label}
                   </div>
                   
                   <Button 
@@ -444,6 +464,136 @@ export default function Billing() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Cost Estimator */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Cost Estimator
+          </CardTitle>
+          <CardDescription>
+            Estimate credits and USD cost before making AI requests
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="text-sm font-medium">Model</label>
+              <select className="w-full p-2 border rounded-md mt-1">
+                <option value="gpt-4o-mini">gpt-4o-mini (Eco)</option>
+                <option value="gpt-4o">gpt-4o (Advanced)</option>
+                <option value="gpt-4-turbo">gpt-4-turbo</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Input Tokens</label>
+              <input 
+                type="number" 
+                placeholder="1000"
+                className="w-full p-2 border rounded-md mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Output Tokens</label>
+              <input 
+                type="number" 
+                placeholder="500"
+                className="w-full p-2 border rounded-md mt-1"
+              />
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+            <div className="text-sm">
+              <div className="font-medium mb-1">Estimated Cost</div>
+              <div className="text-muted-foreground">
+                ~12 credits (~$0.012 USD) • Select model and tokens above for estimate
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Rate Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            AI Model Pricing
+          </CardTitle>
+          <CardDescription>
+            Current credit rates per 1,000 tokens. Example: gpt-4o input ≈ 20 credits per 1k tokens ($0.02); output ≈ 80 credits per 1k tokens ($0.08).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 font-medium">Model</th>
+                  <th className="text-center py-2 font-medium">Input (1k tokens)</th>
+                  <th className="text-center py-2 font-medium">Output (1k tokens)</th>
+                  <th className="text-center py-2 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                <tr>
+                  <td className="py-3">
+                    <div>
+                      <div className="font-medium">gpt-4o-mini</div>
+                      <div className="text-xs text-muted-foreground">Eco (Fast & Affordable)</div>
+                    </div>
+                  </td>
+                  <td className="text-center py-3">2.4 credits</td>
+                  <td className="text-center py-3">9.6 credits</td>
+                  <td className="text-center py-3">
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Active</Badge>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-3">
+                    <div>
+                      <div className="font-medium">gpt-4o</div>
+                      <div className="text-xs text-muted-foreground">Advanced (Latest & Most Capable)</div>
+                    </div>
+                  </td>
+                  <td className="text-center py-3">20 credits</td>
+                  <td className="text-center py-3">80 credits</td>
+                  <td className="text-center py-3">
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Active</Badge>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-3">
+                    <div>
+                      <div className="font-medium">gpt-4-turbo</div>
+                      <div className="text-xs text-muted-foreground">Previous Generation</div>
+                    </div>
+                  </td>
+                  <td className="text-center py-3">40 credits</td>
+                  <td className="text-center py-3">120 credits</td>
+                  <td className="text-center py-3">
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Active</Badge>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-sm">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
+              <div>
+                <div className="font-medium mb-1">Fair Usage Policy</div>
+                <div className="text-muted-foreground">
+                  We only charge based on actual token usage. Rates are 4x OpenAI's pricing to cover infrastructure and development costs. 
+                  Last updated: {format(new Date(), 'MMM d, yyyy')}.
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Success/Error Messages */}
       {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('success') && (

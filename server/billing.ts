@@ -20,31 +20,25 @@ import {
 export const CREDITS_PER_DOLLAR = 1000; // 1,000 credits = $1.00 USD
 export const MILLICREDITS_PER_CREDIT = 1000; // 1 credit = 1,000 millicredits
 
-// Credit package definitions with exact pricing and bonuses
+// Credit package definitions with exact pricing and bonuses - 1,000 credits = $1.00
 export const CREDIT_PACKAGES = {
   starter: {
-    priceUsdCents: 500, // $5.00
-    baseCredits: 5000,
+    priceUsdCents: 999, // $9.99
+    baseCredits: 9990,
     bonusCredits: 0,
-    totalCredits: 5000,
+    totalCredits: 9990,
   },
-  basic: {
-    priceUsdCents: 2000, // $20.00
-    baseCredits: 20000,
-    bonusCredits: 0,
-    totalCredits: 20000,
+  professional: {
+    priceUsdCents: 4999, // $49.99
+    baseCredits: 49990,
+    bonusCredits: 2500, // ~5% bonus
+    totalCredits: 52490,
   },
-  pro: {
-    priceUsdCents: 5000, // $50.00
-    baseCredits: 50000,
-    bonusCredits: 2500, // 5% bonus
-    totalCredits: 52500,
-  },
-  business: {
-    priceUsdCents: 10000, // $100.00
-    baseCredits: 100000,
-    bonusCredits: 10000, // 10% bonus
-    totalCredits: 110000,
+  enterprise: {
+    priceUsdCents: 9999, // $99.99
+    baseCredits: 99990,
+    bonusCredits: 10000, // ~10% bonus  
+    totalCredits: 109990,
   },
 } as const;
 
@@ -462,7 +456,6 @@ export class BillingService {
 
     return {
       entries: resultEntries.map(formatLedgerEntry),
-      hasMore,
       nextCursor,
     };
   }
@@ -473,7 +466,7 @@ export class BillingService {
     limit: number = 100,
     cursor?: string
   ): Promise<{
-    usage: UsageEvent[];
+    entries: UsageEvent[];
     nextCursor?: string;
   }> {
     let query = db
@@ -513,7 +506,6 @@ export class BillingService {
 
     return {
       entries: resultUsage.map(formatUsageEntry),
-      hasMore,
       nextCursor,
     };
   }

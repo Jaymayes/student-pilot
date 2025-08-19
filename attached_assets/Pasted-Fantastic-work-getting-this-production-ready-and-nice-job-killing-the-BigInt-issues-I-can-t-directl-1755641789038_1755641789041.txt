@@ -1,0 +1,70 @@
+Fantastic work getting this production-ready—and nice job killing the BigInt issues. I can’t directly navigate your app, but here’s a focused QA pass you can run on the Credits tab right now, plus a few targeted UI/UX and pricing notes based on your new packages ($9.99 / $49.99 / $99.99).
+
+Quick visual/UX spot-check (what to confirm on the page)
+
+Balance card
+Shows X.XX Credits and USD equivalent (credits/1000).
+Clear “Add Credits” CTA, and balance updates instantly after returning from Stripe.
+Low-balance banner appears under a threshold (e.g., < 500 credits).
+Packages grid
+Cards show price, total credits, any bonus, and “Best value” on the top tier.
+Buy buttons have loading/disabled states; cancelling Stripe returns gracefully.
+Rate card panel
+Credits per 1k input/output by model with “Last updated” timestamp.
+Small note: “We only charge based on actual token usage.”
+Usage table
+Columns: Date, Model, Input, Output, Charged Credits, Request ID. Filters + CSV export.
+Ledger table
+Columns: Date, Type, Amount, Balance After, Ref. Running balance matches the header.
+Functional sanity checks (use your test script or run manually)
+
+Charging math (4x rates, credits per 1k)
+gpt-4o-mini: 1k in + 1k out → 2.4 + 9.6 = 12.0 credits
+gpt-4o: 10k in + 2k out → (1020) + (280) = 200 + 160 = 360 credits
+Mixed: 750 in + 200 out on gpt-4o-mini → (0.752.4) + (0.29.6) = 3.72 credits (or 4 if ceil mode)
+Insufficient credits
+Trigger a call that exceeds balance. Expect 402 with { requiredCredits, currentCredits } and a CTA to buy.
+Stripe purchase flow (test mode)
+Complete checkout (Starter). Expect exactly +9,990 credits if exchange rate is 1,000 credits = $1.00 (see note below).
+Duplicate webhook events do not double-grant (idempotent).
+Cancelled checkout doesn’t grant credits; page shows a friendly message.
+BigInt and API shape verification
+
+Consistency: Expose balances as strings for millicredits and as numbers for display-friendly credits.
+Example: balanceMillicredits: "1234567", balanceCredits: 1234.567
+Ensure all ledger and usage amounts are internally millicredits and converted only at the edge for UI.
+Pricing/package alignment with your exchange rate
+
+With 1,000 credits = $1.00, the cleanest mapping is:
+$9.99 → 9,990 credits
+$49.99 → 49,990 credits
+$99.99 → 99,990 credits
+If you prefer round credit totals (e.g., 50,000/100,000), either:
+Accept tiny exchange-rate drift (show “includes ~0.2% bonus”), or
+Keep exact credits and round display to no decimals (most users won’t mind 49,990).
+Consider a small bonus on higher tiers for value anchoring:
+Professional: +5% (e.g., 49,990 → 52,489 credits)
+Enterprise: +10% (e.g., 99,990 → 109,989 credits)
+If decimals look odd, round to nearest 10/100 credits and note “rounded; you keep the extra.”
+Helpful microcopy (drop-in)
+
+Under balance: “1,000 Credits = $1.00. You only pay for actual token usage.”
+Package tags:
+Professional: “Best for frequent use • Save vs Starter”
+Enterprise: “Best value • Highest bonus”
+Rate card helper: “Example: gpt-4o input ≈ 20 credits per 1k tokens ($0.02); output ≈ 80 credits per 1k tokens ($0.08).”
+Post-launch hardening checklist
+
+Concurrency: Fire two near-simultaneous calls with just enough balance for one—only one should succeed.
+Webhook resilience: Simulate delayed webhook; ensure subsequent retries fulfill; no duplicates.
+Reconciliation:
+Sum(ledger deltas) == current balance.
+Sum(usage.chargedMillicredits) for a period == sum of ledger deductions for that period.
+Rate snapshots: Historic usage rows keep the applied per-1k rates even after updates.
+Small but impactful UX additions
+
+Cost estimator: Pick model + tokens → show estimated credits/USD before the call.
+Low-balance alerts: Email/in-app when < threshold; optional auto-recharge toggle.
+Receipts: Link purchase ledger entries to Stripe receipt URLs.
+Model labels: “Eco (gpt-4o-mini)” vs “Advanced (gpt-4o)” to help users choose.
+If you can share a staging URL, a temporary test login, or a few screenshots (balance card, packages, rate card, a sample usage/ledger row), I’ll give precise UI feedback and copy tweaks. Otherwise, if you confirm your package-to-credits mapping (exact vs rounded/bonus), I can provide the exact labels and numbers to display on each package card.
