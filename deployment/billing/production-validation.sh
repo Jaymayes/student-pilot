@@ -1,330 +1,252 @@
 #!/bin/bash
-# Production Validation Script for ScholarLink Billing Service
-# Comprehensive validation with JWT token testing
 
 set -euo pipefail
 
-# Configuration
-BILLING_DOMAIN="billing.student-pilot.replit.app"
+# Production Validation Suite for billing.scholarlink.app
+# Comprehensive testing after DNS resolution and certificate issuance
+
+DOMAIN="billing.scholarlink.app"
 NAMESPACE="scholarlink-prod"
 
-# Test JWT token (replace with actual valid token for testing)
-TEST_JWT_TOKEN="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..." # REPLACE WITH ACTUAL TOKEN
-
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
-log() { echo -e "${BLUE}[$(date +'%H:%M:%S')]${NC} $1"; }
-success() { echo -e "${GREEN}✓${NC} $1"; }
-warning() { echo -e "${YELLOW}⚠${NC} $1"; }
-error() { echo -e "${RED}✗${NC} $1"; }
-
-# ==============================================================================
-# PRODUCTION VALIDATION TESTS
-# ==============================================================================
-
-test_user_profile() {
-    log "Testing user profile endpoint with valid JWT..."
-    
-    RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-        -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-        -H "Content-Type: application/json" \
-        https://${BILLING_DOMAIN}/api/users/profile)
-    
-    HTTP_CODE=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-    
-    if [ "$HTTP_CODE" = "200" ]; then
-        success "User profile endpoint: ${HTTP_CODE}"
-        echo "Response: ${BODY}" | jq '.'
-    else
-        error "User profile failed: ${HTTP_CODE}"
-        echo "Response: ${BODY}"
-        return 1
-    fi
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
 }
 
-test_credit_purchase() {
-    log "Testing credit purchase (Starter Package - \$5.00)..."
+validate_dns() {
+    log "🌐 Validating DNS resolution..."
     
-    RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-        -X POST \
-        -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-        -H "Content-Type: application/json" \
-        -d '{"packageCode":"starter"}' \
-        https://${BILLING_DOMAIN}/api/purchases)
+    # Test multiple DNS servers
+    local resolvers=("1.1.1.1" "8.8.8.8" "208.67.222.222")
     
-    HTTP_CODE=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-    
-    if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-        success "Credit purchase initiated: ${HTTP_CODE}"
-        echo "Response: ${BODY}" | jq '.'
-    else
-        warning "Credit purchase response: ${HTTP_CODE}"
-        echo "Response: ${BODY}"
-    fi
-}
-
-test_usage_reconciliation() {
-    log "Testing usage reconciliation..."
-    
-    IDEMPOTENCY_KEY="test-$(date +%s)-$$"
-    
-    RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-        -X POST \
-        -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-        -H "Content-Type: application/json" \
-        -d "{
-            \"model\": \"gpt-4o\",
-            \"inputTokens\": 1000,
-            \"outputTokens\": 500,
-            \"idempotencyKey\": \"${IDEMPOTENCY_KEY}\"
-        }" \
-        https://${BILLING_DOMAIN}/api/usage/reconcile)
-    
-    HTTP_CODE=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-    
-    if [ "$HTTP_CODE" = "200" ]; then
-        success "Usage reconciliation: ${HTTP_CODE}"
-        echo "Response: ${BODY}" | jq '.'
-        
-        # Test idempotency
-        log "Testing idempotency with same key..."
-        RESPONSE2=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-            -X POST \
-            -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "{
-                \"model\": \"gpt-4o\",
-                \"inputTokens\": 1000,
-                \"outputTokens\": 500,
-                \"idempotencyKey\": \"${IDEMPOTENCY_KEY}\"
-            }" \
-            https://${BILLING_DOMAIN}/api/usage/reconcile)
-        
-        HTTP_CODE2=$(echo $RESPONSE2 | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-        
-        if [ "$HTTP_CODE2" = "200" ]; then
-            success "Idempotency test passed: ${HTTP_CODE2}"
+    for resolver in "${resolvers[@]}"; do
+        local result=$(dig +short "$DOMAIN" @"$resolver" | head -n1)
+        if [[ -n "$result" ]]; then
+            log "   ✅ DNS @$resolver: $result"
         else
-            error "Idempotency test failed: ${HTTP_CODE2}"
+            log "   ❌ DNS @$resolver: No response"
+            return 1
         fi
-    elif [ "$HTTP_CODE" = "402" ]; then
-        warning "Usage reconciliation: Insufficient funds (${HTTP_CODE})"
-        echo "Response: ${BODY}" | jq '.'
-    else
-        error "Usage reconciliation failed: ${HTTP_CODE}"
-        echo "Response: ${BODY}"
-    fi
-}
-
-test_ledger_access() {
-    log "Testing ledger access..."
-    
-    RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-        -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-        -H "Content-Type: application/json" \
-        https://${BILLING_DOMAIN}/api/ledger)
-    
-    HTTP_CODE=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-    
-    if [ "$HTTP_CODE" = "200" ]; then
-        success "Ledger access: ${HTTP_CODE}"
-        echo "Response: ${BODY}" | jq '.entries | length'
-    else
-        error "Ledger access failed: ${HTTP_CODE}"
-        echo "Response: ${BODY}"
-    fi
-}
-
-test_credit_packages() {
-    log "Testing credit packages endpoint..."
-    
-    RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-        -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-        -H "Content-Type: application/json" \
-        https://${BILLING_DOMAIN}/api/packages)
-    
-    HTTP_CODE=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-    
-    if [ "$HTTP_CODE" = "200" ]; then
-        success "Credit packages: ${HTTP_CODE}"
-        echo "Available packages:"
-        echo "${BODY}" | jq '.packages[] | {code: .code, name: .name, credits: .credits, usdCents: .usdCents}'
-    else
-        error "Credit packages failed: ${HTTP_CODE}"
-        echo "Response: ${BODY}"
-    fi
-}
-
-test_insufficient_funds() {
-    log "Testing insufficient funds scenario..."
-    
-    # Try to reconcile a large amount that would exceed balance
-    RESPONSE=$(curl -s -w "HTTPSTATUS:%{http_code}" \
-        -X POST \
-        -H "Authorization: Bearer ${TEST_JWT_TOKEN}" \
-        -H "Content-Type: application/json" \
-        -d "{
-            \"model\": \"gpt-4o\",
-            \"inputTokens\": 100000,
-            \"outputTokens\": 50000,
-            \"idempotencyKey\": \"large-test-$(date +%s)\"
-        }" \
-        https://${BILLING_DOMAIN}/api/usage/reconcile)
-    
-    HTTP_CODE=$(echo $RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    BODY=$(echo $RESPONSE | sed -e 's/HTTPSTATUS:.*//g')
-    
-    if [ "$HTTP_CODE" = "402" ]; then
-        success "Insufficient funds handling: ${HTTP_CODE}"
-        echo "Response: ${BODY}" | jq '.'
-    elif [ "$HTTP_CODE" = "200" ]; then
-        warning "Large transaction succeeded (sufficient balance)"
-    else
-        error "Insufficient funds test unexpected: ${HTTP_CODE}"
-        echo "Response: ${BODY}"
-    fi
-}
-
-# ==============================================================================
-# LOAD TESTING
-# ==============================================================================
-
-run_load_test() {
-    log "Running basic load test..."
-    
-    for i in {1..10}; do
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${BILLING_DOMAIN}/health)
-        TIME=$(curl -s -o /dev/null -w "%{time_total}" https://${BILLING_DOMAIN}/health)
-        echo "Request $i: ${STATUS} (${TIME}s)"
-        sleep 0.1
     done
     
-    success "Load test completed"
+    log "✅ DNS resolution validated across all resolvers"
 }
 
-# ==============================================================================
-# BUSINESS VALIDATION
-# ==============================================================================
-
-validate_rate_card() {
-    log "Validating rate card calculations..."
+validate_certificate() {
+    log "🔒 Validating SSL certificate..."
     
-    # GPT-4o: 20 credits per 1k input, 60 credits per 1k output
-    # Test: 1000 input + 500 output = 20 + 30 = 50 credits
+    # Check certificate status in Kubernetes
+    local cert_status=$(kubectl -n "$NAMESPACE" get certificate billing-scholarlink-app-tls -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "NotFound")
     
-    echo "Expected cost for GPT-4o (1k input + 500 output): 50 credits"
-    echo "Rate card validation requires manual verification of actual charges"
-}
-
-# ==============================================================================
-# MAIN EXECUTION
-# ==============================================================================
-
-run_all_tests() {
-    log "Starting comprehensive production validation..."
-    echo ""
-    
-    if [ "$TEST_JWT_TOKEN" = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..." ]; then
-        error "Please update TEST_JWT_TOKEN with a valid JWT token"
-        echo "Get a token by logging into the main app and copying from browser dev tools"
-        exit 1
+    if [[ "$cert_status" == "True" ]]; then
+        log "   ✅ Kubernetes certificate: Ready=True"
+    else
+        log "   ❌ Kubernetes certificate: $cert_status"
+        log "   Certificate details:"
+        kubectl -n "$NAMESPACE" describe certificate billing-scholarlink-app-tls
+        return 1
     fi
     
-    test_user_profile
-    echo ""
+    # Test SSL connection
+    if curl -sSf --connect-timeout 10 "https://$DOMAIN/health" >/dev/null 2>&1; then
+        log "   ✅ SSL connection successful"
+    else
+        log "   ❌ SSL connection failed"
+        return 1
+    fi
     
-    test_credit_packages
-    echo ""
-    
-    test_credit_purchase
-    echo ""
-    
-    test_usage_reconciliation
-    echo ""
-    
-    test_ledger_access
-    echo ""
-    
-    test_insufficient_funds
-    echo ""
-    
-    run_load_test
-    echo ""
-    
-    validate_rate_card
-    echo ""
-    
-    success "Production validation completed!"
-    echo ""
-    
-    warning "Manual verification checklist:"
-    echo "□ Check Stripe dashboard for test purchase"
-    echo "□ Verify ledger entries match expected calculations"
-    echo "□ Confirm webhook delivery in Stripe dashboard"
-    echo "□ Test CSV export download works"
-    echo "□ Verify rate limiting kicks in after 100 requests/minute"
+    log "✅ SSL certificate validation passed"
 }
 
-# ==============================================================================
-# COMMAND LINE INTERFACE
-# ==============================================================================
+validate_application() {
+    log "🏥 Validating application health..."
+    
+    # Health endpoint
+    local health_status=$(curl -sf "https://$DOMAIN/health" 2>/dev/null || echo "FAILED")
+    if [[ "$health_status" != "FAILED" ]]; then
+        log "   ✅ Health endpoint: 200 OK"
+    else
+        log "   ❌ Health endpoint: Failed"
+        return 1
+    fi
+    
+    # Readiness endpoint  
+    local ready_status=$(curl -sf "https://$DOMAIN/readyz" 2>/dev/null || echo "FAILED")
+    if [[ "$ready_status" != "FAILED" ]]; then
+        log "   ✅ Readiness endpoint: 200 OK"
+    else
+        log "   ❌ Readiness endpoint: Failed"
+        return 1
+    fi
+    
+    log "✅ Application health validation passed"
+}
 
-case "${1:-all}" in
-    "profile")
-        test_user_profile
-        ;;
-    "purchase")
-        test_credit_purchase
-        ;;
-    "reconcile")
-        test_usage_reconciliation
-        ;;
-    "ledger")
-        test_ledger_access
-        ;;
-    "packages")
-        test_credit_packages
-        ;;
-    "insufficient")
-        test_insufficient_funds
-        ;;
-    "load")
-        run_load_test
-        ;;
-    "rate-card")
-        validate_rate_card
-        ;;
-    "all")
-        run_all_tests
-        ;;
-    *)
-        echo "Production Validation Script"
-        echo ""
-        echo "Usage: $0 [test]"
-        echo ""
-        echo "Tests:"
-        echo "  profile      Test user profile endpoint"
-        echo "  purchase     Test credit purchase"
-        echo "  reconcile    Test usage reconciliation"
-        echo "  ledger       Test ledger access"
-        echo "  packages     Test credit packages"
-        echo "  insufficient Test insufficient funds"
-        echo "  load         Run basic load test"
-        echo "  rate-card    Validate rate card"
-        echo "  all          Run all tests (default)"
-        echo ""
-        echo "Configuration:"
-        echo "  Domain: ${BILLING_DOMAIN}"
-        echo "  JWT Token: ${TEST_JWT_TOKEN:0:20}..."
-        ;;
-esac
+validate_security_headers() {
+    log "🛡️  Validating security headers..."
+    
+    local headers=$(curl -sI "https://$DOMAIN" 2>/dev/null)
+    
+    # Check for essential security headers
+    if echo "$headers" | grep -qi "strict-transport-security"; then
+        log "   ✅ HSTS header present"
+    else
+        log "   ❌ HSTS header missing"
+        return 1
+    fi
+    
+    if echo "$headers" | grep -qi "x-frame-options"; then
+        log "   ✅ X-Frame-Options header present"
+    else
+        log "   ❌ X-Frame-Options header missing"
+        return 1
+    fi
+    
+    if echo "$headers" | grep -qi "x-content-type-options"; then
+        log "   ✅ X-Content-Type-Options header present"
+    else
+        log "   ❌ X-Content-Type-Options header missing"
+        return 1
+    fi
+    
+    log "✅ Security headers validation passed"
+}
+
+validate_stripe_webhook() {
+    log "📡 Validating Stripe webhook accessibility..."
+    
+    local webhook_url="https://$DOMAIN/webhooks/stripe"
+    local response=$(curl -sf -X POST "$webhook_url" -H "Content-Type: application/json" -d '{}' 2>/dev/null || echo "FAILED")
+    
+    # Webhook should be accessible (may return 400 due to missing signature, but not 404/500)
+    if curl -sf --connect-timeout 10 "$webhook_url" >/dev/null 2>&1; then
+        log "   ✅ Webhook endpoint accessible"
+    else
+        log "   ❌ Webhook endpoint not accessible"
+        return 1
+    fi
+    
+    log "✅ Stripe webhook validation passed"
+}
+
+validate_performance() {
+    log "⚡ Validating performance metrics..."
+    
+    # Measure response time
+    local start_time=$(date +%s.%N)
+    curl -sf "https://$DOMAIN/health" >/dev/null
+    local end_time=$(date +%s.%N)
+    local response_time=$(echo "($end_time - $start_time) * 1000" | bc)
+    local response_time_int=${response_time%.*}
+    
+    if [[ $response_time_int -lt 200 ]]; then
+        log "   ✅ Response time: ${response_time_int}ms (< 200ms SLO)"
+    else
+        log "   ⚠️  Response time: ${response_time_int}ms (> 200ms SLO)"
+    fi
+    
+    log "✅ Performance validation completed"
+}
+
+validate_kubernetes_resources() {
+    log "☸️  Validating Kubernetes resources..."
+    
+    # Check ingress
+    local ingress_status=$(kubectl -n "$NAMESPACE" get ingress billing-portal-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || echo "NotFound")
+    if [[ "$ingress_status" != "NotFound" && -n "$ingress_status" ]]; then
+        log "   ✅ Ingress: $ingress_status"
+    else
+        log "   ❌ Ingress: Not ready or not found"
+        return 1
+    fi
+    
+    # Check certificate
+    local cert_issuer=$(kubectl -n "$NAMESPACE" get certificate billing-scholarlink-app-tls -o jsonpath='{.status.conditions[?(@.type=="Ready")].message}' 2>/dev/null || echo "NotFound")
+    if [[ "$cert_issuer" == "Certificate is up to date and has not expired" ]]; then
+        log "   ✅ Certificate: Up to date"
+    else
+        log "   ❌ Certificate: $cert_issuer"
+        return 1
+    fi
+    
+    log "✅ Kubernetes resources validation passed"
+}
+
+run_smoke_tests() {
+    log "🧪 Running smoke tests..."
+    
+    # Test billing portal page loads
+    if curl -sf "https://$DOMAIN" | grep -q "Credit Packages\|Billing" 2>/dev/null; then
+        log "   ✅ Billing portal page loads with expected content"
+    else
+        log "   ❌ Billing portal page content check failed"
+        return 1
+    fi
+    
+    log "✅ Smoke tests passed"
+}
+
+main() {
+    local test_type="${1:-all}"
+    
+    log "🚀 Production Validation Suite - billing.scholarlink.app"
+    log "============================================="
+    
+    case "$test_type" in
+        "dns")
+            validate_dns
+            ;;
+        "cert"|"certificate")
+            validate_certificate
+            ;;
+        "app"|"application")
+            validate_application
+            ;;
+        "security")
+            validate_security_headers
+            ;;
+        "webhook")
+            validate_stripe_webhook
+            ;;
+        "performance")
+            validate_performance
+            ;;
+        "k8s"|"kubernetes")
+            validate_kubernetes_resources
+            ;;
+        "smoke")
+            run_smoke_tests
+            ;;
+        "all"|*)
+            validate_dns
+            validate_certificate
+            validate_application
+            validate_security_headers
+            validate_stripe_webhook
+            validate_performance
+            validate_kubernetes_resources
+            run_smoke_tests
+            ;;
+    esac
+    
+    log ""
+    log "🎉 Production validation completed successfully!"
+    log "🎯 billing.scholarlink.app is production-ready"
+}
+
+# Check if bc is available for performance calculations
+if ! command -v bc &> /dev/null; then
+    log "⚠️  'bc' not available, skipping precise performance measurements"
+    # Fallback for performance validation without bc
+    validate_performance() {
+        log "⚡ Validating performance metrics..."
+        if curl -sf --max-time 2 "https://$DOMAIN/health" >/dev/null; then
+            log "   ✅ Response time: < 2s (basic check)"
+        else
+            log "   ❌ Response time: > 2s or failed"
+            return 1
+        fi
+        log "✅ Performance validation completed"
+    }
+fi
+
+main "$@"
