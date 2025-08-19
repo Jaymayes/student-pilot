@@ -207,6 +207,23 @@ export const insertStudentProfileSchema = createInsertSchema(studentProfiles).om
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Enhanced validation for critical fields (fixes QA-003)
+  gpa: z.number().min(0).max(4.0).nullable().optional(),
+  graduationYear: z.number()
+    .int()
+    .min(new Date().getFullYear())
+    .max(new Date().getFullYear() + 10)
+    .nullable()
+    .optional(),
+  major: z.string().min(1).max(100).nullable().optional(),
+  school: z.string().min(1).max(200).nullable().optional(),
+  interests: z.array(z.string().min(1).max(50)).max(10).nullable().optional(),
+});
+
+export const updateStudentProfileSchema = insertStudentProfileSchema.partial().extend({
+  // Additional validation for updates - prevent injection attacks
+  userId: z.string().uuid().optional(),
 });
 
 export const insertScholarshipSchema = createInsertSchema(scholarships).omit({

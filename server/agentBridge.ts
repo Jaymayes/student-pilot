@@ -462,10 +462,11 @@ export class AgentBridge {
 
   // Send result back to Command Center
   async sendResult(result: Result): Promise<void> {
-    const token = jwt.sign(result, SHARED_SECRET!, {
-      algorithm: 'HS256',
+    const { SecureJWTVerifier } = await import('./auth');
+    const token = SecureJWTVerifier.signToken(result, SHARED_SECRET!, {
       issuer: AGENT_ID,
-      audience: 'auto-com-center'
+      audience: 'auto-com-center',
+      expiresIn: '5m'
     });
 
     try {
@@ -490,10 +491,11 @@ export class AgentBridge {
 
   // Send event to Command Center
   async sendEvent(event: Event): Promise<void> {
-    const token = jwt.sign(event, SHARED_SECRET!, {
-      algorithm: 'HS256',
+    const { SecureJWTVerifier } = await import('./auth');
+    const token = SecureJWTVerifier.signToken(event, SHARED_SECRET!, {
       issuer: AGENT_ID,
-      audience: 'auto-com-center'
+      audience: 'auto-com-center',
+      expiresIn: '5m'
     });
 
     try {

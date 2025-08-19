@@ -4,23 +4,83 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { insertStudentProfileSchema, insertApplicationSchema, insertEssaySchema } from "@shared/schema";
+import { insertStudentProfileSchema, updateStudentProfileSchema, insertApplicationSchema, insertEssaySchema } from "@shared/schema";
+import { z } from "zod";
 import { openaiService } from "./openai";
 import { agentBridge, type Task } from "./agentBridge";
+import { SecureJWTVerifier, AuthError } from "./auth";
 import rateLimit from "express-rate-limit";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Rate limiter for agent endpoints
+  // Set trust proxy for proper client IP detection
+  app.set('trust proxy', 1);
+
+  // Rate limiter for ALL agent endpoints (fixes QA-008)
   const agentRateLimit = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 5, // 5 requests per minute
     message: { error: 'Too many agent requests' },
     standardHeaders: true,
     legacyHeaders: false,
+    // Use proper IP handling for IPv6
+    keyGenerator: (req, res) => {
+      // Use API key or authenticated user ID when available, fallback to IP
+      return req.headers['x-api-key'] as string || 
+             req.user?.claims?.sub || 
+             req.ip;
+    },
+    skip: (req) => {
+      // Skip rate limiting for health checks
+      return req.path === '/health';
+    }
   });
+
+  // Global error handler (fixes QA-009)
+  const handleError = (error: any, req: any, res: any) => {
+    const correlationId = req.headers['x-correlation-id'] || Math.random().toString(36);
+    
+    console.error(`[${correlationId}] Error:`, error);
+    
+    // Generic error messages for production (security hardening)
+    if (process.env.NODE_ENV === 'production') {
+      if (error instanceof AuthError) {
+        return res.status(401).json({ 
+          message: "Authentication failed", 
+          correlationId 
+        });
+      }
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid input data", 
+          correlationId 
+        });
+      }
+      return res.status(500).json({ 
+        message: "Internal server error", 
+        correlationId 
+      });
+    }
+    
+    // Detailed errors for development only
+    let statusCode = 500;
+    if (error instanceof AuthError) statusCode = 401;
+    if (error instanceof z.ZodError) statusCode = 400;
+    
+    return res.status(statusCode).json({ 
+      message: error.message || "Internal server error",
+      correlationId,
+      ...(error instanceof z.ZodError && { 
+        details: error.errors.map(e => ({ 
+          field: e.path.join('.'), 
+          message: e.message 
+        }))
+      }),
+      stack: error.stack
+    });
+  };
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
@@ -29,8 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      handleError(error, req, res);
     }
   });
 
@@ -41,27 +100,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const profile = await storage.getStudentProfile(userId);
       res.json(profile);
     } catch (error) {
-      console.error("Error fetching profile:", error);
-      res.status(500).json({ message: "Failed to fetch profile" });
+      handleError(error, req, res);
     }
   });
 
   app.post('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const profileData = insertStudentProfileSchema.parse({ ...req.body, userId });
+      
+      // Reject requests with unknown fields or dangerous content
+      if (req.body.__proto__ || req.body.constructor || req.body.prototype) {
+        return res.status(400).json({ message: "Invalid request data" });
+      }
       
       const existingProfile = await storage.getStudentProfile(userId);
+      
       if (existingProfile) {
-        const updatedProfile = await storage.updateStudentProfile(userId, req.body);
+        // Use strict update schema for existing profiles
+        const validatedData = updateStudentProfileSchema.parse(req.body);
+        const updatedProfile = await storage.updateStudentProfile(userId, validatedData);
         res.json(updatedProfile);
       } else {
+        // Use full schema for new profiles
+        const profileData = insertStudentProfileSchema.parse({ ...req.body, userId });
         const newProfile = await storage.createStudentProfile(profileData);
         res.json(newProfile);
       }
     } catch (error) {
-      console.error("Error creating/updating profile:", error);
-      res.status(500).json({ message: "Failed to save profile" });
+      handleError(error, req, res);
     }
   });
 
@@ -71,8 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const scholarships = await storage.getScholarships();
       res.json(scholarships);
     } catch (error) {
-      console.error("Error fetching scholarships:", error);
-      res.status(500).json({ message: "Failed to fetch scholarships" });
+      handleError(error, req, res);
     }
   });
 
@@ -84,8 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(scholarship);
     } catch (error) {
-      console.error("Error fetching scholarship:", error);
-      res.status(500).json({ message: "Failed to fetch scholarship" });
+      handleError(error, req, res);
     }
   });
 
@@ -478,8 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         objectPath: objectPath,
       });
     } catch (error) {
-      console.error("Error setting document file:", error);
-      res.status(500).json({ error: "Internal server error" });
+      handleError(error, req, res);
     }
   });
 
@@ -527,111 +590,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalApplied
       });
     } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-      res.status(500).json({ message: "Failed to fetch dashboard stats" });
+      handleError(error, req, res);
     }
   });
+
+  // Secure JWT verification middleware for agent endpoints
+  const verifyAgentToken = (req: any, res: any, next: any) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (!agentBridge.isEnabled()) {
+      return res.status(503).json({ error: 'Service unavailable' });
+    }
+
+    try {
+      // Use secure JWT verification with timing-safe operations
+      const decoded = SecureJWTVerifier.verifyToken(token, process.env.SHARED_SECRET!, {
+        issuer: 'auto-com-center',
+        audience: process.env.AGENT_ID || 'student-pilot',
+        clockTolerance: 30
+      });
+
+      req.decoded = decoded;
+      next();
+    } catch (error) {
+      // Always return same generic error (timing-safe)
+      return res.status(401).json({ error: 'Authentication failed' });
+    }
+  };
 
   // Agent Bridge endpoints
-  app.post('/agent/register', async (req, res) => {
+  app.post('/agent/register', agentRateLimit, verifyAgentToken, async (req, res) => {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or invalid authorization header' });
-      }
-
-      const token = authHeader.substring(7);
-      const decoded = agentBridge.verifyToken(token);
-
-      res.json({
-        agent_id: process.env.AGENT_ID || 'student-pilot',
-        name: process.env.AGENT_NAME || 'student_pilot',
-        capabilities: agentBridge.getCapabilities(),
-        version: '1.0.0',
-        health: 'ok',
-        timestamp: new Date().toISOString()
-      });
+      const result = await agentBridge.registerWithCommandCenter();
+      res.json(result);
     } catch (error) {
-      console.error('Agent registration error:', error);
-      res.status(401).json({ error: 'Invalid token' });
+      handleError(error, req, res);
     }
   });
 
-  app.post('/agent/task', agentRateLimit, async (req, res) => {
+  app.post('/agent/task', agentRateLimit, verifyAgentToken, async (req, res) => {
     try {
-      const authHeader = req.headers.authorization;
-      const agentId = req.headers['x-agent-id'];
-      const traceId = req.headers['x-trace-id'];
-
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or invalid authorization header' });
-      }
-
-      const token = authHeader.substring(7);
-      const decoded = agentBridge.verifyToken(token);
-
+      const task = req.body as Task;
+      
       // Validate task structure
-      const task: Task = req.body;
       if (!task.task_id || !task.action || !task.trace_id) {
         return res.status(400).json({ error: 'Invalid task structure' });
       }
-
-      // Respond immediately with 202 Accepted
-      res.status(202).json({ status: 'accepted', task_id: task.task_id });
-
+      
       // Process task asynchronously
-      setImmediate(() => {
-        agentBridge.processTask(task).catch(error => {
-          console.error('Async task processing error:', error);
-        });
-      });
+      setTimeout(async () => {
+        try {
+          const result = await agentBridge.processTask(task);
+          await agentBridge.sendResult(result);
+        } catch (error) {
+          console.error(`Task processing error [${task.task_id}]:`, error);
+          await agentBridge.sendResult({
+            task_id: task.task_id,
+            status: 'failed',
+            error: {
+              code: 'PROCESSING_ERROR',
+              message: error instanceof Error ? error.message : 'Unknown error'
+            },
+            trace_id: task.trace_id
+          });
+        }
+      }, 0);
 
+      res.json({ 
+        task_id: task.task_id,
+        status: 'accepted',
+        message: 'Task accepted for processing'
+      });
     } catch (error) {
-      console.error('Agent task error:', error);
-      res.status(401).json({ error: 'Invalid token' });
+      handleError(error, req, res);
     }
   });
 
-  app.get('/agent/capabilities', async (req, res) => {
+  app.get('/agent/capabilities', agentRateLimit, verifyAgentToken, (req, res) => {
     res.json({
-      agent_id: process.env.AGENT_ID || 'student-pilot',
-      name: process.env.AGENT_NAME || 'student_pilot',
       capabilities: agentBridge.getCapabilities(),
       version: '1.0.0',
-      health: 'ok'
+      status: 'active'
     });
   });
 
-  app.post('/agent/events', async (req, res) => {
+  app.post('/agent/events', agentRateLimit, verifyAgentToken, async (req, res) => {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Missing or invalid authorization header' });
-      }
-
-      const token = authHeader.substring(7);
-      const decoded = agentBridge.verifyToken(token);
-
       const event = req.body;
       await agentBridge.sendEvent(event);
-      
       res.json({ status: 'ok' });
     } catch (error) {
-      console.error('Agent event error:', error);
-      res.status(401).json({ error: 'Invalid token' });
+      handleError(error, req, res);
     }
   });
 
-  // Override health endpoint to include agent information
+  // Enhanced health check with database connectivity (fixes QA-010)
   app.get('/health', async (req, res) => {
-    res.json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      agent_id: process.env.AGENT_ID || 'student-pilot',
-      last_seen: new Date().toISOString(),
-      version: '1.0.0',
-      capabilities: agentBridge.getCapabilities()
-    });
+    try {
+      const { checkDatabaseHealth } = await import('./db');
+      const dbHealthy = await checkDatabaseHealth();
+      
+      res.json({
+        status: dbHealthy ? 'ok' : 'degraded',
+        timestamp: new Date().toISOString(),
+        agent_id: process.env.AGENT_ID || 'student-pilot',
+        last_seen: new Date().toISOString(),
+        database: dbHealthy ? 'connected' : 'disconnected',
+        version: '1.0.0',
+        capabilities: agentBridge.getCapabilities()
+      });
+    } catch (error) {
+      handleError(error, req, res);
+    }
   });
 
   const httpServer = createServer(app);

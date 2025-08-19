@@ -107,6 +107,11 @@ export class DatabaseStorage implements IStorage {
       .set({ ...profile, updatedAt: new Date() })
       .where(eq(studentProfiles.userId, userId))
       .returning();
+    
+    if (!updatedProfile) {
+      throw new Error(`Student profile not found for user ${userId}`);
+    }
+    
     return updatedProfile;
   }
 
@@ -166,6 +171,11 @@ export class DatabaseStorage implements IStorage {
       .set({ ...application, updatedAt: new Date() })
       .where(eq(applications.id, id))
       .returning();
+    
+    if (!updatedApplication) {
+      throw new Error(`Application not found with id ${id}`);
+    }
+    
     return updatedApplication;
   }
 
@@ -264,6 +274,11 @@ export class DatabaseStorage implements IStorage {
       .set({ ...essay, updatedAt: new Date() })
       .where(eq(essays.id, id))
       .returning();
+    
+    if (!updatedEssay) {
+      throw new Error(`Essay not found with id ${id}`);
+    }
+    
     return updatedEssay;
   }
 
