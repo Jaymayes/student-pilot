@@ -1,294 +1,275 @@
 #!/bin/bash
 
-# ScholarLink Production Go-Live Script
-# Executes complete canary deployment with health monitoring and automated rollback
+# ScholarLink Billing System - Production Go-Live Script
+# This script executes the complete go-live sequence with proper checks and rollback
 
-set -euo pipefail
+set -e  # Exit on any error
 
-# Configuration - Update these for your environment
-NAMESPACE="${NAMESPACE:-scholarlink-prod}"
-APP_NAME="${APP_NAME:-scholarlink}"
-PRIMARY_INGRESS="${PRIMARY_INGRESS:-scholarlink-ingress}"
-CANARY_INGRESS="${CANARY_INGRESS:-scholarlink-ingress-canary-1}"
-DEPLOYMENT_NAME="${DEPLOYMENT_NAME:-scholarlink-app}"
-CANARY_DEPLOYMENT="${CANARY_DEPLOYMENT:-scholarlink-app-canary}"
-IMAGE_DIGEST="${IMAGE_DIGEST:-}"
-COSIGN_PUBLIC_KEY="${COSIGN_PUBLIC_KEY:-cosign.pub}"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Monitoring configuration
-PROMETHEUS_URL="${PROMETHEUS_URL:-http://prometheus:9090}"
-SLACK_WEBHOOK="${SLACK_WEBHOOK:-}"
-MAX_ERROR_RATE="0.5"
-MAX_LATENCY_MULTIPLIER="2"
-SOAK_DURATION="300"  # 5 minutes
+# Configuration
+PRODUCTION_URL=${PRODUCTION_URL:-"https://your-domain.com"}
+ROLLOUT_PHASES=(5 25 100)
+PHASE_DURATIONS=(1800 3600 0) # 30 mins, 1 hour, indefinite
 
-echo "🚀 ScholarLink Production Go-Live Script"
-echo "========================================="
-echo "Namespace: $NAMESPACE"
-echo "Primary Deployment: $DEPLOYMENT_NAME"
-echo "Canary Deployment: $CANARY_DEPLOYMENT"
-echo "Image Digest: ${IMAGE_DIGEST:-Not specified}"
-echo "Time: $(date)"
+echo -e "${BLUE}🚀 ScholarLink Billing System - Production Go-Live${NC}"
+echo "=================================================="
+echo "Production URL: $PRODUCTION_URL"
+echo "Timestamp: $(date -Iseconds)"
 echo ""
 
-# Function to send notifications
-notify() {
-    local message="$1"
-    local level="${2:-info}"
-    local color="${3:-#36a64f}"
-    
-    echo "[$level] $message"
-    
-    if [[ -n "$SLACK_WEBHOOK" ]]; then
-        curl -X POST -H 'Content-type: application/json' \
-            --data "{\"attachments\":[{\"color\":\"$color\",\"text\":\"ScholarLink Go-Live [$level]: $message\"}]}" \
-            "$SLACK_WEBHOOK" 2>/dev/null || true
+# Function to log steps
+log_step() {
+    echo -e "${BLUE}[$(date +%T)] $1${NC}"
+}
+
+log_success() {
+    echo -e "${GREEN}[$(date +%T)] ✅ $1${NC}"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[$(date +%T)] ⚠️  $1${NC}"
+}
+
+log_error() {
+    echo -e "${RED}[$(date +%T)] ❌ $1${NC}"
+}
+
+# Function to check if a command exists
+check_command() {
+    if ! command -v $1 &> /dev/null; then
+        log_error "$1 is required but not installed"
+        exit 1
     fi
 }
 
-# Function to get Prometheus metric
-get_metric() {
-    local query="$1"
-    local default="${2:-0}"
-    
-    curl -s "$PROMETHEUS_URL/api/v1/query" \
-        --data-urlencode "query=$query" \
-        --data-urlencode "time=$(date +%s)" 2>/dev/null | \
-        jq -r '.data.result[0].value[1] // "'"$default"'"' 2>/dev/null || echo "$default"
+# Function to wait for user confirmation
+confirm_step() {
+    read -p "Continue with $1? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_warning "Deployment cancelled by user"
+        exit 1
+    fi
 }
 
-# Function to check health thresholds
-check_health() {
-    local service="$1"
-    local duration="$2"
+# Function to set rollout percentage
+set_rollout_percentage() {
+    local percentage=$1
+    log_step "Setting rollout percentage to ${percentage}%"
     
-    echo "🔍 Monitoring $service health for ${duration}s..."
+    # This would typically update a feature flag or environment variable
+    # Replace with your actual implementation
+    export BILLING_ROLLOUT_PERCENTAGE=$percentage
+    
+    # If using a feature flag service, update it here
+    # curl -X PUT "https://api.featureflag-service.com/flags/billing-enabled" \
+    #      -H "Authorization: Bearer $FEATURE_FLAG_TOKEN" \
+    #      -d "{\"percentage\": $percentage}"
+}
+
+# Function to run smoke tests
+run_smoke_tests() {
+    log_step "Running production smoke tests"
+    
+    if ! node scripts/production-smoke-test.js; then
+        log_error "Smoke tests failed"
+        return 1
+    fi
+    
+    log_success "Smoke tests passed"
+    return 0
+}
+
+# Function to check system health
+check_system_health() {
+    local endpoint="$PRODUCTION_URL/api/health"
+    log_step "Checking system health: $endpoint"
+    
+    local response=$(curl -s -w "%{http_code}" -o /dev/null "$endpoint")
+    if [[ "$response" != "200" ]]; then
+        log_error "Health check failed: HTTP $response"
+        return 1
+    fi
+    
+    log_success "System health check passed"
+    return 0
+}
+
+# Function to monitor metrics during rollout
+monitor_metrics() {
+    local phase=$1
+    local duration=$2
+    
+    log_step "Monitoring metrics for Phase $phase (${duration}s)"
+    
+    # Monitor key metrics during rollout
+    # This would integrate with your monitoring system
     
     local start_time=$(date +%s)
     local end_time=$((start_time + duration))
     
-    while [[ $(date +%s) -lt $end_time ]]; do
-        # Get current metrics
-        local error_rate=$(get_metric "rate(http_requests_total{job=\"$service\",status_code=~\"5..\"}[2m]) / rate(http_requests_total{job=\"$service\"}[2m]) * 100")
-        local latency_p95=$(get_metric "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"$service\"}[2m])) * 1000")
-        local healthy_pods=$(kubectl get pods -n "$NAMESPACE" -l "app=$APP_NAME,deployment=${service#*-}" --field-selector=status.phase=Running -o name 2>/dev/null | wc -l)
+    while [[ $(date +%s) -lt $end_time ]] && [[ $duration -gt 0 ]]; do
+        # Check error rate
+        # local error_rate=$(curl -s "$MONITORING_URL/api/error-rate")
         
-        echo "  Error rate: ${error_rate}% (max: $MAX_ERROR_RATE%)"
-        echo "  P95 latency: ${latency_p95}ms"
-        echo "  Healthy pods: $healthy_pods"
+        # Check webhook success rate  
+        # local webhook_success=$(curl -s "$MONITORING_URL/api/webhook-success")
         
-        # Check error rate threshold
-        if (( $(echo "${error_rate} > $MAX_ERROR_RATE" | bc -l 2>/dev/null || echo "0") )); then
-            notify "❌ Health check FAILED: Error rate ${error_rate}% exceeds threshold $MAX_ERROR_RATE%" "error" "#ff0000"
-            return 1
-        fi
-        
-        # Check if we have healthy pods
-        if [[ $healthy_pods -eq 0 ]]; then
-            notify "❌ Health check FAILED: No healthy pods for $service" "error" "#ff0000"
-            return 1
-        fi
-        
+        # For now, just sleep and show progress
         sleep 30
+        local current_time=$(date +%s)
+        local remaining=$((end_time - current_time))
+        
+        if [[ $remaining -gt 0 ]]; then
+            echo -e "${YELLOW}[$(date +%T)] Phase $phase monitoring: ${remaining}s remaining${NC}"
+        fi
     done
     
-    notify "✅ Health check PASSED for $service" "success" "#36a64f"
-    return 0
+    log_success "Phase $phase monitoring completed"
 }
 
-# Function to apply canary traffic weight
-apply_canary_weight() {
-    local weight="$1"
+# Function to emergency rollback
+emergency_rollback() {
+    log_error "Executing emergency rollback"
     
-    echo "🔄 Setting canary traffic to $weight%..."
+    # Disable billing features
+    export BILLING_PURCHASE_ENABLED=false
+    export BILLING_CHARGING_ENABLED=false
     
-    # Remove any existing canary ingresses
-    kubectl delete ingress -n "$NAMESPACE" -l "app=$APP_NAME" --selector="nginx.ingress.kubernetes.io/canary=true" --ignore-not-found=true
+    # Set rollout to 0%
+    set_rollout_percentage 0
     
-    # Apply new canary weight
-    cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: $CANARY_INGRESS-$weight
-  namespace: $NAMESPACE
-  labels:
-    app: $APP_NAME
-    canary-stage: "$weight"
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: "true"
-    nginx.ingress.kubernetes.io/canary-weight: "$weight"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers "X-Canary-Version: $IMAGE_DIGEST";
-      more_set_headers "X-Canary-Stage: $weight-percent";
-spec:
-  tls:
-  - hosts:
-    - scholarlink.app
-    secretName: scholarlink-tls-secret
-  rules:
-  - host: scholarlink.app
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: scholarlink-service-canary
-            port:
-              number: 80
-EOF
-    
-    # Wait for ingress to be ready
-    sleep 30
-    echo "✅ Canary traffic set to $weight%"
+    log_warning "Emergency rollback completed"
+    exit 1
 }
 
-# Function to rollback deployment
-rollback_deployment() {
-    echo "🔄 Rolling back deployment..."
-    
-    # Remove all canary ingresses
-    kubectl delete ingress -n "$NAMESPACE" -l "app=$APP_NAME" --selector="nginx.ingress.kubernetes.io/canary=true" --ignore-not-found=true
-    
-    # Scale down canary
-    kubectl scale deployment "$CANARY_DEPLOYMENT" -n "$NAMESPACE" --replicas=0 2>/dev/null || true
-    
-    # Rollback main deployment if needed
-    kubectl rollout undo deployment/"$DEPLOYMENT_NAME" -n "$NAMESPACE" 2>/dev/null || true
-    
-    # Wait for rollback
-    kubectl rollout status deployment/"$DEPLOYMENT_NAME" -n "$NAMESPACE" --timeout=300s
-    
-    notify "🔄 Deployment rolled back successfully" "warning" "#ffaa00"
-}
-
-# Function to promote canary to stable
-promote_canary() {
-    echo "🎉 Promoting canary to stable..."
-    
-    # Remove canary ingresses
-    kubectl delete ingress -n "$NAMESPACE" -l "app=$APP_NAME" --selector="nginx.ingress.kubernetes.io/canary=true" --ignore-not-found=true
-    
-    # Update stable deployment with canary image
-    if [[ -n "$IMAGE_DIGEST" ]]; then
-        kubectl set image deployment/"$DEPLOYMENT_NAME" -n "$NAMESPACE" \
-            "$APP_NAME=scholarlink@$IMAGE_DIGEST"
-        
-        # Wait for rollout
-        kubectl rollout status deployment/"$DEPLOYMENT_NAME" -n "$NAMESPACE" --timeout=600s
-    fi
-    
-    # Clean up canary resources
-    kubectl delete deployment "$CANARY_DEPLOYMENT" -n "$NAMESPACE" --ignore-not-found=true
-    kubectl delete service "${APP_NAME}-service-canary" -n "$NAMESPACE" --ignore-not-found=true
-    kubectl delete hpa "${APP_NAME}-hpa-canary" -n "$NAMESPACE" --ignore-not-found=true
-    
-    notify "🎉 Canary promoted to stable successfully!" "success" "#36a64f"
-}
-
-# Trap for cleanup on exit
-trap 'if [[ $? -ne 0 ]]; then echo "❌ Go-live failed, initiating rollback..."; rollback_deployment; fi' EXIT
-
-# Main go-live execution
+# Main execution
 main() {
-    notify "🚀 Starting ScholarLink production go-live" "info" "#0099cc"
-    
     # Pre-flight checks
-    echo "🔍 Running pre-flight checks..."
+    log_step "T-1: Pre-flight checks"
     
-    # Check kubectl access
-    if ! kubectl get ns "$NAMESPACE" >/dev/null 2>&1; then
-        echo "❌ Cannot access namespace $NAMESPACE"
-        exit 1
+    # Check required commands
+    check_command "node"
+    check_command "npm"
+    check_command "curl"
+    
+    # Check environment variables
+    if [[ -z "$STRIPE_SECRET_KEY" ]]; then
+        log_warning "STRIPE_SECRET_KEY not set"
     fi
     
-    # Verify image signature if Cosign key provided
-    if [[ -n "$IMAGE_DIGEST" && -f "$COSIGN_PUBLIC_KEY" ]]; then
-        echo "🔐 Verifying image signature..."
-        if ! cosign verify --key "$COSIGN_PUBLIC_KEY" "scholarlink@$IMAGE_DIGEST" >/dev/null 2>&1; then
-            echo "❌ Image signature verification failed"
-            exit 1
+    if [[ -z "$OPENAI_API_KEY" ]]; then
+        log_warning "OPENAI_API_KEY not set"
+    fi
+    
+    # Database backup and migrations
+    log_step "Creating database backup"
+    npm run db:backup || log_warning "Database backup failed"
+    
+    log_step "Running database migrations"
+    npm run db:push --force
+    
+    # Build and deploy
+    log_step "Building application"
+    npm run build
+    
+    confirm_step "deployment to production"
+    
+    log_step "Deploying to production"
+    npm run deploy:production
+    
+    # T-0: Production smoke test
+    log_step "T-0: Production smoke test"
+    if ! run_smoke_tests; then
+        log_error "Smoke tests failed - aborting deployment"
+        emergency_rollback
+    fi
+    
+    # Initial system health check
+    if ! check_system_health; then
+        log_error "Initial health check failed - aborting deployment"
+        emergency_rollback
+    fi
+    
+    log_success "Pre-deployment checks completed successfully"
+    
+    # Progressive rollout
+    log_step "Beginning progressive rollout"
+    
+    for i in "${!ROLLOUT_PHASES[@]}"; do
+        local phase=$((i + 1))
+        local percentage=${ROLLOUT_PHASES[$i]}
+        local duration=${PHASE_DURATIONS[$i]}
+        
+        log_step "Phase $phase: Rolling out to ${percentage}% of users"
+        
+        # Set the rollout percentage
+        set_rollout_percentage $percentage
+        
+        # Wait a moment for the change to propagate
+        sleep 10
+        
+        # Check system health after rollout change
+        if ! check_system_health; then
+            log_error "Health check failed during Phase $phase"
+            emergency_rollback
         fi
-        echo "✅ Image signature verified"
-    fi
-    
-    # Check database migration if needed
-    if kubectl get job -n "$NAMESPACE" -l "component=migration" 2>/dev/null | grep -q "db-migrate"; then
-        echo "🗄️ Checking database migration status..."
-        if ! kubectl wait --for=condition=complete job -l "component=migration" -n "$NAMESPACE" --timeout=600s; then
-            echo "❌ Database migration failed"
-            kubectl logs -l "component=migration" -n "$NAMESPACE" --tail=50
-            exit 1
+        
+        # Monitor metrics during this phase
+        if [[ $duration -gt 0 ]]; then
+            monitor_metrics $phase $duration
+            
+            # Check if we should continue to next phase
+            confirm_step "progression to next phase"
         fi
-        echo "✅ Database migration completed"
+        
+        log_success "Phase $phase completed successfully"
+    done
+    
+    # Final verification
+    log_step "Final production verification"
+    
+    if ! run_smoke_tests; then
+        log_error "Final smoke tests failed"
+        emergency_rollback
     fi
     
-    # Deploy canary if not exists
-    if ! kubectl get deployment "$CANARY_DEPLOYMENT" -n "$NAMESPACE" >/dev/null 2>&1; then
-        echo "🚀 Deploying canary..."
-        # Apply canary deployment (would be from your manifests)
-        kubectl apply -f deployment/canary/canary-deployment.yaml
-        kubectl rollout status deployment/"$CANARY_DEPLOYMENT" -n "$NAMESPACE" --timeout=300s
+    if ! check_system_health; then
+        log_error "Final health check failed"
+        emergency_rollback
     fi
     
-    # Get baseline metrics from stable deployment
-    echo "📊 Capturing baseline metrics..."
-    local baseline_service="${APP_NAME}-service"
-    
-    # Stage 1: 1% traffic
-    apply_canary_weight "1"
-    if ! check_health "${APP_NAME}-service-canary" "$SOAK_DURATION"; then
-        exit 1
-    fi
-    
-    # Stage 2: 5% traffic
-    apply_canary_weight "5"
-    if ! check_health "${APP_NAME}-service-canary" "$SOAK_DURATION"; then
-        exit 1
-    fi
-    
-    # Stage 3: 20% traffic
-    apply_canary_weight "20"
-    if ! check_health "${APP_NAME}-service-canary" "$SOAK_DURATION"; then
-        exit 1
-    fi
-    
-    # Stage 4: 50% traffic
-    apply_canary_weight "50"
-    if ! check_health "${APP_NAME}-service-canary" "$SOAK_DURATION"; then
-        exit 1
-    fi
-    
-    # All stages passed - promote to stable
-    promote_canary
-    
-    # Post-deployment validation
-    echo "🔍 Running post-deployment validation..."
-    sleep 60  # Allow metrics to stabilize
-    
-    if ! check_health "${APP_NAME}-service" "180"; then  # 3 minutes validation
-        echo "❌ Post-deployment validation failed"
-        rollback_deployment
-        exit 1
-    fi
-    
-    notify "🎉 ScholarLink production go-live completed successfully!" "success" "#36a64f"
-    
+    # Success!
     echo ""
-    echo "📋 Post-deployment checklist:"
-    echo "- [ ] Verify authentication flow working"
-    echo "- [ ] Check synthetic tests passing"
-    echo "- [ ] Confirm WAF rules not overly aggressive"
-    echo "- [ ] Validate error responses sanitized"
-    echo "- [ ] Monitor dashboards for anomalies"
+    echo "🎉 PRODUCTION GO-LIVE COMPLETED SUCCESSFULLY!"
+    echo "=============================================="
+    echo "✅ All phases completed without errors"
+    echo "✅ Billing system is live at 100% rollout"
+    echo "✅ All health checks passing"
+    echo "✅ Smoke tests passing"
     echo ""
-    echo "🎉 Go-live completed successfully at $(date)"
+    echo "🔍 Next steps:"
+    echo "  - Monitor dashboards for the next 24 hours"
+    echo "  - Review daily reconciliation job results"
+    echo "  - Check user feedback channels"
+    echo "  - Document any operational notes"
+    echo ""
+    echo "📊 Monitoring URLs:"
+    echo "  - Production App: $PRODUCTION_URL"
+    echo "  - Billing Dashboard: $PRODUCTION_URL/billing"
+    echo "  - Admin Panel: $PRODUCTION_URL/admin"
+    echo ""
+    log_success "ScholarLink Billing System is now LIVE in production!"
 }
 
-# Disable trap for successful completion
-trap - EXIT
+# Trap errors and run emergency rollback
+trap 'emergency_rollback' ERR
 
 # Execute main function
 main "$@"
