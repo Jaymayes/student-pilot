@@ -5,15 +5,14 @@ import { prisma, withTransaction } from './database';
 import { getModelRates, getActiveRateCard } from './rateCardService';
 import { getUserForUpdate, updateUserBalance } from './userService';
 import {
-  UsageReconcileRequest,
-  UsageReconcileResponse,
-  InsufficientCreditsError,
+  UsageReconciliation,
+  UsageResult,
 } from '@/types';
 import {
-  createDecimal,
+  decimal,
   calculateUsageCost,
-  applyRounding,
-  formatCreditsForStorage,
+  applyRoundingPolicy,
+  toDbString,
 } from '@/utils/decimal';
 import pino from 'pino';
 
@@ -23,8 +22,8 @@ const logger = pino({ name: 'usage-service' });
  * Process usage reconciliation with idempotency and balance checking
  */
 export async function reconcileUsage(
-  request: UsageReconcileRequest
-): Promise<UsageReconcileResponse | InsufficientCreditsError> {
+  request: UsageReconciliation
+): Promise<UsageResult> {
   try {
     logger.info(
       {
@@ -61,7 +60,7 @@ export async function reconcileUsage(
     );
 
     // Apply rounding policy
-    const finalCost = applyRounding(costCredits);
+    const finalCost = applyRoundingPolicy(costCredits, 'precise');
 
     logger.info(
       {

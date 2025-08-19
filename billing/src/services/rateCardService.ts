@@ -47,6 +47,40 @@ export async function getActiveRateCard(): Promise<{ version: string; config: Ra
 }
 
 /**
+ * Get specific rate card by version
+ */
+export async function getRateCard(version: string) {
+  const rateCard = await prisma.rateCard.findUnique({
+    where: { version },
+  });
+  
+  return rateCard;
+}
+
+/**
+ * Create new rate card version
+ */
+export async function createRateCard(version: string, config: RateCardConfig) {
+  return await prisma.rateCard.create({
+    data: {
+      version,
+      config: config as any,
+    },
+  });
+}
+
+/**
+ * Ensure rate card exists (for startup)
+ */
+export async function ensureRateCardExists() {
+  const existing = await getRateCard(appConfig.RATE_CARD_VERSION);
+  if (!existing) {
+    logger.info('Creating default rate card');
+    await createRateCard(appConfig.RATE_CARD_VERSION, RATE_CARD_V1);
+  }
+}
+
+/**
  * Get model rates for a specific model
  */
 export async function getModelRates(model: string): Promise<ModelRate> {

@@ -1,4 +1,4 @@
-// Database service with Prisma client
+// Database connection and utility functions
 
 import { PrismaClient } from '@prisma/client';
 import { appConfig } from '@/config';
@@ -6,11 +6,9 @@ import pino from 'pino';
 
 const logger = pino({ name: 'database' });
 
-// Create Prisma client with logging configuration
+// Create Prisma client with proper configuration
 export const prisma = new PrismaClient({
-  log: appConfig.isDevelopment 
-    ? ['query', 'info', 'warn', 'error']
-    : ['warn', 'error'],
+  log: appConfig.isProduction ? ['warn', 'error'] : ['query', 'info', 'warn', 'error'],
   datasources: {
     db: {
       url: appConfig.DATABASE_URL,
@@ -19,16 +17,12 @@ export const prisma = new PrismaClient({
 });
 
 /**
- * Initialize database connection and run health checks
+ * Connect to database and handle errors
  */
-export async function initializeDatabase(): Promise<void> {
+export async function connectDatabase() {
   try {
     await prisma.$connect();
-    
-    // Run a simple query to verify connection
-    await prisma.user.count();
-    
-    logger.info('Database connection established');
+    logger.info('Database connected successfully');
   } catch (error) {
     logger.error({ error }, 'Failed to connect to database');
     throw error;
@@ -36,20 +30,30 @@ export async function initializeDatabase(): Promise<void> {
 }
 
 /**
- * Close database connection
+ * Disconnect from database
  */
-export async function closeDatabase(): Promise<void> {
+export async function disconnectDatabase() {
   try {
     await prisma.$disconnect();
-    logger.info('Database connection closed');
+    logger.info('Database disconnected');
   } catch (error) {
-    logger.error({ error }, 'Error closing database connection');
-    throw error;
+    logger.error({ error }, 'Error disconnecting from database');
   }
 }
 
 /**
- * Check database health
+ * Transaction wrapper for safe database operations
+ */
+export async function withTransaction<T>(
+  operation: (tx: any) => Promise<T>
+): Promise<T> {
+  return await prisma.$transaction(async (tx) => {
+    return await operation(tx);
+  });
+}
+
+/**
+ * Health check for database
  */
 export async function checkDatabaseHealth(): Promise<boolean> {
   try {
@@ -62,46 +66,25 @@ export async function checkDatabaseHealth(): Promise<boolean> {
 }
 
 /**
- * Transaction wrapper with retry logic
+ * Initialize database (run migrations if needed)
  */
-export async function withTransaction<T>(
-  operation: (tx: PrismaClient) => Promise<T>,
-  maxRetries: number = 3
-): Promise<T> {
-  let lastError: Error;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await prisma.$transaction(async (tx) => {
-        return await operation(tx);
-      }, {
-        maxWait: 5000, // 5 seconds
-        timeout: 10000, // 10 seconds
-      });
-    } catch (error) {
-      lastError = error as Error;
-      
-      // Check if error is retryable (deadlock, connection issues, etc.)
-      if (
-        attempt < maxRetries && 
-        (error as Error).message.includes('deadlock') ||
-        (error as Error).message.includes('connection')
-      ) {
-        logger.warn(
-          { attempt, error: error as Error }, 
-          'Transaction failed, retrying'
-        );
-        
-        // Exponential backoff
-        await new Promise(resolve => 
-          setTimeout(resolve, Math.pow(2, attempt - 1) * 100)
-        );
-        continue;
-      }
-      
-      throw error;
+export async function initializeDatabase() {
+  try {
+    logger.info('Initializing database...');
+    await connectDatabase();
+    
+    // Check if database is accessible
+    const isHealthy = await checkDatabaseHealth();
+    if (!isHealthy) {
+      throw new Error('Database health check failed');
     }
+    
+    logger.info('Database initialized successfully');
+  } catch (error) {
+    logger.error({ error }, 'Failed to initialize database');
+    throw error;
   }
-  
-  throw lastError!;
 }
+
+// Export Prisma client for direct use
+export default prisma;

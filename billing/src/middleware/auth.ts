@@ -82,3 +82,11 @@ export function optionalAuth(
 
   next();
 }
+
+// Export the functions with aliases to match routes expectations
+export const requireAuth = authenticateToken;
+
+// Setup function for app-level auth middleware
+export function setupAuth(app: any): void {
+  // Global auth setup if needed
+}

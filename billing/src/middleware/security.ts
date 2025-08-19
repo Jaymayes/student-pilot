@@ -134,3 +134,14 @@ export function trustProxy(app: any): void {
     app.set('trust proxy', true);
   }
 }
+
+// Setup function for app-level security middleware
+export function setupSecurity(app: any): void {
+  // Apply correlation ID middleware
+  app.use(correlationId);
+  
+  // Trust proxy setup
+  trustProxy(app);
+  
+  // Additional security setup if needed
+}

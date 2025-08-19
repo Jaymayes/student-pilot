@@ -1,11 +1,11 @@
 // Ledger service for transaction history and auditing
 
 import { prisma } from './database';
-import { LedgerEntry, AdminAdjustmentRequest } from '@/types';
-import { addCreditsToUser, deductCreditsFromUser } from './userService';
+import { LedgerQuery, LedgerResult } from '@/types';
 import {
-  createDecimal,
-  formatCreditsForStorage,
+  decimal,
+  toDbString,
+  fromDbString,
   formatCreditsForDisplay,
 } from '@/utils/decimal';
 import pino from 'pino';
@@ -55,11 +55,11 @@ export async function getUserLedger(
 
   return {
     entries: items.map(entry => {
-      const amount = createDecimal(entry.amountCredits.toString());
+      const amount = fromDbString(entry.amountCredits.toString());
       return {
         id: entry.id,
         kind: entry.kind,
-        amountCredits: formatCreditsForStorage(amount),
+        amountCredits: toDbString(amount),
         displayAmount: formatCreditsForDisplay(amount),
         usdCents: entry.usdCents || undefined,
         model: entry.model || undefined,

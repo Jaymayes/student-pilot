@@ -4,13 +4,10 @@ import Stripe from 'stripe';
 import { prisma, withTransaction } from './database';
 import { addCreditsToUser } from './userService';
 import {
-  Purchase,
-  PurchaseRequest,
-  PurchaseResponse,
   CreditPackage,
 } from '@/types';
 import { CREDIT_PACKAGES, appConfig } from '@/config';
-import { createDecimal, formatCreditsForStorage } from '@/utils/decimal';
+import { decimal, toDbString } from '@/utils/decimal';
 import pino from 'pino';
 
 const logger = pino({ name: 'purchase-service' });
