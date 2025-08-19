@@ -1,0 +1,78 @@
+Phenomenal. You’re truly production-ready.
+
+Below is a tight go-live + monitoring runbook you can follow today, including smoke tests, kill switches, alerts, and finance notes. If you want, I can tailor any step to your exact stack.
+
+T-1: Pre-flight
+
+Secrets: Set live Stripe keys, webhook secret, OpenAI key. Lock CORS/CSP to prod domains.
+Stripe products/prices: $9.99, $49.99 (+5% bonus), $99.99 (+10% bonus). Server maps packageCode → price/credits; ignore client values.
+Webhook: Configure live endpoint; confirm signature verification and idempotency.
+DB: Snapshot/backup; run migrations; seed active rate card and admin user. Confirm read replicas (if any).
+Flags/switches (env or config):
+billing.purchase_enabled=true
+billing.charging_enabled=true (keep a kill switch)
+billing.rounding_mode=exact|ceil (your chosen default)
+billing.model_allowlist=[…]
+billing.auto_recharge=false (if not launching)
+Access: Gate admin endpoints behind RBAC; enable audit logs for admin changes.
+T-0: Production smoke test (internal account)
+
+GET /api/billing/me → 200, returns:
+balanceMillicredits: "…", balanceCredits: number, balanceUsd: number
+packages, activeRates, recentLedger/Usage
+Purchase flow (live mode):
+Buy Starter ($9.99). Confirm one purchase ledger entry and new balance (9,990 credits).
+Webhook retries do not double-grant.
+Usage deduction:
+Make one OpenAI call via wrapper; balance decreases; usage + ledger entries reconcile.
+Insufficient credits:
+Trigger 402 with { requiredCredits, currentCredits }, UI shows CTA to Credits tab.
+Progressive rollout
+
+Gradual enablement: 5% of users for 30 minutes → 25% for 1 hour → 100% if stable.
+Fallbacks (instant):
+Disable purchases (purchase_enabled=false) if Stripe/webhook issues.
+Pause charging (charging_enabled=false) if anomalies; show banner and allow free responses temporarily or block with clear message.
+Observability and alerts (set now)
+
+Metrics to emit
+billing.credits_purchased, billing.credits_deducted
+billing.402_insufficient_credits_count
+stripe.webhook_events_by_type, stripe.webhook_failures
+openai.calls_by_model, tokens_in/out_by_model
+finance.margin_daily_usd = credits_deducted/1000 - openai_cogs_usd
+finance.liability_credits_usd = total_outstanding_credits/1000
+Alerts
+Webhook failures > 0 for 5+ minutes
+402 spike vs baseline
+Reconciliation mismatch > threshold (e.g., > 0.1% of daily deductions)
+Negative or sub-target margin day
+Dashboards
+Purchases vs deductions (daily)
+Revenue vs COGS vs margin
+Top models by cost/usage
+Outstanding credits liability trend
+Daily jobs and reconciliations
+
+Reconcile: sum(ledger deltas) == current balance per user.
+Usage vs ledger: sum(usage.chargedMillicredits) == sum(ledger deductions) for the period.
+Rate snapshots: randomly sample historic usage rows and verify applied rates persist.
+Finance and policy notes
+
+Revenue recognition
+Purchase: Dr Cash, Cr Deferred revenue (liability)
+Consumption: Dr Deferred revenue, Cr Revenue
+COGS: Dr COGS, Cr Cash/Payable (OpenAI)
+Refunds/chargebacks: add refund ledger entries and link to the purchase referenceId; document policy in FAQs/ToS.
+Credits expiration: if you plan any, state clearly; else “no expiration” builds trust.
+UX trust polish (optional but quick)
+
+Credits tab: “Credits are prepaid. 1,000 Credits = $1.00. You only pay for actual token usage.”
+Purchase rows link to Stripe receipts.
+Add an “Export monthly statement” button (CSV now, PDF later).
+Post-launch SLOs (suggested)
+
+99.95% availability for purchase and deduction endpoints.
+Webhook success rate > 99.9% within 5 minutes.
+Reconciliation job success 100% daily.
+If you’d like, share the live /api/billing/me response (redacting IDs) and I’ll do a final API contract sanity pass. Otherwise, you’re green-lit to flip the switches and go live.
