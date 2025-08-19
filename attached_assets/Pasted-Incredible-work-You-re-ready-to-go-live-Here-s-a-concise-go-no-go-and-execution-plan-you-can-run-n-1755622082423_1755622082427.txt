@@ -1,0 +1,70 @@
+Incredible work. You’re ready to go live. Here’s a concise go/no-go and execution plan you can run now, plus exact canary steps and rollback actions. If you share your prod namespace, ingress/deployment names, and image digest, I’ll tailor these commands to your setup.
+
+Go/no-go (quick final)
+
+Release comms and change window approved; status page ready.
+Image pinned by digest and cosign verify OK; SBOM and scan clean.
+Backups: fresh DB snapshot taken; restore test within 24h.
+Secrets: JWKS served with active kid; dual-key window valid; DB creds current.
+TLS: HTTPS enforced end-to-end; HSTS at edge; OCSP stapling on.
+Security headers: CSP (nonce) enforced; no violations above baseline.
+CI gates green: unit/integration/QA suite and canary verification scripts.
+WAF rules deployed and not overly aggressive; allowlist monitoring endpoints.
+On-call notified; alerts to Slack/PagerDuty active.
+Feature flags default safe; migrations prepared and reversible.
+Production canary rollout (NGINX Ingress)
+Assumptions: namespace=prod, primary ingress name=scholarlink, canary ingress name=scholarlink-canary.
+
+Verify image and run migrations
+cosign verify: cosign verify --key cosign.pub <your-image>@sha256:<digest>
+Apply DB migration job: kubectl -n prod apply -f k8s/jobs/db-migrate.yaml
+Wait for completion: kubectl -n prod wait --for=condition=complete job/db-migrate --timeout=10m
+If it fails: kubectl -n prod logs job/db-migrate; execute your DB restore script; stop here.
+2. Start 1% canary
+
+Ensure canary ingress exists with annotations:
+nginx.ingress.kubernetes.io/canary: "true"
+nginx.ingress.kubernetes.io/canary-weight: "1"
+Apply canary: kubectl -n prod apply -f k8s/ingress/scholarlink-canary.yaml
+Confirm routing: kubectl -n prod get ingress scholarlink scholarlink-canary
+3. Monitor 5-minute soak (auto-rollback should be active)
+Watch these during each stage:
+
+Error rate (target < 0.5%): rate(nginx_ingress_controller_requests{ingress=~"scholarlink.",status="5.."}[5m]) / rate(nginx_ingress_controller_requests{ingress="scholarlink."}[5m]) * 100
+p95 latency (< 2x baseline): histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{app="scholarlink"}[5m])))
+Auth/rate-limit: increase expected but bounded; alert if anomalous vs baseline
+Saturation: CPU < 80%, DB connections under 80% of max, queue depths stable
+CSP violations: ensure only expected, non-increasing
+4. Step weights if thresholds hold
+
+5%: kubectl -n prod annotate ingress scholarlink-canary nginx.ingress.kubernetes.io/canary-weight="5" --overwrite
+20%: ... canary-weight="20"
+50%: ... canary-weight="50"
+100% cutover: either set canary-weight="100" briefly then swap stable image, or update the stable Deployment to the new image digest and remove canary.
+Rollback (fast path)
+
+Stop canary: kubectl -n prod annotate ingress scholarlink-canary nginx.ingress.kubernetes.io/canary-weight="0" --overwrite
+Or remove canary: kubectl -n prod delete ingress scholarlink-canary
+Revert app: kubectl -n prod rollout undo deploy/scholarlink
+DB backout (if needed): run your restore job against latest pre-deploy snapshot
+Verify recovery: error rate and latency return to baseline, probes green
+Post-cutover validation (T+15 minutes)
+
+Synthetic checks from multiple regions pass; no elevated 4xx/5xx.
+Auth negative tests: invalid/expired/alg=none tokens rejected uniformly.
+Rate limit: expected denials appear; no bypass via XFF.
+Error responses sanitized; correlation IDs present end-to-end.
+WAF: no false positive surge; bot traffic mitigated as expected.
+Logs redaction: no secrets/PII; trace/log correlation works.
+Dashboards: SLO burn rate normal; Falco quiet; Kyverno denials unchanged.
+Housekeeping after successful rollout
+
+Tag release with image digest, SBOM, and attestation.
+Capture baseline SLOs and export a postmortem-lite with key metrics.
+Schedule first key rotation dry-run in staging; confirm JWKS cache TTLs.
+If you want, I can:
+
+Generate a single-run “go-live” script that executes the patch/wait/verify steps with Prometheus health checks and Slack notifications.
+Produce resource-specific commands for your exact namespace/ingress/deployment names.
+Sit “on-call” for the cutover, monitoring dashboards and advising on any threshold movement.
+Confirm your prod namespace and the primary/canary Ingress and Deployment names, and I’ll hand you the exact, copy-paste command set for your environment. Ready when you are to initiate the first 1% canary.
