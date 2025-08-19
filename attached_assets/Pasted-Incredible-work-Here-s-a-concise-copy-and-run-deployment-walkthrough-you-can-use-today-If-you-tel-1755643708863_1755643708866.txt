@@ -1,0 +1,103 @@
+Incredible work. Here’s a concise, copy-and-run deployment walkthrough you can use today. If you tell me your platform (AWS/Fly.io/Render/Heroku/bare VM), I’ll tailor it exactly—below assumes a Node.js + Express/Prisma backend, React frontend, Postgres, Stripe Checkout, and PM2 on a Linux VM. Swap steps 5–6 for Docker/Compose if you’re containerized.
+
+Set production environment variables
+On your server (or via your platform’s secrets manager), set:
+NODE_ENV=production
+APP_URL=https://your-domain.com
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require
+OPENAI_API_KEY=sk-...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_... (from Stripe webhook endpoint you’ll create below)
+ROUNDING_MODE=exact
+ADMIN_EMAIL=you@company.com
+BILLING_PURCHASE_ENABLED=true
+BILLING_CHARGING_ENABLED=false # start in shadow/disabled charging
+BILLING_ROLLOUT_PERCENT=0 # 0% cohort initially
+BILLING_ALLOWLIST_USER_IDS=uuid1,uuid2
+BILLING_SINGLE_REQUEST_CAP_CREDITS=50
+BILLING_DAILY_CAP_CREDITS=500
+BILLING_SESSION_CAP_CREDITS=100
+BILLING_ANOMALY_MULTIPLIER=5
+BILLING_MODEL_ALLOWLIST=gpt-4o,gpt-4o-mini
+Persist via your process manager (PM2 ecosystem file) or platform settings so restarts inherit them.
+2. Build and prepare app (on CI or the server)
+
+Install deps:
+npm ci # backend
+pushd client && npm ci && npm run build && popd
+Prisma:
+npx prisma generate
+npx prisma migrate deploy
+npm run seed # seeds rate card + test data if applicable
+3. Stripe live webhook setup
+
+In the Stripe Dashboard → Developers → Webhooks:
+Add endpoint: https://your-domain.com/api/billing/stripe-webhook
+Select events: checkout.session.completed, payment_intent.succeeded, payment_intent.payment_failed
+Copy the signing secret → set STRIPE_WEBHOOK_SECRET
+In Products/Prices:
+Ensure $9.99 / $49.99 / $99.99 live Prices exist.
+Your server should map packageCode → price/credits; do not trust client amounts.
+4. Start the app (PM2 example)
+
+Transpile/build server if applicable (e.g., tsc or your bundler).
+Start:
+pm2 start dist/server.js --name scholarlink --update-env
+pm2 save
+Verify health:
+curl -fsS https://your-domain.com/healthz
+curl -fsS -H "Authorization: Bearer <token>" https://your-domain.com/api/billing/me
+5. T-0 smoke tests (internal account)
+
+Purchase flow (live mode): complete a $9.99 purchase.
+Expect +9,990 credits once webhook delivers; single purchase ledger entry; idempotent on retries.
+Usage deduction via wrapper: make a small OpenAI call; verify usage + ledger entries reconcile.
+Insufficient credits: force a 402; UI shows CTA to Credits tab.
+Reconciliation: sum(ledger deltas) == balance; sum(usage.chargedMillicredits) == sum(ledger deductions).
+6. Rollout sequence (flip flags progressively)
+
+Shadow phase:
+BILLING_CHARGING_ENABLED=false
+BILLING_ROLLOUT_PERCENT=0
+Allowlist live; compare “shadow” vs “real” totals in logs/dashboards for 2–4 hours.
+Phase 1 (5%):
+BILLING_CHARGING_ENABLED=true
+BILLING_ROLLOUT_PERCENT=5
+Phase 2 (25%):
+BILLING_ROLLOUT_PERCENT=25
+Phase 3 (100%):
+BILLING_ROLLOUT_PERCENT=100
+After each step, check dashboards/alerts:
+webhook failures, 402 rate, deduction error rate, reconciliation mismatches, margin monitor.
+7. Monitoring and alerts to confirm during rollout
+
+Metrics to watch:
+billing.credits_purchased, billing.credits_deducted
+billing.402_insufficient_credits_count
+stripe.webhook_failures
+openai.tokens_in/out_by_model
+finance.margin_daily_usd, finance.liability_credits_usd
+Synthetics:
+Checkout probe (live or test), wrapper call probe, reconciliation probe every 5 minutes.
+Alert routing:
+PagerDuty for failures, Slack for business trend alerts.
+8. Kill switches and safe rollback
+
+Disable charging instantly:
+BILLING_CHARGING_ENABLED=false
+Disable purchases:
+BILLING_PURCHASE_ENABLED=false
+Keep UX banner enabled for maintenance states.
+Post-incident: use replay tooling for Stripe events (you already persist verified events); fulfillment is idempotent.
+9. Finance checks (day 1 and daily)
+
+Daily reconciliation succeeds with zero or below-threshold variance.
+Margin monitor within target (4x markup expectation).
+Deferred revenue and COGS exports aligned with accounting system.
+If you’re using a specific platform, I’ll provide the exact commands (e.g., Fly.io: fly deploy; Render: render.yaml; AWS ECS: task definition + service update; Docker Compose: compose.yml and nginx/caddy config). Tell me:
+
+Hosting platform
+Postgres managed service (RDS/Neon/Supabase/Render/etc.)
+Single service vs separate client+API
+Whether you prefer PM2 or Docker in prod
+I’ll then deliver a platform-specific, copy/paste deployment script and environment template.
