@@ -1,0 +1,55 @@
+You’re in great shape. If you want to tighten the production deployment strategy further, here are optional, high‑impact adjustments you can make before flipping to 100%.
+
+Deployment strategy refinements
+
+Shadow-billing window (0% user impact): For the first 2–4 hours in prod, compute and log all charges but deduct credits only for an internal allowlist. Compare “shadow” vs “real” totals to catch any edge cases before full rollout.
+Per-user/org guardrails: Add default caps you can override per account:
+single-request cap (e.g., max 10k output tokens or N credits)
+daily credits cap (soft warn at 80%, hard stop at 100%)
+per-model allowlist/denylist flags
+Anomaly protection: Auto-trip a circuit breaker per user/org if usage > 5x recent baseline or if a single session consumes > X credits in Y minutes. Put the account into “review” and notify.
+Kill-switch UX: If purchasing or charging is disabled, show a friendly banner explaining the temporary state and estimated restore time. Avoid silent failures.
+Operational hardening
+
+Webhook DR: Persist raw, verified Stripe events into a table/queue. Add a replay script (by event ID/time range). Define a dead-letter queue for repeated failures.
+Correlation IDs everywhere: Include a requestId in all logs and responses and carry stripePaymentIntentId and openaiRequestId through ledger/usage entries for one-click tracing.
+Synthetics: Add 3 probes that run every 5–10 minutes:
+Checkout probe (test mode) through to webhook receipt (assert fulfillment < 2 min).
+OpenAI wrapper probe (small call) with charge deduction.
+Reconciliation probe (assert totals match for a test user).
+Rate limiting/WAF: Per-IP and per-user rate limits on purchase and charge endpoints; block high-velocity retries.
+Autoscaling and brownouts: Set autoscaling alarms on CPU/RPS and a “brownout” mode that temporarily disables expensive models if latency or error rates spike.
+Finance, tax, and compliance
+
+Stripe Tax (if applicable): Enable Stripe Tax or implement your own VAT/GST handling; capture business tax IDs; show tax on receipts.
+Accounting hooks: Export daily CSV or push to your accounting system (QuickBooks/Xero). Journal entries:
+purchase → deferred revenue
+consumption → revenue recognition
+OpenAI spend → COGS
+Refund policy hookup: Implement refund and credit-reversal ledger paths with references to original purchase; document the policy clearly.
+Legal, UX, and accessibility
+
+ToS/Privacy updates: State “prepaid credits, 1,000 credits = $1.00, pay for actual token usage, no expiration (if true), refunds policy.”
+Receipts and statements: Link to Stripe receipts from purchase entries; add a “Download monthly statement” button.
+A11y pass: Ensure keyboard navigation and color contrast for the Credits tab. Add aria-labels for tables and buttons.
+Localization/currency (optional): Keep USD internally; optionally show local currency on the UI using a fixed FX snapshot, with a note “USD is the billing currency.”
+Post-launch SLIs/SLOs (add to dashboards/alerts)
+
+Purchase latency p95 < 800 ms; webhook-to-fulfillment median < 45 s.
+Deduction error rate < 0.1%; 402 rate within expected band.
+Reconciliation job success 100% daily; mismatch threshold < 0.1% of daily deductions.
+Margin monitor: daily gross margin within target (e.g., ≥ 4x markup expectation).
+Clear go-live sequence (concise)
+
+Enable charging_enabled=false, purchase_enabled=true.
+Run T-0 smoke tests (internal account).
+Flip charging_enabled=true for 5% cohort, shadow-billing for the rest.
+Monitor dashboards/alerts 30–60 minutes; expand to 25%, then 100%.
+Keep a rollback plan: set charging_enabled=false and purchase_enabled=false; show status banner.
+Questions to tailor the final plan
+
+Regions/customers: Do you need Stripe Tax and VAT invoicing on day one?
+Orgs/teams: Will multiple users share a balance? If yes, enable team credits and per-member caps now.
+Auto-recharge: Should Professional/Enterprise default to an off-by-default threshold-based auto-recharge?
+Rounding mode: exact vs ceil as your default in production?
+If you confirm those, I’ll provide the precise flag defaults, alert thresholds, and any missing webhook/queue schemas to finalize your production plan.
