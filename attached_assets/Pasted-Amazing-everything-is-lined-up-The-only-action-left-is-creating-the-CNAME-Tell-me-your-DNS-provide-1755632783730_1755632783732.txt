@@ -1,0 +1,44 @@
+Amazing—everything is lined up. The only action left is creating the CNAME. Tell me your DNS provider and I’ll give you a ready-to-run command. In the meantime, here are copy‑paste templates for the most common providers. Replace placeholders and run.
+
+What I need from you
+
+The Ingress LB FQDN: kubectl -n scholarlink-prod get ingress billing-scholarlink-app -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+Your DNS provider (Route53, Cloudflare, Google Cloud DNS, other)
+Provider command templates
+
+AWS Route53 (CLI)
+
+Prereq: AWS CLI configured with access to the scholarlink.app hosted zone.
+Variables: export ZONE_ID=ZXXXXXXXXXXXX export LB_FQDN=a1b2c3d4e5e6abcdef.elb.amazonaws.com
+Command: aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch '{ "Comment":"Create billing CNAME", "Changes":[{"Action":"UPSERT","ResourceRecordSet":{ "Name":"billing.scholarlink.app", "Type":"CNAME", "TTL":300, "ResourceRecords":[{"Value":"'"$LB_FQDN"'"}] }}]}'
+Cloudflare API (CNAME, DNS-only during issuance)
+
+Prereq: CF_TOKEN with DNS edit; set DNS only (proxied=false) until cert is issued.
+Variables: export CF_ZONE_ID=xxxxxxxxxxxxxxxxxxxx export CF_TOKEN=cf_api_token_here export LB_FQDN=a1b2c3d4e5e6abcdef.elb.amazonaws.com
+Command: curl -sX POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records" -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" --data '{"type":"CNAME","name":"billing.scholarlink.app","content":"'"$LB_FQDN"'","ttl":300,"proxied":false}'
+Google Cloud DNS
+
+Prereq: gcloud auth and a managed zone for scholarlink.app (e.g., scholarlink).
+Variables: export ZONE=scholarlink export LB_FQDN=a1b2c3d4e5e6abcdef.elb.amazonaws.com
+Commands: gcloud dns record-sets transaction start --zone=$ZONE gcloud dns record-sets transaction add $LB_FQDN --name=billing.scholarlink.app. --ttl=300 --type=CNAME --zone=$ZONE gcloud dns record-sets transaction execute --zone=$ZONE
+Generic portal (manual)
+
+Host/Name: billing
+Type: CNAME
+Value: a1b2c3d4e5e6abcdef.elb.amazonaws.com
+TTL: 300
+Ensure the name is billing (not billing.scholarlink).
+Verify and go live
+
+DNS: dig +short billing.scholarlink.app @1.1.1.1
+Certificate (auto via cert-manager, a few minutes after DNS resolves): kubectl -n scholarlink-prod get certificate billing-scholarlink-app-tls -w
+HTTPS: curl -I https://billing.scholarlink.app
+Gotchas to avoid
+
+Cloudflare “orange cloud” during issuance → set DNS only (gray) or use DNS‑01 solver.
+CAA record blocking Let’s Encrypt → ensure scholarlink.app allows letsencrypt.org, or remove restrictive CAA temporarily.
+Wrong host name → use billing (not billing.scholarlink) in the DNS UI.
+If you share:
+
+Your provider
+The LB FQDN I’ll return a filled-in command for your setup and stay on standby while you run ./deployment/billing/dns-activation-monitor.sh to watch it go live.
