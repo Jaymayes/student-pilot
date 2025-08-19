@@ -4,7 +4,7 @@ import { storage } from './storage';
 import { openaiService } from './openai';
 
 // Environment variables for agent bridge
-const COMMAND_CENTER_URL = process.env.COMMAND_CENTER_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
+const COMMAND_CENTER_URL = process.env.COMMAND_CENTER_URL || 'https://auto-com-center-production.scholarlink.app';
 const SHARED_SECRET = process.env.SHARED_SECRET;
 const AGENT_NAME = process.env.AGENT_NAME || 'student_pilot';
 const AGENT_ID = process.env.AGENT_ID || 'student-pilot';

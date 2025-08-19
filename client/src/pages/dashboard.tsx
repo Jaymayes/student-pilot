@@ -258,9 +258,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Active Applications</p>
-                  <p className="text-3xl font-bold text-primary" data-testid="stat-active-applications">
+                  <div className="text-3xl font-bold text-primary" data-testid="stat-active-applications">
                     {statsLoading ? <Skeleton className="h-8 w-8" /> : stats?.activeApplications || 0}
-                  </p>
+                  </div>
                 </div>
                 <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
                   <FileText className="text-primary text-xl" />
@@ -274,9 +274,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">New Matches</p>
-                  <p className="text-3xl font-bold text-secondary" data-testid="stat-new-matches">
+                  <div className="text-3xl font-bold text-secondary" data-testid="stat-new-matches">
                     {statsLoading ? <Skeleton className="h-8 w-8" /> : stats?.newMatches || 0}
-                  </p>
+                  </div>
                 </div>
                 <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
                   <Search className="text-secondary text-xl" />
@@ -290,9 +290,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Upcoming Deadlines</p>
-                  <p className="text-3xl font-bold text-accent" data-testid="stat-upcoming-deadlines">
+                  <div className="text-3xl font-bold text-accent" data-testid="stat-upcoming-deadlines">
                     {statsLoading ? <Skeleton className="h-8 w-8" /> : stats?.upcomingDeadlines || 0}
-                  </p>
+                  </div>
                 </div>
                 <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
                   <Clock className="text-accent text-xl" />
@@ -306,9 +306,9 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Applied</p>
-                  <p className="text-3xl font-bold text-gray-700" data-testid="stat-total-applied">
+                  <div className="text-3xl font-bold text-gray-700" data-testid="stat-total-applied">
                     {statsLoading ? <Skeleton className="h-8 w-8" /> : stats?.totalApplied || 0}
-                  </p>
+                  </div>
                 </div>
                 <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center">
                   <Trophy className="text-gray-600 text-xl" />
