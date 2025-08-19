@@ -12,6 +12,7 @@ import Scholarships from "@/pages/scholarships";
 import Applications from "@/pages/applications";
 import Documents from "@/pages/documents";
 import EssayAssistant from "@/pages/essay-assistant";
+import Help from "@/pages/help";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,6 +29,7 @@ function Router() {
           <Route path="/applications" component={Applications} />
           <Route path="/documents" component={Documents} />
           <Route path="/essay-assistant" component={EssayAssistant} />
+          <Route path="/help" component={Help} />
         </>
       )}
       <Route component={NotFound} />

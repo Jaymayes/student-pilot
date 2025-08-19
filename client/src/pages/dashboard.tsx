@@ -3,12 +3,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { ScholarshipCard } from "@/components/ScholarshipCard";
+import { BuyCreditsButton } from "@/components/BillingLink";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -235,6 +238,18 @@ export default function Dashboard() {
           </h1>
           <p className="text-gray-600">Here's your scholarship journey overview for today.</p>
         </div>
+
+        {/* Low Balance Alert */}
+        <Alert className="border-orange-200 bg-orange-50 mb-8">
+          <TriangleAlert className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="flex items-center justify-between">
+            <div>
+              <strong className="text-orange-800">Low credits balance</strong>
+              <p className="text-orange-700">You have insufficient credits for AI-powered features. Purchase more credits to continue using essay assistance and scholarship matching.</p>
+            </div>
+            <BuyCreditsButton requiredCredits={50} className="ml-4 flex-shrink-0" />
+          </AlertDescription>
+        </Alert>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -610,6 +625,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
