@@ -324,10 +324,10 @@ export default function Billing() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
               <div className="space-y-2 text-sm">
-                <div className="font-medium">Secure Payment</div>
+                <div className="font-medium">Secure & Transparent</div>
                 <div className="text-muted-foreground">
-                  All payments are processed securely through Stripe. 
-                  Credits are added to your account instantly after payment confirmation.
+                  All payments processed securely through Stripe. Credits are prepaid: 1,000 Credits = $1.00. 
+                  You only pay for actual token usage. Credits added instantly after payment confirmation.
                 </div>
               </div>
             </div>
@@ -584,9 +584,10 @@ export default function Billing() {
             <div className="flex items-start gap-2">
               <AlertCircle className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
               <div>
-                <div className="font-medium mb-1">Fair Usage Policy</div>
+                <div className="font-medium mb-1">Transparent Pricing</div>
                 <div className="text-muted-foreground">
-                  We only charge based on actual token usage. Rates are 4x OpenAI's pricing to cover infrastructure and development costs. 
+                  Credits are prepaid. 1,000 Credits = $1.00. You only pay for actual token usage. 
+                  Rates are 4x OpenAI's pricing to cover infrastructure and development costs. USD equivalent is approximate.
                   Last updated: {format(new Date(), 'MMM d, yyyy')}.
                 </div>
               </div>

@@ -1,0 +1,79 @@
+This is outstanding. 24/24 and clean UX is exactly where you want to be before go-live.
+
+A couple of tiny polish items from your sample response, then a concise go-live + monitoring checklist you can copy into your runbook.
+
+Two quick nits from the sample API payload
+
+Naming/precision: currentBalance: 45230 appears to be millicredits. Consider:
+balanceMillicredits: "45230" (string for precision and clarity)
+balanceCredits: 45.23 (number for display)
+balanceUsd: 0.05 (rounded to 2 decimals; you can still show “~$0.05” in UI) Reason: returning millicredits as strings future-proofs against Number.MAX_SAFE_INTEGER and avoids ambiguity.
+Consistency: activeRates are strings ("2.400"), which is fine; keep it consistent across API and always snapshot per-1k rates in usage rows (you already do).
+Final go-live checklist
+Secrets and environments
+
+Use Stripe live mode keys, webhook secret, and rotate staging secrets.
+OPENAI_API_KEY: production key with least privilege; rotate on schedule.
+Lock CORS and CSP for your production domains.
+Stripe
+
+Products/Prices created for $9.99, $49.99, $99.99. Do NOT trust client-sent amounts; map server-side.
+Webhook: live endpoint configured with signature verification and idempotent fulfillment.
+Refunds: define policy. If you support refunds-to-credits or cash, ensure ledger entries: refund (negative) + reversal link to purchase.
+Charging controls
+
+Per-request guardrails: max output tokens and optional “spend cap per request/session”.
+Insufficient credits: confirm 402 path links directly to Credits tab with returnTo param.
+Data integrity
+
+DB migrations applied with backup/snapshot step; verify rollback plan.
+Ledger is append-only; adjustments via reversal entries only.
+Daily reconciliation job:
+Sum(ledger deltas) == current balance per user.
+Sum(usage.chargedMillicredits) == sum(ledger deductions) per period.
+Observability and alerts
+
+Metrics to emit
+billing.credits_purchased, billing.credits_deducted (credits)
+billing.active_balance (gauge, per user optional sample)
+billing.402_insufficient_credits_count
+stripe.webhook_events_by_type, stripe.webhook_failures
+openai.calls_by_model, openai.tokens_in/out_by_model
+margin.gross_daily_usd = (credits_deducted/1000) - openai_cogs_usd
+liability.outstanding_credits_usd = (total_credits_balance/1000)
+Alerts
+Webhook failures > 0 for 5 min
+402 spikes vs baseline
+Negative margin day or margin < target
+Reconciliation mismatch > tiny threshold
+Dashboards
+Revenue vs COGS vs Margin (daily)
+Credits purchased vs deducted (daily)
+Top models by cost and by user
+Outstanding credits liability
+Security and compliance
+
+RBAC on admin endpoints; log admin actions to an audit table.
+Don’t log secrets or full webhook payloads; mask PII.
+Backups: daily + PITR if on Postgres; quarterly restore drill.
+PCI scope: using Stripe Checkout keeps you out of PCI SAQ-D—confirm you never collect card data.
+UX trust and clarity
+
+On Credits tab:
+“Credits are prepaid. 1,000 Credits = $1.00. You only pay for actual token usage.”
+Link to Stripe receipt on purchase rows.
+Small note on rounding: “USD equivalent is approximate.”
+Add a “Download monthly statement” button (CSV/PDF) that includes:
+Opening balance, purchases, deductions, closing balance
+Per-model usage totals
+Operational runbook (incidents)
+
+Webhook outage: queue events (Stripe retries). Manual replay with Stripe CLI; fulfillment is idempotent.
+Overcharge/duplicate charge: create offsetting adjustment ledger entry; attach referenceId to investigation.
+User stuck after checkout: verify stripePaymentIntentId, check purchase status=paid, rerun fulfillment.
+Nice-to-have next
+
+Auto-recharge toggle (threshold-based) for Professional/Enterprise.
+Team/workspace credits with member allocations and spend caps.
+Coupons/promo codes (Stripe Coupons) and introductory bonus credits.
+Price/model rollout safety switch: feature flag per-model and per-rate-card.
