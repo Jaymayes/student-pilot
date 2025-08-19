@@ -1,0 +1,176 @@
+# NGINX Ingress Canary Configuration for ScholarLink
+# Supports progressive traffic splitting: 1% → 5% → 20% → 50% → 100%
+
+---
+# Canary Service (points to new deployment)
+apiVersion: v1
+kind: Service
+metadata:
+  name: scholarlink-service-canary
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    component: api
+    deployment: canary
+spec:
+  type: ClusterIP
+  selector:
+    app: scholarlink
+    component: api
+    deployment: canary
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+    protocol: TCP
+
+---
+# Canary Ingress - Stage 1: 1% traffic
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarlink-ingress-canary-1
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    canary-stage: "1"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    
+    # Canary configuration
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "1"
+    
+    # Security headers (same as main)
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Permissions-Policy: camera=(), microphone=(), geolocation=()";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "X-Canary-Version: v{{ .Values.deployment.version }}";
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+
+spec:
+  tls:
+  - hosts:
+    - scholarlink.app
+    secretName: scholarlink-tls-secret
+  
+  rules:
+  - host: scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service-canary
+            port:
+              number: 80
+
+---
+# Canary Ingress - Stage 2: 5% traffic  
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarlink-ingress-canary-5
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    canary-stage: "5"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "5"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Canary-Version: v{{ .Values.deployment.version }}";
+      more_set_headers "X-Canary-Stage: 5-percent";
+spec:
+  tls:
+  - hosts:
+    - scholarlink.app
+    secretName: scholarlink-tls-secret
+  rules:
+  - host: scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service-canary
+            port:
+              number: 80
+
+---
+# Canary Ingress - Stage 3: 20% traffic
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarlink-ingress-canary-20
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    canary-stage: "20"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "20"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Canary-Version: v{{ .Values.deployment.version }}";
+      more_set_headers "X-Canary-Stage: 20-percent";
+spec:
+  tls:
+  - hosts:
+    - scholarlink.app
+    secretName: scholarlink-tls-secret
+  rules:
+  - host: scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service-canary
+            port:
+              number: 80
+
+---
+# Canary Ingress - Stage 4: 50% traffic
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarlink-ingress-canary-50
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    canary-stage: "50"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "50"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Canary-Version: v{{ .Values.deployment.version }}";
+      more_set_headers "X-Canary-Stage: 50-percent";
+spec:
+  tls:
+  - hosts:
+    - scholarlink.app
+    secretName: scholarlink-tls-secret
+  rules:
+  - host: scholarlink.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: scholarlink-service-canary
+            port:
+              number: 80

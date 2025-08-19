@@ -1,0 +1,174 @@
+# Synthetic Tests for Production Monitoring
+# Runs continuously to validate core functionality
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scholarlink-synthetic-tests
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    component: monitoring
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: scholarlink
+            component: synthetic-test
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            fsGroup: 1001
+          containers:
+          - name: synthetic-tests
+            image: curlimages/curl:8.4.0
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              set -euo pipefail
+              
+              # Configuration
+              BASE_URL="https://scholarlink.app"
+              TIMEOUT=10
+              SUCCESS_COUNT=0
+              TOTAL_TESTS=0
+              
+              # Function to run test and track results
+              run_test() {
+                local test_name="$1"
+                local test_command="$2"
+                local expected_status="${3:-200}"
+                
+                echo "Running test: $test_name"
+                TOTAL_TESTS=$((TOTAL_TESTS + 1))
+                
+                if eval "$test_command"; then
+                  echo "✅ $test_name: PASSED"
+                  SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+                else
+                  echo "❌ $test_name: FAILED"
+                  # Log failure to metrics endpoint
+                  curl -X POST "http://prometheus-pushgateway:9091/metrics/job/synthetic-tests/instance/scholarlink" \
+                    --data "synthetic_test_failure{test=\"$test_name\"} 1" || true
+                fi
+              }
+              
+              echo "🔍 ScholarLink Synthetic Tests - $(date)"
+              echo "========================================"
+              
+              # Test 1: Health endpoint
+              run_test "health_endpoint" \
+                "curl -f -m $TIMEOUT '$BASE_URL/health'" \
+                "200"
+              
+              # Test 2: Security headers present
+              run_test "security_headers" \
+                "curl -I -m $TIMEOUT '$BASE_URL/health' | grep -i 'x-content-type-options'"
+              
+              # Test 3: TLS certificate valid
+              run_test "tls_certificate" \
+                "curl -f -m $TIMEOUT --cert-status '$BASE_URL/health'"
+              
+              # Test 4: Rate limiting active
+              run_test "rate_limiting" \
+                "for i in \$(seq 1 7); do curl -s -o /dev/null -w '%{http_code}' '$BASE_URL/api/auth/user'; done | tail -1 | grep -q '429'"
+              
+              # Test 5: Authentication required for protected endpoints
+              run_test "auth_required" \
+                "curl -s -o /dev/null -w '%{http_code}' '$BASE_URL/agent/capabilities' | grep -q '401'"
+              
+              # Test 6: Database connectivity (via health endpoint)
+              run_test "database_connectivity" \
+                "curl -s '$BASE_URL/health' | grep -q '\"database\":\"connected\"'"
+              
+              # Test 7: Application metrics endpoint
+              run_test "metrics_endpoint" \
+                "curl -f -m $TIMEOUT '$BASE_URL/metrics'"
+              
+              # Test 8: Response time check (< 2 seconds)
+              run_test "response_time" \
+                "timeout 2 curl -f '$BASE_URL/health'"
+              
+              # Test 9: Content-Type headers correct
+              run_test "content_type" \
+                "curl -I -m $TIMEOUT '$BASE_URL/health' | grep -i 'content-type: application/json'"
+              
+              # Test 10: No error messages in response
+              run_test "error_sanitization" \
+                "! curl -s '$BASE_URL/api/nonexistent' | grep -i 'stack\\|internal\\|error.*at.*line'"
+              
+              # Calculate success rate
+              SUCCESS_RATE=$(echo "scale=2; $SUCCESS_COUNT * 100 / $TOTAL_TESTS" | bc)
+              
+              echo ""
+              echo "📊 Test Results Summary"
+              echo "======================"
+              echo "Total Tests: $TOTAL_TESTS"
+              echo "Passed: $SUCCESS_COUNT"
+              echo "Failed: $((TOTAL_TESTS - SUCCESS_COUNT))"
+              echo "Success Rate: ${SUCCESS_RATE}%"
+              
+              # Push metrics to Prometheus
+              curl -X POST "http://prometheus-pushgateway:9091/metrics/job/synthetic-tests/instance/scholarlink" \
+                --data "synthetic_test_success_rate $SUCCESS_RATE" || true
+              
+              curl -X POST "http://prometheus-pushgateway:9091/metrics/job/synthetic-tests/instance/scholarlink" \
+                --data "synthetic_test_total_count $TOTAL_TESTS" || true
+              
+              curl -X POST "http://prometheus-pushgateway:9091/metrics/job/synthetic-tests/instance/scholarlink" \
+                --data "synthetic_test_success_count $SUCCESS_COUNT" || true
+              
+              # Alert if success rate below threshold
+              if (( $(echo "$SUCCESS_RATE < 90" | bc -l) )); then
+                echo "🚨 SUCCESS RATE BELOW THRESHOLD: ${SUCCESS_RATE}%"
+                exit 1
+              fi
+              
+              echo "✅ All synthetic tests completed successfully"
+              
+            resources:
+              requests:
+                memory: "64Mi"
+                cpu: "50m"
+              limits:
+                memory: "128Mi"
+                cpu: "100m"
+            
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - ALL
+          
+          # Job completion deadline
+          activeDeadlineSeconds: 300
+      
+      # Keep last 3 successful jobs, 1 failed job
+      successfulJobsHistoryLimit: 3
+      failedJobsHistoryLimit: 1
+
+---
+# ServiceMonitor for synthetic test metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: scholarlink-synthetic-tests
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-pushgateway
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

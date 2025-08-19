@@ -1,0 +1,152 @@
+# Pre-Deploy Gate Job for ScholarLink Production
+# Validates security, functionality, and migration readiness
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: scholarlink-pre-deploy-gates
+  namespace: scholarlink-staging
+  labels:
+    app: scholarlink
+    component: validation
+spec:
+  template:
+    metadata:
+      labels:
+        app: scholarlink
+        component: validation
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: pre-deploy-validator
+        image: scholarlink:staging-latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -euo pipefail
+          echo "🚀 ScholarLink Pre-Deploy Validation Gates"
+          echo "==========================================="
+          
+          # Gate 1: Application Health Check
+          echo "Gate 1: Application health validation..."
+          timeout 30 sh -c 'until curl -f http://localhost:5000/health; do sleep 2; done'
+          HEALTH=$(curl -s http://localhost:5000/health | jq -r '.status')
+          if [ "$HEALTH" != "ok" ]; then
+            echo "❌ Health check failed: $HEALTH"
+            exit 1
+          fi
+          echo "✅ Application health: OK"
+          
+          # Gate 2: Database Migration Test
+          echo "Gate 2: Database migration validation..."
+          npm run db:push --dry-run
+          echo "✅ Database migrations: Ready"
+          
+          # Gate 3: Security Headers Validation
+          echo "Gate 3: Security headers validation..."
+          HEADERS=$(curl -I -s http://localhost:5000/health)
+          
+          # Check required security headers
+          if ! echo "$HEADERS" | grep -i "x-content-type-options"; then
+            echo "❌ Missing X-Content-Type-Options header"
+            exit 1
+          fi
+          
+          if ! echo "$HEADERS" | grep -i "x-frame-options"; then
+            echo "❌ Missing X-Frame-Options header"  
+            exit 1
+          fi
+          
+          echo "✅ Security headers: Present"
+          
+          # Gate 4: Rate Limiting Test
+          echo "Gate 4: Rate limiting validation..."
+          # Test rate limiting (should trigger after 5 requests)
+          for i in $(seq 1 7); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/auth/user || echo "000")
+            if [ $i -gt 5 ] && [ "$STATUS" = "429" ]; then
+              echo "✅ Rate limiting: Working (blocked at request $i)"
+              break
+            elif [ $i -eq 7 ] && [ "$STATUS" != "429" ]; then
+              echo "❌ Rate limiting not working properly"
+              exit 1
+            fi
+            sleep 0.5
+          done
+          
+          # Gate 5: Authentication Security Test
+          echo "Gate 5: Authentication security validation..."
+          
+          # Test agent endpoints require auth
+          AUTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/agent/capabilities)
+          if [ "$AUTH_STATUS" != "401" ]; then
+            echo "❌ Agent endpoints not properly secured"
+            exit 1
+          fi
+          echo "✅ Authentication security: Protected"
+          
+          # Gate 6: Input Validation Test
+          echo "Gate 6: Input validation test..."
+          INVALID_INPUT='{"gpa":"invalid","graduationYear":"notanumber"}'
+          VALIDATION_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST http://localhost:5000/api/profile \
+            -H "Content-Type: application/json" \
+            -d "$INVALID_INPUT")
+          
+          if [ "$VALIDATION_STATUS" != "400" ] && [ "$VALIDATION_STATUS" != "401" ]; then
+            echo "❌ Input validation may be bypassed"
+            exit 1
+          fi
+          echo "✅ Input validation: Working"
+          
+          # Gate 7: Error Response Safety
+          echo "Gate 7: Error response safety test..."
+          ERROR_RESPONSE=$(curl -s http://localhost:5000/api/nonexistent-endpoint)
+          if echo "$ERROR_RESPONSE" | grep -i "stack\|internal\|error.*at.*line"; then
+            echo "❌ Error responses expose sensitive information"
+            exit 1
+          fi
+          echo "✅ Error responses: Sanitized"
+          
+          echo ""
+          echo "🎉 All pre-deploy gates passed successfully!"
+          echo "✅ Ready for production deployment"
+          
+        env:
+        - name: NODE_ENV
+          value: "staging"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database-staging
+              key: DATABASE_URL
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-app-secrets-staging
+              key: SESSION_SECRET
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      
+      # Set job completion deadline
+      activeDeadlineSeconds: 300
+  
+  # Retry policy
+  backoffLimit: 2

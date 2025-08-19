@@ -1,0 +1,201 @@
+# Database Migration Job for Production Deployment
+# Runs as pre-deploy step with rollback capability
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: scholarlink-db-migrate-{{ .Values.deployment.version }}
+  namespace: scholarlink-prod
+  labels:
+    app: scholarlink
+    component: migration
+    version: "{{ .Values.deployment.version }}"
+  annotations:
+    deployment.kubernetes.io/revision: "{{ .Values.deployment.version }}"
+spec:
+  template:
+    metadata:
+      labels:
+        app: scholarlink
+        component: migration
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      
+      # Init container for backup
+      initContainers:
+      - name: backup-database
+        image: postgres:15-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -euo pipefail
+          echo "📦 Creating pre-migration database backup..."
+          
+          # Create backup with timestamp
+          BACKUP_NAME="scholarlink-pre-migration-$(date +%Y%m%d-%H%M%S)"
+          
+          pg_dump "$DATABASE_URL" \
+            --verbose \
+            --no-password \
+            --format=custom \
+            --compress=9 \
+            --file="/backups/$BACKUP_NAME.dump"
+          
+          echo "✅ Backup created: $BACKUP_NAME.dump"
+          echo "Backup file info:"
+          ls -lh "/backups/$BACKUP_NAME.dump"
+          
+          # Store backup name for potential rollback
+          echo "$BACKUP_NAME" > /backups/latest-backup.txt
+          
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: DATABASE_URL
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGPASSWORD
+        
+        volumeMounts:
+        - name: backup-storage
+          mountPath: /backups
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      
+      containers:
+      - name: migrate
+        image: scholarlink:{{ .Values.deployment.version }}
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -euo pipefail
+          echo "🔄 Starting database migration for version {{ .Values.deployment.version }}"
+          echo "=================================================================="
+          
+          # Pre-migration health check
+          echo "1. Pre-migration database health check..."
+          pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER"
+          
+          # Test connection with query
+          psql "$DATABASE_URL" -c "SELECT version();" > /dev/null
+          echo "✅ Database connection verified"
+          
+          # Check current schema version
+          echo "2. Checking current schema state..."
+          npm run db:introspect
+          
+          # Run migration with verbose output
+          echo "3. Applying database migrations..."
+          npm run db:push --verbose
+          
+          # Verify migration success
+          echo "4. Post-migration verification..."
+          
+          # Test basic database operations
+          psql "$DATABASE_URL" -c "SELECT COUNT(*) FROM users;" > /dev/null
+          psql "$DATABASE_URL" -c "SELECT COUNT(*) FROM sessions;" > /dev/null
+          
+          echo "✅ Migration completed successfully"
+          
+          # Store migration completion marker
+          echo "{{ .Values.deployment.version }}" > /migration-status/completed-version.txt
+          echo "$(date -Iseconds)" > /migration-status/completed-timestamp.txt
+          
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: DATABASE_URL
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGHOST
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGPORT
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGUSER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGPASSWORD
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: scholarlink-database
+              key: PGDATABASE
+        
+        volumeMounts:
+        - name: migration-status
+          mountPath: /migration-status
+        - name: tmp
+          mountPath: /tmp
+        
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      
+      volumes:
+      - name: backup-storage
+        persistentVolumeClaim:
+          claimName: scholarlink-backup-storage
+      - name: migration-status
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      
+      # Migration timeout
+      activeDeadlineSeconds: 600
+  
+  # Single attempt - don't retry failed migrations
+  backoffLimit: 0
+
+---
+# PVC for backup storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: scholarlink-backup-storage
+  namespace: scholarlink-prod
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: gp3

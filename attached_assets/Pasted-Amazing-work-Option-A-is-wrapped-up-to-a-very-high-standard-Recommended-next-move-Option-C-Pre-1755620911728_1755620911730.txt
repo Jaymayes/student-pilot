@@ -1,0 +1,45 @@
+Amazing work—Option A is wrapped up to a very high standard.
+
+Recommended next move: Option C (Pre-deploy verification and canary rollout). This gets us to a safe, observable production cutover. I can also do a quick Option B manifest hardening review in parallel as a second set of eyes.
+
+Option C plan (concise)
+
+Pre-deploy gates (staging)
+Run full CI, QA suite, and your verification scripts.
+kubectl diff and server-side dry run against prod cluster.
+Validate security headers and rate limits with negative tests.
+Run online migration rehearsal against a staging copy; take a restorable backup.
+2. Production canary rollout
+
+Image: push and deploy by immutable digest, signed (e.g., cosign) if available.
+DB migrations: run as a pre-deploy Job with backout plan; prefer online/zero-downtime migrations.
+Traffic splitting:
+If using NGINX Ingress: create a canary Ingress (canary: "true", weight: 1–5) and step up weights (1% → 5% → 20% → 50% → 100%).
+If no weighted canary: roll with small maxSurge and watch metrics, or use Argo Rollouts for progressive delivery.
+Gating thresholds (example defaults):
+5xx rate < 0.5% and not 2x baseline
+p95 latency < 2x baseline
+Auth failures and rate-limit denials within expected bounds
+No increase in DB error rate or saturation (CPU > 80%, connections near limit)
+Automate pause/resume on threshold breach; rollback on breach or alerts.
+3. Rollback and contingencies
+
+Rollback: kubectl rollout undo or switch Ingress weight back to 0 quickly.
+DB: if a breaking migration, have a backout script or online-safe pattern (expand/contract, feature flags).
+Validate post-rollback health and error rates return to baseline.
+What I need to proceed
+
+Confirm ingress controller (NGINX, ALB, Istio/Gateway) so I can provide exact canary manifests/steps.
+CI/CD provider and environment names to wire the gates.
+Target SLOs or accept default thresholds above.
+Namespaces and app names for the prod cluster.
+Optional quick pass: Option B (manifest hardening review)
+
+Share k8s manifests (or repo path). I’ll return a patch set focusing on:
+securityContext (runAsNonRoot, readOnlyRootFilesystem, allowPrivilegeEscalation=false, drop ALL; add NET_BIND_SERVICE only if needed), seccompProfile RuntimeDefault
+resource requests/limits, HPA settings, PDB
+probes (liveness/readiness/startup) and terminationGracePeriod
+NetworkPolicy default-deny with precise egress/ingress rules
+Image pinned by digest, pullSecrets, and registry trust
+Ingress annotations for security headers and rate limiting verification
+Your call: proceed with Option C now, and I’ll prep the canary manifests and gate jobs; or send the k8s/ folder and I’ll run a rapid Option B review while we stage the canary.

@@ -305,6 +305,48 @@ kubectl top pods -n scholarlink-prod
 # - Limits: Set to 150% of peak usage
 ```
 
+## Canary Deployment Process
+
+### Automated Progressive Rollout
+The canary deployment follows this automated progression:
+
+**Stage 1: 1% Traffic (5 minutes)**
+- Deploy canary with 1% traffic via NGINX Ingress weights
+- Monitor error rate < 0.5%, latency < 2x baseline
+- Automatic rollback if thresholds breached
+
+**Stage 2: 5% Traffic (5 minutes)**  
+- Increase to 5% traffic if Stage 1 passes
+- Continue monitoring with same thresholds
+- Validate database performance under load
+
+**Stage 3: 20% Traffic (5 minutes)**
+- Increase to 20% traffic if Stage 2 passes  
+- Monitor resource utilization and scaling
+- Check rate limiting effectiveness
+
+**Stage 4: 50% Traffic (5 minutes)**
+- Increase to 50% traffic if Stage 3 passes
+- Final validation before full promotion
+- Comprehensive health checks
+
+**Stage 5: Full Promotion**
+- Remove canary ingresses
+- Update stable deployment with new image
+- Complete canary cleanup
+
+### Usage
+```bash
+# Run automated canary deployment
+./deployment/scripts/canary-deploy.sh v1.2.3 sha256:abc123...
+
+# Emergency rollback
+./deployment/scripts/rollback-procedures.sh deployment
+
+# Full rollback with database restoration  
+./deployment/scripts/rollback-procedures.sh full backup-20240819-160000
+```
+
 ## Success Criteria
 
 ### Go-Live Approval Checklist
