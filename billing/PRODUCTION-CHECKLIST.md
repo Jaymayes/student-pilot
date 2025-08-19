@@ -10,7 +10,7 @@
 ### JWT Authentication
 - [ ] `/prod/scholarlink/billing/JWT_PUBLIC_KEY` (RS256 public key)
 - [ ] `/prod/scholarlink/billing/JWT_ISSUER` (https://student-pilot.replit.app)
-- [ ] `/prod/scholarlink/billing/JWT_AUDIENCE` (https://billing.student-pilot.replit.app)
+- [ ] `/prod/scholarlink/billing/JWT_AUDIENCE` (https://billing.scholarlink.app)
 
 ### Stripe Integration
 - [ ] `/prod/scholarlink/billing/STRIPE_SECRET_KEY` (live key: sk_live_...)
@@ -54,34 +54,34 @@ NAMESPACE="scholarlink-prod" ENABLE_CANARY="true" ./deployment/billing/deploy.sh
 ```
 
 ### 5. Stripe Webhook Configuration
-- [ ] Create webhook endpoint: `https://billing.student-pilot.replit.app/webhooks/stripe`
+- [ ] Create webhook endpoint: `https://billing.scholarlink.app/webhooks/stripe`
 - [ ] Configure events: `payment_intent.succeeded`, `checkout.session.completed`
 - [ ] Update `STRIPE_WEBHOOK_SECRET` with signing secret
 
 ## 🔍 Verification Tests
 
 ### Health Checks
-- [ ] GET `https://billing.student-pilot.replit.app/health` returns 200
-- [ ] GET `https://billing.student-pilot.replit.app/readyz` returns 200
+- [ ] GET `https://billing.scholarlink.app/health` returns 200
+- [ ] GET `https://billing.scholarlink.app/readyz` returns 200
 - [ ] Prometheus metrics available at `/metrics`
 
 ### Functional Tests
 - [ ] **Credit Purchase Test ($5.00)**:
   ```bash
   # Test Stripe payment flow
-  curl -X POST https://billing.student-pilot.replit.app/api/purchases \
+  curl -X POST https://billing.scholarlink.app/api/purchases \
     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
     -H "Content-Type: application/json" \
     -d '{"packageCode":"starter"}'
   
   # Verify ledger entry created
-  curl https://billing.student-pilot.replit.app/api/ledger \
+  curl https://billing.scholarlink.app/api/ledger \
     -H "Authorization: Bearer YOUR_JWT_TOKEN"
   ```
 
 - [ ] **Usage Reconciliation Test**:
   ```bash
-  curl -X POST https://billing.student-pilot.replit.app/api/usage/reconcile \
+  curl -X POST https://billing.scholarlink.app/api/usage/reconcile \
     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
     -H "Content-Type: application/json" \
     -d '{

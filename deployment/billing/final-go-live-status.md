@@ -4,7 +4,7 @@
 
 ### **Infrastructure Status**
 - **Namespace**: `scholarlink-prod` ✅
-- **Domain**: `billing.student-pilot.replit.app` ✅
+- **Domain**: `billing.scholarlink.app` ✅
 - **TLS Certificate**: Production-ready with Let's Encrypt ✅
 - **Ingress Configuration**: Hardened with security headers ✅
 

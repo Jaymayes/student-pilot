@@ -2,7 +2,7 @@
 
 ## Issue Resolution
 
-The SSL certificate error `NET::ERR_CERT_COMMON_NAME_INVALID` occurred because we cannot issue SSL certificates for `billing.student-pilot.replit.app` (replit.app is not our domain).
+The SSL certificate error `NET::ERR_CERT_COMMON_NAME_INVALID` occurred because we cannot issue SSL certificates for `billing.scholarlink.app` (replit.app is not our domain).
 
 **Solution**: Migrate to `billing.scholarlink.app` domain with proper SSL certificate management.
 

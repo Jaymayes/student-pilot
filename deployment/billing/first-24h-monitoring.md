@@ -194,7 +194,7 @@ ORDER BY total_cost_credits DESC;
 ```bash
 # All-in-one status check
 kubectl get pods,svc,ingress -l app=scholarlink-billing -n scholarlink-prod
-curl -s https://billing.student-pilot.replit.app/health | jq
+curl -s https://billing.scholarlink.app/health | jq
 ```
 
 ### Debug Performance Issues
@@ -219,7 +219,7 @@ prisma.\$queryRaw\`SELECT 1\`.then(() => console.log('DB OK')).catch(console.err
 ### Debug Stripe Integration
 ```bash
 # Check webhook endpoint
-curl -X POST https://billing.student-pilot.replit.app/webhooks/stripe \
+curl -X POST https://billing.scholarlink.app/webhooks/stripe \
   -H "Content-Type: application/json" \
   -d '{"test": true}'
 
