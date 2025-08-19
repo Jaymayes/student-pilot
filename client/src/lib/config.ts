@@ -1,7 +1,7 @@
 // Configuration for ScholarLink application
 export const config = {
   billing: {
-    portalUrl: import.meta.env.VITE_BILLING_PORTAL_URL || 'https://billing.student-pilot.replit.app',
+    portalUrl: import.meta.env.VITE_BILLING_PORTAL_URL || 'https://billing.scholarlink.app',
     linkEnabled: import.meta.env.VITE_BILLING_LINK_ENABLED !== 'false', // Default to true
   },
 };

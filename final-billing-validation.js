@@ -29,7 +29,7 @@ console.log();
 // Test 2: Security Headers Check
 console.log('2. Security Headers Check');
 try {
-  const headers = execSync('curl -I https://billing.student-pilot.replit.app 2>/dev/null', { encoding: 'utf8' });
+  const headers = execSync('curl -I https://billing.scholarlink.app 2>/dev/null', { encoding: 'utf8' });
   
   const securityChecks = [
     { name: 'HTTPS', check: headers.includes('HTTP/2 200') || headers.includes('HTTPS') },

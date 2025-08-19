@@ -7,7 +7,7 @@ set -euo pipefail
 
 NAMESPACE="scholarlink-prod"
 SERVICE_NAME="billing-service"
-BILLING_URL="https://billing.student-pilot.replit.app"
+BILLING_URL="https://billing.scholarlink.app"
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
