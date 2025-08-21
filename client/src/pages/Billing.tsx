@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Navigation } from "@/components/Navigation";
 import { 
   CreditCard, 
   TrendingUp, 
@@ -154,34 +155,42 @@ export default function Billing() {
 
   if (summaryLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-4 w-96" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {[1, 2, 3].map(i => (
-            <Card key={i}>
-              <CardHeader className="space-y-0 pb-3">
-                <Skeleton className="h-6 w-24" />
-                <Skeleton className="h-8 w-16" />
-              </CardHeader>
-            </Card>
-          ))}
+      <div className="min-h-screen bg-background-gray">
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-6">
+          <div className="space-y-2 mb-8">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[1, 2, 3].map(i => (
+              <Card key={i}>
+                <CardHeader className="space-y-0 pb-3">
+                  <Skeleton className="h-6 w-24" />
+                  <Skeleton className="h-8 w-16" />
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Billing & Credits</h1>
-        <p className="text-muted-foreground">
-          Manage your ScholarLink credits and view your usage history
-        </p>
-      </div>
+    <div className="min-h-screen bg-background-gray">
+      <Navigation />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-6">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="text-billing-title">
+            Billing & Credits
+          </h1>
+          <p className="text-gray-600">
+            Manage your ScholarLink credits and view your usage history
+          </p>
+        </div>
 
       {/* Low Balance Warning */}
       {summary && summary.currentBalance < 500 && (
@@ -632,6 +641,7 @@ export default function Billing() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }
