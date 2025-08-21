@@ -16,6 +16,7 @@ import { purchases } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import express from "express";
+import { correlationIdMiddleware, correlationErrorHandler, billingCorrelationMiddleware } from "./middleware/correlationId";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -32,6 +33,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set trust proxy for proper client IP detection
   app.set('trust proxy', 1);
 
+  // Global correlation ID middleware for all routes
+  app.use(correlationIdMiddleware);
+
   // Rate limiter for ALL agent endpoints (fixes QA-008)  
   const agentRateLimit = rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -47,9 +51,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     keyGenerator: undefined
   });
 
-  // Global error handler (fixes QA-009)
+  // Legacy handleError function - replaced by correlationErrorHandler middleware
+  // Kept for backward compatibility with existing non-billing endpoints
   const handleError = (error: any, req: any, res: any) => {
-    const correlationId = req.headers['x-correlation-id'] || Math.random().toString(36);
+    const correlationId = (req as any).correlationId || req.headers['x-correlation-id'] || Math.random().toString(36);
     
     console.error(`[${correlationId}] Error:`, error);
     
@@ -708,9 +713,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ========== BILLING SYSTEM ROUTES ==========
+  // All billing routes use enhanced correlation ID middleware for financial operation tracking
   
   // Get user's billing summary (balance, packages, recent activity)
-  app.get('/api/billing/summary', isAuthenticated, async (req, res) => {
+  app.get('/api/billing/summary', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -731,13 +737,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(serializedSummary);
     } catch (error) {
-      console.error("Error fetching billing summary:", error);
-      res.status(500).json({ error: "Failed to fetch billing summary" });
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Error fetching billing summary:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch billing summary",
+        correlationId 
+      });
     }
   });
 
   // Get paginated credit ledger (transaction history)
-  app.get('/api/billing/ledger', isAuthenticated, async (req, res) => {
+  app.get('/api/billing/ledger', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -750,13 +760,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await billingService.getUserLedger(userId, limit, cursor);
       res.json(result);
     } catch (error) {
-      console.error("Error fetching ledger:", error);
-      res.status(500).json({ error: "Failed to fetch transaction history" });
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Error fetching ledger:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch transaction history",
+        correlationId 
+      });
     }
   });
 
   // Get paginated usage history
-  app.get('/api/billing/usage', isAuthenticated, async (req, res) => {
+  app.get('/api/billing/usage', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -769,13 +783,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await billingService.getUserUsage(userId, limit, cursor);
       res.json(result);
     } catch (error) {
-      console.error("Error fetching usage history:", error);
-      res.status(500).json({ error: "Failed to fetch usage history" });
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Error fetching usage history:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch usage history",
+        correlationId 
+      });
     }
   });
 
   // Estimate cost for potential OpenAI usage
-  app.post('/api/billing/estimate', isAuthenticated, async (req, res) => {
+  app.post('/api/billing/estimate', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
       const { model, inputTokens, outputTokens } = req.body;
       
@@ -788,13 +806,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const estimate = await billingService.estimateCharge(model, inputTokens, outputTokens);
       res.json(estimate);
     } catch (error) {
-      console.error("Error estimating cost:", error);
-      res.status(500).json({ error: "Failed to estimate cost" });
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Error estimating cost:`, error);
+      res.status(500).json({ 
+        error: "Failed to estimate cost",
+        correlationId 
+      });
     }
   });
 
   // Create Stripe checkout session for credit purchase
-  app.post('/api/billing/create-checkout', isAuthenticated, async (req, res) => {
+  app.post('/api/billing/create-checkout', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       const userEmail = (req.user as any)?.claims?.email;
@@ -859,19 +881,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         purchaseId: purchase.id 
       });
     } catch (error) {
-      console.error("Error creating checkout session:", error);
-      res.status(500).json({ error: "Failed to create checkout session" });
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Error creating checkout session:`, error);
+      res.status(500).json({ 
+        error: "Failed to create checkout session",
+        correlationId 
+      });
     }
   });
 
   // Stripe webhook handler for payment completion
-  app.post('/api/billing/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  app.post('/api/billing/stripe-webhook', billingCorrelationMiddleware, express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!endpointSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET not configured");
-      return res.status(400).send("Webhook secret not configured");
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] STRIPE_WEBHOOK_SECRET not configured`);
+      return res.status(400).json({ 
+        error: "Webhook secret not configured",
+        correlationId 
+      });
     }
 
     let event;
@@ -879,8 +909,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       event = stripe.webhooks.constructEvent(req.body, sig as string, endpointSecret);
     } catch (err) {
-      console.error("Webhook signature verification failed:", err);
-      return res.status(400).send(`Webhook Error: ${err}`);
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Webhook signature verification failed:`, err);
+      return res.status(400).json({ 
+        error: "Webhook signature verification failed",
+        correlationId 
+      });
     }
 
     try {
@@ -889,8 +923,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const purchaseId = session.metadata?.purchaseId;
         
         if (!purchaseId) {
-          console.error("Purchase ID not found in session metadata");
-          return res.status(400).send("Purchase ID missing");
+          const correlationId = (req as any).correlationId;
+          console.error(`[${correlationId}] Purchase ID not found in session metadata`);
+          return res.status(400).json({ 
+            error: "Purchase ID missing",
+            correlationId 
+          });
         }
 
         // Mark purchase as paid
@@ -911,8 +949,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ received: true });
     } catch (error) {
-      console.error("Error processing webhook:", error);
-      res.status(500).json({ error: "Webhook processing failed" });
+      const correlationId = (req as any).correlationId;
+      console.error(`[${correlationId}] Error processing webhook:`, error);
+      res.status(500).json({ 
+        error: "Webhook processing failed",
+        correlationId 
+      });
     }
   });
 

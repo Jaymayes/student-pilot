@@ -1,0 +1,40 @@
+Prompt
+Act as a senior backend engineer. Task: Ensure all /billing endpoints emit the same standardized header(s) used across the API (e.g., X-Correlation-ID or X-Request-Id), so /billing matches existing behavior.
+
+Instructions
+
+Discover:
+Scan the codebase for middleware/interceptors that set request/response headers on other endpoints.
+Identify the exact header name(s), casing, and propagation logic already in use (e.g., generate if missing, echo if present, log binding).
+2. Implement for /billing:
+
+Apply the same header behavior to every /billing route (GET/POST/PUT/DELETE, including subpaths like /billing/credits, /billing/subscriptions, and Stripe webhook handlers if applicable).
+For inbound: if the header is missing, generate a UUIDv4; if present, validate and attach to request context.
+For outbound: include the header on all responses from /billing with the same value; ensure logs include it.
+Prevent header spoofing/abuse: validate length (<128), charset (visible ASCII), and reject/control multi-value attempts.
+3. Documentation and DX:
+
+Update OpenAPI/Swagger to document the header for /billing endpoints (mark as required/optional to match existing policy).
+Update Postman collections and any SDK examples.
+Add code comments referencing the shared middleware and rationale.
+4. Tests:
+
+Unit tests for the header middleware to cover: present header passthrough, generation when missing, invalid value handling.
+Integration tests for representative /billing endpoints verifying the header is returned and remains stable across a request chain.
+Webhook test (if Stripe): ensure the response still sets the header without interfering with Stripe-Signature validation.
+5. Observability and safety:
+
+Ensure the header value is included in structured logs and tracing context (tie into existing correlation/tracing IDs).
+Verify no PII is placed in the header; confirm rate limiting, auth, and idempotency logic remain unchanged.
+Keep behavior backward compatible for clients.
+Acceptance criteria
+
+Every /billing response includes the same matching header(s) used by other endpoints, with correct casing and value semantics.
+OpenAPI and collections updated; CI tests added and passing.
+Logs/traces show the header value for /billing requests.
+No changes to auth, rate limits, or billing semantics; Stripe webhooks unaffected.
+Deliverables
+
+Code changes (middleware/route handlers), tests, and docs in a single PR with a concise changelog.
+Brief summary of discovered header(s) and where they are defined.
+Note: If the standardized header in this codebase is X-Correlation-ID, use that exact name and behavior. If it’s X-Request-Id (or similar), match it precisely. If both exist, mirror the current convention.
