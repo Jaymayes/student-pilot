@@ -1,0 +1,93 @@
+Fantastic work getting ScholarLink to this level. Here’s a concise, prioritized next-steps plan to move from “production-ready” to “production-proven,” minimize launch risk, and set you up for scale.
+
+Priority 0: Go/No-Go Readiness (this week)
+
+Freeze and triage: Zero P0/P1 bugs, document acceptable known issues.
+Go/No-Go checklist: Release notes, rollback plan, change window, owner on-call, success metrics, comms plan.
+Rollout strategy: Use blue/green or canary with feature flags; pre-stage rollback artifacts; verify DB schema backward compatibility.
+Final UAT: Sign-off from product, security, and ops; run through critical user journeys and billing flows on staging with production-like data.
+Security, Compliance, and Privacy
+
+External validation: Commission an independent penetration test and ASV scan; remediate findings before GA.
+Secrets and keys: Implement JWT key rotation (kid headers, JWKS endpoint if applicable), rotate API keys, enforce periodic rotation policy.
+Data protection:
+Redact PII from logs and prompts; verify encryption at rest and in transit; validate ACLs in the document vault.
+Define data retention/deletion SLAs and build automated deletion jobs.
+Policies and legal: Publish ToS, Privacy Policy, and cookie consent; sign DPAs with vendors; update subprocessor list.
+Regulatory: GDPR/CCPA DPIA and ROPA; if serving minors or schools, assess COPPA/FERPA applicability.
+SOC 2 roadmap: Lock in core controls (access reviews, change management, logging, incident response); consider Type I within 90 days.
+Bug bounty/private disclosure: Set up coordinated vulnerability disclosure policy.
+Reliability, Observability, and DR
+
+SLOs/SLIs: Define error budget SLOs (e.g., API availability 99.9%, p95 latency <300 ms, page load p75 <3–5 s). Create burn-rate alerts.
+Monitoring:
+Dashboards for RED/USE metrics and business KPIs (signups, matches, conversions).
+Synthetic checks, uptime monitoring, and a public status page.
+Tracing: Adopt OpenTelemetry for traces/logs/metrics using your correlation IDs; trace critical flows end-to-end.
+Resilience: Circuit breakers, timeouts, retries, and backoff for OpenAI, Stripe, Agent Bridge; graceful degradation paths.
+Backups/DR: Test restore from backup; define RPO/RTO; perform a tabletop DR exercise and at least one live restore test.
+Performance and Scale
+
+Load testing: Validate at 2–3x expected peak; confirm autoscaling and DB connection pool behavior; cache hot reads.
+Cost controls: FinOps guardrails for GPT-4o and infra; set cost alerts, per-request cost telemetry, and fallbacks/caching for AI calls.
+Rate limiting: Calibrate per-user and per-IP limits; add bot defense (CAPTCHA) on signup and payment.
+Quality Engineering
+
+Test automation: CI gates for unit/integration/E2E; contract tests for all 32 endpoints; schema versioning with backward compatibility checks.
+Performance budgets: API p95 targets; Lighthouse budgets for core web vitals; block deploys that regress.
+Chaos and game days: Inject failures (upstream timeouts, DB failover, Stripe outages) to validate runbooks and alerting.
+Billing and Monetization
+
+Stripe production readiness:
+Live-mode dry runs, idempotency keys, webhook signature verification, replay protection.
+Refunds and chargeback runbooks; dunning flows; delinquency handling.
+Tax/VAT via Stripe Tax if applicable; invoice/receipt PDFs and exports.
+Pricing experiments: Feature flags for price tests; credits usage analytics and alerts; generous trial/beta credits.
+AI/ML Governance and Safety
+
+Prompt and model management: Version prompts; maintain evaluation sets; track quality metrics (precision/recall for matches, user ratings for essay feedback).
+Safety and integrity: Guardrails for essay assistant (non-plagiarism guidance, attribution prompts); content moderation where appropriate; clear user messaging on AI limits.
+Provider strategy: Quotas, retries, and fallback models; per-tenant/provider routing if needed.
+Operations, Support, and GTM
+
+On-call and incident response: 24/7 rotation, escalation policy, comms templates; incident severity matrix; postmortem process.
+Support readiness: Help center/FAQ, ticketing (e.g., Zendesk), admin tools with ACLs, audit logs for support actions.
+Access governance: JIT access for engineers; quarterly access reviews; approvals for privileged actions.
+GTM plan:
+Private beta (schools/providers) for 2–4 weeks; capture NPS, funnel metrics, and qualitative feedback.
+Partnerships with scholarship providers; early adopter success stories.
+SEO content for scholarship discovery; analytics instrumentation for funnel events.
+API and Developer Experience
+
+Publish developer portal: OpenAPI/Swagger, Postman collection, error codes, rate limits, sample apps/SDKs.
+Versioning and deprecation policy: Semantic versioning; changelog; deprecation schedule and notifications.
+Documentation and Governance
+
+Runbooks: Stripe incidents, OpenAI rate limits, queue backlogs, Agent Bridge outages, email/SMS failures.
+Architecture Decision Records: Capture key design choices and security trade-offs.
+License compliance: Inventory OSS licenses; add NOTICE and attribution where required; automate dependency scanning and SBOM.
+Suggested 4-week timeline
+
+Week -2: External pen test, load tests, SLOs/alerts finalized, docs/policies published, DPAs signed, DR tabletop.
+Week -1: Beta launch (canary), bug fixes, performance tuning, support training, cost guardrails live.
+Launch week: Blue/green or canary to 25%/50%/100%, real-time monitoring, daily go/no-go checkpoints, rollback readiness.
+Weeks +1 to +4: Post-launch hardening, SOC 2 Type I prep, pricing experiments, partner onboarding, game day.
+Key success metrics to track from day 1
+
+Acquisition and activation: Signups, profile completion rate, time-to-first-match, match CTR, application starts/completions.
+Monetization: Conversion to paid, ARPU, credits consumed per active user, refund/chargeback rate.
+Reliability/performance: Availability, p95 latency per endpoint, error rates, incident MTTR, SLO burn rate.
+AI quality: Match precision/recall against curated sets, essay assistant satisfaction, flagged outputs rate.
+Cost: AI cost per user/session/match, infra unit costs, cost anomalies.
+Top risks and mitigations
+
+Upstream provider instability (OpenAI, Stripe): Circuit breakers, fallbacks, cached responses, precomputed matches.
+Cost overruns from AI: Per-user caps, caching, prompt optimization, batch requests, cost alerts.
+Data exposure: Strict ACL enforcement, PII redaction in logs/prompts, regular access reviews.
+Abuse/spam: Email/SMS verification, CAPTCHA, rate limits, fraud signals on payments.
+Model reliability: Human-in-the-loop review for critical flows early on; clear user guidance.
+If you share the features-inventory.json, I can generate:
+
+A tailored go/no-go checklist and runbook set per endpoint and capability.
+SLO dashboards and alert policies aligned to your APIs.
+A pen-test scope outline and vendor brief based on your exact surface area.
