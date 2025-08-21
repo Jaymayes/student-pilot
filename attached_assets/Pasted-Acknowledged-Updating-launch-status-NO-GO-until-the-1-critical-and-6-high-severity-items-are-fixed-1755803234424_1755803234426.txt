@@ -1,0 +1,78 @@
+Acknowledged. Updating launch status: NO-GO until the 1 critical and 6 high-severity items are fixed and revalidated.
+
+Here’s a focused remediation plan with concrete fixes, verification steps, and a 72-hour path back to GO.
+
+Immediate remediation (blockers to clear before launch)
+
+CRITICAL: SQL injection in billing pagination (server/billing.ts)
+Replace any string interpolation in queries with parameterized/prepared statements. If using raw SQL: // Before (unsafe) const rows = await db.query(SELECT * FROM invoices ORDER BY ${sort} LIMIT ${limit} OFFSET ${offset}); // After (safe) const allowedSort = new Set(['created_at', 'amount_cents', 'status']); const sortField = allowedSort.has(sort) ? sort : 'created_at'; const rows = await db.query( 'SELECT * FROM invoices ORDER BY ' + sortField + ' LIMIT $1 OFFSET $2', [Number(limit) || 20, Number(offset) || 0] ) Note: Sort field is whitelisted and spliced as an identifier (not a bound value); all values use placeholders.
+If using cursor-based pagination, make the cursor opaque and signed:
+Cursor token = base64url(JSON.stringify({ createdAt, id })) signed with HMAC (server-side secret).
+Verify signature on read; reject invalid/malformed cursors (length and charset checks).
+Validate limit with min/max (e.g., 1–100) and default.
+Add input schema validation (see item 2) for sort, order, limit, cursor.
+2. HIGH: Input validation vulnerabilities (XSS, SQL/JSON injection)
+
+Introduce centralized request validation with a schema library (e.g., zod or joi): const PaginationSchema = z.object({ sort: z.enum(['created_at', 'amount_cents', 'status']).default('created_at'), order: z.enum(['asc', 'desc']).default('desc'), limit: z.number().int().min(1).max(100).default(20), cursor: z.string().max(256).optional() }) const { sort, order, limit, cursor } = PaginationSchema.parse(req.query)
+Strict JSON parsing: use express.json({ strict: true, limit: '1mb' }); never eval or dynamic require based on input.
+For any HTML-rendered fields, escape on render; if accepting rich text, sanitize server-side (e.g., DOMPurify with JSDOM) and store sanitized + raw separately.
+3. HIGH: BigInt serialization issues (financial values)
+
+Pick one approach and apply consistently at API boundaries: Option A (recommended short-term): Serialize BigInt to string in JSON responses. app.set('json replacer', (_k, v) => typeof v === 'bigint' ? v.toString() : v) Option B: Convert monetary sums to integer cents (number) before returning; store as BIGINT in DB but cast to string/number at the edge.
+For Prisma/ORM Decimal types: configure toString() or use .toNumber() only when safe from precision loss; otherwise return string and format on client.
+Update clients/SDKs and OpenAPI to reflect string monetary fields if changed.
+4. HIGH: Error information disclosure
+
+Production-safe error handler: app.use((err, req, res, _next) => { const id = req.headers['x-correlation-id'] || crypto.randomUUID() req.log?.error({ err, correlationId: id }) const status = err.statusCode && Number.isInteger(err.statusCode) ? err.statusCode : 500 res.setHeader('X-Correlation-ID', id) res.status(status).json({ error: status >= 500 ? 'Internal server error' : err.message }) })
+Ensure NODE_ENV=production hides stack traces; never send err.stack to clients; keep full stack in logs only.
+5. MEDIUM: Missing security headers
+
+Add helmet and essential headers now; stage CSP as report-only first to avoid breakage. app.use(helmet({ contentSecurityPolicy: false // enable report-only separately first })) app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true })) app.use(helmet.frameguard({ action: 'deny' })) // OK for apps using Stripe Elements; does not block iframes inside page app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' })) app.use(helmet.xssFilter()) // legacy but harmless; modern browsers rely on CSP app.use(helmet.noSniff()) app.use(helmet.permittedCrossDomainPolicies())
+CSP (report-only to start), allowing Stripe/OpenAI endpoints you actually use: app.use(helmet.contentSecurityPolicy({ useDefaults: true, directives: { defaultSrc: ["'self'"], scriptSrc: ["'self'", "https://js.stripe.com"], frameSrc: ["'self'", "https://js.stripe.com"], connectSrc: ["'self'", "https://api.stripe.com", "https://api.openai.com"], imgSrc: ["'self'", "data:"], objectSrc: ["'none'"] }, reportOnly: true }))
+If you embed your app elsewhere intentionally, switch frameguard to SAMEORIGIN or a CSP frame-ancestors allowlist.
+6. MEDIUM: Missing security middleware
+
+Ensure:
+Rate limiting on auth/billing endpoints (IP + user/tenant keys).
+Body size limits: express.json({ limit: '1mb' }), express.urlencoded({ extended: false, limit: '1mb' })
+CORS: explicit allowlist; disallow wildcard credentials.
+Stripe webhooks: raw body for signature verification on that route only: app.post('/billing/stripe/webhook', express.raw({ type: 'application/json' }), handler)
+7. MEDIUM: Environment variable safety (29 issues)
+
+Centralize env validation at boot with a schema; fail fast if invalid: const Env = z.object({ NODE_ENV: z.enum(['production','staging','development']), DATABASE_URL: z.string().url(), STRIPE_SECRET_KEY: z.string().min(1), JWT_PUBLIC_KEY: z.string().min(1), JWT_PRIVATE_KEY: z.string().min(1), OPENAI_API_KEY: z.string().min(1) }) const env = Env.parse(process.env)
+Never log secrets; redact in logs; rotate any secrets that may have been exposed in logs.
+Ensure sane defaults are not used in prod; mark required vars and remove dev fallbacks in production config.
+Verification plan (must pass before unblocking)
+
+Unit/integration tests
+SQLi: Tests that send malicious sort/cursor/limit payloads; confirm no errors, results correct, and query plan uses bind parameters.
+BigInt: API tests assert monetary fields are strings (or numbers in cents) and clients handle them without runtime errors.
+Validation: Fuzz tests for query/body params; ensure 400s with structured error responses.
+Headers: Snapshot tests confirming security headers set; CSP report-only observed in responses.
+Webhooks: Stripe signature verification intact with raw body; response headers present; idempotency preserved.
+DAST/Runtime
+Re-run your 14 runtime scenarios plus SQLi/XSS payloads; verify no successful injection or reflected content.
+Observability
+Correlation ID present on all responses; logs/trace show consistent IDs; no stack traces in responses.
+Rollback and risk controls
+
+Keep code freeze except for these patches.
+Deploy to staging → canary → full, with gates on:
+5xx < 0.5%, p95 < 300 ms, no CSP violations causing UX regressions, webhook success ≥ 99%.
+Maintain report-only CSP for 24–48 hours; then enforce once clean.
+Suggested timeline
+
+Today (Day 0): Patch critical SQLi and high-severity items (validation, BigInt, error handling). Open PRs with tests.
+Day 1: Add helmet and CSP (report-only), env validation, rate limiting; run full QA suite and load test.
+Day 2: Canary deploy; monitor CSP reports, webhook success, and error budgets. If clean, enforce CSP or schedule enforcement next release.
+Owner checklist per finding category
+
+Backend: SQLi remediation, validation, error handler, webhook raw body, BigInt serialization
+Platform/SRE: Helmet/CSP, rate limits, env validation, secrets rotation policy
+QA/Sec: Re-run SAST/DAST, add payload tests, verify headers and error redaction
+Frontend: Adjust clients to handle string monetary fields if changed
+To accelerate, share:
+
+The vulnerable server/billing.ts snippet around pagination
+Your BigInt exposure points (ORM models or response mappers)
+A sample response from /billing that currently fails serialization

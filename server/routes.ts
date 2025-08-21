@@ -17,6 +17,7 @@ import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import express from "express";
 import { correlationIdMiddleware, correlationErrorHandler, billingCorrelationMiddleware } from "./middleware/correlationId";
+import { validateInput, BillingPaginationSchema, escapeHtml } from "./validation";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -655,12 +656,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/agent/task', agentRateLimit, verifyAgentToken, async (req, res) => {
     try {
-      const task = req.body as Task;
+      // Validate task structure with comprehensive schema
+      const TaskSchema = z.object({
+        task_id: z.string().uuid(),
+        action: z.string().min(1).max(100),
+        trace_id: z.string().uuid(),
+        data: z.record(z.any()).optional(),
+        parameters: z.record(z.any()).optional()
+      });
       
-      // Validate task structure
-      if (!task.task_id || !task.action || !task.trace_id) {
-        return res.status(400).json({ error: 'Invalid task structure' });
-      }
+      const task = TaskSchema.parse(req.body);
       
       // Process task asynchronously
       setTimeout(async () => {
@@ -715,6 +720,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ========== BILLING SYSTEM ROUTES ==========
   // All billing routes use enhanced correlation ID middleware for financial operation tracking
   
+  // Input validation schema for billing endpoints
+  const BillingQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    cursor: z.string().max(256).optional()
+  });
+  
   // Get user's billing summary (balance, packages, recent activity)
   app.get('/api/billing/summary', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
@@ -754,8 +765,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "User ID not found" });
       }
 
-      const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-      const cursor = req.query.cursor as string;
+      // Validate input parameters
+      const validatedQuery = BillingQuerySchema.parse(req.query);
+      const { limit, cursor } = validatedQuery;
 
       const result = await billingService.getUserLedger(userId, limit, cursor);
       res.json(result);
@@ -777,8 +789,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "User ID not found" });
       }
 
-      const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-      const cursor = req.query.cursor as string;
+      // Validate input parameters
+      const validatedQuery = BillingQuerySchema.parse(req.query);
+      const { limit, cursor } = validatedQuery;
 
       const result = await billingService.getUserUsage(userId, limit, cursor);
       res.json(result);
@@ -795,13 +808,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Estimate cost for potential OpenAI usage
   app.post('/api/billing/estimate', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {
-      const { model, inputTokens, outputTokens } = req.body;
+      // Validate input parameters
+      const EstimateSchema = z.object({
+        model: z.string().min(1).max(50),
+        inputTokens: z.number().int().min(0).max(1000000),
+        outputTokens: z.number().int().min(0).max(1000000)
+      });
       
-      if (!model || typeof inputTokens !== 'number' || typeof outputTokens !== 'number') {
-        return res.status(400).json({ 
-          error: "Missing or invalid parameters: model, inputTokens, outputTokens required" 
-        });
-      }
+      const { model, inputTokens, outputTokens } = EstimateSchema.parse(req.body);
 
       const estimate = await billingService.estimateCharge(model, inputTokens, outputTokens);
       res.json(estimate);
@@ -825,11 +839,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "User ID not found" });
       }
 
-      const { packageCode } = req.body;
+      // Validate package code
+      const CheckoutSchema = z.object({
+        packageCode: z.enum(['basic', 'premium', 'enterprise'], {
+          errorMap: () => ({ message: "Invalid package code. Must be 'basic', 'premium', or 'enterprise'" })
+        })
+      });
       
-      if (!packageCode || !CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES]) {
-        return res.status(400).json({ error: "Invalid package code" });
-      }
+      const { packageCode } = CheckoutSchema.parse(req.body);
 
       const packageData = CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES];
 

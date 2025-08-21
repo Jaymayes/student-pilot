@@ -1,10 +1,81 @@
 import express, { type Request, Response, NextFunction } from "express";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { env, isProduction } from "./environment";
+import * as crypto from "crypto";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Security middleware - helmet with initial configuration
+app.use(helmet({
+  contentSecurityPolicy: false, // Will enable as report-only first
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  frameguard: { action: 'deny' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+}));
+
+// CSP in report-only mode initially
+app.use(helmet.contentSecurityPolicy({
+  useDefaults: true,
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "https://js.stripe.com"],
+    frameSrc: ["'self'", "https://js.stripe.com"],
+    connectSrc: [
+      "'self'", 
+      "https://api.stripe.com", 
+      "https://api.openai.com",
+      "https://storage.googleapis.com"
+    ],
+    imgSrc: ["'self'", "data:", "https:"],
+    objectSrc: ["'none'"]
+  },
+  reportOnly: true // Start with report-only
+}));
+
+// Rate limiting
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    error: 'Too many requests from this IP, please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5, // stricter limit for auth endpoints
+  skipSuccessfulRequests: true
+});
+
+const billingLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30 // 30 billing requests per minute
+});
+
+app.use('/api', generalLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/billing', billingLimiter);
+
+// Body parsing with size limits
+app.use(express.json({ limit: '1mb', strict: true }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+
+// Global BigInt serialization for JSON responses
+app.set('json replacer', (_key: string, value: any) => {
+  if (typeof value === 'bigint') {
+    return value.toString();
+  }
+  return value;
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -39,12 +110,34 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
+  // Production-safe error handler
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
+    const correlationId = req.headers['x-correlation-id'] as string || crypto.randomUUID();
+    
+    // Log full error details server-side
+    console.error('API Error:', {
+      error: err.message,
+      stack: err.stack,
+      correlationId,
+      method: req.method,
+      path: req.path,
+      userId: (req as any).user?.id,
+      timestamp: new Date().toISOString()
+    });
+    
+    const status = (err.statusCode && Number.isInteger(err.statusCode)) ? err.statusCode : 500;
+    
+    res.setHeader('X-Correlation-ID', correlationId);
+    
+    // Never expose sensitive error details in production
+    const message = status >= 500 && isProduction 
+      ? 'Internal server error'
+      : err.message || 'An error occurred';
+    
+    res.status(status).json({ 
+      error: message,
+      correlationId: isProduction ? correlationId : undefined
+    });
   });
 
   // importantly only setup vite in development and after

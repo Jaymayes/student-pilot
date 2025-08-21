@@ -1,4 +1,4 @@
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, lt } from "drizzle-orm";
 import { db } from "./db";
 import {
   creditBalances,
@@ -430,7 +430,7 @@ export class BillingService {
         .where(
           and(
             eq(creditLedger.userId, userId),
-            sql`${creditLedger.createdAt} < ${cursorDate}`
+            lt(creditLedger.createdAt, cursorDate)
           )
         )
         .orderBy(desc(creditLedger.createdAt))
@@ -484,7 +484,7 @@ export class BillingService {
         .where(
           and(
             eq(usageEvents.userId, userId),
-            sql`${usageEvents.createdAt} < ${cursorDate}`
+            lt(usageEvents.createdAt, cursorDate)
           )
         )
         .orderBy(desc(usageEvents.createdAt))

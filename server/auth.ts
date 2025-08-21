@@ -32,7 +32,7 @@ export class SecureJWTVerifier {
     expiresIn?: string;
   }): string {
     return jwt.sign(payload, secret, {
-      algorithm: 'HS256',
+      algorithm: 'HS256' as Algorithm,
       issuer: options?.issuer,
       audience: options?.audience,
       expiresIn: options?.expiresIn || '15m', // Short-lived tokens
