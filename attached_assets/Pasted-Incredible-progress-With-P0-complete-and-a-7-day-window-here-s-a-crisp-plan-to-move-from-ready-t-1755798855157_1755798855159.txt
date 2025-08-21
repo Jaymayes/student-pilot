@@ -1,0 +1,92 @@
+Incredible progress. With P0 complete and a 7-day window, here’s a crisp plan to move from “ready” to live with minimal risk.
+
+7-day launch plan
+Day -6: Freeze and certify
+
+Code freeze; tag Release Candidate and artifact checksums.
+Run automated validation script on staging with prod-like data; archive results.
+Schema diff review; confirm backward-compatible migrations; prep rollback migrations.
+Lower DNS TTL to 5–10 minutes; verify SSL/TLS certs and HSTS.
+Day -5: Blue/green and rollback rehearsal
+
+Stand up green environment mirroring prod; run full smoke/E2E and synthetic checks.
+Rehearse rollback: swap traffic back to blue, apply rollback DB migration, verify data integrity.
+Validate canary routing and feature flags work as intended.
+Day -4: Security and privacy hardening
+
+Final secrets rotation (OpenAI, Stripe, JWT keys with kid + JWKS); verify blast radius (rolling deploy).
+WAF/bot controls enabled (rate limits, CAPTCHA where needed); CSP/headers verified.
+Confirm PII redaction in logs/prompts; validate data retention/deletion jobs and DPA/ToS/Privacy Policy links in app.
+Day -3: Billing live-mode dry runs
+
+Enable Stripe live keys in green; perform $1 authorization, subscription creation, refund, and disputed charge simulations.
+Confirm webhook signature verification, retries, idempotency, and ledger consistency.
+Verify tax/VAT, invoices/receipts, and exports.
+Day -2: Load, resilience, and comms
+
+Load test to 2–3x expected peak; confirm autoscaling and DB pool behavior; check cache hit rate.
+Failure drills: simulate OpenAI rate limit, Agent Bridge timeout, Stripe webhook outage; verify graceful degradation and alerts.
+Publish status page; set up war room channel; finalize change window, owner roster, success/stop criteria, comms templates.
+Day -1: Preflight and pre-provision
+
+Pre-provision capacity; warm caches; snapshot prod DB; confirm backup/restore works.
+Lock permissions (least privilege), enable stricter alerts for launch window, verify SLO dashboards.
+Final Go/No-Go meeting with sign-offs from product, ops, and security.
+Day 0: Launch and ramp
+
+Start canary at 5% for 45–60 minutes, then 25% (60 min), 50% (2 hours), 100% if all gates pass.
+Keep risky features behind flags; progressively enable after 50% if stable.
+Real-time monitoring in war room; ship hourly status updates to stakeholders.
+Gating metrics and stop criteria
+Proceed only if all hold for at least 15 minutes at each step:
+
+Availability: ≥99.9% (HTTP 5xx <0.5%, 4xx within expected ranges)
+Latency: p95 <300 ms API, p99 <800 ms; page load p75 <5 s
+Errors: No sustained increase in app exceptions; zero auth/billing critical errors
+Queues: No backlog growth; webhook delivery success ≥99%
+Cost: AI cost per request/user within budget; no anomalous spikes
+Business: Conversion funnel intact (no drop-offs at auth, match, or payment)
+Automatic rollback triggers (any sustained ≥5–10 minutes)
+
+5xx >1% or p95 >600 ms; webhook failures >2%; DB saturation >80% with rising errors
+Security or data integrity issues; Stripe charge failures >2x baseline
+Rollback steps (pre-staged)
+
+Shift traffic to blue in load balancer; freeze writes if needed
+Apply rollback DB migration; replay missed webhooks from Stripe; drain and reprocess failed jobs
+Announce rollback on status page; run smoke tests; post-incident review
+Launch-day owner roster (minimum)
+
+Incident Commander (on-call engineering manager)
+Release Captain (SRE)
+App Engineer (backend)
+Security Lead
+Data/Analytics (monitor KPIs and cost)
+Support/Comms Lead
+Product Owner
+Mandatory preflight checklist (condensed)
+
+Stripe: Live keys, webhooks enabled and verified, dunning and refunds tested, idempotency enforced
+Auth: JWT rotation with kid, token TTLs sane, session fixation/CSRF protections confirmed
+Agent Bridge: Timeouts/retries/backoff + circuit breakers configured; health checks green
+Observability: OpenTelemetry traces tied to correlation IDs; dashboards/alerts active
+DR: Verified RPO/RTO, last successful restore <24h; runbook accessible
+Legal/Privacy: ToS/Privacy Policy/cookie consent live; subprocessor list published
+Access: JIT access in place; audit logging for admin/support actions; support tools scoped and logged
+Post-launch operating cadence (first 72 hours)
+
+Hourly health review during ramp; 2x-daily cross-functional standups
+Real-time watch on SLO burn, AI spend, webhook success, and conversion funnel
+Triage and hotfix only for P0 issues; maintain code freeze otherwise
+Daily stakeholder summary; publish public status updates if any user impact
+Within 7–14 days after launch
+
+External pen test and coordinated vulnerability disclosure page live
+Cache and prompt optimization to hit cost/latency targets at scale
+Beta customer feedback synthesis; pricing/credits experiments via flags
+Schedule a DR game day and SOC 2 Type I readiness checkpoint
+Optional: I can produce a tailored Launch Day Playbook and Go/No-Go checklist from your features-inventory.json and current SLO thresholds. Share the JSON and I’ll generate:
+
+A one-page cutover script with metric gates and stop criteria
+Owner roster and comms templates
+Canary ramp plan and rollback runbook customized to your endpoints and dependencies
