@@ -1,0 +1,78 @@
+Use this prompt in Replit AI. It is grounded in the AI Scholarship Playbook and is designed to align the current app to its strategy without making live changes. The playbook emphasizes an AI-powered concierge experience (predictive matching, ethical essay coaching, and application automation), a hybrid monetization model with credit-based B2C and a B2B marketplace, low-CAC organic acquisition, partner onboarding flywheel, and resilient, compliant infrastructure with defense-in-depth security, along a five‑year plan to $10M ARR        .
+
+Prompt for Replit AI (Read-Only Alignment Plan; do not modify code or environment)
+
+Role and objective
+
+You are operating in read-only planning mode. Do not modify files, run migrations, or change configuration. Do not make network calls.
+Your single task is to produce a comprehensive, actionable alignment plan that maps the current ScholarshipAI app to the AI Scholarship Playbook and identifies the precise changes needed to fully align. You must not implement changes—only analyze and propose.
+Authoritative references
+
+Primary strategy source: “The AI Scholarship Playbook: A Five-Year Roadmap to $10M ARR and Market Leadership.”
+Product vision: AI concierge with end-to-end student support—data ingestion and normalization; predictive matching beyond keywords; ethical Generative AI Essay Coach; application automation and deadline/project management .
+Monetization and pricing: Hybrid model—free core, credit-based B2C AI services with 4x markup over model cost; B2B marketplace revenue via listings/promotion, recruitment-as-a-service, and analytics; targets for MAU, conversion, ARPU, and partner counts across Years 1–5 .
+Growth: Prioritize low-CAC organic channels (content/SEO), referrals, and strategic partnerships; programmatic content at scale is encouraged where consistent with playbook intent .
+Partner ecosystem: Self-serve onboarding flywheel, verification, training resources, and tiered support for institutional partners .
+Resilience, security, and compliance: Auto-scaling, multi-AZ design; WAF and input validation to prevent traversal and common vulns; encryption in transit/at rest; FERPA/CCPA posture and data governance .
+Inputs
+
+Read COMPREHENSIVE-SYSTEM-ANALYSIS-REPORT.md in the repo (system architecture, endpoints, security, billing, Agent Bridge, KB sources, prompts, performance targets, and limitations).
+Enumerate repo structure (top two levels) and scan docs/config to validate what exists vs. what’s claimed in the analysis report.
+Deliverables
+Produce a single alignment plan in plain text with these sections:
+
+Executive alignment summary
+8–12 bullets: what’s already aligned with the playbook; critical gaps; projected impact on ARR trajectory and risk level by gap category.
+2. Playbook-to-app capability mapping
+
+Create a two-column mapping: Playbook requirement -> Current implementation status -> Evidence (file paths or doc references).
+Data ingestion/normalization pipeline and schemas; knowledge freshness/observability .
+Predictive matching (scoring features, historical data, competition level) .
+Ethical essay coach (brainstorm/structure/refine framing; no ghostwriting) and safeguards .
+Application automation and deadline/project management features .
+B2C credits with 4x markup alignment (pricing tables, metering, transparency) .
+B2B marketplace features: listings/promotion, recruitment dashboard, analytics; partner onboarding steps and verification .
+Growth engine: content/SEO, referral program, partnerships; programmatic SEO readiness .
+Reliability/Security/Compliance posture: auto-scaling, multi-AZ readiness; WAF, input validation, encryption, privacy policy, anonymization for analytics; audit/pen-test cadence .
+3. Gap analysis and acceptance criteria
+
+For each gap, define:
+User story and business rationale tied to ARR path (B2C conversion, B2B ARPU/partner count) .
+Done criteria (functional, security, and compliance).
+KPI impact hypothesis and measurement plan.
+4. Prioritized workstreams and 90-day plan
+
+Organize into Product, Growth/SEO, B2B Partner Platform, Data & KB, AI/ML, Security & Compliance, Infra & SLOs, Billing & Pricing.
+For each, provide epics, sequenced milestones, and effort bands; justify ordering by projected ARR and CAC impact per playbook milestones (e.g., Year 1 MAU focus, Year 2 monetization, Year 3 B2B scale) .
+5. KPI and instrumentation spec
+
+Define event schema and dashboards to track:
+MAUs, B2C conversion, B2C ARPU (credit spend), retention.
+B2B: active partners, ARPU, pipeline velocity.
+SEO growth metrics (indexed pages, impressions, CTR, signups from organic).
+Model usage, latency, cost per token; enforce transparent pricing per model tier .
+6. Security, privacy, and compliance hardening plan
+
+Map current controls to playbook guidance: WAF, validation/sanitization, allow-lists, least privilege, encryption at rest/in transit, privacy policy clarity, anonymized analytics, pen-test cadence, and monitoring artifacts .
+7. Ethical AI guardrails and UX copy
+
+Specify guardrails and UI copy for the essay coach to ensure “assistant, not writer” positioning and academic integrity compliance; include logging for interventions and user acknowledgement flows .
+8. Five-year alignment roadmap checkpoints
+
+Map deliverables and KPIs to Year 1–5 targets (MAUs, conversion, ARPU, partner counts, revenue mix with B2B >80% by Year 5) with quarterly checkpoints and leading indicators .
+Method
+
+Verify repository claims against code/docs. Do not run or change anything. If execution is required to confirm behavior, infer expected behavior from source.
+Cite exact file paths and config keys for each claim and gap.
+Flag any ambiguous or missing documentation.
+Constraints
+
+Read-only; no file edits or package installs. No external network calls.
+Redact any secrets; mention locations/usages only.
+Output must be a single plain-text report with clear headers and bullet lists, suitable for executives and engineers.
+Acceptance criteria
+
+The plan is traceable (every recommendation links to a playbook requirement and a repo evidence point).
+The 90-day plan is prioritized by ARR impact and risk reduction.
+KPIs clearly align to the hybrid monetization model and organic growth strategy.
+Security and compliance steps meet playbook expectations for a trustworthy, always-available platform.
