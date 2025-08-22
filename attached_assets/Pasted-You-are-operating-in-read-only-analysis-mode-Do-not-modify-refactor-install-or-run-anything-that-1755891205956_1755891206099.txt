@@ -1,0 +1,85 @@
+You are operating in read-only analysis mode. Do not modify, refactor, install, or run anything that changes the repository or environment. Do not make network calls (do not fetch the live URL). Your single task is to produce an updated alignment plan tailored to this repository, which powers ScholarLink — our B2C student app at https://student-pilot-jamarrlmayes.replit.app. Only analyze and report; do not implement.
+
+Context and boundaries
+
+Scope: This repo is the B2C student-facing app. Treat B2B marketplace capabilities as external services to be integrated via clearly defined interfaces. Your outputs must specify contracts and integration points for B2B without attempting to implement B2B features here.
+Inputs to consult in-repo (if present): COMPREHENSIVE-SYSTEM-ANALYSIS-REPORT.md, AI-SCHOLARSHIP-PLAYBOOK-ALIGNMENT-PLAN.md, security docs, API specs, prompts, and any config/env examples. Enumerate the repo tree (top two levels) and scan docs, /src, /api, /components, /pages, /routes, /server, /services, /jobs, /rag, /prompts, /data, /db, /migrations, /infra, /tests.
+Executive directives to align to (read-only planning)
+Deliver an alignment plan that achieves the four must-deliver outcomes in 90 days, limited to B2C responsibility, with explicit stubs/contracts for cross-team work.
+
+B2B Marketplace MVP (B2C integration points only)
+Define partner-facing touchpoints in the B2C app (e.g., student-visible partner listings, promoted placements, tracking).
+Specify API contracts the B2C app will consume from the B2B service:
+Listings/Promotion feed (filtering, eligibility flags, ranking attributes).
+Recruitment dashboard deep links (student-to-partner flows).
+Billing/entitlement signals to gate promoted placements.
+Output: Interface specs, route/UX wireframes, event tracking plan, and a dependency map showing which endpoints must exist in B2B. Do not create endpoints here.
+2. Programmatic SEO Engine (B2C-owned)
+
+Design a programmatic content system for scholarships and related entities:
+Page templates, metadata schema, URL strategy, internal linking, sitemap generation, canonicalization, pagination facets, and breadcrumb patterns.
+Content source of truth (RAG/DB/API) and regeneration cadence. Guardrails for quality and duplication.
+Success criteria to target: 1,000+ high-quality pages ready to publish and index; analytics tagging to attribute signups to page clusters.
+Output: Detailed technical spec tied to this repo’s framework (routes/components/build pipeline), implementation checklist, and analytics instrumentation plan. Do not generate or write pages; only specify.
+3. Advanced Scholarship Data Pipeline (B2C consumption + validation)
+
+Assume ingestion/normalization happens in a separate data service. In this repo:
+Define the read-side contract (schemas for eligibility, materials, deadlines, essay themes; freshness/versioning fields).
+Specify validation hooks and user-visible freshness indicators.
+Outline background revalidation strategies (read-only description) and error/fallback UX.
+Success criteria to target: coverage KPIs, freshness SLA (≤72 hours median), minimum field completeness thresholds.
+Output: API/DTO schemas, caching strategy, stale-data UX copy, and monitoring events. Do not build crawlers here.
+4. Predictive Matching v1 and Experimentation (B2C experience layer)
+
+Treat the scoring model as an external service. In this repo:
+Define the scoring API contract and feature payloads (explicit eligibility, implicit fit signals, competition level, historical features if provided).
+Specify how the B2C app will consume scores, present explanations, and run A/B tests.
+Define guardrails to uphold “assistant, not writer” ethics in any AI surfaces.
+Success criteria to target: measurable lift in apply/click-through vs. baseline; logging of explanations/feature importances for transparency.
+Output: Experiment design, UI/UX spec for ranked results, exposure logging, and metrics definitions. No model code here.
+Alignment confirmations (verify and document with file paths)
+
+B2C credits and 4x markup: Validate pricing tables, per-model transparency, metering hooks, and user receipts.
+Ethical AI: Confirm UX copy, intervention logs, and restrictions consistent with “assistant, not writer.”
+Security and compliance: Summarize controls present in this repo (headers, JWT/session handling, input validation, rate limiting, CSRF, encryption references). Note any gaps to meet FERPA/CCPA posture.
+Resilience: Note any client/server patterns that support auto-scaling, timeouts/retries, idempotency, and correlation IDs.
+Output format (single plain-text report)
+A) Executive alignment summary (8–12 bullets)
+
+What in this B2C repo is already aligned; what remains; risk by category; expected impact on B2C conversion and marketplace readiness.
+B) Playbook-to-app mapping (B2C-specific)
+
+Two-column mapping: Playbook requirement → Current status in this repo → Evidence (file paths).
+Cover: SEO engine, student onboarding and profiles, essay coach UX and safeguards, eligibility parsing display, application tracking, pricing/credits transparency, analytics/instrumentation, API client boundaries for data/matching/marketplace.
+C) Gap analysis with acceptance criteria (B2C scope)
+
+For each gap: user story, rationale tied to MAU/B2C conversion or marketplace readiness, Done criteria, and KPI impact hypothesis.
+D) 90-day B2C workstreams and Day 1–30 backlog
+
+Workstreams: Programmatic SEO, B2C integration for Marketplace, Data consumption/validation, Predictive matching UX/experimentation, Billing/credits UI, Security/compliance hardening, Observability.
+For each: milestones, dependencies on B2B/Data/Model services, effort bands, and risk mitigations. Provide a Day 1–30 backlog list with file-level pointers where changes would occur (do not modify).
+E) KPI and instrumentation spec (B2C)
+
+Define events, properties, and dashboards for:
+Growth: page impressions, CTR, organic signups attribution, activation.
+Conversion: profile completion, match views → apply clicks, essay coach usage → purchase → outcomes.
+SEO: index coverage, sitemap health, page speed, structured data errors.
+AI economics: cost per use vs. 4x markup, model mix, latency/timeout handling.
+Reliability: error rates, retry counts, slow endpoints from the B2C perspective.
+F) Security, privacy, and compliance notes
+
+Map present controls; list gaps and remediation recommendations for enterprise readiness (e.g., stricter CSP, stricter input sanitation on search params, pii masking in logs, consent flows).
+G) Risks, decisions, and dependencies
+
+Enumerate decisions needed in Week 1 for Marketplace pricing hypotheses, SEO domain/templating policy, data sourcing posture, and experiment charter. Clearly mark which are external to this repo.
+Method
+
+Enumerate repo tree (top two levels). Cite specific file paths for every claim.
+Do not run servers, migrations, or tests. If behavior requires execution, infer from code and document assumptions.
+Redact secrets; point to env var names/locations only.
+No external network calls.
+Acceptance criteria
+
+Report is implementation-ready for the B2C team: file-level guidance, API contracts, analytics schemas, UX copy notes, and experiment plans.
+Every recommendation traces to a playbook requirement and a concrete repo artifact or gap.
+The plan supports the four must-deliver outcomes in 90 days while keeping B2B/ML/Data responsibilities decoupled behind clear interfaces.
