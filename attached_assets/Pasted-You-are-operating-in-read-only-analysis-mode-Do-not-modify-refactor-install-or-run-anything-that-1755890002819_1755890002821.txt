@@ -1,0 +1,81 @@
+You are operating in read-only analysis mode. Do not modify, refactor, install, or run anything that changes the repository or environment. Do not make network calls. Your single task is to produce a comprehensive, objective report describing the app’s knowledge base, capabilities, and features as they exist now. Only report; do not propose changes.
+
+Scope of analysis
+
+Repository inventory: Enumerate the project structure (top-level directories, key files) and briefly describe the purpose of each.
+Knowledge base audit:
+Identify all content sources used to “know” things (e.g., markdown/docs, FAQs, CSV/JSON datasets, vector stores/embeddings, prompts/system instructions, seed data, migrations, CMS exports, scraped content).
+Locate and summarize RAG pipelines, prompt templates, system messages, and any retrieval/embedding logic (model names, dimensions, chunking, namespaces, filters).
+Describe update cadence and ingestion pipelines: where new knowledge comes from, how it’s cleaned, validated, deduplicated, embedded, versioned, and monitored.
+Note data quality controls, schema definitions, and any observability/metrics for knowledge freshness and accuracy.
+App capabilities:
+Core user journeys and flows (onboarding, search/discovery, application assistance, recommendations, notifications, payments/subscriptions, provider onboarding, admin operations).
+AI/ML functions (model endpoints, inference paths, ranking/scoring, classification, extraction, summarization, chat/agent orchestration, tool use, function calling).
+Personalization and eligibility logic (filters, rules engines, scoring models, criteria parsing).
+Internationalization, accessibility, and localization support.
+Security, privacy, and compliance features (authN/Z, PII handling, encryption, audit logs, data retention, consent, FERPA/COPPA/GDPR handling).
+Features catalog:
+Frontend features by route/view/component (web and mobile, if applicable): search, filters, detail pages, application helpers, document generation, progress tracking, dashboards, alerts.
+Backend/API features by endpoint/service: inputs, outputs, auth requirements, rate limits, error handling.
+Provider/partner features (portals, listing management, verification, analytics, payout/fees).
+Admin/ops features (content moderation, KB curation, model/prompt management, feature flags).
+Architecture and dependencies:
+High-level architecture diagram (describe in text): services, data stores, queues, third-party services, build/deploy pipeline.
+Tech stack and key libraries, SDKs, and external APIs; pin versions where available.
+Data stores (SQL/NoSQL/Vector), schemas/tables/collections, indices, and backup/restore processes.
+Configuration/env management, secrets usage (report references only; do not print secret values).
+Performance SLOs/SLIs if defined; any profiling/telemetry/logging/monitoring tooling.
+Operational metrics and economics (if present in code/config/docs):
+KPIs/metrics dashboards, event tracking, funnels.
+Pricing plans, credit systems, provider fees, ARPU/CAC instrumentation hooks.
+SEO/organic growth mechanisms, sitemap/Auto Page Maker-like systems.
+Testing and quality:
+Test coverage overview: unit/integration/e2e tests, fixtures, CI checks.
+Linting/formatting/static analysis.
+Known limitations, TODOs, and open issues noted in code/comments.
+Method
+
+Enumerate repository tree (top two levels) to identify key areas for deep dives.
+Systematically scan:
+/docs, /README, /CONTRIBUTING, /CHANGELOG
+/frontend, /app, /src, /components, /pages, /routes
+/backend, /server, /api, /services, /handlers, /jobs
+/models, /prompts, /agents, /rag, /nlp, /ml, /llm
+/data, /db, /migrations, /seeds, /datasets
+/config, .env.example, environment-specific configs
+/scripts, /infra, Dockerfiles, CI configs
+/tests, /e2e, /spec
+For each identified knowledge base artifact or AI component, capture:
+File path, purpose, how it’s loaded/called, inputs/outputs, dependencies, and limits.
+Do not run migrations or start servers. If a step requires execution, describe the expected behavior based on code.
+Output format
+
+Executive summary: 6–10 bullet points highlighting what the app knows, what it can do, who it serves, and key constraints.
+System overview:
+Architecture narrative (text diagram).
+Tech stack and external services.
+Knowledge base report:
+Sources table: name, location (file path or service), update method, coverage, quality notes.
+RAG/prompting: models, embedding settings, retrieval strategy, safety filters, evaluation metrics (if any).
+Capabilities and features:
+User flows summary.
+Feature list grouped by user type (student, provider, admin).
+API surface summary (endpoint, method, purpose, auth).
+Data and security:
+Data stores, schemas, sensitive data handling, compliance notes.
+Operations and performance:
+Monitoring/logging, SLOs/SLIs, scalability considerations.
+Gaps and risks:
+Missing docs or unclear areas.
+Known limitations and tech debt explicitly cited from the codebase.
+Appendix:
+Repository map (tree of key directories).
+Glossary of domain terms found in the codebase.
+Constraints
+
+Read-only analysis; do not change files, install packages, or write outputs to the repo.
+No external network calls. If documentation references external links, report the reference and summarize only what is present locally.
+Redact secrets; never echo actual token values. Report presence and usage patterns only.
+Deliverable
+
+A single comprehensive report in plain text with clear section headers and bullet lists, suitable for executives and engineers.
