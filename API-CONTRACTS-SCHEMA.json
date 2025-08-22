@@ -1,0 +1,510 @@
+{
+  "title": "ScholarLink B2C External Service Contracts",
+  "version": "1.0.0",
+  "description": "OpenAPI and JSON schema specifications for B2C integration with external services",
+  "contracts": {
+    "partner_listings_api": {
+      "title": "Partner Listings API Contract",
+      "description": "API for fetching partner-promoted scholarship listings with targeting and entitlements",
+      "baseUrl": "https://b2b-service.internal/api/v1",
+      "endpoints": {
+        "getPromotedListings": {
+          "method": "GET",
+          "path": "/partner-listings",
+          "description": "Fetch promoted scholarship listings for student context",
+          "parameters": {
+            "studentContext": {
+              "type": "object",
+              "required": ["userId", "academicLevel", "fieldOfStudy"],
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "description": "Anonymized student identifier for targeting"
+                },
+                "academicLevel": {
+                  "type": "string",
+                  "enum": ["freshman", "sophomore", "junior", "senior", "graduate"],
+                  "description": "Student's current academic level"
+                },
+                "fieldOfStudy": {
+                  "type": "string",
+                  "description": "Primary field of study or intended major"
+                },
+                "demographics": {
+                  "type": "object",
+                  "properties": {
+                    "state": {"type": "string"},
+                    "gpa": {"type": "number", "minimum": 0.0, "maximum": 4.0},
+                    "financialNeed": {"type": "boolean"}
+                  }
+                },
+                "interests": {
+                  "type": "array",
+                  "items": {"type": "string"},
+                  "description": "Student interests for targeting"
+                }
+              }
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "description": "Maximum number of promoted listings to return"
+            }
+          },
+          "response": {
+            "type": "object",
+            "required": ["listings", "metadata"],
+            "properties": {
+              "listings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["scholarshipId", "partnerId", "promotionLevel", "rankingScore", "isActive"],
+                  "properties": {
+                    "scholarshipId": {
+                      "type": "string",
+                      "description": "Unique scholarship identifier"
+                    },
+                    "partnerId": {
+                      "type": "string",
+                      "description": "Partner organization identifier"
+                    },
+                    "promotionLevel": {
+                      "type": "string",
+                      "enum": ["standard", "featured", "premium"],
+                      "description": "Level of promotion for display priority"
+                    },
+                    "rankingScore": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Algorithmic ranking score for ordering"
+                    },
+                    "targetingCriteria": {
+                      "type": "object",
+                      "description": "Criteria used for student targeting"
+                    },
+                    "budgetRemaining": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Remaining promotion budget in USD"
+                    },
+                    "eligibilityFlags": {
+                      "type": "object",
+                      "properties": {
+                        "gpaRequirement": {"type": "number"},
+                        "residencyRequired": {"type": "boolean"},
+                        "fieldRestrictions": {"type": "array", "items": {"type": "string"}}
+                      }
+                    },
+                    "isActive": {
+                      "type": "boolean",
+                      "description": "Whether promotion is currently active"
+                    },
+                    "expiresAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Promotion expiration timestamp"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "totalAvailable": {"type": "integer"},
+                  "cacheDuration": {"type": "integer", "description": "Cache TTL in seconds"},
+                  "lastUpdated": {"type": "string", "format": "date-time"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "recruitment_attribution_api": {
+      "title": "Recruitment Attribution API Contract",
+      "description": "API for tracking student engagement with partner-promoted content",
+      "baseUrl": "https://b2b-service.internal/api/v1",
+      "endpoints": {
+        "trackRecruitmentEvent": {
+          "method": "POST",
+          "path": "/recruitment-events",
+          "description": "Record student interaction with partner content for attribution",
+          "requestBody": {
+            "type": "object",
+            "required": ["eventType", "scholarshipId", "partnerId", "studentHash", "timestamp"],
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": ["view", "click", "apply", "conversion"],
+                "description": "Type of interaction event"
+              },
+              "scholarshipId": {
+                "type": "string",
+                "description": "Scholarship being interacted with"
+              },
+              "partnerId": {
+                "type": "string",
+                "description": "Partner organization identifier"
+              },
+              "studentHash": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$",
+                "description": "SHA-256 anonymized student identifier"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Event occurrence timestamp"
+              },
+              "sessionId": {
+                "type": "string",
+                "description": "User session identifier for funnel tracking"
+              },
+              "correlationId": {
+                "type": "string",
+                "description": "Request correlation ID for debugging"
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "pageUrl": {"type": "string"},
+                  "referrer": {"type": "string"},
+                  "userAgent": {"type": "string"},
+                  "deviceType": {"type": "string", "enum": ["desktop", "mobile", "tablet"]}
+                }
+              }
+            }
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "success": {"type": "boolean"},
+              "eventId": {"type": "string"},
+              "deepLinkUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "Partner dashboard deep link for this interaction"
+              }
+            }
+          }
+        }
+      }
+    },
+    "data_pipeline_api": {
+      "title": "Advanced Data Pipeline API Contract",
+      "description": "API for consuming fresh scholarship data with quality indicators",
+      "baseUrl": "https://data-service.internal/api/v1",
+      "endpoints": {
+        "getScholarshipData": {
+          "method": "GET",
+          "path": "/scholarships",
+          "description": "Fetch scholarship data with freshness and quality metadata",
+          "parameters": {
+            "ids": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Specific scholarship IDs to fetch (optional)"
+            },
+            "lastUpdated": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only return scholarships updated after this timestamp"
+            },
+            "includeInactive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Include inactive/expired scholarships"
+            }
+          },
+          "response": {
+            "type": "object",
+            "required": ["scholarships", "metadata"],
+            "properties": {
+              "scholarships": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "lastUpdated", "dataQualityScore", "freshnessStatus"],
+                  "properties": {
+                    "id": {"type": "string"},
+                    "title": {"type": "string"},
+                    "organization": {"type": "string"},
+                    "amount": {"type": "integer"},
+                    "deadline": {"type": "string", "format": "date"},
+                    "lastUpdated": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When this record was last updated from source"
+                    },
+                    "dataQualityScore": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Overall data completeness and accuracy score"
+                    },
+                    "freshnessStatus": {
+                      "type": "string",
+                      "enum": ["fresh", "stale", "expired"],
+                      "description": "Data freshness classification"
+                    },
+                    "eligibilityCriteria": {
+                      "type": "object",
+                      "description": "Structured eligibility requirements"
+                    },
+                    "validationErrors": {
+                      "type": "array",
+                      "items": {"type": "string"},
+                      "description": "Known data quality issues"
+                    },
+                    "sourceMetadata": {
+                      "type": "object",
+                      "properties": {
+                        "sourceUrl": {"type": "string"},
+                        "lastCrawled": {"type": "string", "format": "date-time"},
+                        "crawlSuccess": {"type": "boolean"}
+                      }
+                    },
+                    "fieldCompleteness": {
+                      "type": "object",
+                      "properties": {
+                        "requirements": {"type": "number", "description": "Percentage of requirement fields populated"},
+                        "deadlines": {"type": "number", "description": "Percentage of deadline fields populated"},
+                        "amounts": {"type": "number", "description": "Percentage of amount fields populated"}
+                      }
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "properties": {
+                  "totalCount": {"type": "integer"},
+                  "freshCount": {"type": "integer"},
+                  "staleCount": {"type": "integer"},
+                  "averageQualityScore": {"type": "number"},
+                  "lastPipelineRun": {"type": "string", "format": "date-time"}
+                }
+              }
+            }
+          }
+        },
+        "validateScholarship": {
+          "method": "POST",
+          "path": "/scholarships/{id}/validate",
+          "description": "Trigger validation for a specific scholarship",
+          "parameters": {
+            "id": {
+              "type": "string",
+              "description": "Scholarship ID to validate"
+            }
+          },
+          "response": {
+            "type": "object",
+            "properties": {
+              "isValid": {"type": "boolean"},
+              "validationErrors": {"type": "array", "items": {"type": "string"}},
+              "freshness": {"type": "string", "enum": ["fresh", "stale", "expired"]},
+              "lastChecked": {"type": "string", "format": "date-time"}
+            }
+          }
+        }
+      }
+    },
+    "ml_scoring_api": {
+      "title": "ML Scoring API Contract",
+      "description": "API for predictive scholarship matching with explanations",
+      "baseUrl": "https://ml-service.internal/api/v1",
+      "endpoints": {
+        "scoreMatches": {
+          "method": "POST",
+          "path": "/score-matches",
+          "description": "Generate match scores with explanations for student-scholarship pairs",
+          "requestBody": {
+            "type": "object",
+            "required": ["studentProfile", "scholarshipIds"],
+            "properties": {
+              "studentProfile": {
+                "type": "object",
+                "required": ["academicLevel", "gpa", "fieldOfStudy"],
+                "properties": {
+                  "academicLevel": {"type": "string"},
+                  "gpa": {"type": "number"},
+                  "fieldOfStudy": {"type": "string"},
+                  "demographics": {"type": "object"},
+                  "interests": {"type": "array", "items": {"type": "string"}},
+                  "achievements": {"type": "array", "items": {"type": "string"}},
+                  "financialNeed": {"type": "boolean"}
+                }
+              },
+              "scholarshipIds": {
+                "type": "array",
+                "items": {"type": "string"},
+                "maxItems": 100,
+                "description": "Scholarship IDs to score"
+              },
+              "experimentVariant": {
+                "type": "string",
+                "description": "A/B test variant for algorithm experiments"
+              },
+              "includeExplanations": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether to include match explanations"
+              }
+            }
+          },
+          "response": {
+            "type": "object",
+            "required": ["matches"],
+            "properties": {
+              "matches": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["scholarshipId", "score", "chanceLevel"],
+                  "properties": {
+                    "scholarshipId": {"type": "string"},
+                    "score": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Match score percentage"
+                    },
+                    "chanceLevel": {
+                      "type": "string",
+                      "enum": ["High Chance", "Competitive", "Long Shot"],
+                      "description": "Categorical chance assessment"
+                    },
+                    "confidenceInterval": {
+                      "type": "array",
+                      "items": {"type": "number"},
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "95% confidence interval for score"
+                    },
+                    "explanation": {
+                      "type": "object",
+                      "properties": {
+                        "primaryFactors": {
+                          "type": "array",
+                          "items": {"type": "string"},
+                          "description": "Main factors contributing to match"
+                        },
+                        "strengthMatch": {
+                          "type": "array",
+                          "items": {"type": "string"},
+                          "description": "Areas where student profile strongly matches"
+                        },
+                        "weaknessAreas": {
+                          "type": "array",
+                          "items": {"type": "string"},
+                          "description": "Areas where student profile is weak"
+                        },
+                        "improvementSuggestions": {
+                          "type": "array",
+                          "items": {"type": "string"},
+                          "description": "Actionable suggestions for improving match"
+                        }
+                      }
+                    },
+                    "historicalSuccessRate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Historical success rate for similar profiles"
+                    },
+                    "competitionLevel": {
+                      "type": "object",
+                      "properties": {
+                        "estimatedApplicants": {"type": "integer"},
+                        "averageApplicantScore": {"type": "number"},
+                        "studentPercentile": {"type": "number"}
+                      }
+                    }
+                  }
+                }
+              },
+              "experimentMetadata": {
+                "type": "object",
+                "properties": {
+                  "experimentId": {"type": "string"},
+                  "variant": {"type": "string"},
+                  "modelVersion": {"type": "string"}
+                }
+              },
+              "performance": {
+                "type": "object",
+                "properties": {
+                  "processingTime": {"type": "number", "description": "Processing time in milliseconds"},
+                  "cacheHit": {"type": "boolean"}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "event_schemas": {
+    "seo_attribution_event": {
+      "title": "SEO Attribution Event Schema",
+      "type": "object",
+      "required": ["event_type", "correlation_id", "timestamp", "properties"],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "enum": ["page_view", "organic_signup", "seo_conversion"]
+        },
+        "correlation_id": {"type": "string"},
+        "user_id": {"type": "string"},
+        "session_id": {"type": "string"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "properties": {
+          "type": "object",
+          "properties": {
+            "page_url": {"type": "string"},
+            "page_type": {"type": "string", "enum": ["scholarship_detail", "category_listing", "landing"]},
+            "scholarship_id": {"type": "string"},
+            "search_query": {"type": "string"},
+            "utm_source": {"type": "string"},
+            "utm_medium": {"type": "string"},
+            "utm_campaign": {"type": "string"},
+            "organic_keyword": {"type": "string"},
+            "search_position": {"type": "integer"},
+            "page_load_time": {"type": "number"}
+          }
+        }
+      }
+    },
+    "marketplace_attribution_event": {
+      "title": "Marketplace Attribution Event Schema",
+      "type": "object",
+      "required": ["event_type", "correlation_id", "timestamp", "properties"],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "enum": ["partner_promotion_view", "partner_click", "partner_conversion"]
+        },
+        "correlation_id": {"type": "string"},
+        "user_id": {"type": "string"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "properties": {
+          "type": "object",
+          "required": ["scholarship_id", "partner_id", "promotion_level"],
+          "properties": {
+            "scholarship_id": {"type": "string"},
+            "partner_id": {"type": "string"},
+            "promotion_level": {"type": "string", "enum": ["standard", "featured", "premium"]},
+            "ranking_position": {"type": "integer"},
+            "click_target": {"type": "string", "enum": ["scholarship_detail", "partner_dashboard", "apply_button"]},
+            "conversion_value": {"type": "number"}
+          }
+        }
+      }
+    }
+  }
+}

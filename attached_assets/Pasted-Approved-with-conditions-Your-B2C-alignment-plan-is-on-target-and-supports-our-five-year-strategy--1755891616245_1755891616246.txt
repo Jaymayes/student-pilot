@@ -1,0 +1,59 @@
+Approved with conditions. Your B2C alignment plan is on-target and supports our five-year strategy. Proceed to execution under the following directives, success criteria, and checkpoints.
+
+Decision: Greenlight 90-day plan (B2C scope) with four must-deliver outcomes
+
+Programmatic SEO Engine (owned by B2C)
+Mandate: Ship an SEO-capable content system (templates, routing, metadata, sitemaps, internal linking) without a full rewrite unless required. Prefer pragmatic SSR/SSG/prerendering plus caching to accelerate timelines.
+Day-60/90 success criteria:
+1,000+ scholarship/entity pages live and indexable; search console shows indexing >85% and rising.
+≥10% of new signups attributed to organic programmatic pages; track impressions, CTR, signups by page cluster per playbook’s low-CAC growth thesis .
+2. B2B Marketplace Integration Points (B2C interfaces only)
+
+Mandate: Implement read-side and UX for partner promotions and recruitment flows; do not build B2B services in this repo.
+Contracts due by Day 21; alpha integration by Day 45:
+Listings/Promotion API: inputs (student context), outputs (promoted items with ranking attributes, eligibility flags, entitlements).
+Recruitment attribution events: standardized event schema and deep links back to partner dashboards.
+Day-90 success criteria:
+Partner promotions render in B2C with entitlement checks; ≥5 live partner listings during pilot; attribution events validated end-to-end, enabling Year‑2 pilot economics .
+3. Advanced Data Pipeline Consumption (read-side)
+
+Mandate: Define and enforce consumption schemas for eligibility, materials, deadlines, essay themes; show freshness and quality in the UI.
+Day-60/90 success criteria:
+Median data freshness ≤72 hours; ≥70% of target sources reflected via the data service; completeness thresholds met for key fields. This aligns to the playbook’s ingestion/normalization and “always-fresh” mandate .
+4. Predictive Matching UX and Experimentation
+
+Mandate: Treat scoring as an external service; in B2C, deliver explanations, rankings, and A/B testing.
+Day-60/90 success criteria:
+v1 explanation UI (explicit eligibility, implicit fit, competition level) with exposure logging; statistically significant lift in apply/click-through vs. baseline. Mirrors playbook’s predictive matching blueprint and ethical assistant posture for AI surfaces .
+Confirmations to preserve
+
+Credits and pricing transparency: Maintain 4x markup, credit packs, and per-model visibility as per playbook .
+Ethical AI guardrails: Keep “assistant, not writer” UX copy, logged interventions, and user acknowledgements for the essay coach .
+Security, privacy, resilience: Enforce defense-in-depth, encryption in transit/at rest, and FERPA/CCPA posture; ensure availability patterns support scale-up from SEO and partners .
+KPIs and dashboards (weekly)
+
+SEO growth: indexed pages, impressions, CTR, signups from organic page clusters (target ≥10% by Day 90) .
+Marketplace readiness (B2C side): live promoted listings (≥5), valid attribution events, and click-to-partner conversion.
+Data quality: freshness SLA, field completeness, error budget for stale/invalid data surfaced to users .
+Matching impact: lift in apply CTR and profile→application conversion from predictive ranking vs. baseline .
+AI economics: per-use margin at or above 4x markup, latency and timeout adherence by model tier .
+Expected impact and guardrails
+
+Your impact targets (10x organic, +40% AI conversion, +25% ARPU, −70% CAC) are approved as stretch. Manage by leading indicators:
+Leading: index coverage, top-20 query rankings, organic signup share, partner promotion CTR, explanation UI engagement.
+Lagging: B2C ARPU and conversion, CAC trendline. Adjust weekly if leading indicators miss by >20% for two consecutive sprints.
+Dependencies and Week‑1 decisions
+
+Confirm SEO architecture (SSR/SSG/prerender), URL strategy, and editorial standards to scale programmatically without brand risk .
+Freeze V1 contracts for: Partner Listings API, Recruitment Attribution events, Data Freshness/Validation fields, and ML Scoring API (features and explanations) by Day 7.
+Validate privacy/legal for data sourcing display (freshness, consent language, PII masking).
+Resourcing and cadence
+
+Squads: SEO (templating, routing, analytics), Marketplace Integration (contracts, UI, attribution), Data Consumption (schemas, freshness UX), Matching UX/Experiments.
+Operating rhythm: weekly KPI review; monthly playbook alignment checkpoint. Maintain end-state mix with B2B as >80% of revenue by Year 5; B2C work here is the acquisition and activation engine to feed B2B scale .
+Deliverables due this week
+
+Link the B2C-SCHOLARLINK-ALIGNMENT-PLAN.md for sign-off.
+Submit OpenAPI/JSON schema drafts for the four interfaces above.
+Provide Day‑1–30 backlog with file-level pointers; include migration plan for SEO architecture with risk/rollback options.
+Stay within read-only analysis boundaries for Replit AI outputs; implementation occurs in dev branches after executive sign-off. This plan keeps us aligned with the playbook’s low-CAC SEO strategy, predictive concierge experience, and the revenue mix required to reach $10M ARR with B2B as the primary engine   .
