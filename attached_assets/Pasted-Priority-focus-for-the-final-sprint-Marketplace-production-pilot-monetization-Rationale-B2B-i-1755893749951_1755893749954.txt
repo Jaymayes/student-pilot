@@ -1,0 +1,33 @@
+Priority focus for the final sprint: Marketplace production pilot monetization
+
+Rationale
+
+B2B is the primary engine of revenue growth in the playbook’s hybrid model; early proof of value from the marketplace pilot de-risks our ARR path fastest and informs pricing before scale-up .
+The playbook targets a Year‑2 B2B pilot with 10–15 partners; hardening the production pilot now accelerates that milestone while the SEO engine compounds in parallel .
+Pricing motions to prioritize (listing/promotion fees, recruitment dashboard access, analytics) are explicitly called out as core marketplace revenue streams; validating them now creates near-term revenue signal and informs packaging .
+What to ship in the final sprint (scope and targets)
+
+Expand pilot safely
+Increase production pilot traffic allocation from 5% → 15–20% if CTR, quality, and attribution remain stable for 48–72 hours.
+Maintain entitlement gating and budget controls; keep feature flags for instant rollback.
+Validate two pricing motions
+Listing/promotion fees vs. recruitment dashboard access: run both with clear success metrics (CTR, qualified applicant rate, partner ROI proxy).
+Produce a weekly partner value report (impressions → clicks → qualified views → applies) to support sales and case studies.
+Partner readiness toward Year‑2 goals
+Convert ≥3 partners to paid or signed paid pilots (commitment letters acceptable); queue the remainder to approach the 10–15 partner target .
+Attribution and quality signal completeness
+Ensure end‑to‑end attribution parity (B2C → partner deep links) and add a “partner engagement quality score” combining CTR, dwell, and eligibility fit.
+Compliance and data handling
+Confirm privacy/consent copy for attribution and promoted placements; keep PII handling aligned to the playbook’s privacy posture (encryption in transit/at rest, clear policies) .
+Secondary focus (keep moving, but do not preempt marketplace work)
+
+SEO: Cross 1,000 indexable pages and ≥85% indexation (Search Console) with ≥10% of new signups attributed to organic programmatic pages, per the playbook’s low‑CAC growth thesis .
+Data: Hold median freshness at ≤72h and continue expanding reflected source coverage toward ≥70%, as required for reliable eligibility/materials/deadlines/essay themes consumption .
+Matching: Maintain the +29.8% lift; keep explanations visible (explicit eligibility, implicit fit, competition level) and log feature importances for transparency per blueprint .
+Decision gates at sprint close
+
+Marketplace: ≥5 live promotions with reliable E2E attribution; ≥3 paid/pilot commitments; pricing experiment readouts that indicate which motion to scale first .
+SEO: ≥1,000 pages live, ≥85% indexed; organic attribution ≥10% and trending upward .
+Data: SLA sustained (≤72h), schema completeness stable on eligibility/materials/deadlines/themes .
+Matching: Statistically significant uplift retained with ethical assistant posture intact.
+This prioritization maximizes near-term revenue signal while staying true to the playbook’s organic acquisition engine and predictive concierge experience, setting us up for the Year‑2 B2B pilot and beyond    .

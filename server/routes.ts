@@ -287,6 +287,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return getPilotHealthDashboard(req, res);
   });
 
+  // Partner monetization endpoints - Final sprint focus
+  app.post('/api/marketplace/pricing-experiment', async (req, res) => {
+    const { enrollPartnerInPricingExperiment } = await import('./routes/partnerMonetization');
+    return enrollPartnerInPricingExperiment(req, res);
+  });
+
+  app.post('/api/marketplace/partner/:partnerId/value-report', async (req, res) => {
+    const { generatePartnerValueReport } = await import('./routes/partnerMonetization');
+    return generatePartnerValueReport(req, res);
+  });
+
+  app.put('/api/marketplace/partner/:partnerId/commitment', async (req, res) => {
+    const { trackPartnerCommitment } = await import('./routes/partnerMonetization');
+    return trackPartnerCommitment(req, res);
+  });
+
+  app.get('/api/marketplace/partner/:partnerId/quality-score', async (req, res) => {
+    const { getPartnerQualityScore } = await import('./routes/partnerMonetization');
+    return getPartnerQualityScore(req, res);
+  });
+
+  app.get('/api/marketplace/monetization-dashboard', async (req, res) => {
+    const { getMonetizationDashboard } = await import('./routes/partnerMonetization');
+    return getMonetizationDashboard(req, res);
+  });
+
   // Set trust proxy for proper client IP detection
   app.set('trust proxy', 1);
 
