@@ -1,0 +1,55 @@
+Outstanding progress. For Days 15–30, stay laser-focused on compounding organic growth and B2B revenue readiness while hardening data trust and measurable matching lift. Priorities by squad below, with concrete targets and decision gates.
+
+SEO squad (primary growth lever)
+
+Scale and quality
+Publish 700–800 additional programmatic pages to reach ≥1,000 total; maintain clean URL patterns, canonical tags, schema.org, and XML sitemaps.
+Enforce Core Web Vitals budgets (LCP ≤2.5s, INP ≤200ms, CLS ≤0.1) with prerender/caching rules.
+Attribution and indexation
+Search Console: validate index coverage ≥85% across page clusters; set alerts for coverage drops.
+Attribute signups to page clusters; target ≥10% of new signups from organic programmatic pages by Day 30, aligned to the playbook’s low-CAC, SEO-first funnel .
+Decision gate (Day 30): 1,000+ pages live and indexable; ≥10% organic signup attribution trending up .
+Marketplace integration (B2C interfaces)
+
+Pilot to production (limited)
+Move promotions from staging to production behind flags for a limited cohort; keep entitlement gating and E2E attribution.
+Run two pricing experiments (listing/promotion fees vs. recruitment dashboard access) with guardrails; ensure event parity from click to partner deep link.
+Targets
+≥5 live partner promotions; validated attribution events; prepare pipeline toward the Year‑2 pilot scale (10–15 partners) per the playbook’s roadmap .
+Decision gate (Day 30): “go” for open pilot if CTR and attribution reliability meet thresholds; share early signal for monetization motions that map to marketplace revenue streams (listings/promotion, recruitment access, analytics) .
+Data consumption and trust
+
+Coverage and freshness
+Maintain median freshness ≤72 hours; expand reflected source coverage toward ≥70% of priority feeds.
+Quality and UX
+Enforce read-side schemas (eligibility, materials, deadlines, essay themes); keep freshness/quality indicators visible; log completeness thresholds and alert breaches.
+Why it matters: reliable eligibility/materials/deadlines power the concierge experience and are mandated by the playbook’s ingestion/normalization guidance .
+Decision gate (Day 30): SLA sustained, coverage trending to ≥70%, no critical schema drift.
+Matching UX and experimentation
+
+Scale experiment and transparency
+Keep the A/B test running until stat-sig; expand explanation UI to consistently expose explicit eligibility, implicit fit, and competition signals; continue logging feature importances.
+Add fairness/ethics checks to the analysis readout; ensure copy upholds “assistant, not writer” positioning.
+Targets
+Preserve or improve the current +29.8% conversion lift; confirm significance and publish a decision memo.
+Alignment: follows the playbook’s predictive matching blueprint and ethical assistant posture (not a ghostwriter) .
+Monetization hygiene (cross-squad)
+
+Maintain credit pack transparency with 4x markup and per-model pricing visibility; confirm receipts/meters are accurate end-to-end per the playbook’s pricing guidance .
+Security, privacy, and resilience (ongoing)
+
+Keep defense-in-depth: strict input validation/allow-lists, least privilege, encryption in transit/at rest, WAF/CDN controls; document any new data flows from SEO or partner surfaces.
+Prep for formal audits in line with the playbook’s roadmap (security audit in Year 2; aim for zero regressions as traffic scales) .
+KPIs for weekly executive review (Days 15–30)
+
+SEO: total pages live, index coverage, impressions, CTR, and organic signup share (goal ≥10%) .
+Marketplace: count of live promotions (goal ≥5), attribution reliability, CTR to partner deep links; pilot readiness toward 10–15 partners in line with Year‑2 goals .
+Data: freshness SLA compliance, source coverage toward ≥70%, schema completeness.
+Matching: apply CTR and profile→application conversion lift; explanation exposure rates and fairness checks.
+AI economics: per-use margin at or above 4x markup; latency adherence by model tier .
+Unblockers needed this week
+
+Approve production pilot cohort for partner promotions (feature flags, traffic allocation).
+Confirm SEO content governance (templates, editorial standards) to keep scale without brand risk, consistent with the playbook’s organic-first mandate .
+Validate legal/consent copy for new data indicators and attribution flows (privacy posture per playbook) .
+If you want to over-invest anywhere this sprint, prioritize: 1) throughput and indexation quality on SEO (fastest compounding low-CAC growth) ; 2) rock-solid marketplace attribution in production (longest lead-time for B2B revenue scale) .

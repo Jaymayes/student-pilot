@@ -221,6 +221,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Core Web Vitals monitoring - Days 15-30 performance budgets
+  app.get('/api/seo/core-web-vitals/cluster', async (req, res) => {
+    try {
+      const { CoreWebVitalsService } = await import('../seo/coreWebVitals');
+      const vitalsService = new CoreWebVitalsService();
+      
+      const clusterPerformance = await vitalsService.getClusterPerformance();
+      res.json({ success: true, performance: clusterPerformance });
+    } catch (error) {
+      console.error('Error fetching cluster performance:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/seo/performance-alerts', async (req, res) => {
+    try {
+      const { CoreWebVitalsService } = await import('../seo/coreWebVitals');
+      const vitalsService = new CoreWebVitalsService();
+      
+      const alerts = vitalsService.checkPerformanceAlerts();
+      res.json({ success: true, alerts });
+    } catch (error) {
+      console.error('Error checking performance alerts:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/seo/caching-rules', async (req, res) => {
+    try {
+      const { CoreWebVitalsService } = await import('../seo/coreWebVitals');
+      const vitalsService = new CoreWebVitalsService();
+      
+      const rules = vitalsService.generateCachingRules();
+      res.json({ success: true, rules });
+    } catch (error) {
+      console.error('Error generating caching rules:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  // Marketplace pilot endpoints - Days 15-30 production rollout
+  app.post('/api/marketplace/pilot/enroll', async (req, res) => {
+    const { enrollUserInPilot } = await import('./routes/marketplacePilot');
+    return enrollUserInPilot(req, res);
+  });
+
+  app.get('/api/marketplace/pilot/status', async (req, res) => {
+    const { getUserPilotStatus } = await import('./routes/marketplacePilot');
+    return getUserPilotStatus(req, res);
+  });
+
+  app.post('/api/marketplace/pilot/activate-promotion', async (req, res) => {
+    const { activatePartnerPromotion } = await import('./routes/marketplacePilot');
+    return activatePartnerPromotion(req, res);
+  });
+
+  app.get('/api/marketplace/pilot/metrics/:promotionId', async (req, res) => {
+    const { getPromotionMetrics } = await import('./routes/marketplacePilot');
+    return getPromotionMetrics(req, res);
+  });
+
+  app.get('/api/marketplace/pilot/health', async (req, res) => {
+    const { getPilotHealthDashboard } = await import('./routes/marketplacePilot');
+    return getPilotHealthDashboard(req, res);
+  });
+
   // Set trust proxy for proper client IP detection
   app.set('trust proxy', 1);
 

@@ -53,7 +53,7 @@ export class PageGenerationService {
 
   /**
    * Generate all scholarship detail pages
-   * Target: 200+ individual scholarship pages
+   * Target: 500+ individual scholarship pages for Days 15-30 scale-up
    */
   async generateScholarshipPages(): Promise<PageMetadata[]> {
     const scholarshipData = await db
@@ -70,7 +70,7 @@ export class PageGenerationService {
       .from(scholarships)
       .where(eq(scholarships.isActive, true))
       .orderBy(desc(scholarships.amount), asc(scholarships.deadline))
-      .limit(250); // Target 250 scholarship pages
+      .limit(500); // Scaled up for 1,000+ total pages target
 
     return scholarshipData.map(scholarship => {
       const slug = generateScholarshipSlug(scholarship.title);
@@ -96,17 +96,51 @@ export class PageGenerationService {
 
   /**
    * Generate category-based landing pages
-   * Target: 25-30 category pages
+   * Target: 100+ category pages for enhanced coverage
    */
   async generateCategoryPages(): Promise<CategoryPage[]> {
-    // Define target categories for programmatic SEO
+    // Expanded categories for 1,000+ pages goal
     const categories = [
-      'stem', 'engineering', 'medical', 'nursing', 'business', 'education',
-      'arts', 'music', 'athletics', 'academic-excellence', 'need-based',
-      'minority', 'women', 'veterans', 'first-generation', 'community-service',
-      'undergraduate', 'graduate', 'phd', 'trade-school', 'nursing-school',
-      'medical-school', 'law-school', 'mba', 'international-students',
-      'state-specific', 'merit-based'
+      // Core academic fields
+      'stem', 'engineering', 'computer-science', 'data-science', 'artificial-intelligence',
+      'medical', 'nursing', 'pharmacy', 'dentistry', 'veterinary', 'public-health',
+      'business', 'finance', 'accounting', 'marketing', 'economics', 'entrepreneurship',
+      'education', 'teaching', 'special-education', 'early-childhood', 'administration',
+      'arts', 'music', 'theater', 'visual-arts', 'creative-writing', 'film-studies',
+      'athletics', 'sports-management', 'kinesiology', 'physical-therapy',
+      
+      // Level-specific
+      'undergraduate', 'graduate', 'phd', 'postdoc', 'trade-school', 'community-college',
+      'nursing-school', 'medical-school', 'law-school', 'mba', 'doctoral',
+      
+      // Demographic categories
+      'minority', 'women', 'veterans', 'first-generation', 'international-students',
+      'disabled-students', 'lgbtq', 'single-mothers', 'older-students',
+      
+      // Need-based categories
+      'need-based', 'merit-based', 'academic-excellence', 'leadership',
+      'community-service', 'volunteer-work', 'extracurricular',
+      
+      // Field-specific combinations
+      'women-in-stem', 'minority-engineering', 'veterans-business', 'first-gen-medical',
+      'rural-students', 'urban-students', 'small-town', 'city-students',
+      
+      // Specialized areas
+      'renewable-energy', 'sustainability', 'environmental-science', 'climate-change',
+      'cybersecurity', 'robotics', 'biotechnology', 'aerospace', 'agriculture',
+      'journalism', 'communications', 'social-work', 'psychology', 'sociology',
+      
+      // Geographic combinations
+      'state-specific', 'regional', 'local-community', 'county-based',
+      'tribal-scholarships', 'rural-areas', 'urban-areas',
+      
+      // Career-focused
+      'teacher-prep', 'nurse-prep', 'doctor-prep', 'lawyer-prep', 'engineer-prep',
+      'business-leadership', 'nonprofit-sector', 'government-service', 'military-service',
+      
+      // Special interest
+      'study-abroad', 'research-opportunities', 'internship-programs',
+      'coding-bootcamp', 'trade-certification', 'professional-development'
     ];
 
     const categoryPages: CategoryPage[] = [];
