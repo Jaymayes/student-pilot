@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title><%= pageTitle %></title>
+    <meta name="description" content="<%= pageDescription %>">
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= pageTitle %>">
+    <meta property="og:description" content="<%= pageDescription %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= canonicalUrl %>">
+    <meta property="og:site_name" content="ScholarLink">
+    <meta property="og:image" content="<%= baseUrl %>/og-scholarships-listing.png">
+    
+    <!-- Pagination meta tags -->
+    <% if (pagination.hasPrev) { %>
+        <link rel="prev" href="<%= baseUrl %><%= pagination.prevUrl %>">
+    <% } %>
+    <% if (pagination.hasNext) { %>
+        <link rel="next" href="<%= baseUrl %><%= pagination.nextUrl %>">
+    <% } %>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "<%= pageTitle.replace(/"/g, '\\"') %>",
+        "description": "<%= pageDescription.replace(/"/g, '\\"') %>",
+        "url": "<%= canonicalUrl %>",
+        "mainEntity": {
+            "@type": "ItemList",
+            "name": "Scholarship Collection",
+            "numberOfItems": <%= scholarships.length %>,
+            "itemListElement": [
+                <% scholarships.forEach((scholarship, index) => { %>
+                {
+                    "@type": "ListItem",
+                    "position": <%= index + 1 %>,
+                    "url": "<%= baseUrl %>/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>",
+                    "item": {
+                        "@type": "EducationalOccupationalCredential",
+                        "name": "<%= scholarship.title.replace(/"/g, '\\"') %>",
+                        "provider": {
+                            "@type": "Organization",
+                            "name": "<%= scholarship.organization.replace(/"/g, '\\"') %>"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "<%= scholarship.amount %>",
+                            "priceCurrency": "USD"
+                        }
+                    }
+                }<%= index < scholarships.length - 1 ? ',' : '' %>
+                <% }); %>
+            ]
+        }
+    }
+    </script>
+    
+    <!-- Load CSS -->
+    <% if (process.env.NODE_ENV === 'development') { %>
+        <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <% } else { %>
+        <link rel="stylesheet" href="/dist/public/assets/main.css">
+    <% } %>
+</head>
+<body>
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb">
+        <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/">
+                    <span itemprop="name">Home</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">Scholarships</span>
+                <meta itemprop="position" content="2" />
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div id="root">
+        <main>
+            <header>
+                <h1><%= category ? category + ' Scholarships' : 'All Scholarships' %></h1>
+                <p>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></p>
+                <p>Discover scholarship opportunities with AI-powered matching</p>
+            </header>
+
+            <!-- Scholarship Listing -->
+            <section class="scholarship-list">
+                <% scholarships.forEach(function(scholarship) { %>
+                    <article itemscope itemtype="https://schema.org/EducationalOccupationalCredential">
+                        <h2 itemprop="name">
+                            <a href="/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>">
+                                <%= scholarship.title %>
+                            </a>
+                        </h2>
+                        <p>Organization: <span itemprop="provider"><%= scholarship.organization %></span></p>
+                        <p>Amount: $<span itemprop="amount"><%= scholarship.amount.toLocaleString() %></span></p>
+                        <p>Deadline: <time itemprop="applicationDeadline" datetime="<%= scholarship.deadline %>">
+                            <%= new Date(scholarship.deadline).toLocaleDateString() %>
+                        </time></p>
+                        <p class="description"><%= scholarship.description.substring(0, 200) %>...</p>
+                        <a href="/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>" class="view-link">
+                            View Details & Apply
+                        </a>
+                    </article>
+                <% }); %>
+            </section>
+
+            <!-- Pagination -->
+            <nav class="pagination" aria-label="Scholarship pages">
+                <% if (pagination.hasPrev) { %>
+                    <a href="<%= pagination.prevUrl %>" rel="prev">← Previous</a>
+                <% } %>
+                
+                <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span>
+                
+                <% if (pagination.hasNext) { %>
+                    <a href="<%= pagination.nextUrl %>" rel="next">Next →</a>
+                <% } %>
+            </nav>
+        </main>
+    </div>
+
+    <!-- Load JavaScript -->
+    <% if (process.env.NODE_ENV === 'development') { %>
+        <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+    <% } else { %>
+        <script src="/dist/public/assets/main.js"></script>
+    <% } %>
+</body>
+</html>

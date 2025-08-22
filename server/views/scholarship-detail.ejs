@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title><%= scholarship.title %> - <%= scholarship.organization %> | ScholarLink</title>
+    <meta name="description" content="<%= scholarship.description.substring(0, 160) %>... Apply for this $<%= scholarship.amount.toLocaleString() %> scholarship from <%= scholarship.organization %>. Deadline: <%= new Date(scholarship.deadline).toLocaleDateString() %>.">
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= scholarship.title %> - <%= scholarship.organization %>">
+    <meta property="og:description" content="<%= scholarship.description.substring(0, 160) %>...">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="<%= canonicalUrl %>">
+    <meta property="og:site_name" content="ScholarLink">
+    <meta property="og:image" content="<%= baseUrl %>/og-scholarship.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= scholarship.title %> - <%= scholarship.organization %>">
+    <meta name="twitter:description" content="<%= scholarship.description.substring(0, 160) %>...">
+    <meta name="twitter:image" content="<%= baseUrl %>/og-scholarship.png">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalOccupationalCredential",
+        "name": "<%= scholarship.title %>",
+        "description": "<%= scholarship.description.replace(/"/g, '\\"') %>",
+        "provider": {
+            "@type": "Organization",
+            "name": "<%= scholarship.organization %>"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "<%= scholarship.amount %>",
+            "priceCurrency": "USD",
+            "validThrough": "<%= scholarship.deadline %>"
+        },
+        "url": "<%= canonicalUrl %>",
+        "applicationDeadline": "<%= scholarship.deadline %>",
+        "educationalLevel": "<%= scholarship.eligibilityCriteria?.academicLevel || 'Any' %>",
+        "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "student"
+        }
+    }
+    </script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/dist/public/assets/main.css" as="style">
+    <link rel="preload" href="/dist/public/assets/main.js" as="script">
+    
+    <!-- Load Vite CSS -->
+    <% if (isDevelopment) { %>
+        <!-- Development mode - Vite dev server -->
+        <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <% } else { %>
+        <!-- Production mode - prebuilt assets -->
+        <link rel="stylesheet" href="/dist/public/assets/main.css">
+    <% } %>
+</head>
+<body>
+    <!-- Breadcrumb Navigation for SEO -->
+    <nav aria-label="Breadcrumb">
+        <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/">
+                    <span itemprop="name">Home</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/scholarships">
+                    <span itemprop="name">Scholarships</span>
+                </a>
+                <meta itemprop="position" content="2" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name"><%= scholarship.title %></span>
+                <meta itemprop="position" content="3" />
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div id="root">
+        <!-- Server-rendered scholarship content -->
+        <article itemscope itemtype="https://schema.org/EducationalOccupationalCredential">
+            <header>
+                <h1 itemprop="name"><%= scholarship.title %></h1>
+                <p>Offered by <span itemprop="provider"><%= scholarship.organization %></span></p>
+                <p>Award Amount: $<span itemprop="amount"><%= scholarship.amount.toLocaleString() %></span></p>
+                <p>Deadline: <time itemprop="applicationDeadline" datetime="<%= scholarship.deadline %>"><%= new Date(scholarship.deadline).toLocaleDateString() %></time></p>
+            </header>
+            
+            <section>
+                <h2>Description</h2>
+                <div itemprop="description">
+                    <%= scholarship.description %>
+                </div>
+            </section>
+            
+            <% if (scholarship.eligibilityCriteria) { %>
+            <section>
+                <h2>Eligibility Requirements</h2>
+                <div itemprop="educationRequirements">
+                    <% if (scholarship.eligibilityCriteria.academicLevel) { %>
+                        <p><strong>Academic Level:</strong> <%= scholarship.eligibilityCriteria.academicLevel %></p>
+                    <% } %>
+                    <% if (scholarship.eligibilityCriteria.gpaRequirement) { %>
+                        <p><strong>Minimum GPA:</strong> <%= scholarship.eligibilityCriteria.gpaRequirement %></p>
+                    <% } %>
+                    <% if (scholarship.eligibilityCriteria.fieldOfStudy) { %>
+                        <p><strong>Field of Study:</strong> <%= scholarship.eligibilityCriteria.fieldOfStudy %></p>
+                    <% } %>
+                </div>
+            </section>
+            <% } %>
+            
+            <!-- Call to Action -->
+            <section>
+                <button type="button" class="apply-button" data-scholarship-id="<%= scholarship.id %>">
+                    Apply for This Scholarship
+                </button>
+                <p><em>Sign in to save and apply for scholarships with AI-powered assistance.</em></p>
+            </section>
+        </article>
+        
+        <!-- Related Scholarships Section -->
+        <% if (relatedScholarships && relatedScholarships.length > 0) { %>
+        <section>
+            <h2>Related Scholarships</h2>
+            <div class="related-scholarships">
+                <% relatedScholarships.forEach(function(related) { %>
+                    <article>
+                        <h3><a href="/scholarships/<%= related.id %>/<%= related.slug %>"><%= related.title %></a></h3>
+                        <p><%= related.organization %> - $<%= related.amount.toLocaleString() %></p>
+                        <p>Deadline: <%= new Date(related.deadline).toLocaleDateString() %></p>
+                    </article>
+                <% }); %>
+            </div>
+        </section>
+        <% } %>
+    </div>
+
+    <!-- Load JavaScript -->
+    <% if (isDevelopment) { %>
+        <!-- Development mode -->
+        <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+    <% } else { %>
+        <!-- Production mode -->
+        <script src="/dist/public/assets/main.js"></script>
+    <% } %>
+    
+    <!-- Enhanced hydration script -->
+    <script>
+        // Pass server data to client for hydration
+        window.__SCHOLARSHIP_DATA__ = <%- JSON.stringify(scholarship) %>;
+        window.__SEO_MODE__ = true;
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { scholarshipDetailSSR, scholarshipsListingSSR, generateSitemap } from "./routes/seo";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { insertStudentProfileSchema, updateStudentProfileSchema, insertApplicationSchema, insertEssaySchema } from "@shared/schema";
@@ -30,6 +31,54 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+
+  // SEO Routes - Server-side rendered pages for search engines
+  app.get('/scholarships/:id/:slug', scholarshipDetailSSR);
+  app.get('/scholarships/:id', scholarshipDetailSSR); // Redirect to proper slug
+  app.get('/scholarships', scholarshipsListingSSR);
+  app.get('/sitemap.xml', generateSitemap);
+
+  // Partner event tracking routes
+  app.post('/api/partner-events', async (req, res) => {
+    const { trackRecruitmentEvent } = await import('./routes/partnerEvents');
+    return trackRecruitmentEvent(req, res);
+  });
+  
+  app.post('/api/partner-events/batch', async (req, res) => {
+    const { trackRecruitmentEventBatch } = await import('./routes/partnerEvents');
+    return trackRecruitmentEventBatch(req, res);
+  });
+  
+  app.get('/api/partner-deep-link', async (req, res) => {
+    const { getPartnerDeepLink } = await import('./routes/partnerEvents');
+    return getPartnerDeepLink(req, res);
+  });
+  
+  app.get('/api/partner-health', async (req, res) => {
+    const { getPartnerServiceHealth } = await import('./routes/partnerEvents');
+    return getPartnerServiceHealth(req, res);
+  });
+
+  // Data validation and freshness routes
+  app.post('/api/data-validation/freshness', async (req, res) => {
+    const { getFreshnessStatus } = await import('./routes/dataValidation');
+    return getFreshnessStatus(req, res);
+  });
+  
+  app.post('/api/data-validation/revalidate/:id', async (req, res) => {
+    const { triggerRevalidation } = await import('./routes/dataValidation');
+    return triggerRevalidation(req, res);
+  });
+  
+  app.get('/api/data-validation/global-status', async (req, res) => {
+    const { getGlobalDataQuality } = await import('./routes/dataValidation');
+    return getGlobalDataQuality(req, res);
+  });
+  
+  app.get('/api/data-validation/validate/:id', async (req, res) => {
+    const { validateScholarship } = await import('./routes/dataValidation');
+    return validateScholarship(req, res);
+  });
 
   // Set trust proxy for proper client IP detection
   app.set('trust proxy', 1);

@@ -1,12 +1,21 @@
 import express, { type Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import compression from "compression";
+import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { env, isProduction } from "./environment";
 import * as crypto from "crypto";
 
 const app = express();
+
+// Configure EJS for server-side rendering
+app.set('view engine', 'ejs');
+app.set('views', path.join(import.meta.dirname, 'views'));
+
+// Enable compression for better performance
+app.use(compression());
 
 // Security middleware - helmet with initial configuration
 app.use(helmet({
