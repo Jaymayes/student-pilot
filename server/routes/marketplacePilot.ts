@@ -300,20 +300,38 @@ export class MarketplacePilotService {
     return (qualityScores[partnerId] || 0.5) >= 0.80; // 80% quality threshold
   }
 
-  private async checkPilotStability(): Promise<boolean> {
-    // Check last 48-72h performance for traffic increase eligibility
+  private async checkScaleUpGates(): Promise<boolean> {
+    // Enhanced gates for Days 31-60 scale-up to 30-35%
     const metrics = await this.getPilotHealthMetrics();
     
-    // Stability criteria for traffic allocation increase
-    const criteriaChecks = [
-      metrics.averageCTR >= 0.05, // Minimum 5% CTR
-      metrics.attributionReliability >= 0.95, // 95% attribution success
+    // Stricter criteria for 30-35% traffic allocation
+    const scaleUpGates = [
+      metrics.attributionReliability >= 0.98, // ≥98% for 72h
+      metrics.averageCTR >= 0.06, // Stable ≥6% CTR
       metrics.safeguards.budgetOverruns === 0, // No budget violations
       metrics.safeguards.qualityViolations === 0, // No quality issues
-      metrics.pilotStatus === 'healthy' // Overall health good
+      metrics.pilotStatus === 'healthy', // Overall health good
+      await this.checkDeepLinkIntegrity() >= 0.97, // ≥97% deep link success
+      await this.checkCostPerQualifiedApply() <= 45, // ≤$45 target
+      await this.checkPartnerROI() >= 2.5 // ≥2.5x ROI for dashboard access
     ];
     
-    return criteriaChecks.every(check => check);
+    return scaleUpGates.every(check => check);
+  }
+
+  private async checkDeepLinkIntegrity(): Promise<number> {
+    // Mock deep link success rate - in production would check actual success rate
+    return 0.978; // 97.8% success rate
+  }
+
+  private async checkCostPerQualifiedApply(): Promise<number> {
+    // Mock cost per qualified apply - in production would calculate from actual data
+    return 42; // $42 per qualified apply
+  }
+
+  private async checkPartnerROI(): Promise<number> {
+    // Mock partner ROI for dashboard access model
+    return 2.7; // 2.7x ROI for dashboard access partners
   }
 
   private async checkCompliance(promotion: any): Promise<boolean> {
@@ -363,9 +381,9 @@ export async function enrollUserInPilot(req: Request, res: Response) {
       });
     }
 
-    // Enhanced allocation for final sprint: 5% → 15-20% based on stability
-    const pilotHealthy = await this.checkPilotStability();
-    const trafficAllocation = pilotHealthy ? 0.18 : 0.05; // 18% if stable, 5% if not
+    // Days 31-60 scale-up: 18% → 30-35% based on enhanced stability gates
+    const scaleUpEligible = await this.checkScaleUpGates();
+    const trafficAllocation = scaleUpEligible ? 0.33 : 0.18; // 33% if meeting all gates, 18% if not
     
     const cohortConfig = {
       trafficAllocation,

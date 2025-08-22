@@ -1,0 +1,45 @@
+Executive decision: Proceed to Days 31–60 with controlled scale-up, prioritizing Marketplace monetization while compounding SEO and hardening data trust.
+
+Directives for the next phase (Days 31–60)
+
+Pricing and packaging (Marketplace) — primary focus
+
+Prioritize recruitment dashboard access as the primary pricing motion (early ROI signal is stronger than listing fees). Keep listing/promotion fees as an add-on and seasonal lever. Align corridor to Year‑2/Year‑5 B2B ARPU targets to hit the hybrid model’s revenue mix (B2B as dominant share by Year 5) .
+Produce a pricing/packaging one-pager and partner T&Cs addendum for the pilot cohort. Ensure value metrics (qualified views, eligible applies) are explicit and reported weekly to partners (supports onboarding flywheel and case studies) .
+Pilot scale-up gates (Marketplace)
+
+Increase promotion traffic allocation from 18% to 30–35% only after:
+Attribution reliability ≥98% for 72h, partner quality score above threshold, and stable CTR/deep-link integrity.
+Cost-per-qualified-apply and partner ROI at or above target for the dashboard-access motion.
+Target by Day 60: ≥10–12 committed partners (on path to 10–15 Year‑2 pilot), ≥10 live promotions, and a clear winner between the two pricing motions for scale-up .
+SEO scale and attribution (low-CAC engine)
+
+Expand to 1,200–1,500 high-quality programmatic pages with ≥85% index coverage; maintain Core Web Vitals budgets (LCP ≤2.5s, INP ≤200ms, CLS ≤0.1).
+Hit ≥12–15% of new signups from organic programmatic pages by Day 60; continue content cluster build-out to reinforce low-CAC growth per playbook .
+Data trust and freshness
+
+Improve median freshness SLA from 72h → ≤48h for top-priority sources; raise reflected source coverage toward ≥70%+ with visible freshness/quality indicators in UI.
+Keep schema completeness enforcement for eligibility, materials, deadlines, and essay themes; these are foundational to the concierge experience and predictive modeling .
+Predictive matching UX and measurement
+
+Maintain the +29.8% conversion lift through full statistical significance; publish the decision memo and roll out to 50–75% of traffic if lift holds.
+Keep explanations visible (explicit eligibility, implicit fit, competition level) and fairness/ethics checks aligned with the “assistant, not writer” standard for AI surfaces .
+Monetization hygiene (B2C credits)
+
+Preserve 4x markup transparency and per‑model pricing visibility; verify metering/receipts end-to-end remain accurate at higher scale .
+Security, privacy, and resilience
+
+Re-validate privacy/consent copy for promoted placements and attribution; maintain encryption in transit/at rest, strict input validation/allow‑lists, and least privilege. Prepare for Year‑2 third-party security audit as features scale .
+KPIs for weekly executive review (Days 31–60)
+
+Marketplace: committed partners (goal ≥10–12), live promotions (goal ≥10), attribution reliability (≥98%), cost per qualified apply, partner ROI by pricing motion .
+SEO: total pages live, index coverage (≥85%), impressions, CTR, organic signup share (≥12–15%) .
+Data: median freshness (≤48h target for top sources), source coverage (≥70%+), schema completeness.
+Matching: lift vs. baseline, explanation exposure rate, fairness checks; decision to scale if significance holds .
+AI economics: per‑use gross margin ≥4x markup; latency adherence by model tier .
+Artifacts due this week
+
+Pricing/packaging one-pager and pilot T&Cs (dashboard access primary; listing fees as add-on) .
+First partner case study draft using the weekly value report funnel (impressions → clicks → qualified views → applies) to support the Year‑2 scale narrative .
+Risk log update for SEO indexation volatility, attribution parity at higher traffic, and partner churn risk; include rollback plans.
+This keeps us squarely on the hybrid path: SEO-driven, low-CAC MAU growth feeding a B2B marketplace that becomes the dominant revenue driver by Year 5, with concrete Year‑2 pilot proof points and defensible, data-first execution   .
