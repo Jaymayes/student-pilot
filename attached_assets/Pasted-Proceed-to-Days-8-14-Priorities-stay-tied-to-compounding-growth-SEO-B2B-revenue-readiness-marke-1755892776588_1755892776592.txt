@@ -1,0 +1,38 @@
+Proceed to Days 8–14. Priorities stay tied to compounding growth (SEO), B2B revenue readiness (marketplace), data trust, and measurable uplift from predictive matching.
+
+Week 2 priorities and success targets
+
+SEO squad (highest urgency)
+
+Ship 250–300 programmatic scholarship/entity pages using your SSR/EJS system; finalize URL patterns, canonical tags, schema.org, and XML sitemaps.
+Stand up analytics and Search Console workflows to attribute organic signups by page cluster; define Core Web Vitals budgets and prerender/caching rules.
+Targets by Day 14: 250–300 pages live, all included in sitemap(s), console verification complete, first organic impressions visible on a subset. This accelerates low‑CAC growth per the playbook’s SEO-first strategy .
+Marketplace squad
+
+Move from mocks to staging endpoints; enable entitlement gating for promoted placements; validate click-through deep links and attribution events end-to-end.
+Prepare two pricing experiments (e.g., listing/promotion fee vs. recruitment dashboard access) behind flags; confirm payloads for ranking/eligibility.
+Targets by Day 14: staging integration live, promotions rendering behind feature flags, attribution events validated; at least 2 pilot partners queued for Day 15–30 onboarding, aligning with the playbook’s partner-onboarding flywheel and Year‑2 pilot path (10–15) .
+Data squad
+
+Lock read-side schemas for eligibility, materials, deadlines, essay themes; display freshness badges; set completeness thresholds and alerting.
+Define error budgets and UI fallbacks for stale/partial records; instrument monitoring for ≤72h median freshness.
+Targets by Day 14: schemas enforced in B2C, freshness/quality indicators visible, alerting live; trending toward the 72‑hour SLA tied to the playbook’s ingestion/normalization mandate .
+Matching squad
+
+Launch A/B test with baseline vs. explained predictive ranking; incorporate implicit fit and competition signals in the UI; log explanations and feature importances.
+Targets by Day 14: experiment running with a pre-registered power/MDE plan; explanation UI in production for test cohorts; events flowing for CTR and apply‑rate analysis per the predictive matching blueprint .
+Non-negotiables to preserve as you scale
+
+Ethical AI: Keep “assistant, not writer” UX copy and intervention logs in the essay coach .
+Security and resilience: Maintain WAF/validation/allow‑lists, least privilege, encryption in transit/at rest, and multi‑AZ readiness as traffic ramps via SEO and partners .
+Day 14 checkpoint (go/no‑go gates)
+
+SEO: ≥250 pages live, sitemaps submitted, console verified; organic impressions starting on long‑tail pages.
+Marketplace: promotions rendering from staging with entitlement checks; attribution events validated E2E on staging clicks.
+Data: freshness and completeness indicators live; median freshness trending ≤96h with plan to reach 72h by Day 30.
+Matching: experiment live with adequate sample plan; explanation logs captured.
+Where to focus if you want to over‑invest this week
+
+SEO page throughput and quality (compounds fastest for low‑CAC growth) .
+Marketplace E2E attribution stability (long lead-time dependency for B2B revenue scale) .
+Escalate any blockers that threaten the Day 14 gates, particularly: indexation delays, partner API availability, or data freshness regressions. This cadence keeps us on track for the playbook’s organic acquisition targets and the B2B-led revenue mix required by Year 5

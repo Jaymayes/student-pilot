@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title><%= pageTitle %></title>
+    <meta name="description" content="<%= pageDescription %>">
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= pageTitle %>">
+    <meta property="og:description" content="<%= pageDescription %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= canonicalUrl %>">
+    <meta property="og:site_name" content="ScholarLink">
+    <meta property="og:image" content="<%= baseUrl %>/og-category-scholarships.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= pageTitle %>">
+    <meta name="twitter:description" content="<%= pageDescription %>">
+    <meta name="twitter:image" content="<%= baseUrl %>/og-category-scholarships.png">
+    
+    <!-- Pagination meta tags -->
+    <% if (pagination.hasPrev) { %>
+        <link rel="prev" href="<%= baseUrl %><%= pagination.prevUrl %>">
+    <% } %>
+    <% if (pagination.hasNext) { %>
+        <link rel="next" href="<%= baseUrl %><%= pagination.nextUrl %>">
+    <% } %>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "<%= pageTitle.replace(/"/g, '\\"') %>",
+        "description": "<%= pageDescription.replace(/"/g, '\\"') %>",
+        "url": "<%= canonicalUrl %>",
+        "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "<%= baseUrl %>"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Scholarships",
+                    "item": "<%= baseUrl %>/scholarships"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "<%= category %>",
+                    "item": "<%= canonicalUrl %>"
+                }
+            ]
+        },
+        "mainEntity": {
+            "@type": "ItemList",
+            "name": "<%= category %> Scholarships",
+            "numberOfItems": <%= scholarships.length %>,
+            "itemListElement": [
+                <% scholarships.forEach((scholarship, index) => { %>
+                {
+                    "@type": "ListItem",
+                    "position": <%= index + 1 %>,
+                    "url": "<%= baseUrl %>/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>",
+                    "item": {
+                        "@type": "EducationalOccupationalCredential",
+                        "name": "<%= scholarship.title.replace(/"/g, '\\"') %>",
+                        "provider": {
+                            "@type": "Organization",
+                            "name": "<%= scholarship.organization.replace(/"/g, '\\"') %>"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "<%= scholarship.amount %>",
+                            "priceCurrency": "USD",
+                            "validThrough": "<%= scholarship.deadline %>"
+                        }
+                    }
+                }<%= index < scholarships.length - 1 ? ',' : '' %>
+                <% }); %>
+            ]
+        }
+    }
+    </script>
+    
+    <!-- Core Web Vitals Optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//api.scholarlink.com">
+    <link rel="preload" href="/dist/public/assets/main.css" as="style">
+    
+    <!-- Load CSS -->
+    <% if (process.env.NODE_ENV === 'development') { %>
+        <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <% } else { %>
+        <link rel="stylesheet" href="/dist/public/assets/main.css">
+    <% } %>
+</head>
+<body>
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb" class="breadcrumb">
+        <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/">
+                    <span itemprop="name">Home</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/scholarships">
+                    <span itemprop="name">Scholarships</span>
+                </a>
+                <meta itemprop="position" content="2" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name"><%= category %></span>
+                <meta itemprop="position" content="3" />
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div id="root">
+        <main>
+            <header class="category-header">
+                <h1><%= category %> Scholarships</h1>
+                <p class="page-info">Page <%= pagination.currentPage %> of <%= pagination.totalPages %></p>
+                <p class="category-description">
+                    Discover scholarship opportunities in <%= category.toLowerCase() %> with AI-powered matching and application assistance.
+                </p>
+            </header>
+
+            <!-- Category Navigation -->
+            <nav class="category-nav" aria-label="Category navigation">
+                <div class="category-links">
+                    <a href="/scholarships/category/stem" class="<%= categorySlug === 'stem' ? 'active' : '' %>">STEM</a>
+                    <a href="/scholarships/category/business" class="<%= categorySlug === 'business' ? 'active' : '' %>">Business</a>
+                    <a href="/scholarships/category/medical" class="<%= categorySlug === 'medical' ? 'active' : '' %>">Medical</a>
+                    <a href="/scholarships/category/engineering" class="<%= categorySlug === 'engineering' ? 'active' : '' %>">Engineering</a>
+                    <a href="/scholarships/category/arts" class="<%= categorySlug === 'arts' ? 'active' : '' %>">Arts</a>
+                    <a href="/scholarships/category/education" class="<%= categorySlug === 'education' ? 'active' : '' %>">Education</a>
+                </div>
+            </nav>
+
+            <!-- Scholarship Grid -->
+            <section class="scholarship-grid" aria-label="<%= category %> scholarships">
+                <% scholarships.forEach(function(scholarship) { %>
+                    <article class="scholarship-card" itemscope itemtype="https://schema.org/EducationalOccupationalCredential">
+                        <header class="card-header">
+                            <h2 itemprop="name" class="scholarship-title">
+                                <a href="/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>">
+                                    <%= scholarship.title %>
+                                </a>
+                            </h2>
+                            <p class="organization" itemprop="provider"><%= scholarship.organization %></p>
+                        </header>
+                        
+                        <div class="card-content">
+                            <div class="amount-deadline">
+                                <div class="amount">
+                                    <span class="currency">$</span>
+                                    <span class="value" itemprop="amount"><%= scholarship.amount.toLocaleString() %></span>
+                                </div>
+                                <div class="deadline">
+                                    <time itemprop="applicationDeadline" datetime="<%= scholarship.deadline %>">
+                                        Due: <%= new Date(scholarship.deadline).toLocaleDateString() %>
+                                    </time>
+                                </div>
+                            </div>
+                            
+                            <p class="description">
+                                <%= scholarship.description.substring(0, 150) %>...
+                            </p>
+                        </div>
+                        
+                        <footer class="card-footer">
+                            <a href="/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>" 
+                               class="view-details-btn"
+                               aria-label="View details for <%= scholarship.title %>">
+                                View Details & Apply
+                            </a>
+                        </footer>
+                    </article>
+                <% }); %>
+            </section>
+
+            <!-- Pagination -->
+            <nav class="pagination" aria-label="<%= category %> scholarship pages">
+                <% if (pagination.hasPrev) { %>
+                    <a href="<%= pagination.prevUrl %>" 
+                       rel="prev" 
+                       class="pagination-btn prev-btn"
+                       aria-label="Previous page">
+                        ← Previous
+                    </a>
+                <% } %>
+                
+                <div class="pagination-info">
+                    <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span>
+                    <span class="total-scholarships"><%= scholarships.length %> scholarships shown</span>
+                </div>
+                
+                <% if (pagination.hasNext) { %>
+                    <a href="<%= pagination.nextUrl %>" 
+                       rel="next" 
+                       class="pagination-btn next-btn"
+                       aria-label="Next page">
+                        Next →
+                    </a>
+                <% } %>
+            </nav>
+
+            <!-- Related Categories -->
+            <aside class="related-categories">
+                <h3>Related Categories</h3>
+                <div class="category-suggestions">
+                    <% if (categorySlug === 'stem') { %>
+                        <a href="/scholarships/category/engineering">Engineering</a>
+                        <a href="/scholarships/category/medical">Medical</a>
+                        <a href="/scholarships/category/computer-science">Computer Science</a>
+                    <% } else if (categorySlug === 'business') { %>
+                        <a href="/scholarships/category/mba">MBA</a>
+                        <a href="/scholarships/category/entrepreneurship">Entrepreneurship</a>
+                        <a href="/scholarships/category/finance">Finance</a>
+                    <% } else { %>
+                        <a href="/scholarships/category/stem">STEM</a>
+                        <a href="/scholarships/category/business">Business</a>
+                        <a href="/scholarships/category/arts">Arts</a>
+                    <% } %>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Load JavaScript -->
+    <% if (process.env.NODE_ENV === 'development') { %>
+        <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+    <% } else { %>
+        <script src="/dist/public/assets/main.js"></script>
+    <% } %>
+    
+    <!-- Core Web Vitals Monitoring -->
+    <script>
+        // Monitor Core Web Vitals for SEO optimization
+        if ('web-vital' in window) {
+            import('https://unpkg.com/web-vitals@3?module').then(({ onCLS, onFID, onFCP, onLCP, onTTFB }) => {
+                onCLS(console.log);
+                onFID(console.log);
+                onFCP(console.log);
+                onLCP(console.log);
+                onTTFB(console.log);
+            });
+        }
+        
+        // Page data for hydration
+        window.__CATEGORY_DATA__ = {
+            category: '<%= category %>',
+            categorySlug: '<%= categorySlug %>',
+            currentPage: <%= pagination.currentPage %>,
+            totalPages: <%= pagination.totalPages %>
+        };
+    </script>
+</body>
+</html>

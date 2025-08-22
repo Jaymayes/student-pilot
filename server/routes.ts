@@ -32,10 +32,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // SEO Routes - Server-side rendered pages for search engines
+  // SEO Routes - Server-side rendered pages for search engines (250-300 pages target)
   app.get('/scholarships/:id/:slug', scholarshipDetailSSR);
   app.get('/scholarships/:id', scholarshipDetailSSR); // Redirect to proper slug
   app.get('/scholarships', scholarshipsListingSSR);
+  app.get('/scholarships/category/:category', async (req, res, next) => {
+    const { categoryScholarshipsSSR } = await import('./routes/seo');
+    return categoryScholarshipsSSR(req, res, next);
+  });
+  app.get('/scholarships/state/:state', async (req, res, next) => {
+    const { stateScholarshipsSSR } = await import('./routes/seo');
+    return stateScholarshipsSSR(req, res, next);
+  });
   app.get('/sitemap.xml', generateSitemap);
 
   // Partner event tracking routes
@@ -78,6 +86,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/data-validation/validate/:id', async (req, res) => {
     const { validateScholarship } = await import('./routes/dataValidation');
     return validateScholarship(req, res);
+  });
+
+  // Marketplace staging endpoints - Days 8-14 implementation
+  app.post('/api/marketplace/promoted-listings', async (req, res) => {
+    const { getPromotedListings } = await import('./routes/marketplace');
+    return getPromotedListings(req, res);
+  });
+  
+  app.post('/api/marketplace/entitlement-check', async (req, res) => {
+    const { checkPromotionEntitlement } = await import('./routes/marketplace');
+    return checkPromotionEntitlement(req, res);
+  });
+  
+  app.get('/api/marketplace/partner-dashboard', async (req, res) => {
+    const { generatePartnerDashboardAccess } = await import('./routes/marketplace');
+    return generatePartnerDashboardAccess(req, res);
+  });
+  
+  app.get('/api/marketplace/pricing-experiment/:partnerId', async (req, res) => {
+    const { getPartnerPricingExperiment } = await import('./routes/marketplace');
+    return getPartnerPricingExperiment(req, res);
+  });
+  
+  app.get('/api/marketplace/feature-flags', async (req, res) => {
+    const { getMarketplaceFeatureFlags } = await import('./routes/marketplace');
+    return getMarketplaceFeatureFlags(req, res);
+  });
+
+  // A/B Testing and Experiment routes - Matching squad implementation
+  app.get('/api/experiments/:experimentId', async (req, res) => {
+    const { getExperiment } = await import('./routes/experiments');
+    return getExperiment(req, res);
+  });
+  
+  app.post('/api/experiments/assignments', async (req, res) => {
+    const { recordExperimentAssignment } = await import('./routes/experiments');
+    return recordExperimentAssignment(req, res);
+  });
+  
+  app.post('/api/experiments/exposures', async (req, res) => {
+    const { recordExperimentExposure } = await import('./routes/experiments');
+    return recordExperimentExposure(req, res);
+  });
+  
+  app.post('/api/experiments/conversions', async (req, res) => {
+    const { recordExperimentConversion } = await import('./routes/experiments');
+    return recordExperimentConversion(req, res);
+  });
+  
+  app.get('/api/experiments/:experimentId/analytics', async (req, res) => {
+    const { getExperimentAnalytics } = await import('./routes/experiments');
+    return getExperimentAnalytics(req, res);
+  });
+  
+  app.get('/api/experiments', async (req, res) => {
+    const { listActiveExperiments } = await import('./routes/experiments');
+    return listActiveExperiments(req, res);
+  });
+
+  // SEO Analytics and Search Console integration - Days 8-14 implementation
+  app.get('/api/seo/search-console/metrics', async (req, res) => {
+    try {
+      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const searchConsole = new SearchConsoleService();
+      
+      const startDate = req.query.startDate as string || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const endDate = req.query.endDate as string || new Date().toISOString().split('T')[0];
+      
+      const metrics = await searchConsole.getSearchMetrics(startDate, endDate);
+      res.json({ success: true, metrics });
+    } catch (error) {
+      console.error('Error fetching search metrics:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/seo/page-clusters', async (req, res) => {
+    try {
+      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const searchConsole = new SearchConsoleService();
+      
+      const startDate = req.query.startDate as string || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const endDate = req.query.endDate as string || new Date().toISOString().split('T')[0];
+      
+      const clusters = await searchConsole.getPageClusterPerformance(startDate, endDate);
+      res.json({ success: true, clusters });
+    } catch (error) {
+      console.error('Error fetching page clusters:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/seo/report', async (req, res) => {
+    try {
+      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const searchConsole = new SearchConsoleService();
+      
+      const startDate = req.query.startDate as string || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const endDate = req.query.endDate as string || new Date().toISOString().split('T')[0];
+      
+      const report = await searchConsole.generateSEOReport(startDate, endDate);
+      res.json({ success: true, report });
+    } catch (error) {
+      console.error('Error generating SEO report:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/seo/core-web-vitals', async (req, res) => {
+    try {
+      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const searchConsole = new SearchConsoleService();
+      
+      const pageUrl = req.query.page as string;
+      const vitals = await searchConsole.getCoreWebVitals(pageUrl);
+      res.json({ success: true, vitals });
+    } catch (error) {
+      console.error('Error fetching Core Web Vitals:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/seo/indexation-status', async (req, res) => {
+    try {
+      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const searchConsole = new SearchConsoleService();
+      
+      const status = await searchConsole.getIndexationStatus();
+      res.json({ success: true, status });
+    } catch (error) {
+      console.error('Error fetching indexation status:', error);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
   });
 
   // Set trust proxy for proper client IP detection

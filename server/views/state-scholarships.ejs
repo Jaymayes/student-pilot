@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title><%= pageTitle %></title>
+    <meta name="description" content="<%= pageDescription %>">
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<%= pageTitle %>">
+    <meta property="og:description" content="<%= pageDescription %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= canonicalUrl %>">
+    <meta property="og:site_name" content="ScholarLink">
+    <meta property="og:image" content="<%= baseUrl %>/og-state-scholarships.png">
+    
+    <!-- State-specific keywords for better local SEO -->
+    <meta name="keywords" content="<%= stateName %> scholarships, <%= stateName %> grants, <%= stateName %> student aid, <%= stateName %> college funding, <%= stateCode %> education assistance">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "<%= pageTitle.replace(/"/g, '\\"') %>",
+        "description": "<%= pageDescription.replace(/"/g, '\\"') %>",
+        "url": "<%= canonicalUrl %>",
+        "about": {
+            "@type": "Place",
+            "name": "<%= stateName %>",
+            "alternateName": "<%= stateCode %>"
+        },
+        "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "<%= baseUrl %>"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Scholarships",
+                    "item": "<%= baseUrl %>/scholarships"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "<%= stateName %> Scholarships",
+                    "item": "<%= canonicalUrl %>"
+                }
+            ]
+        },
+        "mainEntity": {
+            "@type": "ItemList",
+            "name": "<%= stateName %> Scholarships",
+            "numberOfItems": <%= scholarships.length %>,
+            "itemListElement": [
+                <% scholarships.forEach((scholarship, index) => { %>
+                {
+                    "@type": "ListItem",
+                    "position": <%= index + 1 %>,
+                    "url": "<%= baseUrl %>/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>",
+                    "item": {
+                        "@type": "EducationalOccupationalCredential",
+                        "name": "<%= scholarship.title.replace(/"/g, '\\"') %>",
+                        "provider": {
+                            "@type": "Organization",
+                            "name": "<%= scholarship.organization.replace(/"/g, '\\"') %>"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "<%= scholarship.amount %>",
+                            "priceCurrency": "USD",
+                            "validThrough": "<%= scholarship.deadline %>"
+                        },
+                        "areaServed": {
+                            "@type": "State",
+                            "name": "<%= stateName %>"
+                        }
+                    }
+                }<%= index < scholarships.length - 1 ? ',' : '' %>
+                <% }); %>
+            ]
+        }
+    }
+    </script>
+    
+    <!-- Load CSS with preloading for performance -->
+    <link rel="preload" href="/dist/public/assets/main.css" as="style">
+    <% if (process.env.NODE_ENV === 'development') { %>
+        <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <% } else { %>
+        <link rel="stylesheet" href="/dist/public/assets/main.css">
+    <% } %>
+</head>
+<body>
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="Breadcrumb" class="breadcrumb">
+        <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/">
+                    <span itemprop="name">Home</span>
+                </a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/scholarships">
+                    <span itemprop="name">Scholarships</span>
+                </a>
+                <meta itemprop="position" content="2" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name"><%= stateName %> Scholarships</span>
+                <meta itemprop="position" content="3" />
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div id="root">
+        <main>
+            <header class="state-header">
+                <h1><%= stateName %> Scholarships</h1>
+                <p class="state-code">State: <%= stateCode %></p>
+                <p class="page-info">Page <%= pagination.currentPage %> of <%= pagination.totalPages %></p>
+                <p class="state-description">
+                    Find scholarship opportunities specifically available for <%= stateName %> students, including state grants, local organization awards, and residency-based funding.
+                </p>
+            </header>
+
+            <!-- State Quick Navigation -->
+            <nav class="state-nav" aria-label="State navigation">
+                <div class="state-links">
+                    <a href="/scholarships/state/ca" class="<%= stateCode === 'CA' ? 'active' : '' %>">California</a>
+                    <a href="/scholarships/state/tx" class="<%= stateCode === 'TX' ? 'active' : '' %>">Texas</a>
+                    <a href="/scholarships/state/ny" class="<%= stateCode === 'NY' ? 'active' : '' %>">New York</a>
+                    <a href="/scholarships/state/fl" class="<%= stateCode === 'FL' ? 'active' : '' %>">Florida</a>
+                    <a href="/scholarships/state/il" class="<%= stateCode === 'IL' ? 'active' : '' %>">Illinois</a>
+                    <a href="/scholarships/state/pa" class="<%= stateCode === 'PA' ? 'active' : '' %>">Pennsylvania</a>
+                    <a href="/scholarships" class="view-all">View All States</a>
+                </div>
+            </nav>
+
+            <!-- State Info Banner -->
+            <section class="state-info-banner">
+                <div class="state-stats">
+                    <div class="stat">
+                        <span class="stat-number"><%= scholarships.length %></span>
+                        <span class="stat-label">Scholarships Available</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">$<%= scholarships.reduce((sum, s) => sum + s.amount, 0).toLocaleString() %></span>
+                        <span class="stat-label">Total Award Value</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">$<%= Math.round(scholarships.reduce((sum, s) => sum + s.amount, 0) / scholarships.length).toLocaleString() %></span>
+                        <span class="stat-label">Average Award</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scholarship Grid -->
+            <section class="scholarship-grid" aria-label="<%= stateName %> scholarships">
+                <% scholarships.forEach(function(scholarship) { %>
+                    <article class="scholarship-card state-specific" itemscope itemtype="https://schema.org/EducationalOccupationalCredential">
+                        <header class="card-header">
+                            <h2 itemprop="name" class="scholarship-title">
+                                <a href="/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>">
+                                    <%= scholarship.title %>
+                                </a>
+                            </h2>
+                            <p class="organization" itemprop="provider"><%= scholarship.organization %></p>
+                            <div class="state-badge">
+                                <span class="state-indicator"><%= stateCode %> Residents</span>
+                            </div>
+                        </header>
+                        
+                        <div class="card-content">
+                            <div class="amount-deadline">
+                                <div class="amount">
+                                    <span class="currency">$</span>
+                                    <span class="value" itemprop="amount"><%= scholarship.amount.toLocaleString() %></span>
+                                </div>
+                                <div class="deadline">
+                                    <time itemprop="applicationDeadline" datetime="<%= scholarship.deadline %>">
+                                        Due: <%= new Date(scholarship.deadline).toLocaleDateString() %>
+                                    </time>
+                                </div>
+                            </div>
+                            
+                            <p class="description">
+                                <%= scholarship.description.substring(0, 120) %>...
+                            </p>
+                            
+                            <div class="eligibility-highlights">
+                                <span class="eligibility-tag">🏠 <%= stateName %> Resident</span>
+                                <span class="eligibility-tag">🎓 All Academic Levels</span>
+                            </div>
+                        </div>
+                        
+                        <footer class="card-footer">
+                            <a href="/scholarships/<%= scholarship.id %>/<%= scholarship.slug %>" 
+                               class="view-details-btn"
+                               aria-label="View details for <%= scholarship.title %>">
+                                View Details & Apply
+                            </a>
+                        </footer>
+                    </article>
+                <% }); %>
+            </section>
+
+            <!-- Pagination -->
+            <nav class="pagination" aria-label="<%= stateName %> scholarship pages">
+                <% if (pagination.hasPrev) { %>
+                    <a href="<%= pagination.prevUrl %>" 
+                       rel="prev" 
+                       class="pagination-btn prev-btn"
+                       aria-label="Previous page">
+                        ← Previous
+                    </a>
+                <% } %>
+                
+                <div class="pagination-info">
+                    <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span>
+                    <span class="total-scholarships"><%= scholarships.length %> scholarships for <%= stateName %> students</span>
+                </div>
+                
+                <% if (pagination.hasNext) { %>
+                    <a href="<%= pagination.nextUrl %>" 
+                       rel="next" 
+                       class="pagination-btn next-btn"
+                       aria-label="Next page">
+                        Next →
+                    </a>
+                <% } %>
+            </nav>
+
+            <!-- State Resources -->
+            <aside class="state-resources">
+                <h3><%= stateName %> Education Resources</h3>
+                <div class="resource-links">
+                    <div class="resource-category">
+                        <h4>State Education Department</h4>
+                        <p>Official <%= stateName %> education resources and state-funded scholarship programs.</p>
+                        <a href="#" class="resource-link" rel="external">Visit <%= stateName %> Education Dept</a>
+                    </div>
+                    
+                    <div class="resource-category">
+                        <h4>State Universities</h4>
+                        <p>Explore in-state tuition benefits and university-specific scholarships.</p>
+                        <a href="#" class="resource-link" rel="external">View <%= stateName %> Universities</a>
+                    </div>
+                    
+                    <div class="resource-category">
+                        <h4>Financial Aid Office</h4>
+                        <p>Contact your local financial aid office for personalized assistance.</p>
+                        <a href="#" class="resource-link" rel="external">Find Local Aid Office</a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Neighboring States -->
+            <section class="neighboring-states">
+                <h3>Also Consider Scholarships From Nearby States</h3>
+                <div class="state-suggestions">
+                    <!-- This would be dynamically generated based on actual state relationships -->
+                    <% if (stateCode === 'CA') { %>
+                        <a href="/scholarships/state/nv">Nevada</a>
+                        <a href="/scholarships/state/az">Arizona</a>
+                        <a href="/scholarships/state/or">Oregon</a>
+                    <% } else if (stateCode === 'TX') { %>
+                        <a href="/scholarships/state/ok">Oklahoma</a>
+                        <a href="/scholarships/state/nm">New Mexico</a>
+                        <a href="/scholarships/state/la">Louisiana</a>
+                    <% } else if (stateCode === 'NY') { %>
+                        <a href="/scholarships/state/nj">New Jersey</a>
+                        <a href="/scholarships/state/ct">Connecticut</a>
+                        <a href="/scholarships/state/pa">Pennsylvania</a>
+                    <% } else { %>
+                        <a href="/scholarships/state/ca">California</a>
+                        <a href="/scholarships/state/tx">Texas</a>
+                        <a href="/scholarships/state/ny">New York</a>
+                    <% } %>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Load JavaScript -->
+    <% if (process.env.NODE_ENV === 'development') { %>
+        <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+    <% } else { %>
+        <script src="/dist/public/assets/main.js"></script>
+    <% } %>
+    
+    <!-- State page data for hydration -->
+    <script>
+        window.__STATE_DATA__ = {
+            stateName: '<%= stateName %>',
+            stateCode: '<%= stateCode %>',
+            currentPage: <%= pagination.currentPage %>,
+            totalPages: <%= pagination.totalPages %>,
+            totalScholarships: <%= scholarships.length %>
+        };
+    </script>
+</body>
+</html>
