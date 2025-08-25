@@ -1,7 +1,8 @@
 import OpenAI from "openai";
+import { env } from "./environment";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 
 export interface EssayFeedback {
   overallScore: number;
@@ -21,9 +22,8 @@ export class OpenAIService {
   private openai: OpenAI;
 
   constructor() {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY environment variable is required");
-    }
+    // Environment validation is already done in environment.ts
+    this.openai = openai;
   }
 
   // Core method: Make OpenAI call with automatic billing

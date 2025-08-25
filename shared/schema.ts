@@ -209,7 +209,7 @@ export const insertStudentProfileSchema = createInsertSchema(studentProfiles).om
   createdAt: true,
   updatedAt: true,
 }).extend({
-  // Enhanced validation for critical fields (fixes QA-003)
+  // Enhanced validation for critical fields (VAL-001)
   gpa: z.number().min(0).max(4.0).nullable().optional(),
   graduationYear: z.number()
     .int()
@@ -219,7 +219,27 @@ export const insertStudentProfileSchema = createInsertSchema(studentProfiles).om
     .optional(),
   major: z.string().min(1).max(100).nullable().optional(),
   school: z.string().min(1).max(200).nullable().optional(),
-  interests: z.array(z.string().min(1).max(50)).max(10).nullable().optional(),
+  // Enhanced array validation with sanitization (VAL-001)
+  interests: z.array(
+    z.string()
+      .min(1, "Interest cannot be empty")
+      .max(50, "Interest too long")
+      .regex(/^[a-zA-Z0-9\s\-&.]+$/, "Interest contains invalid characters")
+      .transform(s => s.trim())
+  ).max(20, "Too many interests").nullable().optional(),
+  extracurriculars: z.array(
+    z.string()
+      .min(1, "Activity cannot be empty")
+      .max(100, "Activity name too long")
+      .regex(/^[a-zA-Z0-9\s\-&.,()]+$/, "Activity contains invalid characters")
+      .transform(s => s.trim())
+  ).max(15, "Too many extracurriculars").nullable().optional(),
+  achievements: z.array(
+    z.string()
+      .min(1, "Achievement cannot be empty")
+      .max(200, "Achievement description too long")
+      .transform(s => s.trim())
+  ).max(10, "Too many achievements").nullable().optional(),
 });
 
 export const updateStudentProfileSchema = insertStudentProfileSchema.partial().extend({
@@ -231,6 +251,17 @@ export const insertScholarshipSchema = createInsertSchema(scholarships).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Enhanced validation for scholarship requirements (VAL-001)
+  requirements: z.array(
+    z.string()
+      .min(1, "Requirement cannot be empty")
+      .max(500, "Requirement too long")
+      .transform(s => s.trim())
+  ).max(20, "Too many requirements").nullable().optional(),
+  amount: z.number().min(1, "Amount must be positive").max(1000000, "Amount too large"),
+  title: z.string().min(1, "Title is required").max(200, "Title too long"),
+  organization: z.string().min(1, "Organization is required").max(200, "Organization name too long"),
 });
 
 export const insertApplicationSchema = createInsertSchema(applications).omit({
@@ -247,6 +278,16 @@ export const insertEssaySchema = createInsertSchema(essays).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Enhanced validation for essay feedback (VAL-001)
+  feedback: z.array(
+    z.string()
+      .min(1, "Feedback cannot be empty")
+      .max(1000, "Feedback too long")
+      .transform(s => s.trim())
+  ).max(50, "Too much feedback").nullable().optional(),
+  title: z.string().min(1, "Title is required").max(200, "Title too long"),
+  wordCount: z.number().min(0).max(10000).optional(),
 });
 
 // Types

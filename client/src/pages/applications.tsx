@@ -101,6 +101,7 @@ export default function Applications() {
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
+        // No cleanup needed for redirect timeout in error handler
         setTimeout(() => {
           window.location.href = "/api/login";
         }, 500);
@@ -133,6 +134,7 @@ export default function Applications() {
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
+        // No cleanup needed for redirect timeout in error handler
         setTimeout(() => {
           window.location.href = "/api/login";
         }, 500);

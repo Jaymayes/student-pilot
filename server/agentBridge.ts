@@ -2,13 +2,14 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import { storage } from './storage';
 import { openaiService } from './openai';
+import { env } from './environment';
 
-// Environment variables for agent bridge
-const COMMAND_CENTER_URL = process.env.COMMAND_CENTER_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
-const SHARED_SECRET = process.env.SHARED_SECRET;
-const AGENT_NAME = process.env.AGENT_NAME || 'student_pilot';
-const AGENT_ID = process.env.AGENT_ID || 'student-pilot';
-const AGENT_BASE_URL = process.env.AGENT_BASE_URL || `https://${process.env.REPL_SLUG || 'scholarlink'}.${process.env.REPL_OWNER || 'user'}.replit.app`;
+// Environment variables for agent bridge - using validated environment
+const COMMAND_CENTER_URL = env.COMMAND_CENTER_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
+const SHARED_SECRET = env.SHARED_SECRET;
+const AGENT_NAME = env.AGENT_NAME || 'student_pilot';
+const AGENT_ID = env.AGENT_ID || 'student-pilot';
+const AGENT_BASE_URL = env.AGENT_BASE_URL || `https://${env.REPL_SLUG || 'scholarlink'}.${env.REPL_OWNER || 'user'}.replit.app`;
 
 // Task, Result, and Event schemas
 export interface Task {

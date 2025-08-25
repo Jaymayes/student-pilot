@@ -64,10 +64,13 @@ export default function Profile() {
         description: "You are logged out. Logging in again...",
         variant: "destructive",
       });
-      setTimeout(() => {
+      const redirectTimeout = setTimeout(() => {
         window.location.href = "/api/login";
       }, 500);
-      return;
+      
+      return () => {
+        clearTimeout(redirectTimeout);
+      };
     }
   }, [isAuthenticated, authLoading, toast]);
 
@@ -115,6 +118,7 @@ export default function Profile() {
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
+        // No cleanup needed for redirect timeout in error handler
         setTimeout(() => {
           window.location.href = "/api/login";
         }, 500);

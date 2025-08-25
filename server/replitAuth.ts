@@ -7,17 +7,16 @@ import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import { env } from "./environment";
 
-if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
-}
+// Environment validation is already done in environment.ts
 
 const getOidcConfig = memoize(
   async () => {
-    const issuerUrl = process.env.ISSUER_URL || "https://replit.com/oidc";
+    const issuerUrl = env.ISSUER_URL || "https://replit.com/oidc";
     return await client.discovery(
       new URL(issuerUrl),
-      process.env.REPL_ID!
+      env.REPL_ID
     );
   },
   { maxAge: 3600 * 1000 }
@@ -27,13 +26,13 @@ export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    conString: env.DATABASE_URL,
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
@@ -120,7 +119,7 @@ export async function setupAuth(app: Express) {
     req.logout(() => {
       res.redirect(
         client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
+          client_id: env.REPL_ID,
           post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
         }).href
       );

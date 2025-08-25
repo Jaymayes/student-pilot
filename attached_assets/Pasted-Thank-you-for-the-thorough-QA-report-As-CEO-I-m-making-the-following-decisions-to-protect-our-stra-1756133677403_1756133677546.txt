@@ -1,0 +1,111 @@
+Thank you for the thorough QA report. As CEO, I’m making the following decisions to protect our strategic goals: keep the Auto Page Maker SEO engine healthy, ensure autonomous agents stay reliable, and preserve our low-CAC growth model while maintaining a strong security posture.
+
+Executive decisions and directives
+
+Immediate stabilization sprint (10 business days)
+Objective: Eliminate all High issues within 5 days and complete Medium/Low items within 10 days without degrading SLOs (99.9% uptime, ~120ms P95).
+Scope: server/routes.ts, agentBridge, frontend performance fixes, env validation, and SEO/analytics instrumentation.
+2. High severity issues (resolve in 72 hours for Agent Bridge/Auth; 5 business days for missing modules)
+
+IMP-001, IMP-002 (missing analytics/searchConsole and seo/coreWebVitals modules)
+
+Decision: Ship no-op adapters and interface shims by EOD Day 2 to restore clean TypeScript builds. Full implementation/verification of Google Search Console and Core Web Vitals collectors by Day 5–10.
+Rationale: Our organic growth engine depends on accurate SEO telemetry. Build must be green to keep release velocity high.
+TYPE-001 (Agent Bridge Task interface mismatch)
+
+Decision: Fix type mismatch within 72 hours. Enforce compile-time interface conformance and add a contract test that fails CI if required fields (payload, reply_to, requested_by) are missing.
+Rationale: Agent reliability directly impacts autonomous marketing and provider ops—core to revenue growth.
+AUTH-001 (/agent/capabilities 401 behavior)
+
+Decision: Make endpoint publicly readable with strict rate limiting and caching now, and require API key for any mutating or privileged subroutes. Implement by 72 hours.
+Rationale: Providers and partners need frictionless capabilities discovery to integrate quickly. We preserve safety with rate limits and telemetry.
+3. Medium severity issues (complete by Day 7)
+
+PERF-001, PERF-003 (setTimeout cleanup in profile/applications pages)
+
+Decision: Add useEffect cleanup and convert to requestAnimationFrame or controlled intervals where appropriate.
+PERF-002 (missing React keys)
+
+Decision: Enforce eslint-plugin-react jsx-key rule in CI; fix all instances.
+VAL-001 (input validation tests)
+
+Decision: Adopt schema-first request validation (zod or equivalent) and build supertest-based suites for profile creation endpoints; add fuzz tests for edge cases.
+4. Low severity issues (complete by Day 10)
+
+DOM-001 (invalid DOM nesting): Fix and add eslint-plugin-jsx-a11y rule to prevent regressions.
+CONFIG-001 (Agent Bridge disabled w/o SHARED_SECRET): Keep current graceful degradation; add explicit health check messaging.
+ENV-001 (environment validation): Introduce envalid/t3-env at startup; fail-fast with clear error messages and redact-sensitive logging.
+Automated security testing pipeline: Add SAST/DAST to CI (dependency scan, npm audit policy, OWASP ZAP baseline weekly).
+KPIs and success criteria
+
+Build and code health (tracked daily)
+
+100% green main; tsc --noEmit passes; ESLint passes with jsx-key and a11y rules enforced.
+Type coverage: baseline now; +10 pts improvement in 30 days; no compile-time type errors merged.
+React console warnings: 0 in production logs.
+SEO and growth (tracked weekly)
+
+Google Search Console verification active and property data ingested; Core Web Vitals beaconing on key templates.
+Target pass rate for CWV (LCP/CLS/INP) at 75th percentile: 70% by end of Q4.
+Organic sessions +20% MoM post-instrumentation; index coverage >95% of SEO pages; sitemap and robots validated.
+CAC: trend down via organic growth; attribute lift to SEO instrumentation in our analytics.
+Agent and platform reliability (tracked daily)
+
+Agent Bridge processTask success rate ≥99%; error rate <1%; p95 end-to-end task latency target: set baseline and improve 10% by next sprint.
+SLOs: 99.9% uptime and ~120ms P95 maintained; error budget burn alerts configured.
+Security (tracked weekly)
+
+High-severity vulnerabilities: zero open >14 days.
+Dependency risk: no High/Critical open in main; automated scans enforced in CI.
+File upload runtime tests added; results reviewed monthly.
+Ownership and resourcing
+
+Backend lead (Owner: Eng Lead A)
+IMP-001, IMP-002 shims + full analytics/SEO modules
+TYPE-001 fix and contract tests
+ENV-001 startup validation
+AUTH-001 endpoint policy, rate limiting, caching
+Frontend lead (Owner: Eng Lead B)
+PERF-001, PERF-003 timeouts cleanup
+PERF-002 keys + ESLint rules; DOM-001 fixes
+CWV instrumentation (LCP/CLS/INP) and RUM beacon
+QA/Security lead (Owner: QA Lead)
+VAL-001 validation suites and fuzzing
+Automated security pipeline (SAST/DAST), dependency policy
+File upload runtime tests and report
+DevOps (Owner: DevOps Lead)
+CI gates for tsc/eslint/tests/security scans
+SLO monitoring, error budget alerts, observability dashboards
+Timelines and gates
+
+0–72 hours
+Fix TYPE-001 and AUTH-001
+Ship no-op adapters for missing modules to restore clean builds
+Enable CI gates for TypeScript and eslint jsx-key rule
+Day 5
+High-severity items closed
+Public read-only /agent/capabilities live with rate limits
+Day 7
+Medium items done; validation test suite running in CI
+Day 10
+Low items done; env validation fail-fast in place; security pipeline live
+Release policy
+No releases with open High items
+All CI gates must pass; rollbacks prepared; feature flags for new instrumentation
+Risk management
+
+Risk: SEO data gaps while modules are implemented
+Mitigation: no-op adapters now; full GSC/CWV integration behind flags; staged rollout with canary.
+Risk: Agent changes affect task throughput
+Mitigation: contract tests; shadow-run mode in staging; error budget alerts.
+Risk: Added CI gates slow velocity
+Mitigation: parallelization in CI, caching, and pre-commit hooks to keep cycle times low.
+Alignment with strategy
+
+This plan protects and advances our SEO-driven, low-CAC acquisition engine, keeps autonomous agents reliable for B2C/B2B growth, and maintains a strong security posture. It directly supports our $10M profitable ARR objective by preserving release velocity, data quality for growth, and platform trust.
+Next steps
+
+Eng leads to acknowledge owners and timelines in the next standup.
+Create a Stabilization Sprint board with four epics: SEO/Analytics Instrumentation, Agent Reliability, Frontend Performance/UX Hygiene, Security & Env Validation.
+Daily progress report to the exec channel until all High/Medium items close; weekly KPI snapshot thereafter.
+If any owner anticipates a slip, raise immediately with remediation options. We will not trade off SEO telemetry or agent reliability—those are mission-critical to our growth model.

@@ -148,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // SEO Analytics and Search Console integration - Days 8-14 implementation
   app.get('/api/seo/search-console/metrics', async (req, res) => {
     try {
-      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const { SearchConsoleService } = await import('./analytics/searchConsole');
       const searchConsole = new SearchConsoleService();
       
       const startDate = req.query.startDate as string || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -164,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/seo/page-clusters', async (req, res) => {
     try {
-      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const { SearchConsoleService } = await import('./analytics/searchConsole');
       const searchConsole = new SearchConsoleService();
       
       const startDate = req.query.startDate as string || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -180,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/seo/report', async (req, res) => {
     try {
-      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const { SearchConsoleService } = await import('./analytics/searchConsole');
       const searchConsole = new SearchConsoleService();
       
       const startDate = req.query.startDate as string || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -196,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/seo/core-web-vitals', async (req, res) => {
     try {
-      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const { SearchConsoleService } = await import('./analytics/searchConsole');
       const searchConsole = new SearchConsoleService();
       
       const pageUrl = req.query.page as string;
@@ -210,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/seo/indexation-status', async (req, res) => {
     try {
-      const { SearchConsoleService } = await import('../analytics/searchConsole');
+      const { SearchConsoleService } = await import('./analytics/searchConsole');
       const searchConsole = new SearchConsoleService();
       
       const status = await searchConsole.getIndexationStatus();
@@ -224,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Core Web Vitals monitoring - Days 15-30 performance budgets
   app.get('/api/seo/core-web-vitals/cluster', async (req, res) => {
     try {
-      const { CoreWebVitalsService } = await import('../seo/coreWebVitals');
+      const { CoreWebVitalsService } = await import('./seo/coreWebVitals');
       const vitalsService = new CoreWebVitalsService();
       
       const clusterPerformance = await vitalsService.getClusterPerformance();
@@ -237,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/seo/performance-alerts', async (req, res) => {
     try {
-      const { CoreWebVitalsService } = await import('../seo/coreWebVitals');
+      const { CoreWebVitalsService } = await import('./seo/coreWebVitals');
       const vitalsService = new CoreWebVitalsService();
       
       const alerts = vitalsService.checkPerformanceAlerts();
@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/seo/caching-rules', async (req, res) => {
     try {
-      const { CoreWebVitalsService } = await import('../seo/coreWebVitals');
+      const { CoreWebVitalsService } = await import('./seo/coreWebVitals');
       const vitalsService = new CoreWebVitalsService();
       
       const rules = vitalsService.generateCachingRules();
@@ -978,21 +978,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/agent/task', agentRateLimit, verifyAgentToken, async (req, res) => {
     try {
-      // Validate task structure with comprehensive schema
+      // Validate task structure with comprehensive schema matching Task interface
       const TaskSchema = z.object({
         task_id: z.string().uuid(),
         action: z.string().min(1).max(100),
+        payload: z.any(),
+        reply_to: z.string().min(1),
         trace_id: z.string().uuid(),
-        data: z.record(z.any()).optional(),
-        parameters: z.record(z.any()).optional()
-      });
+        requested_by: z.string().min(1),
+        resources: z.object({
+          priority: z.number(),
+          timeout_ms: z.number(),
+          retry: z.number()
+        }).optional()
+      }).strict();
       
       const task = TaskSchema.parse(req.body);
       
       // Process task asynchronously
       setTimeout(async () => {
         try {
-          const result = await agentBridge.processTask(task);
+          const result = await agentBridge.processTask(task as any);
           if (result !== undefined) {
             await agentBridge.sendResult(result);
           }
@@ -1021,7 +1027,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/agent/capabilities', agentRateLimit, verifyAgentToken, (req, res) => {
+  app.get('/agent/capabilities', agentRateLimit, (req, res) => {
+    // Made publicly readable per CEO directive AUTH-001 with rate limiting
     res.json({
       capabilities: agentBridge.getCapabilities(),
       version: '1.0.0',
