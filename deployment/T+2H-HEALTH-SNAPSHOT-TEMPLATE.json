@@ -89,6 +89,38 @@
         "percentage": "TBD_%",
         "status": "TBD"
       }
+    },
+    "cache_warm_status": {
+      "hit_rate_trend": {
+        "current": "TBD_%",
+        "baseline": "TBD_%",
+        "trend": "TBD",
+        "cold_start_effects": "TBD"
+      }
+    },
+    "core_web_vitals": {
+      "key_pages_rum_samples": {
+        "lcp": {
+          "median": "TBD_ms",
+          "p75": "TBD_ms",
+          "samples": "TBD",
+          "status": "TBD"
+        },
+        "cls": {
+          "median": "TBD",
+          "p75": "TBD", 
+          "samples": "TBD",
+          "status": "TBD"
+        },
+        "inp": {
+          "median": "TBD_ms",
+          "p75": "TBD_ms",
+          "samples": "TBD",
+          "status": "TBD"
+        }
+      },
+      "availability": "if_available"
+    }
     }
   },
   "security_and_integrity": {
