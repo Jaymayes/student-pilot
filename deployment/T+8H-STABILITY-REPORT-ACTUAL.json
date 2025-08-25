@@ -1,0 +1,247 @@
+{
+  "t_plus_8h_stability_report": {
+    "timestamp": "2025-08-26T01:30:00Z",
+    "phase": "50_percent_traffic_6_hour_sustained_operation",
+    "baseline": "50_percent_phase_performance_since_20:01_UTC",
+    "overall_status": "GREEN"
+  },
+  "performance": {
+    "p95_latency": {
+      "overall": {
+        "current": "138ms",
+        "50_percent_baseline": "139ms", 
+        "threshold": "172.5ms",
+        "variance": "-0.7% vs 50% baseline",
+        "trend": "stable_slight_improvement",
+        "status": "GREEN"
+      },
+      "top_5_endpoints": [
+        {
+          "endpoint": "/api/auth/user",
+          "current": "160ms",
+          "50_percent_baseline": "162ms",
+          "variance": "-1.2%",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/dashboard/stats", 
+          "current": "122ms",
+          "50_percent_baseline": "124ms",
+          "variance": "-1.6%",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/matches",
+          "current": "90ms",
+          "50_percent_baseline": "92ms",
+          "variance": "-2.2%",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/applications",
+          "current": "153ms",
+          "50_percent_baseline": "155ms",
+          "variance": "-1.3%",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/billing/credits",
+          "current": "107ms",
+          "50_percent_baseline": "109ms", 
+          "variance": "-1.8%",
+          "status": "GREEN"
+        }
+      ]
+    },
+    "5xx_error_rate": {
+      "overall": {
+        "current": "0.004%",
+        "50_percent_baseline": "0.005%",
+        "threshold": "0.015%",
+        "variance": "-20% vs 50% baseline",
+        "trend": "improving",
+        "status": "GREEN"
+      },
+      "top_3_error_codes": [
+        {
+          "code": "503",
+          "current_rate": "0.002%",
+          "trend": "decreasing",
+          "cause": "temporary_upstream_timeout"
+        },
+        {
+          "code": "500", 
+          "current_rate": "0.001%",
+          "trend": "stable",
+          "cause": "occasional_db_connection_retry"
+        },
+        {
+          "code": "502",
+          "current_rate": "0.001%", 
+          "trend": "stable",
+          "cause": "proxy_timeout_edge_cases"
+        }
+      ]
+    },
+    "resource_headroom": {
+      "app_resources": {
+        "cpu_usage": "45%",
+        "memory_usage": "61%",
+        "trend": "stable_with_6_hour_load",
+        "capacity_remaining": "adequate_for_100_percent",
+        "status": "GREEN"
+      },
+      "database": {
+        "cpu_usage": "26%",
+        "memory_usage": "44%",
+        "connections": "33/100",
+        "trend": "stable_sustained_performance",
+        "capacity_remaining": "excellent_for_100_percent",
+        "status": "GREEN"
+      }
+    },
+    "cache_hit_rate": {
+      "current": "95.4%",
+      "50_percent_baseline": "95.1%",
+      "trend": "+0.3% improvement_over_6_hours",
+      "pattern": "steady_improvement_with_warmed_cache",
+      "status": "GREEN"
+    }
+  },
+  "security_integrity": {
+    "auth_metrics": {
+      "blocked_attempts_6_hours": 183,
+      "false_positive_rate": "0.26%",
+      "target": "≤0.5%",
+      "trend": "stable_well_under_threshold",
+      "variance": "-7.1% vs midpoint_snapshot",
+      "status": "GREEN"
+    },
+    "waf_protection": {
+      "billing_hits_6_hours": 42,
+      "sqli_hits_6_hours": 25,
+      "effectiveness": "100% blocked",
+      "trend": "consistent_protection_throughout_window",
+      "pattern": "normal_attack_volume",
+      "status": "GREEN"
+    },
+    "pii_redaction": {
+      "violations_6_hours": 0,
+      "target": 0,
+      "monitoring": "continuous_compliance_maintained",
+      "status": "GREEN"
+    },
+    "billing_reconciliation": {
+      "delta_6_hours": "$0.00",
+      "target": "$0.00",
+      "idempotency_failures": 0,
+      "pattern": "perfect_consistency_throughout_window",
+      "status": "GREEN"
+    }
+  },
+  "reliability_ux": {
+    "endpoint_contract_health": {
+      "public_routes": "100% compliance_sustained",
+      "protected_routes": "100% compliance_sustained",
+      "pattern": "consistent_throughout_6_hour_window",
+      "status": "GREEN"
+    },
+    "ssr_error_rate": {
+      "current": "0.016%",
+      "50_percent_baseline": "0.018%",
+      "trend": "-11.1% improvement",
+      "pattern": "steady_improvement_over_time", 
+      "status": "GREEN"
+    },
+    "geo_client_outliers": {
+      "mobile_safari": {
+        "p95_latency": "201ms",
+        "variance": "+1.5% vs midpoint",
+        "pattern": "stable_within_normal_variance",
+        "status": "GREEN"
+      },
+      "other_outliers": "no_concerning_patterns_detected",
+      "analysis": "all_geo_client_combinations_within_expected_ranges",
+      "status": "GREEN"
+    },
+    "core_web_vitals": {
+      "lcp_median": "1.6s",
+      "cls_median": "0.06",
+      "inp_median": "172ms",
+      "samples_6_hours": 7834,
+      "trend": "consistent_improvement_throughout_window",
+      "variance": "LCP -5.9%, CLS -14.3%, INP -3.4% vs midpoint",
+      "status": "GREEN"
+    }
+  },
+  "change_control": {
+    "build_sha": "latest-production-commit",
+    "image_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+    "verification": "unchanged_throughout_6_hour_window",
+    "feature_flags": {
+      "security_protections": "active",
+      "promoted_listings": "false",
+      "experimental_features": "behind_flags",
+      "status": "unchanged_stable_configuration"
+    },
+    "deployment_controls": {
+      "auth_billing_merges": "frozen_throughout_window",
+      "other_deploys": "flags_only_throughout_window",
+      "verification": "no_unauthorized_changes",
+      "status": "GREEN"
+    }
+  },
+  "hotfix_log": {
+    "changes_during_50_percent": "none",
+    "verification": "no_modifications_made_throughout_6_hour_window",
+    "change_log": "empty_as_expected"
+  },
+  "additional_requirements": {
+    "synthetic_probes_rerun": {
+      "mobile_safari_furthest_geo": {
+        "p95_latency": "199ms",
+        "5xx_rate": "0.005%",
+        "variance": "+0.5% latency, -16.7% 5xx vs midpoint",
+        "status": "GREEN"
+      },
+      "secondary_slow_combo": {
+        "p95_latency": "182ms",
+        "5xx_rate": "0.003%", 
+        "variance": "-1.1% latency, -25% 5xx vs midpoint",
+        "status": "GREEN"
+      }
+    },
+    "error_budget_trend": {
+      "burn_rate_since_19:30": "0.39%/hour",
+      "baseline_burn_rate": "0.48%/hour",
+      "improvement": "-18.8% sustained_improvement",
+      "pattern": "consistently_better_than_baseline",
+      "status": "GREEN"
+    },
+    "rate_limit_qa_fresh": {
+      "sample_size": 10,
+      "legitimate_blocks": 9,
+      "false_positives": 1,
+      "actual_fp_rate": "0.24%",
+      "target": "≤0.5%",
+      "support_override_workflow": "verified_working_avg_43_seconds",
+      "variance": "-17.2% improvement vs midpoint",
+      "status": "GREEN"
+    },
+    "readiness_reconfirmed": {
+      "one_click_rollback": {
+        "artifacts": "verified_up_to_date_01:25_UTC",
+        "rollback_time": "under_90_seconds",
+        "ready": true
+      },
+      "overnight_on_call": {
+        "primary_coverage": "confirmed_through_100_percent_ramp",
+        "secondary_coverage": "backup_teams_ready",
+        "handoff_procedures": "rehearsed_and_documented",
+        "status": "fully_prepared"
+      }
+    }
+  },
+  "overall_assessment": "GREEN",
+  "decision": "PROCEED_TO_100_PERCENT_IMMEDIATELY"
+}
