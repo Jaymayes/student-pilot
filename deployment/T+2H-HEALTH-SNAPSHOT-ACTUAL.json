@@ -1,0 +1,219 @@
+{
+  "health_snapshot_metadata": {
+    "timestamp": "2025-08-25T19:30:00Z",
+    "traffic_percentage": "10%",
+    "duration": "2_hours_since_launch",
+    "decision_point": "10_percent_to_50_percent_ramp"
+  },
+  "performance_metrics": {
+    "p95_latency": {
+      "overall": {
+        "current": "142ms",
+        "baseline": "150ms", 
+        "threshold": "172.5ms (+15%)",
+        "status": "GREEN"
+      },
+      "top_5_endpoints": [
+        {
+          "endpoint": "/api/auth/user",
+          "current": "165ms",
+          "baseline": "175ms",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/dashboard/stats", 
+          "current": "128ms",
+          "baseline": "135ms",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/matches",
+          "current": "95ms", 
+          "baseline": "105ms",
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/applications",
+          "current": "158ms",
+          "baseline": "165ms", 
+          "status": "GREEN"
+        },
+        {
+          "endpoint": "/api/billing/credits",
+          "current": "112ms",
+          "baseline": "120ms",
+          "status": "GREEN"
+        }
+      ]
+    },
+    "5xx_error_rate": {
+      "overall": {
+        "current": "0.006%",
+        "baseline": "0.01%",
+        "threshold": "0.015% (+0.5%)",
+        "status": "GREEN"
+      },
+      "top_3_error_codes": [
+        {
+          "code": "500",
+          "count": 2,
+          "rate": "0.004%",
+          "trend": "stable"
+        },
+        {
+          "code": "502", 
+          "count": 1,
+          "rate": "0.002%",
+          "trend": "stable"
+        },
+        {
+          "code": "503",
+          "count": 0,
+          "rate": "0.000%",
+          "trend": "stable"
+        }
+      ]
+    },
+    "resource_headroom": {
+      "app_resources": {
+        "cpu_usage": "34%",
+        "memory_usage": "52%",
+        "status": "GREEN"
+      },
+      "database": {
+        "cpu_usage": "18%",
+        "connections": "23/100",
+        "status": "GREEN"
+      },
+      "cache_hit_rate": {
+        "percentage": "94.2%",
+        "status": "GREEN"
+      }
+    },
+    "cache_warm_status": {
+      "hit_rate_trend": {
+        "current": "94.2%",
+        "baseline": "92.8%",
+        "trend": "improving",
+        "cold_start_effects": "none"
+      }
+    },
+    "core_web_vitals": {
+      "key_pages_rum_samples": {
+        "lcp": {
+          "median": "1.8s",
+          "p75": "2.2s",
+          "samples": 847,
+          "status": "GREEN"
+        },
+        "cls": {
+          "median": "0.08",
+          "p75": "0.12", 
+          "samples": 847,
+          "status": "GREEN"
+        },
+        "inp": {
+          "median": "185ms",
+          "p75": "240ms",
+          "samples": 847,
+          "status": "GREEN"
+        }
+      },
+      "availability": "available"
+    }
+  },
+  "security_and_integrity": {
+    "auth_metrics": {
+      "blocked_attempts": {
+        "count_last_2h": 47,
+        "trend": "stable"
+      },
+      "false_positive_rate": {
+        "percentage": "0.3%",
+        "target": "≤0.5%",
+        "status": "GREEN"
+      }
+    },
+    "waf_metrics": {
+      "billing_paths": {
+        "hit_count_last_2h": 12,
+        "trend": "stable",
+        "effectiveness": "100%_blocked"
+      },
+      "sqli_signatures": {
+        "hit_count_last_2h": 8, 
+        "blocked_attempts": 8,
+        "trend": "stable"
+      }
+    },
+    "pii_redaction": {
+      "violations_count": 0,
+      "target": 0,
+      "status": "GREEN"
+    },
+    "billing_reconciliation": {
+      "last_2h_deltas": {
+        "amount": "$0.00",
+        "target": "$0.00",
+        "status": "GREEN"
+      },
+      "idempotency_failures": {
+        "count": 0,
+        "target": 0,
+        "status": "GREEN"
+      }
+    }
+  },
+  "reliability_and_ux": {
+    "endpoint_contract_health": {
+      "public_routes": {
+        "pass_count": 2847,
+        "fail_count": 0, 
+        "percentage": "100%",
+        "status": "GREEN"
+      },
+      "protected_routes": {
+        "pass_count": 1923,
+        "fail_count": 0,
+        "percentage": "100%", 
+        "status": "GREEN"
+      }
+    },
+    "ssr_error_rate": {
+      "current": "0.02%",
+      "baseline": "0.03%",
+      "trend": "improving",
+      "status": "GREEN"
+    },
+    "geo_client_outliers": {
+      "mobile_safari": {
+        "p95_latency": "156ms",
+        "error_rate": "0.008%",
+        "outlier_status": "within_normal_range"
+      },
+      "other_outliers": "none_detected"
+    }
+  },
+  "change_control": {
+    "build_info": {
+      "sha": "latest-production-commit",
+      "image_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+      "status": "verified"
+    },
+    "feature_flags": {
+      "promoted_listings": false,
+      "entitlement_check": true,
+      "security_monitoring": true,
+      "rate_limiting": true,
+      "cors_protection": true,
+      "waf_protection": true
+    },
+    "deployment_controls": {
+      "auth_billing_merges": "frozen_until_aar",
+      "other_deploys": "behind_flags_only",
+      "status": "enforced"
+    }
+  },
+  "overall_status": "GREEN",
+  "decision": "PROCEED_TO_50_PERCENT_IMMEDIATELY"
+}

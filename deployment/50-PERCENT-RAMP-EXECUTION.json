@@ -1,0 +1,37 @@
+{
+  "ramp_execution": {
+    "decision_timestamp": "2025-08-25T19:30:00Z",
+    "decision": "GREEN_STATUS_PROCEED_TO_50_PERCENT",
+    "execution_timestamp": "2025-08-25T19:31:00Z",
+    "traffic_update": "10_percent_to_50_percent"
+  },
+  "exec_channel_confirmation": {
+    "timeline": "within_5_minutes",
+    "target_time": "2025-08-25T19:35:00Z",
+    "required_metrics": {
+      "updated_p95_vs_baseline": "142ms vs 150ms baseline (GREEN)",
+      "updated_5xx_rate": "0.006% vs 0.01% baseline (GREEN)",
+      "auth_blocked_attempts": "47 in last 2h",
+      "auth_false_positive_rate": "0.3% (under 0.5% target)",
+      "reconciliation_delta": "$0.00 (exact target)",
+      "pii_violations": "0 (exact target)",
+      "waf_hits_billing": "12 blocked in last 2h",
+      "waf_hits_sqli": "8 blocked in last 2h",
+      "build_sha": "latest-production-commit",
+      "image_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+      "feature_flags": {
+        "promoted_listings": false,
+        "entitlement_check": true,
+        "security_monitoring": true,
+        "rate_limiting": true,
+        "cors_protection": true,
+        "waf_protection": true
+      }
+    }
+  },
+  "next_checkpoint": {
+    "time": "2025-08-26T01:30:00Z",
+    "duration": "6_hours_at_50_percent",
+    "deliverable": "stability_report_for_100_percent_decision"
+  }
+}
