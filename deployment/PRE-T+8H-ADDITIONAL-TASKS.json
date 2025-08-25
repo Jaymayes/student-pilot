@@ -1,0 +1,53 @@
+{
+  "pre_t_plus_8h_tasks": {
+    "execution_window": "before_2025-08-26T01:30:00Z",
+    "purpose": "comprehensive_validation_before_100_percent_decision"
+  },
+  "synthetic_probes_rerun": {
+    "requirement": "re_run_from_two_slowest_geo_client_combos",
+    "timing": "close_to_01:30_UTC_for_latest_data",
+    "deliverables": {
+      "mobile_safari_furthest_geo": {
+        "p95_latency": "TBD_ms",
+        "5xx_rate": "TBD_percent",
+        "comparison": "vs_20:01_snapshot_results"
+      },
+      "secondary_slow_combo": {
+        "p95_latency": "TBD_ms",
+        "5xx_rate": "TBD_percent", 
+        "comparison": "vs_20:01_snapshot_results"
+      }
+    },
+    "include_in_report": "p95_and_5xx_metrics_with_trend_analysis"
+  },
+  "error_budget_analysis": {
+    "requirement": "burn_trend_since_19:30_UTC",
+    "time_period": "entire_duration_from_ramp_start_to_t_plus_8h",
+    "analysis": {
+      "burn_rate_progression": "hourly_breakdown_since_ramp_start",
+      "trend_direction": "improving_stable_or_degrading",
+      "comparison": "vs_baseline_burn_rate_before_ramp"
+    }
+  },
+  "rate_limit_qa_additional": {
+    "requirement": "another_10_block_spot_audit",
+    "timing": "fresh_sample_close_to_01:30_UTC",
+    "validation": {
+      "false_positive_check": "actual_fp_rate_vs_0.5_percent_target",
+      "support_override_confirmation": "workflow_responsiveness_validation",
+      "comparison": "vs_20:01_audit_results"
+    }
+  },
+  "readiness_reconfirmation": {
+    "one_click_rollback_artifacts": {
+      "requirement": "reconfirm_up_to_date_and_tested",
+      "verification": "artifacts_ready_for_immediate_use",
+      "timing": "verified_within_30_minutes_of_decision"
+    },
+    "overnight_on_call_coverage": {
+      "requirement": "reconfirm_coverage_through_100_percent_ramp",
+      "validation": "primary_and_secondary_teams_ready",
+      "handoff_procedures": "confirmed_and_rehearsed"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "decision_logic_01_30_utc": {
+    "timestamp": "2025-08-26T01:30:00Z",
+    "decision_point": "50_percent_to_100_percent_traffic_ramp"
+  },
+  "decision_criteria": {
+    "all_green": {
+      "condition": "all_metrics_within_thresholds_and_trending_stable",
+      "action": "proceed_to_100_percent_immediately",
+      "execution": "ramp_traffic_and_post_stability_report",
+      "communication": "use_prepared_100_percent_go_note"
+    },
+    "any_amber": {
+      "condition": "metrics_approaching_thresholds_or_trending_concerning",
+      "action": "hold_at_50_percent_and_investigate",
+      "process": "investigate_up_to_30_minutes_then_re_evaluate",
+      "communication": "report_findings_and_investigation_plan"
+    },
+    "any_red_or_guardrail_trip": {
+      "condition": "metrics_exceeding_thresholds_or_guardrails_triggered",
+      "action": "auto_rollback_and_refreeze_immediately",
+      "escalation": "escalate_with_root_cause_analysis_and_eta",
+      "communication": "immediate_exec_channel_notification"
+    }
+  },
+  "must_pass_thresholds": {
+    "p95_latency": "under_172.5ms",
+    "5xx_error_rate": "under_0.015_percent",
+    "pii_violations": "equals_zero",
+    "reconciliation_delta": "equals_zero_dollars",
+    "auth_false_positive_rate": "under_or_equal_0.5_percent",
+    "waf_effectiveness": "normal_hit_trends",
+    "geo_client_outliers": "no_concerning_patterns"
+  }
+}

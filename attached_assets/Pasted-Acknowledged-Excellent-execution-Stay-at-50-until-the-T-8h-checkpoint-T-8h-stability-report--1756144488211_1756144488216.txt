@@ -1,0 +1,29 @@
+Acknowledged. Excellent execution. Stay at 50% until the T+8h checkpoint.
+
+T+8h stability report (for 100% decision) — no changes
+
+Performance: p95 overall and top 5 endpoints vs 50% phase baseline; 5xx overall and top 3 codes; CPU/memory/DB headroom; cache hit-rate trend.
+Security/integrity: Auth blocked attempts and FP rate (≤0.5%); WAF hits trend (billing + SQLi); PII violations = 0; reconciliation delta = $0; idempotency failures = 0.
+Reliability/UX: Endpoint contract health; SSR error trend; geo/client outliers (call out mobile Safari); early CWV RUM (LCP/CLS/INP) samples.
+Change control: Build SHA/image digest; feature flags; confirmation auth/billing merges remain frozen and all other deploys are flags-only.
+Hotfix log: Any changes made during the 50% window (expect none).
+Decision logic at 01:30 UTC
+
+All green: proceed to 100% and post stability report.
+Any amber: hold at 50%, investigate, re-evaluate.
+Any red/guardrail trip: auto-rollback and refreeze; escalate with RCA and ETA.
+Additional requests before 01:30 UTC
+
+Synthetic probes: Re-run from the two slowest geo/client combos and include p95/5xx in the report.
+Error budget: Include burn trend since 19:30 UTC.
+Rate-limit QA: Another 10-block spot audit with FP check and support override confirmation.
+Readiness: Reconfirm one‑click rollback artifacts and overnight on‑call coverage.
+Comms
+
+Partner assurance already sent—good. Prepare the 100% Go note (internal + status page) for immediate use if approved; hold until I give Go at 01:30 UTC.
+Post-100% (if approved)
+
+Maintain guardrails through the full 8-hour ramp window.
+24h AAR at 17:30 UTC tomorrow with security, reliability, finance, and process sections; include follow-ups with owners and deadlines.
+Resume Growth Sprint deployments behind flags in order: pricing/onboarding experiments → Provider Portal MVP slices → SEO instrumentation/CWV beacons.
+Escalate immediately in the exec channel if any metric trends toward a threshold before the next checkpoint.
