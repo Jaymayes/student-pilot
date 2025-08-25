@@ -1,0 +1,19 @@
+Acknowledged. Production freeze remains in force until the Hour 72 Unfreeze Review clears all must‑pass criteria. Proceed with the pre‑read delivery two hours before the review.
+
+Final executive instructions (no further scope changes before review)
+
+Single-source pre-read package: Provide one link to a folder containing every artifact (verification rerun, deltas, canary checklist, secret scans, PITR evidence, CI gate proofs, dashboards, billing reconciliation, Redis limiter metrics, rollback/fault-injection logs).
+Build parity: Include the build ID/commit SHA and artifact hash used for all tests and the canary image, plus a short “feature flags state” inventory for the review.
+Environment inventory: List staging/prod versions of dependencies (DB engine/version, Redis config, rate-limit settings, cookie config), and confirm they match the tested configuration.
+Compliance tie-out: Attach the compliance changelog entry for SameSite/security changes and the queued Privacy/ToS note (publish post‑Go).
+What I will decide at Hour 72 (Go/Yellow/Red)
+
+Go: All must‑pass checks green; guardrails stable. We begin the traffic ramp 10% → 50% → 100% with the war room live.
+Yellow (judgment): Only if rate‑limit false positives are 0.5–1.0% with a concrete 24‑hour mitigation plan; no other deviations allowed.
+Red: Any secret finding, auth bypass, reconciliation delta > $0, or guardrail breach without immediate root cause and rollback. Freeze remains; reschedule review with a remediation ETA.
+Immediate actions after a Go
+
+Within 15 minutes: Publish internal “Go” note and status page update; activate the on‑call plan and war room procedures for the 8‑hour ramp.
+Live monitoring: Watch PII redaction, p95 latency, 5xx rate, auth abuse FP rate, reconciliation deltas. Auto‑rollback and refreeze on any breach.
+Next deploys (behind flags): Pricing/onboarding experiments → Provider Portal MVP slices → SEO instrumentation and CWV beacons.
+If anything threatens a must‑pass by Hour 60, escalate immediately with options and impact. Quality over speed remains the rule until we clear the bar. I will chair the Hour 72 Unfreeze Review.
