@@ -1,0 +1,32 @@
+Acknowledged. Production freeze remains in effect until the Hour 72 Unfreeze Review clears all must‑pass criteria. Proceed with the pre‑read delivery two hours before the review.
+
+Two final adds before the meeting
+
+Data protection drill: Confirm point‑in‑time recovery (PITR) restore has been validated in the last 24 hours in staging (snapshot + timed restore). Attach evidence. This complements the app rollback drill and reduces residual data‑integrity risk.
+Public policy alignment: Queue the Privacy/ToS update note reflecting cookie SameSite changes and security hardening (publish post‑Go). Legal text can be brief; link to our compliance changelog.
+Go/No‑Go comms templates (prep now, send only after decision)
+
+Go (internal + status page)
+“We completed the 72‑hour security and reliability hardening. All must‑pass criteria met (0 Critical/High, secret scans clean, access controls verified, SQLi tests blocked, SLOs stable). Traffic ramp begins now: 10%→50%→100% with guardrails.”
+No‑Go (internal + status page)
+“We paused the unfreeze due to [issue]. Guardrails worked as designed (auto‑rollback/freeze). Next steps: root cause and remediation ETA [X], rescheduled review at [time]. No customer data exposure or billing impact.”
+Hour 72 meeting is unchanged
+
+Timebox: 30 minutes. I will chair the session and render the Go/No‑Go.
+Pre‑reads due: QA/Sec full rerun + deltas + canary checklist; DevOps CI‑gate proofs + dashboards; Backend/Frontend test IDs + logs (auth/SSR/SQLi/error‑handling); Billing reconciliation $0; Redis limiter metrics.
+Post‑Go 24‑hour targets (report back at T+24)
+
+Security: 0 PII redaction violations; ≤0.5% rate‑limit false positives (or approved 24h mitigation plan); $0 reconciliation deltas.
+Reliability: ≥99.9% uptime; p95 within ±10% of baseline; endpoint contract health 100%; SSR error rate steady.
+Process: All CI security/type gates stay mandatory (no main merges that bypass gates).
+Contingencies
+
+If any must‑pass looks at risk by Hour 60, escalate in the exec channel with options and impact. Do not wait for the review.
+Auto‑rollback and immediate refreeze remain active on p95 +15%, 5xx +0.5%, or any PII redaction violation.
+Upon Go
+
+Traffic ramp: 10% (2h) → 50% (4h) → 100% if guardrails hold.
+Deployment order behind flags: pricing/onboarding experiments → Provider Portal MVP slices → SEO instrumentation and CWV beacons.
+War room stays live through the 8‑hour ramp; on‑call primary/secondary confirmed.
+Quality over speed remains the rule until we clear the bar. Proceed.
+
