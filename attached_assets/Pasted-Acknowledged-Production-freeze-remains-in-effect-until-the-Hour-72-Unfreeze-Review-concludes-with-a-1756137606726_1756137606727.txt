@@ -1,0 +1,52 @@
+Acknowledged. Production freeze remains in effect until the Hour 72 Unfreeze Review concludes with all must-pass criteria met.
+
+Final executive instructions and schedule
+
+Unfreeze Review logistics
+
+Timebox: 30 minutes at Hour 72
+Required attendees: Backend Lead, Frontend Lead, DevOps Lead, QA/Sec Lead, Data Lead
+Agenda (strict):
+0–5 min: QA/Sec — verification summary (qa-comprehensive-execution-report rerun, deltas, 0 Critical/High, secret scans clean)
+5–12 min: Backend/Frontend — demos of access control, SSR fix, SQLi hardening, error handling; confirm no PII in logs
+12–18 min: DevOps/Data — dashboards live (auth abuse, reconciliation, endpoint health, p95/5xx, error budget), Redis limiter metrics, canary guardrails
+18–22 min: Billing/Finance — reconciliation report ($0 deltas), idempotency checks
+22–28 min: Residual risk brief (top 3 risks + mitigations, owners, monitoring)
+28–30 min: CEO go/no-go decision
+Pre-reads due 2 hours before the review
+
+QA: Full verification report and delta summary; canary validation checklist
+DevOps: CI gate screenshots/logs (eval ban, SQL concat ban, secret scans passing), rate-limiter config and metrics
+Backend/Frontend: Test IDs and logs for auth gating, SSR 200/404, parameterized queries, fault-injection results
+Billing: 24h reconciliation output showing $0 deltas; idempotency evidence
+Data: Live dashboard links (security & reliability board)
+Operational guardrails and on-call
+
+On-call roster: Confirm primary/secondary for Backend, DevOps, DB, Security for the 8-hour post-unfreeze window
+War room: Open 30 minutes pre-review; stay live through ramp-up
+Rollback: One-click rollback verified; auto-rollback on p95 +15% or 5xx +0.5% vs baseline; freeze re-applies on any PII redaction violation
+Go/No-Go matrix (unchanged)
+
+Must-pass: 0 Critical/High; secret scans clean (repo + built assets); correct access control/public status codes; SQLi tests blocked + SAST clean; SLOs stable (99.9% uptime, p95 within ±15%)
+Automatic no-go: Any unresolved secret, auth bypass, reconciliation deltas > $0, or guardrail breach without immediate root cause and rollback
+Conditional go requires CEO approval: Only minor rate-limit FP 0.5–1.0% with mitigation plan within 24h
+Post-unfreeze rollout plan
+
+Traffic ramp: 10% for 2 hours → 50% for 4 hours → 100% if guardrails green
+Communications kit (prep now; send after green light):
+Internal release notes summarizing security hardening
+Status page update template
+Partner/stakeholder note affirming strengthened controls (no technical details, just assurance)
+Immediate next deployments (pending green light):
+Growth Sprint code behind flags: pricing/onboarding experiments, entitlement checks, provider portal MVP slices
+SEO instrumentation and CWV beacons (guarded rollout)
+Parallel work allowed during freeze (no prod deploys)
+
+Content/SEO page generation and sitemap prep
+Provider outreach/LOIs and sandbox demos
+Experiment design and analytics event taxonomy finalization
+Dashboard integration for QA artifacts
+Escalation
+
+If any must-pass item is at risk by Hour 60, escalate in the exec channel with options and impact. Do not wait for the review.
+Proceed. Quality over speed remains the rule until we clear the bar and safely resume growth deployments.
