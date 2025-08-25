@@ -90,6 +90,38 @@
       }
     }
   },
+  "additional_monitoring": {
+    "background_job_queue_lag": {
+      "worker_backlog": {
+        "current_count": "TBD_number",
+        "vs_50_percent_baseline": "TBD_variance",
+        "vs_30_min_snapshot": "TBD_trend",
+        "processing_rate": "TBD_jobs_per_minute",
+        "hourly_trend": "TBD_stability_analysis",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "db_write_queue_depth": {
+        "current_depth": "TBD_number",
+        "vs_50_percent_baseline": "TBD_variance",
+        "vs_30_min_snapshot": "TBD_trend", 
+        "flush_rate": "TBD_writes_per_second",
+        "hourly_trend": "TBD_consistency_analysis",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
+    },
+    "slow_query_analysis": {
+      "queries_over_500ms": {
+        "count_last_hour": "TBD_number",
+        "vs_50_percent_baseline": "TBD_variance_percentage",
+        "vs_30_min_snapshot": "TBD_trend",
+        "slowest_query_time": "TBD_ms",
+        "affected_endpoints": "TBD_list",
+        "hourly_pattern": "TBD_trend_analysis",
+        "optimization_opportunities": "TBD_identified_improvements",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
+    }
+  },
   "enhanced_quick_checks": {
     "top_3_slowest_endpoints": {
       "requirement": "trend_vs_50_percent_phase_baseline_and_30_min_snapshot",

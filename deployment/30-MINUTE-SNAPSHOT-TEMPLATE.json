@@ -80,6 +80,31 @@
       }
     }
   },
+  "additional_monitoring": {
+    "background_job_queue_lag": {
+      "worker_backlog": {
+        "current_count": "TBD_number",
+        "vs_50_percent_baseline": "TBD_variance",
+        "processing_rate": "TBD_jobs_per_minute",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "db_write_queue_depth": {
+        "current_depth": "TBD_number",
+        "vs_50_percent_baseline": "TBD_variance", 
+        "flush_rate": "TBD_writes_per_second",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
+    },
+    "slow_query_analysis": {
+      "queries_over_500ms": {
+        "count_last_30_min": "TBD_number",
+        "vs_50_percent_baseline": "TBD_variance_percentage",
+        "slowest_query_time": "TBD_ms",
+        "affected_endpoints": "TBD_list",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
+    }
+  },
   "enhanced_quick_checks": {
     "top_3_slowest_endpoints": {
       "requirement": "trend_vs_50_percent_phase_baseline",
