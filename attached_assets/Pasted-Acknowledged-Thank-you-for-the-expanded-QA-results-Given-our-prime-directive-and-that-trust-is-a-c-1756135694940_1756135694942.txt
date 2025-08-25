@@ -1,0 +1,63 @@
+Acknowledged. Thank you for the expanded QA results. Given our prime directive and that trust is a core product feature for our two‑sided marketplace, we will execute a 72‑hour Security and Reliability Hardening micro‑sprint in parallel with the Growth Sprint. This preserves release velocity while closing the gap to an A security grade and protecting monetization. Our AI Scholarship Playbook explicitly calls for a defense‑in‑depth posture and positions security as foundational to our brand and availability commitments, not a checkbox (trust as a core product feature; proactive cybersecurity) .
+
+Executive decisions and directives (effective immediately)
+
+Scope: Close all 5 high‑priority items and 2 runtime failures within 72 hours; reduce total open Medium items by 50% within 10 days.
+
+Sensitive data logging (server/routes.ts) – stop PII/secret exposure
+Policy: Adopt “deny-by-default” logging. Allowlist specific fields; mask tokens, emails, phone, addresses, IDs; never log raw request/response bodies for auth, billing, or file upload.
+Implementation: Structured logging (e.g., JSON) with masking middleware; redaction at sink; correlation IDs; log sampling for high‑volume endpoints; 14/30/90‑day retention tiers by stream.
+Testing/gates: Add CI rule to grep/block sensitive keys; replay RT‑015 to confirm redaction; add automated log-scrub unit tests.
+Owner: Backend Lead. SLA: 24 hours.
+2. Authentication rate limiting (server/replitAuth.ts) – brute‑force protection
+
+Controls: Per‑IP and per‑account limits; exponential backoff with jitter; device/browser fingerprint hints; velocity checks (max attempts per minute/hour/day); soft lock + user notification; audit logging for auth anomalies.
+UX: Clear error messaging; fallback path for legitimate users; support override workflow.
+Metrics: Time‑series of blocked attempts; false positive rate; time‑to‑unlock SLA.
+SLA: 48 hours.
+3. Billing precision (server/billing.ts) – BigInt/Number consistency
+
+Standard: Treat all amounts as integer minor units (cents) end‑to‑end; no float math; normalize on ingress/egress to Stripe; use Decimal/BigInt consistently.
+Safeguards: Idempotency keys; double‑entry ledger events; reconciliation job vs Stripe balance transactions; unit tests for rounding edge cases.
+SLA: 48 hours.
+4. Database async error handling (server/storage.ts)
+
+Patterns: Centralized error boundary for async ops; transaction rollback on exceptions; retry with exponential backoff for transient codes; circuit‑breaker around hot paths.
+Observability: Structured error payloads without PII; SLO/error‑budget wired into dashboards.
+SLA: 48 hours.
+5. API client error handling (client/src/lib/queryClient.ts)
+
+Resilience: Network-aware retries with capped backoff; offline queue for idempotent GETs; user‑visible status toasts; consistent error normalization for UI.
+Telemetry: Client error taxonomy (network_timeout, 5xx, 4xx_validation); tie to funnel drop‑off analysis.
+SLA: 48 hours.
+6. RT‑018: Session SameSite protection
+
+Cookie policy: SameSite=Lax (or Strict where viable), Secure, HttpOnly; explicit domain/path scope; rotation on privilege escalation; CSRF tokens for state-changing actions.
+SLA: 24 hours.
+Validation: Regression test for cross‑site flows and embedded contexts.
+Exit criteria and KPIs
+
+Security grade raised from B+ to A (internal scoring) within two weeks; zero open High > 3 days.
+RT‑015/RT‑018 pass; automated checks in CI to prevent regression.
+Auth abuse: ≥95% of brute‑force attempts blocked; false positives <0.5%.
+Billing: $0 rounding diffs in reconciliation report; 100% idempotent charge create flows.
+Error budget: No increase in p95 latency or error rate; uptime ≥99.9% maintained.
+Ownership and resources
+
+Backend Lead: logging redaction, rate limiting, billing precision, DB error handling.
+Frontend Lead: queryClient resilience and UX feedback.
+DevOps: CI gates for secret/PII scans; log sink redaction; dashboards/alerts.
+QA/Sec: Re-run runtime validations; expand fuzz and negative auth tests; sign‑off.
+Governance and cadence
+
+Daily 15‑minute hardening stand‑up until closure; issues tracked under “Security & Reliability Hardening” epic.
+Change management: Ship behind flags; canary deploy; rapid rollback plan.
+Reporting: Exec channel EOD update with status, blockers, and KPI movement.
+Strategic alignment
+
+Hardening secures our growth engine by protecting user trust, payment integrity, and partner confidence—key to conversion and provider onboarding. This aligns with our playbook’s mandate for defense‑in‑depth and 24/7 reliability as a business pillar, not merely technical hygiene .
+Requests to you (to unblock)
+
+Confirm the latest locations of qa-analysis-report.json and qa-runtime-validation-report.json in our data store so Data/DevOps can ingest them into the executive dashboard and CI gates.
+Provide baselines for: blocked login attempts/day, auth success rate, charge reconciliation deltas, and current error budget burn, so we can quantify improvement.
+If you approve, I’ll greenlight the micro‑sprint now and hold owners to the 72‑hour SLA while continuing the Growth Sprint (SEO, conversion, provider MVP) without schedule slip.
