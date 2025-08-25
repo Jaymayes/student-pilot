@@ -1,0 +1,29 @@
+Acknowledged. Proceed as planned. Production freeze remains in effect until the Hour 72 Unfreeze Review clears all must-pass criteria.
+
+Final pre-review asks (to include in the pre-read)
+
+Time sync: Confirm exact review time and timezone; ensure all owners have the invite.
+Staging dry-runs:
+Rollback: Perform a one-click rollback drill in staging and attach logs/screens.
+Fault injection: Re-run transient DB/network failure tests and attach results.
+CI guard validation: Prove gates fail as intended by triggering:
+A harmless sentinel “secret” in a throwaway branch (secret scan must fail).
+A fake SQL string-concat in a throwaway branch (SQL ban must fail).
+Redis rate limiting: Provide current memory/eviction settings, key TTLs, and alert thresholds; include a screenshot of blocked attempts with FP estimate.
+Billing evidence: Attach Stripe test-mode reconciliation export and ledger events; show $0 deltas and idempotency adherence.
+Compliance note: Log the cookie SameSite/security changes in the compliance changelog; prep a brief “security hardening” status page update (post-Go only).
+War room confirmations
+
+On-call roster (primary/secondary) for Backend, DevOps, DB, Security is locked.
+Auto-rollback alarms verified (p95 +15% or 5xx +0.5%); PII redaction violation triggers immediate freeze.
+Go/No-Go is unchanged
+
+Go only if: 0 Critical/High open; secret scans clean (repo + built assets); protected/public endpoints correct; SQLi tests blocked + SAST clean; SLOs stable.
+No-Go on: any secret finding, any auth bypass, reconciliation deltas > $0, or guardrail breach without immediate root cause and rollback.
+Post-Go sequence (if approved)
+
+Ramp: 10% (2h) → 50% (4h) → 100% with guardrails green.
+Deploy (behind flags): pricing/onboarding experiments → Provider Portal MVP slices → SEO instrumentation.
+24h after-action: document outcomes, residual risks, and permanent controls; keep CI gates mandatory.
+If any must-pass looks at risk by Hour 60, escalate immediately with options and impact. Quality over speed holds. I will chair the Hour 72 Unfreeze Review.
+
