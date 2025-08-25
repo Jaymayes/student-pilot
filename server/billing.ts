@@ -134,33 +134,43 @@ export class BillingService {
     chargeMillicredits: bigint;
     appliedRates: RateCardEntry;
   }> {
-    const rates = await this.getCurrentRate(model);
-
-    // All calculations in BigInt millicredits to prevent precision loss
-    const inputTokensBigInt = BigInt(inputTokens);
-    const outputTokensBigInt = BigInt(outputTokens);
-    const inputRateMillicredits = BigInt(rates.inputCreditsPer1k) * BigInt(MILLICREDITS_PER_CREDIT);
-    const outputRateMillicredits = BigInt(rates.outputCreditsPer1k) * BigInt(MILLICREDITS_PER_CREDIT);
-    
-    // Calculate cost in millicredits using integer arithmetic
-    const inputCostMillicredits = (inputTokensBigInt * inputRateMillicredits) / BigInt(1000);
-    const outputCostMillicredits = (outputTokensBigInt * outputRateMillicredits) / BigInt(1000);
-    let totalCostMillicredits = inputCostMillicredits + outputCostMillicredits;
-    
-    // Apply rounding mode (using BigInt arithmetic)
-    if (roundingMode === "ceil") {
-      // Ceil operation: if there's any remainder, round up to next millicredit
-      const inputRemainder = (inputTokensBigInt * inputRateMillicredits) % BigInt(1000);
-      const outputRemainder = (outputTokensBigInt * outputRateMillicredits) % BigInt(1000);
-      if (inputRemainder > BigInt(0) || outputRemainder > BigInt(0)) {
-        totalCostMillicredits += BigInt(1);
+    try {
+      // Input validation
+      if (inputTokens < 0 || outputTokens < 0) {
+        throw new Error(`Invalid token counts: input=${inputTokens}, output=${outputTokens}`);
       }
-    }
 
-    return {
-      chargeMillicredits: totalCostMillicredits,
-      appliedRates: rates,
-    };
+      const rates = await this.getCurrentRate(model);
+
+      // All calculations in BigInt millicredits to prevent precision loss
+      const inputTokensBigInt = BigInt(inputTokens);
+      const outputTokensBigInt = BigInt(outputTokens);
+      const inputRateMillicredits = BigInt(rates.inputCreditsPer1k) * BigInt(MILLICREDITS_PER_CREDIT);
+      const outputRateMillicredits = BigInt(rates.outputCreditsPer1k) * BigInt(MILLICREDITS_PER_CREDIT);
+      
+      // Calculate cost in millicredits using integer arithmetic
+      const inputCostMillicredits = (inputTokensBigInt * inputRateMillicredits) / BigInt(1000);
+      const outputCostMillicredits = (outputTokensBigInt * outputRateMillicredits) / BigInt(1000);
+      let totalCostMillicredits = inputCostMillicredits + outputCostMillicredits;
+      
+      // Apply rounding mode (using BigInt arithmetic)
+      if (roundingMode === "ceil") {
+        // Ceil operation: if there's any remainder, round up to next millicredit
+        const inputRemainder = (inputTokensBigInt * inputRateMillicredits) % BigInt(1000);
+        const outputRemainder = (outputTokensBigInt * outputRateMillicredits) % BigInt(1000);
+        if (inputRemainder > BigInt(0) || outputRemainder > BigInt(0)) {
+          totalCostMillicredits += BigInt(1);
+        }
+      }
+
+      return {
+        chargeMillicredits: totalCostMillicredits,
+        appliedRates: rates,
+      };
+    } catch (error) {
+      console.error(`Error calculating charge for model ${model}:`, error);
+      throw error;
+    }
   }
 
   // Get user's current balance

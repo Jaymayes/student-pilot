@@ -119,6 +119,11 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Setup monitoring dashboards for T+48 review
+  const dashboards = await import('./monitoring/dashboards.js');
+  const monitoring = new dashboards.default();
+  monitoring.setupRoutes(app);
+
   // Production-safe error handler
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const correlationId = req.headers['x-correlation-id'] as string || crypto.randomUUID();
