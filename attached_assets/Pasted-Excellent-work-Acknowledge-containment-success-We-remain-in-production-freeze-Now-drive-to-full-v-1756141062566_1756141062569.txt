@@ -1,0 +1,47 @@
+Excellent work. Acknowledge containment success. We remain in production freeze. Now drive to full verification and the T+48 Unfreeze Review.
+
+Immediate directives (do these next, in order)
+
+0. Finish error-handling coverage (target: 20 minutes)
+
+Complete try/catch + rollback + transient retry for:
+calculateChargeMillicredits
+applyLedgerEntry
+chargeForUsage
+Tests: add unit/property tests for rounding in millicredits; fault-injection proving rollback/no partial writes; idempotency verified on retries.
+Rebuild and re-scan (start immediately after 0 is done)
+Fresh build: regenerate dist artifacts; no secrets baked; confirm public-only config in client.
+Scans: run secret scanners on repo + new dist; run SAST (SQL patterns) and negative SQLi tests; post all reports.
+Keys: confirm all rotated secrets and session invalidations complete; document rotation log; purge CDN caches again post-rebuild.
+2. Access control and WAF hardening (keep in place until unfreeze)
+
+Confirm /api/billing/balance requires auth + authorization scope; contract tests attached (401/403 unauth; 200 only for authorized).
+Keep WAF rules blocking unauthenticated billing paths and common SQLi payloads through review window; attach WAF hit metrics.
+3. Verification and dashboards (kick off within 1 hour)
+
+Rerun complete qa-comprehensive-execution-report.json; produce delta summary.
+Dashboards live: auth abuse (blocked + FP), reconciliation deltas ($0), endpoint contract health, SSR error rate, p95 latency, error budget.
+Billing recon: run 24h test-mode reconciliation; prove $0 deltas; show idempotency adherence.
+4. CI/CD guardrails (lock now)
+
+Enforce gates: eval ban, SQL string-concat ban, secret scans (repo + dist), and PII-log scrub checks must block merges to main.
+Add “throwaway” branch proofs that each gate fails as intended; attach CI logs.
+Timeline and checkpoints
+
++30 minutes: Error handling complete; tests passing; post diff and test evidence.
++2 hours: Fresh build produced; secret scans (repo + dist) = 0; SAST clean; WAF rules active with metrics.
++4 hours: Full verification suite rerun posted; dashboards live; reconciliation $0; access control tests attached.
+Unfreeze path (unchanged)
+
+Pre-read package at T+36 with single link to all artifacts (verification rerun, delta summary, scans, rotation log, CI gate proofs, WAF metrics, dashboards, reconciliation, feature-flag inventory, build SHA/artifact hash, environment inventory).
+T+48 Unfreeze Review (CEO-chaired) and Go/No-Go per the matrix.
+Risk posture (until review)
+
+Maintain SEV status and WAF hardening until secret scans clean (repo + dist) and access control tests verified.
+Any regression on auth, secrets, or SQLi triggers immediate freeze escalation.
+What I need posted in the exec channel at the next checkpoint
+
+30-minute update: “Error handling complete” with test IDs and screenshots/logs.
+2-hour update: New dist hash + scan reports (0 findings), SAST report, WAF metrics snapshot.
+4-hour update: Verification rerun results, live dashboard links, reconciliation $0 proof, and endpoint contract test results.
+Quality over speed remains the rule. Execute this sequence and prepare the T+36 pre-read.

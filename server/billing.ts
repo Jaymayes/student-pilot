@@ -200,57 +200,62 @@ export class BillingService {
       metadata?: any;
     }
   ): Promise<{ newBalance: bigint; ledgerEntry: CreditLedgerEntry }> {
-    return await db.transaction(async (tx) => {
-      // Lock the user's balance row for update
-      const [currentBalance] = await tx
-        .select()
-        .from(creditBalances)
-        .where(eq(creditBalances.userId, userId))
-        .for("update");
+    try {
+      return await db.transaction(async (tx) => {
+        // Lock the user's balance row for update
+        const [currentBalance] = await tx
+          .select()
+          .from(creditBalances)
+          .where(eq(creditBalances.userId, userId))
+          .for("update");
 
-      if (!currentBalance) {
-        throw new Error("User balance not found");
-      }
+        if (!currentBalance) {
+          throw new Error("User balance not found");
+        }
 
-      const newBalanceMillicredits = (currentBalance.balanceMillicredits || BigInt(0)) + deltaMillicredits;
+        const newBalanceMillicredits = (currentBalance.balanceMillicredits || BigInt(0)) + deltaMillicredits;
 
-      // Prevent negative balances for deductions  
-      if (deltaMillicredits < 0 && newBalanceMillicredits < 0) {
-        throw new InsufficientCreditsError(
-          -deltaMillicredits,
-          currentBalance.balanceMillicredits || BigInt(0),
-          "Insufficient credits for this operation"
-        );
-      }
+        // Prevent negative balances for deductions  
+        if (deltaMillicredits < 0 && newBalanceMillicredits < 0) {
+          throw new InsufficientCreditsError(
+            -deltaMillicredits,
+            currentBalance.balanceMillicredits || BigInt(0),
+            "Insufficient credits for this operation"
+          );
+        }
 
-      // Update balance
-      await tx
-        .update(creditBalances)
-        .set({
-          balanceMillicredits: newBalanceMillicredits,
-          updatedAt: new Date(),
-        })
-        .where(eq(creditBalances.userId, userId));
+        // Update balance
+        await tx
+          .update(creditBalances)
+          .set({
+            balanceMillicredits: newBalanceMillicredits,
+            updatedAt: new Date(),
+          })
+          .where(eq(creditBalances.userId, userId));
 
-      // Create ledger entry
-      const [ledgerEntry] = await tx
-        .insert(creditLedger)
-        .values({
-          userId,
-          type: entry.type,
-          amountMillicredits: deltaMillicredits,
-          balanceAfterMillicredits: newBalanceMillicredits,
-          referenceType: entry.referenceType,
-          referenceId: entry.referenceId,
-          metadata: entry.metadata,
-        })
-        .returning();
+        // Create ledger entry
+        const [ledgerEntry] = await tx
+          .insert(creditLedger)
+          .values({
+            userId,
+            type: entry.type,
+            amountMillicredits: deltaMillicredits,
+            balanceAfterMillicredits: newBalanceMillicredits,
+            referenceType: entry.referenceType,
+            referenceId: entry.referenceId,
+            metadata: entry.metadata,
+          })
+          .returning();
 
-      return {
-        newBalance: newBalanceMillicredits,
-        ledgerEntry,
-      };
-    });
+        return {
+          newBalance: newBalanceMillicredits,
+          ledgerEntry,
+        };
+      });
+    } catch (error) {
+      console.error(`Error applying ledger entry for userId ${userId}:`, error);
+      throw error;
+    }
   }
 
   // Charge user for OpenAI usage
@@ -266,62 +271,67 @@ export class BillingService {
     newBalance: bigint;
     usageEvent: UsageEvent;
   }> {
-    const { chargeMillicredits, appliedRates } = await this.calculateChargeMillicredits(
-      model,
-      inputTokens,
-      outputTokens,
-      roundingMode
-    );
+    try {
+      const { chargeMillicredits, appliedRates } = await this.calculateChargeMillicredits(
+        model,
+        inputTokens,
+        outputTokens,
+        roundingMode
+      );
 
-    // Check if user has sufficient balance
-    const balance = await this.getUserBalance(userId);
-    const currentBalanceMillicredits = balance.balanceMillicredits || BigInt(0);
-    if (currentBalanceMillicredits < chargeMillicredits) {
-      const requiredCredits = millicreditsToCredits(chargeMillicredits);
-      const currentCredits = millicreditsToCredits(currentBalanceMillicredits);
-      throw new PaymentRequiredError(requiredCredits, currentCredits);
-    }
+      // Check if user has sufficient balance
+      const balance = await this.getUserBalance(userId);
+      const currentBalanceMillicredits = balance.balanceMillicredits || BigInt(0);
+      if (currentBalanceMillicredits < chargeMillicredits) {
+        const requiredCredits = millicreditsToCredits(chargeMillicredits);
+        const currentCredits = millicreditsToCredits(currentBalanceMillicredits);
+        throw new PaymentRequiredError(requiredCredits, currentCredits);
+      }
 
-    return await db.transaction(async (tx) => {
-      // Apply charge to ledger and balance
-      const { newBalance } = await this.applyLedgerEntry(
-        userId,
-        -chargeMillicredits, // negative for deduction
-        {
-          type: "deduction",
-          referenceType: "openai",
-          referenceId: openaiRequestId,
-          metadata: {
+      return await db.transaction(async (tx) => {
+        // Apply charge to ledger and balance
+        const { newBalance } = await this.applyLedgerEntry(
+          userId,
+          -chargeMillicredits, // negative for deduction
+          {
+            type: "deduction",
+            referenceType: "openai",
+            referenceId: openaiRequestId,
+            metadata: {
+              model,
+              inputTokens,
+              outputTokens,
+              inputRate: appliedRates.inputCreditsPer1k,
+              outputRate: appliedRates.outputCreditsPer1k,
+            },
+          }
+        );
+
+        // Create usage event record
+        const [usageEvent] = await tx
+          .insert(usageEvents)
+          .values({
+            userId,
             model,
             inputTokens,
             outputTokens,
-            inputRate: appliedRates.inputCreditsPer1k,
-            outputRate: appliedRates.outputCreditsPer1k,
-          },
-        }
-      );
+            appliedInputCreditsPer1k: appliedRates.inputCreditsPer1k,
+            appliedOutputCreditsPer1k: appliedRates.outputCreditsPer1k,
+            chargedMillicredits: chargeMillicredits,
+            openaiRequestId,
+          })
+          .returning();
 
-      // Create usage event record
-      const [usageEvent] = await tx
-        .insert(usageEvents)
-        .values({
-          userId,
-          model,
-          inputTokens,
-          outputTokens,
-          appliedInputCreditsPer1k: appliedRates.inputCreditsPer1k,
-          appliedOutputCreditsPer1k: appliedRates.outputCreditsPer1k,
+        return {
           chargedMillicredits: chargeMillicredits,
-          openaiRequestId,
-        })
-        .returning();
-
-      return {
-        chargedMillicredits: chargeMillicredits,
-        newBalance,
-        usageEvent,
-      };
-    });
+          newBalance,
+          usageEvent,
+        };
+      });
+    } catch (error) {
+      console.error(`Error charging for usage for userId ${userId}:`, error);
+      throw error;
+    }
   }
 
   // Award credits from purchase (idempotent)
