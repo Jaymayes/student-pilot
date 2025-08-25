@@ -17,7 +17,8 @@ let resolvedIssues = 0;
 // Test 1: SQL Injection Prevention (CRITICAL)
 console.log('1. Testing SQL Injection Prevention...');
 const billingCode = fs.readFileSync('server/billing.ts', 'utf8');
-const hasSqlInjection = billingCode.includes('sql`${') && !billingCode.includes('lt(');
+const sqlInjectionPattern = new RegExp('sql\\s*`[^`]*\\$\\{', 'g');
+const hasSqlInjection = sqlInjectionPattern.test(billingCode) && !billingCode.includes('lt(');
 if (!hasSqlInjection) {
   console.log('   ✅ SQL injection vulnerabilities resolved - parameterized queries implemented');
   resolvedIssues++;

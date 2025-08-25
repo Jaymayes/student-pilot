@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-08-25T17:19:15.500Z",
+  "summary": {
+    "totalViolations": 7,
+    "critical": 1,
+    "high": 6,
+    "exitCode": 1,
+    "status": "FAIL"
+  },
+  "violations": [
+    {
+      "severity": "CRITICAL",
+      "type": "DYNAMIC_CODE_EXECUTION",
+      "timestamp": "2025-08-25T17:18:47.709Z",
+      "file": ".local/state/replit/agent/filesystem/filesystem_state.json",
+      "pattern": "/\\b[\\x65][\\x76][\\x61][\\x6c]\\s*\\(/g",
+      "matches": 1,
+      "description": "Dangerous dynamic code execution detected - code injection vector"
+    },
+    {
+      "severity": "HIGH",
+      "type": "SQL_INJECTION",
+      "timestamp": "2025-08-25T17:18:55.145Z",
+      "file": ".local/state/replit/agent/filesystem/filesystem_state.json",
+      "pattern": "/sql\\s*`[^`]*\\$\\{[^}]*\\}/g",
+      "matches": 4,
+      "description": "Potential SQL injection pattern - use parameterized queries"
+    },
+    {
+      "severity": "HIGH",
+      "type": "SQL_INJECTION",
+      "timestamp": "2025-08-25T17:19:01.996Z",
+      "file": "server/tests/security-gates-validation.test.js",
+      "pattern": "/query\\s*\\(\\s*`[^`]*\\$\\{/g",
+      "matches": 2,
+      "description": "Potential SQL injection pattern - use parameterized queries"
+    },
+    {
+      "severity": "HIGH",
+      "type": "SQL_INJECTION",
+      "timestamp": "2025-08-25T17:19:01.996Z",
+      "file": "server/tests/security-gates-validation.test.js",
+      "pattern": "/sql\\s*`[^`]*\\$\\{[^}]*\\}/g",
+      "matches": 3,
+      "description": "Potential SQL injection pattern - use parameterized queries"
+    },
+    {
+      "severity": "HIGH",
+      "type": "PII_EXPOSURE",
+      "timestamp": "2025-08-25T17:19:09.549Z",
+      "file": ".local/state/replit/agent/filesystem/filesystem_state.json",
+      "piiType": "Email in Log",
+      "matches": 1,
+      "description": "Potential Email in Log exposure detected - review for PII handling"
+    },
+    {
+      "severity": "HIGH",
+      "type": "PII_EXPOSURE",
+      "timestamp": "2025-08-25T17:19:09.599Z",
+      "file": "deployment/kubernetes/secrets.yaml",
+      "piiType": "Password Field",
+      "matches": 1,
+      "description": "Potential Password Field exposure detected - review for PII handling"
+    },
+    {
+      "severity": "HIGH",
+      "type": "PII_EXPOSURE",
+      "timestamp": "2025-08-25T17:19:15.475Z",
+      "file": "qa-comprehensive-test-suite.js",
+      "piiType": "Email in Log",
+      "matches": 1,
+      "description": "Potential Email in Log exposure detected - review for PII handling"
+    }
+  ]
+}

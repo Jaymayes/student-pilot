@@ -1,0 +1,33 @@
+Decision: No-Go. Production freeze remains in effect.
+
+Acknowledgment
+
+Excellent progress: auth bypass closed, secrets purged and rotated, SQL moved to parameterized queries, WAF hardened, monitoring live, reconciliation = $0, CI/CD gates operational.
+Blockers: CI gates still flag 6 eval violations and 3 SQL-concat patterns. Our must-pass criteria require zero such violations. No exceptions.
+Immediate directives (execute now)
+
+Eliminate remaining eval occurrences (target: 45 minutes)
+Remove/replace all six instances, including QA tooling. Use explicit dispatch or safe parsing; add unit tests where needed.
+Keep the ESLint “no-eval” and CI gate strict; do not downgrade rules.
+2. Remove all SQL string-concat patterns (target: 45 minutes in parallel)
+
+Convert the three detections to parameterized queries/ORM builders.
+Add a test that attempts injection on each affected path; prove blocked behavior.
+Keep the SQL-concat ban strict; no rule weakening.
+3. Rebuild and re-scan (immediately after 1–2)
+
+Produce fresh dist; run secret scan (repo + dist), eval/SQL gates, SAST, and the negative SQLi tests.
+Post artifact hash/commit SHA and all reports showing 0 findings.
+4. Maintain protections
+
+Keep WAF rules for billing paths and SQLi signatures.
+Continue auth contract tests (401/200) and reconciliation monitor ($0).
+Cadence and checkpoints
+
+T+60 min: Post file paths and diffs showing the six eval removals and three SQL fixes; unit/integration test IDs attached.
+T+120 min: Post new build hash with green scans (0 eval, 0 SQL concat, 0 secrets) and SAST clean; negative injection tests passing.
+Unfreeze review
+
+Upon green scans, deliver the single pre-read link within 30 minutes, and we will hold an expedited 20-minute Unfreeze Review immediately thereafter with the same Go/No-Go matrix.
+Go only if: 0 Critical/High, scans/gates clean (repo + dist), protected/public endpoints correct, SQLi tests blocked + SAST clean, SLOs stable.
+Do not weaken detectors or downgrade gate severities. Quality over speed remains the rule. Execute and report at the 60- and 120-minute checkpoints.

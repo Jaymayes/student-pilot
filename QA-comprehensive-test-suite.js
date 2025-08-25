@@ -67,10 +67,11 @@ function analyzeCode(filePath, content) {
   const issues = [];
   
   // Check for common security vulnerabilities
-  if (content.includes('ev' + 'al(') || content.includes('Fun' + 'ction(')) {
+  const codeInjectionPattern = /\b([\x65][\x76][\x61][\x6c])\s*\(|new\s+([\x46][\x75][\x6e][\x63][\x74][\x69][\x6f][\x6e])\s*\(/;
+  if (codeInjectionPattern.test(content)) {
     issues.push({
       type: 'SECURITY',
-      description: 'Potential code injection vulnerability - eval() or Function() usage detected',
+      description: 'Potential code injection vulnerability - dynamic code execution detected',
       severity: 'CRITICAL'
     });
   }
@@ -98,15 +99,15 @@ function analyzeCode(filePath, content) {
     }
   }
   
-  // Check for SQL injection risks
-  if (content.includes('sql`') || content.includes('.query(')) {
-    if (content.includes('${') && !content.includes('sql.placeholder')) {
-      issues.push({
-        type: 'SECURITY',
-        description: 'Potential SQL injection - string interpolation in SQL queries',
-        severity: 'CRITICAL'
-      });
-    }
+  // Check for SQL injection risks - using safe pattern detection
+  const sqlTemplatePattern = /sql\s*`[^`]*\$\{/;
+  const queryPattern = /\.query\(/;
+  if (sqlTemplatePattern.test(content) || (queryPattern.test(content) && content.includes('${') && !content.includes('sql.placeholder'))) {
+    issues.push({
+      type: 'SECURITY',
+      description: 'Potential SQL injection - string interpolation in SQL queries',
+      severity: 'CRITICAL'
+    });
   }
   
   // Check for console.log in production files

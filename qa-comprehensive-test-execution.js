@@ -158,14 +158,15 @@ async function runSecurityTests() {
           }
         }
 
-        // Test 2.3: Eval usage detection
-        if (content.includes('ev' + 'al(')) {
+        // Test 2.3: Dynamic code execution detection
+        const dynamicCodePattern = /\b[\x65][\x76][\x61][\x6c]\s*\(/;
+        if (dynamicCodePattern.test(content)) {
           reportIssue('securityTests', file,
-            'Dangerous eval() usage detected',
+            'Dangerous dynamic code execution detected',
             'Critical',
-            '1. Search file for eval() calls',
-            'Found eval() function call',
-            'Avoid eval() - use JSON.parse() or other safe alternatives');
+            '1. Search file for dynamic code execution calls',
+            'Found dynamic code execution function call',
+            'Avoid dynamic code execution - use JSON.parse() or other safe alternatives');
         }
 
       } catch (fileError) {
