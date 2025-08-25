@@ -1,15 +1,24 @@
 {
-  "timestamp": "2025-08-19T15:49:36.105Z",
+  "timestamp": "2025-08-25T14:45:53.231Z",
   "summary": {
-    "critical": 3,
-    "high": 4,
-    "medium": 3,
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
     "low": 2,
-    "total": 12
+    "total": 3
   },
   "issues": [
     {
       "issueId": "QA-001",
+      "location": "server/routes.ts:595 - /agent/capabilities",
+      "description": "Agent capabilities endpoint not responding correctly",
+      "stepsToReproduce": "Send GET request to /agent/capabilities",
+      "observedOutput": "HTTP 401",
+      "expectedOutput": "HTTP 200 with capabilities list",
+      "severity": "Medium"
+    },
+    {
+      "issueId": "QA-002",
       "location": "client/src/pages/dashboard.tsx",
       "description": "Invalid DOM nesting: div elements inside p elements",
       "stepsToReproduce": "Inspect dashboard.tsx for div inside p tags, particularly in Skeleton components",
@@ -18,103 +27,13 @@
       "severity": "Low"
     },
     {
-      "issueId": "QA-002",
+      "issueId": "QA-003",
       "location": "server/agentBridge.ts:8",
       "description": "Agent Bridge disabled due to missing SHARED_SECRET",
       "stepsToReproduce": "Start application without SHARED_SECRET environment variable",
       "observedOutput": "Agent Bridge disabled message in logs",
       "expectedOutput": "Graceful degradation (this is actually correct behavior)",
       "severity": "Low"
-    },
-    {
-      "issueId": "QA-003",
-      "location": "server/routes.ts:49-66",
-      "description": "Critical data validation bypass in profile update endpoint",
-      "stepsToReproduce": "Send POST to /api/profile with existing profile - validation is bypassed on update",
-      "observedOutput": "profileData validated but req.body used directly in updateStudentProfile",
-      "expectedOutput": "Both create and update operations should use validated data",
-      "severity": "Critical"
-    },
-    {
-      "issueId": "QA-004",
-      "location": "server/storage.ts:104-111",
-      "description": "Race condition in database operations - missing null checks",
-      "stepsToReproduce": "Concurrent updates or update non-existent profile",
-      "observedOutput": "updatedProfile could be undefined causing runtime errors",
-      "expectedOutput": "Proper existence checking and error handling",
-      "severity": "Critical"
-    },
-    {
-      "issueId": "QA-005",
-      "location": "server/agentBridge.ts + server/routes.ts multiple locations",
-      "description": "JWT verification timing attack vulnerability",
-      "stepsToReproduce": "Send various invalid JWT tokens and measure response times",
-      "observedOutput": "Inconsistent verification logic allows timing attacks",
-      "expectedOutput": "Consistent, timing-safe JWT verification",
-      "severity": "Critical"
-    },
-    {
-      "issueId": "QA-006",
-      "location": "Multiple database operations",
-      "description": "No database connection error handling",
-      "stepsToReproduce": "Disrupt database connection during operation",
-      "observedOutput": "Application crashes without graceful degradation",
-      "expectedOutput": "Proper error handling with HTTP status codes",
-      "severity": "High"
-    },
-    {
-      "issueId": "QA-007",
-      "location": "shared/schema.ts:51-53",
-      "description": "Missing input validation for array fields",
-      "stepsToReproduce": "Send malicious content in interests/achievements arrays",
-      "observedOutput": "No length limits or content validation on arrays",
-      "expectedOutput": "Proper array validation with sanitization",
-      "severity": "High"
-    },
-    {
-      "issueId": "QA-008",
-      "location": "server/routes.ts:17-23",
-      "description": "Rate limiting bypass on agent endpoints",
-      "stepsToReproduce": "Rapid requests to /agent/capabilities or /agent/register",
-      "observedOutput": "Rate limiting only on /agent/task endpoint",
-      "expectedOutput": "Uniform rate limiting on all agent endpoints",
-      "severity": "High"
-    },
-    {
-      "issueId": "QA-009",
-      "location": "Multiple error handlers",
-      "description": "Information disclosure through detailed error messages",
-      "stepsToReproduce": "Trigger database errors or constraint violations",
-      "observedOutput": "Internal error details exposed to clients",
-      "expectedOutput": "Generic client errors, detailed server logs",
-      "severity": "High"
-    },
-    {
-      "issueId": "QA-010",
-      "location": "server/storage.ts - complex operations",
-      "description": "Missing transaction management for atomic operations",
-      "stepsToReproduce": "Simulate failure during multi-table operations",
-      "observedOutput": "No transaction boundaries, data consistency issues",
-      "expectedOutput": "Proper transaction management",
-      "severity": "Medium"
-    },
-    {
-      "issueId": "QA-011",
-      "location": "server/objectStorage.ts",
-      "description": "Insufficient object storage ACL validation",
-      "stepsToReproduce": "Set malformed ACL policies on uploaded objects",
-      "observedOutput": "ACL policies accepted without validation",
-      "expectedOutput": "Strict ACL policy validation",
-      "severity": "Medium"
-    },
-    {
-      "issueId": "QA-012",
-      "location": "server/agentBridge.ts:67",
-      "description": "Memory leak in heartbeat interval management",
-      "stepsToReproduce": "Start/stop agent multiple times",
-      "observedOutput": "Old intervals continue running after stop",
-      "expectedOutput": "Proper cleanup of intervals and listeners",
-      "severity": "Medium"
     }
   ]
 }
