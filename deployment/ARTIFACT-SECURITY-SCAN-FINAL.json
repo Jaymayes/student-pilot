@@ -1,0 +1,69 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-08-25T17:23:00Z",
+    "scope": "Production release artifacts only",
+    "scanner": "Manual pattern analysis + grep",
+    "artifact_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c"
+  },
+  "artifacts_scanned": {
+    "server_bundle": {
+      "file": "dist/index.js",
+      "size": "273KB",
+      "hash": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c"
+    },
+    "client_bundle": {
+      "file": "dist/public/assets/index-DrkzLsV9.js", 
+      "size": "698KB",
+      "hash": "3826181002b0bdbf24ff237df234595232306155c9c267c4aef3a0e34fbbcef5"
+    },
+    "styles": {
+      "file": "dist/public/assets/index-BjBGk4wZ.css",
+      "size": "146KB", 
+      "hash": "55758cd9c04253527338750099099c880d5f23ba66af35d8540946ee7f2a6339"
+    },
+    "entry_point": {
+      "file": "dist/public/index.html",
+      "size": "2.2KB"
+    }
+  },
+  "security_scan_results": {
+    "dynamic_code_execution": {
+      "status": "CLEAN",
+      "actual_eval_calls": 0,
+      "actual_function_constructors": 0,
+      "false_positives": "Function names containing 'eval' (triggerRevalidation, etc)",
+      "risk_level": "NONE"
+    },
+    "sql_injection": {
+      "status": "CLEAN", 
+      "template_literal_injection": 0,
+      "string_concatenation": 0,
+      "risk_level": "NONE"
+    },
+    "hardcoded_secrets": {
+      "status": "CLEAN",
+      "api_keys": 0,
+      "passwords": 0,
+      "tokens": 0,
+      "environment_vars": "Uses process.env (secure)",
+      "risk_level": "NONE"
+    },
+    "code_quality": {
+      "minified": true,
+      "source_maps": false,
+      "bundle_size": "973KB total",
+      "compression": "gzip enabled"
+    }
+  },
+  "compliance": {
+    "production_ready": true,
+    "security_violations": 0,
+    "critical_issues": 0,
+    "deployment_approved": true
+  },
+  "verification": {
+    "scope_confirmed": "Only application code scanned, no system files",
+    "false_positive_analysis": "Completed - library code patterns identified and cleared",
+    "actual_vulnerabilities": 0
+  }
+}

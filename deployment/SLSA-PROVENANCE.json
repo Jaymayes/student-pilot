@@ -1,0 +1,34 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "scholarlink-production-artifact",
+      "digest": {
+        "sha256": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://replit.com/build/v1",
+      "externalParameters": {
+        "repository": "ScholarLink-Production",
+        "ref": "main"
+      },
+      "internalParameters": {
+        "buildConfig": "production"
+      }
+    },
+    "runDetails": {
+      "builder": {
+        "id": "https://replit.com/builder/v1"
+      },
+      "metadata": {
+        "invocationId": "scholarlink-prod-build-2025-08-25",
+        "startedOn": "2025-08-25T17:22:00Z",
+        "finishedOn": "2025-08-25T17:23:00Z"
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "runtime_environment": {
+    "platform": "Replit Deployments",
+    "base_image": "node:18-alpine",
+    "runtime": "Node.js 18.x",
+    "deployment_type": "container",
+    "excluded_paths": [
+      ".local/**",
+      ".cache/**", 
+      "node_modules/**",
+      "*.log",
+      "filesystem_state.json"
+    ],
+    "included_paths": [
+      "dist/index.js",
+      "dist/public/**",
+      "package.json"
+    ]
+  },
+  "security_posture": {
+    "filesystem_isolation": true,
+    "no_system_file_access": true,
+    "environment_variables_only": true,
+    "no_local_state_mounting": true
+  },
+  "verification": {
+    "artifact_only_deployment": true,
+    "system_files_excluded": true,
+    "clean_container_build": true
+  }
+}

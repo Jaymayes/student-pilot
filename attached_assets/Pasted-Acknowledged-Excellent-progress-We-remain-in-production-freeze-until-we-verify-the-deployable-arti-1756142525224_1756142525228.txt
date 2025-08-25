@@ -1,0 +1,31 @@
+Acknowledged. Excellent progress. We remain in production freeze until we verify the deployable artifact is 100% clean. The residual detections in local/.state are not blockers if they are definitively outside the release artifact and runtime.
+
+Decision: Proceed to expedited Unfreeze Review once the final release artifact is proven clean.
+
+What to do next (45–60 minutes max)
+
+Prove scope: Show that the remaining detections are only in non-deployable local/.state paths and are excluded from the release artifact and runtime.
+Build the immutable release artifact:
+Produce the container image (or deployable bundle) and share the image digest (sha256).
+Generate and attach SBOM (CycloneDX or SPDX) and SLSA-style provenance.
+Sign the image with cosign (or equivalent) and attach attestations.
+Scan the artifact itself (not the dev workstation):
+Run secret, eval, and SQL‑concat scanners against the container image filesystem.
+Run SAST and the negative SQLi tests against the compiled server bundle.
+Expected: 0 findings in the artifact (repo + dist inside the image).
+Confirm runtime parity:
+List what’s actually deployed at runtime (base image, OS packages, node runtime).
+Confirm the artifact excludes any ~/.local or state directories and cannot mount them.
+Post the single pre‑read link:
+Artifact digest and signature, SBOM, clean scan reports, access‑control test results (401/200), WAF metrics, dashboards, reconciliation $0, feature‑flag inventory, build SHA, and environment inventory.
+If all green, I will hold an expedited 20‑minute Unfreeze Review immediately with the standard Go/No‑Go matrix. Go only if: 0 Critical, 0 High, clean scans on the artifact, access control correct, SQLi tests blocked, SLOs stable.
+
+Optional hardening to execute in parallel (does not block Go)
+
+Security headers: Enforce strict CSP, HSTS (includeSubDomains, preload), Referrer‑Policy, X‑Frame‑Options/Frame‑Ancestors, X‑Content‑Type‑Options.
+Keys and secrets: Rotate JWT keys with KID versioning; ensure short‑TTL secrets via a vault with automatic rotation; verify no secrets in env of client build.
+Authorization posture: Add scoped permissions for billing endpoints and policy tests; keep WAF rules for billing and SQLi signatures during the ramp.
+Audit and integrity: Make security/audit logs tamper‑evident (hash chain) and set retention tiers; finalize incident runbook you just exercised.
+DB least privilege: Enforce separate read/write roles and minimize grants; confirm transaction guards on complex writes.
+Compliance: Queue the Privacy/ToS update reflecting SameSite/security hardening for post‑Go.
+Once you post the pre‑read link with the artifact scans (0 findings), I’ll convene the expedited review and render a decision. Quality over speed until we clear the bar.

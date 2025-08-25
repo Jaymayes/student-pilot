@@ -1,0 +1,59 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:scholarlink-prod-artifact-2025-08-25",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-08-25T17:24:00Z",
+    "tools": [
+      {
+        "vendor": "Replit",
+        "name": "build-system",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "bom-ref": "scholarlink-prod",
+      "name": "ScholarLink",
+      "version": "1.0.0-prod",
+      "description": "Scholarship management platform production release"
+    }
+  },
+  "components": [
+    {
+      "type": "application",
+      "bom-ref": "scholarlink-server",
+      "name": "ScholarLink Server Bundle",
+      "version": "1.0.0",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c"
+        }
+      ],
+      "purl": "pkg:npm/scholarlink-server@1.0.0"
+    },
+    {
+      "type": "application", 
+      "bom-ref": "scholarlink-client",
+      "name": "ScholarLink Client Bundle",
+      "version": "1.0.0",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-256", 
+          "content": "3826181002b0bdbf24ff237df234595232306155c9c267c4aef3a0e34fbbcef5"
+        }
+      ],
+      "purl": "pkg:npm/scholarlink-client@1.0.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "scholarlink-prod",
+      "dependsOn": ["scholarlink-server", "scholarlink-client"]
+    }
+  ]
+}

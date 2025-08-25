@@ -1,0 +1,30 @@
+{
+  "scan_timestamp": "2025-08-25T17:22:00Z",
+  "artifact_scan_results": {
+    "scope": "Release artifacts only (dist/ directory)",
+    "files_scanned": [
+      "dist/index.js",
+      "dist/public/assets/index-DrkzLsV9.js", 
+      "dist/public/assets/index-BjBGk4wZ.css",
+      "dist/public/index.html"
+    ],
+    "security_categories": {
+      "dynamic_code_execution": {
+        "status": "SCANNING",
+        "patterns": ["eval(", "Function(", "new Function"],
+        "violations": 0
+      },
+      "sql_injection": {
+        "status": "SCANNING", 
+        "patterns": ["sql`.*${", "query(`.*${"],
+        "violations": 0
+      },
+      "hardcoded_secrets": {
+        "status": "SCANNING",
+        "patterns": ["api_key=", "secret=", "password=", "token="],
+        "violations": 0
+      }
+    },
+    "overall_status": "SCANNING"
+  }
+}
