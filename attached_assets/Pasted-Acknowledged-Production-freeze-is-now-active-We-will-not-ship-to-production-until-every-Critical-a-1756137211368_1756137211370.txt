@@ -1,0 +1,87 @@
+Acknowledged. Production freeze is now active. We will not ship to production until every Critical and High item is closed and verified.
+
+Executive directives (effective immediately)
+
+Topline guardrails
+
+Production block: No deploys to public traffic until sign-off. Canary allowed only for verification behind flags.
+Ownership: Backend Lead owns Critical/High server items; Frontend Lead owns client items; DevOps owns CI/CD gates and dashboards; QA/Sec owns validation and sign-off.
+Rationale: Trust and security are core product features and prerequisites for our marketplace growth; they are not optional checks . We will follow a structured, test-first remediation with continuous verification to protect velocity post-fix .
+72-hour remediation plan (with verification)
+
+Hours 0–24: Eliminate Critical risks
+
+Remove eval() usage (QA-002, QA-006)
+
+Replace all eval with safe parsing/explicit dispatch; add ESLint rule to ban eval globally and CI gate to fail on any new occurrences.
+Verification: Code search = 0 matches; CI rule active; unit tests green.
+Secrets in source/compiled assets (QA-004, QA-005) + audit for auth bypass on /api/billing/balance
+
+Actions:
+Run secret scanners (gitleaks/trufflehog) on repo and build artifacts; treat any positives as real until proven false.
+Rotate/revoke any exposed keys; replace with environment-injected runtime config; purge secrets from git history; invalidate CDN caches.
+Ensure no server secrets are ever embedded in client bundles (dist/…); only public keys allowed.
+Lock down /api/billing/balance behind auth + authorization check; regression tests for access control.
+Verification: Secret scan = 0 findings (repo + dist); rotation record completed; endpoint returns 401/403 to unauth; 200 only to authorized.
+SSR 500 fix
+
+Fix scholarshipsListingSSR null/undefined handling for count; add defensive checks and integration test.
+Verification: Public listing returns 200/404 (no 500), SSR test green.
+Hours 24–48: Close High risks
+
+SQL injection hardening (QA-003, QA-007, QA-016)
+
+Replace template literal queries with parameterized queries/Drizzle query builder; add lint rule to ban string concatenation in SQL.
+Add negative tests for injection attempts on all affected endpoints.
+Verification: SAST clean; injection tests blocked.
+Async error handling (QA-017, QA-018)
+
+Add try/catch around all async DB/billing functions, transaction rollback on error, and retries for transient DB errors.
+Verification: Fault-injection tests pass; no partial writes; error taxonomy logged without PII.
+Public/private API contract and CORS
+
+Define allowlist origins; implement CORS middleware; ensure public endpoints (/api/scholarships, /scholarships) return 200/404 (not 401/500) and protected endpoints (e.g., /api/billing/balance) require auth.
+Verification: Endpoint contract tests green; OPTIONS preflight works per policy.
+Hours 48–72: Medium cleanup required for unblock
+
+Input validation and limits (QA-012, QA-013, QA-014)
+
+Enforce Zod schemas for numeric bounds, negative values, oversized payloads; return 400/413 appropriately.
+Verification: Edge-case tests green; rate of 401s on public endpoints near zero.
+Transaction coverage and JWT edges (QA-015, QA-019)
+
+Wrap complex write ops in transactions; add tests for malformed/expired/invalid JWTs; uniform error paths without data leakage.
+Verification: DB consistency tests pass; JWT edge tests pass.
+Rate limiter store (QA-020)
+
+Migrate from memory store to Redis in production (keep memory for dev); set operational dashboards.
+Verification: Rate-limit metrics visible; no unintended throttling.
+Dev environment hygiene (QA-001)
+
+Add .env.example and bootstrap docs; keep env validation fail-fast on startup.
+Verification: New dev setup passes health checks.
+CI/CD gates and dashboards (go live by Hour 36)
+
+CI gates: eval ban, SQL string-concat ban, secret scanning, PII log scan, Zod validation coverage, auth access-control tests.
+Dashboards: auth abuse (blocked attempts, FP rate), endpoint contract health, SSR error rate, DB rollback rate, secret scan status, error budget and p95 latency.
+Exit criteria to lift the production block
+
+Critical: 0 open; High: 0 open, all verified by QA/Sec with rerun of qa-comprehensive-execution-report.json.
+Secrets: 0 findings in repo and built assets; rotation completed and documented.
+Access control: /api/billing/balance protected; all public endpoints return correct status codes.
+SQLi: All suspected areas converted to parameterized queries; injection tests blocked.
+Stability: No SLO regression (99.9% uptime, ~120 ms p95); error budget stable.
+Risk management
+
+Potential false positives on “secret” strings in compiled bundles: still rotate and replace; treat as exposure until confirmed benign; maintain cache invalidation runbook.
+CORS tightening may break integrations: staged rollout with origin allowlist expansion by request.
+SQL query refactors: ship behind flags; canary 10% traffic; auto-rollback on error spike.
+Strategic alignment
+
+This plan adheres to our principle that security and availability are foundational to brand trust and growth. Our Playbook mandates a proactive, defense-in-depth posture and positions trust as a core product feature, not a checkbox . We will execute remediation via a disciplined test life cycle with continuous testing to preserve velocity after fixes .
+Immediate asks (today)
+
+DevOps: Wire secret scanning and eval/SQL lint rules into CI now; set up Redis for rate limiting in staging/prod.
+QA/Sec: Provide exact file paths/line refs where possible for the SQL template literals; prep the post-fix verification suite and schedule a canary window.
+Backend/Frontend: Begin Hour 0–24 tasks; confirm when /api/billing/balance is gated and SSR errors are resolved in staging.
+I will maintain the production freeze until we meet the exit criteria above. Report status and KPI movement at 6 PM and 10 AM daily.
