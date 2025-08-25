@@ -450,14 +450,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Scholarship matching routes
+  // Scholarship matching routes with auto profile creation
   app.get('/api/matches', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const profile = await storage.getStudentProfile(userId);
+      let profile = await storage.getStudentProfile(userId);
       
+      // Create a minimal profile if none exists
       if (!profile) {
-        return res.status(404).json({ message: "Student profile not found" });
+        const user = await storage.getUser(userId);
+        if (user) {
+          profile = await storage.createStudentProfile({
+            userId,
+            gpa: null,
+            major: null,
+            academicLevel: null,
+            graduationYear: null,
+            school: null,
+            location: null,
+            demographics: {},
+            interests: [],
+            extracurriculars: [],
+            achievements: [],
+            financialNeed: false,
+            completionPercentage: 0
+          });
+        } else {
+          return res.status(404).json({ message: "User not found" });
+        }
       }
 
       const matches = await storage.getScholarshipMatches(profile.id);
@@ -547,14 +567,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Application routes
+  // Application routes with auto profile creation
   app.get('/api/applications', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const profile = await storage.getStudentProfile(userId);
+      let profile = await storage.getStudentProfile(userId);
       
+      // Create a minimal profile if none exists
       if (!profile) {
-        return res.status(404).json({ message: "Student profile not found" });
+        const user = await storage.getUser(userId);
+        if (user) {
+          profile = await storage.createStudentProfile({
+            userId,
+            gpa: null,
+            major: null,
+            academicLevel: null,
+            graduationYear: null,
+            school: null,
+            location: null,
+            demographics: {},
+            interests: [],
+            extracurriculars: [],
+            achievements: [],
+            financialNeed: false,
+            completionPercentage: 0
+          });
+        } else {
+          return res.status(404).json({ message: "User not found" });
+        }
       }
 
       const applications = await storage.getApplicationsByStudent(profile.id);
