@@ -1,0 +1,39 @@
+{
+  "t_plus_24h_aar": {
+    "timestamp": "2025-08-26T17:30:00Z",
+    "purpose": "comprehensive_after_action_review",
+    "participants": "security_reliability_finance_process_teams"
+  },
+  "required_deliverables": {
+    "security_section": {
+      "pii_redaction": "confirm_equals_zero_throughout_deployment",
+      "auth_false_positive": "confirm_under_or_equal_0.5_percent",
+      "artifact_secret_scans": "confirm_clean_throughout_deployment",
+      "waf_metrics": "effectiveness_analysis_and_hit_patterns",
+      "incident_runbook_updates": "based_on_deployment_experience"
+    },
+    "reliability_section": {
+      "uptime_target": "confirm_greater_than_or_equal_99.9_percent",
+      "p95_performance": "within_plus_minus_10_percent_baseline",
+      "endpoint_contract": "confirm_100_percent_compliance",
+      "ssr_trend": "error_rate_analysis_throughout_deployment",
+      "geo_client_outliers": "identification_and_analysis"
+    },
+    "finance_section": {
+      "reconciliation_deltas": "confirm_equals_zero_dollars",
+      "idempotency_adherence": "confirm_zero_failures",
+      "dispute_charge_anomalies": "any_issues_identified_and_resolved"
+    },
+    "process_section": {
+      "ci_security_gate_compliance": "adherence_throughout_deployment",
+      "hotfix_change_log": "comprehensive_record_of_modifications",
+      "lessons_learned": "process_improvements_identified",
+      "permanent_controls_adopted": "security_and_reliability_enhancements"
+    }
+  },
+  "follow_ups": {
+    "format": "top_5_actions_with_owners_and_deadlines",
+    "horizons": ["72_hour_items", "14_day_items"],
+    "accountability": "specific_owners_assigned_with_clear_deliverables"
+  }
+}

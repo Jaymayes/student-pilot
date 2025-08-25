@@ -1,0 +1,57 @@
+{
+  "growth_sprint_transition": {
+    "trigger": "after_aar_passes",
+    "deployment_method": "behind_flags_with_gradual_rollout",
+    "execution_order": "sequential_priority_based"
+  },
+  "deployment_sequence": [
+    {
+      "priority": 1,
+      "feature": "pricing_onboarding_experiments",
+      "requirements": "with_entitlement_checks",
+      "implementation": "a_b_testing_framework",
+      "validation": "conversion_rate_optimization"
+    },
+    {
+      "priority": 2,
+      "feature": "provider_portal_mvp_slices",
+      "scope": "pilot_partners",
+      "targets": "20_pilots_lois_first_gmv_processed",
+      "validation": "partner_onboarding_success"
+    },
+    {
+      "priority": 3,
+      "feature": "seo_instrumentation_cwv_beacons",
+      "scope": "key_templates",
+      "additional": "ramp_auto_page_maker",
+      "validation": "search_performance_optimization"
+    }
+  ],
+  "kpi_framework": {
+    "north_star": {
+      "metric": "successful_scholarship_submissions_per_active_user",
+      "abbreviation": "sspau",
+      "tracking": "daily_weekly_reporting"
+    },
+    "b2c_metrics": [
+      "organic_sessions",
+      "free_to_paid_conversion_rate",
+      "arpu_average_revenue_per_user",
+      "user_activation_rate",
+      "d7_retention_rate"
+    ],
+    "b2b_metrics": [
+      "active_providers_count",
+      "gmv_gross_merchandise_value",
+      "3_percent_fee_revenue",
+      "provider_net_promoter_score"
+    ],
+    "efficiency_slos": [
+      "cac_customer_acquisition_cost_trend",
+      "cwv_core_web_vitals_pass_rate",
+      "search_index_coverage_percentage",
+      "platform_uptime_percentage",
+      "p95_latency_performance"
+    ]
+  }
+}
