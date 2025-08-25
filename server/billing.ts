@@ -20,25 +20,30 @@ import {
 export const CREDITS_PER_DOLLAR = 1000; // 1,000 credits = $1.00 USD
 export const MILLICREDITS_PER_CREDIT = 1000; // 1 credit = 1,000 millicredits
 
-// Credit package definitions with exact pricing and bonuses - 1,000 credits = $1.00
+// Credit package definitions with exact pricing and bonuses - QA-010: BigInt precision
+// 1,000 credits = $1.00 USD, stored as millicredits for precision
 export const CREDIT_PACKAGES = {
   starter: {
     priceUsdCents: 999, // $9.99
     baseCredits: 9990,
     bonusCredits: 0,
     totalCredits: 9990,
+    // BigInt millicredits for precise calculations
+    totalMillicredits: BigInt(9990 * MILLICREDITS_PER_CREDIT),
   },
   professional: {
     priceUsdCents: 4999, // $49.99
     baseCredits: 49990,
     bonusCredits: 2500, // ~5% bonus
     totalCredits: 52490,
+    totalMillicredits: BigInt(52490 * MILLICREDITS_PER_CREDIT),
   },
   enterprise: {
     priceUsdCents: 9999, // $99.99
     baseCredits: 99990,
     bonusCredits: 10000, // ~10% bonus  
     totalCredits: 109990,
+    totalMillicredits: BigInt(109990 * MILLICREDITS_PER_CREDIT),
   },
 } as const;
 
@@ -67,13 +72,24 @@ export class PaymentRequiredError extends Error {
   }
 }
 
-// Utility functions
+// Utility functions - QA-010: Fixed precision errors with pure BigInt operations
 export function creditsToMillicredits(credits: number): bigint {
-  return BigInt(Math.round(credits * MILLICREDITS_PER_CREDIT));
+  // Convert to integer millicredits to avoid floating point precision issues
+  return BigInt(Math.floor(credits * MILLICREDITS_PER_CREDIT));
 }
 
 export function millicreditsToCredits(millicredits: bigint): number {
+  // Safe conversion for display purposes only - never use for calculations
   return Number(millicredits) / MILLICREDITS_PER_CREDIT;
+}
+
+// New BigInt-only utility functions for calculations
+export function creditsToMillicreditsBigInt(creditsBigInt: bigint): bigint {
+  return creditsBigInt * BigInt(MILLICREDITS_PER_CREDIT);
+}
+
+export function millicreditsToFullCredits(millicredits: bigint): bigint {
+  return millicredits / BigInt(MILLICREDITS_PER_CREDIT);
 }
 
 export function formatCredits(millicredits: bigint): string {
@@ -103,7 +119,7 @@ export class BillingService {
     return rate;
   }
 
-  // Calculate charge in millicredits for usage
+  // Calculate charge in millicredits for usage - QA-010: Fixed precision with BigInt arithmetic
   async calculateChargeMillicredits(
     model: string,
     inputTokens: number,
@@ -115,22 +131,29 @@ export class BillingService {
   }> {
     const rates = await this.getCurrentRate(model);
 
-    // Calculate cost in credits (exact decimal calculation)
-    const inputCostCredits = (inputTokens / 1000) * Number(rates.inputCreditsPer1k);
-    const outputCostCredits = (outputTokens / 1000) * Number(rates.outputCreditsPer1k);
-    const totalCostCredits = inputCostCredits + outputCostCredits;
-
-    let finalCostCredits = totalCostCredits;
+    // All calculations in BigInt millicredits to prevent precision loss
+    const inputTokensBigInt = BigInt(inputTokens);
+    const outputTokensBigInt = BigInt(outputTokens);
+    const inputRateMillicredits = BigInt(rates.inputCreditsPer1k) * BigInt(MILLICREDITS_PER_CREDIT);
+    const outputRateMillicredits = BigInt(rates.outputCreditsPer1k) * BigInt(MILLICREDITS_PER_CREDIT);
     
-    // Apply rounding mode
+    // Calculate cost in millicredits using integer arithmetic
+    const inputCostMillicredits = (inputTokensBigInt * inputRateMillicredits) / BigInt(1000);
+    const outputCostMillicredits = (outputTokensBigInt * outputRateMillicredits) / BigInt(1000);
+    let totalCostMillicredits = inputCostMillicredits + outputCostMillicredits;
+    
+    // Apply rounding mode (using BigInt arithmetic)
     if (roundingMode === "ceil") {
-      finalCostCredits = Math.ceil(totalCostCredits);
+      // Ceil operation: if there's any remainder, round up to next millicredit
+      const inputRemainder = (inputTokensBigInt * inputRateMillicredits) % BigInt(1000);
+      const outputRemainder = (outputTokensBigInt * outputRateMillicredits) % BigInt(1000);
+      if (inputRemainder > BigInt(0) || outputRemainder > BigInt(0)) {
+        totalCostMillicredits += BigInt(1);
+      }
     }
 
-    const chargeMillicredits = creditsToMillicredits(finalCostCredits);
-
     return {
-      chargeMillicredits,
+      chargeMillicredits: totalCostMillicredits,
       appliedRates: rates,
     };
   }
@@ -313,8 +336,9 @@ export class BillingService {
         throw new Error(`Cannot fulfill purchase with status: ${purchase.status}`);
       }
 
-      // Calculate millicredits to award
-      const millicreditsToAward = creditsToMillicredits(purchase.totalCredits);
+      // Calculate millicredits to award - QA-010: Use BigInt precision
+      const packageInfo = CREDIT_PACKAGES[purchase.packageCode as PackageCode];
+      const millicreditsToAward = packageInfo ? packageInfo.totalMillicredits : creditsToMillicreditsBigInt(BigInt(purchase.totalCredits));
 
       // Apply credit addition to ledger and balance
       await this.applyLedgerEntry(

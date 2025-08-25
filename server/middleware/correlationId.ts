@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
+import { secureLogger } from '../logging/secureLogger';
 
 /**
  * Middleware to ensure all API responses include a standardized X-Correlation-ID header
@@ -27,7 +28,11 @@ export function correlationIdMiddleware(req: Request, res: Response, next: NextF
         !/^[a-zA-Z0-9\-_.]+$/.test(correlationId)) {
       // Invalid correlation ID - generate new one
       correlationId = randomUUID();
-      console.warn(`Invalid X-Correlation-ID received: ${req.headers['x-correlation-id']}, generated new: ${correlationId}`);
+      secureLogger.warn('Invalid X-Correlation-ID received, generated new ID', {
+        correlationId,
+        method: req.method,
+        path: req.path
+      });
     }
   } else {
     // Generate new correlation ID
@@ -54,14 +59,12 @@ export function correlationErrorHandler(error: any, req: Request, res: Response,
   // Ensure correlation ID is in response even for errors
   res.setHeader('X-Correlation-ID', correlationId);
   
-  // Structured logging with correlation ID
-  console.error(`[${correlationId}] ${req.method} ${req.path} - Error:`, {
+  // Structured logging with correlation ID and PII masking
+  secureLogger.error(`Request failed: ${req.method} ${req.path}`, error, {
     correlationId,
     method: req.method,
     path: req.path,
-    userId: (req.user as any)?.claims?.sub,
-    error: error.message,
-    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    userId: (req.user as any)?.claims?.sub
   });
   
   // Generic error messages for production (security hardening)
@@ -101,15 +104,12 @@ export function billingCorrelationMiddleware(req: Request, res: Response, next: 
   correlationIdMiddleware(req, res, () => {
     const correlationId = (req as any).correlationId;
     
-    // Enhanced logging for billing operations
-    console.info(`[${correlationId}] Billing Request:`, {
+    // Enhanced logging for billing operations with security controls
+    secureLogger.info('Billing request initiated', {
       correlationId,
       method: req.method,
       path: req.path,
-      userId: (req.user as any)?.claims?.sub,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
-      timestamp: new Date().toISOString()
+      userId: (req.user as any)?.claims?.sub
     });
     
     next();

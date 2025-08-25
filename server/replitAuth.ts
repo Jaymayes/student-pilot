@@ -8,6 +8,7 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { env } from "./environment";
+import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
 
 // Environment validation is already done in environment.ts
 
@@ -39,7 +40,10 @@ export function getSession() {
     cookie: {
       httpOnly: true,
       secure: true,
+      sameSite: 'lax', // RT-018: CSRF protection
       maxAge: sessionTtl,
+      domain: undefined, // Explicit domain scoping
+      path: '/', // Explicit path scoping
     },
   });
 }
@@ -101,18 +105,25 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  app.get("/api/login", (req, res, next) => {
+  app.get("/api/login", authRateLimit, (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
-  app.get("/api/callback", (req, res, next) => {
+  app.get("/api/callback", authRateLimit, (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
-    })(req, res, next);
+    })(req, res, (err?: any) => {
+      if (!err && req.user) {
+        // Record successful authentication
+        const userClaims = (req.user as any)?.claims;
+        recordAuthSuccess(req, userClaims?.sub);
+      }
+      next(err);
+    });
   });
 
   app.get("/api/logout", (req, res) => {

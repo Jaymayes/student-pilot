@@ -1,0 +1,63 @@
+Approved and locked. Thank you for the precise plan and baselines. Here is the executive governance and the specific outcomes I expect over the next 72 hours, followed by what we do immediately after.
+
+Governance and operating rhythm
+
+Command cadence: 15-minute daily hardening stand-up; EOD status to exec channel with: item-by-item status, defect counts, newly blocked attacks, error budget, and any SLO movement.
+Change control: All changes behind flags; canary to 10% traffic for 2 hours; auto-rollback if p95 latency +15% or 5xx rate +0.5% vs baseline.
+Release policy: No production deploys with open High security issues. If any KPI breaches rollback guardrails, freeze and remediate before reattempt.
+Definition of done (72 hours)
+
+Sensitive data logging (RT-015)
+Outcome: Zero PII/secret fields in logs across auth, billing, profile, and file-upload paths.
+Controls live: Deny-by-default logging, allowlisted fields only, redaction at sink, JSON structured logs, correlation IDs on all requests.
+Verification: Automated PII/secret scan in CI and a production log sampling job showing 0 violations over last 1M log lines.
+2. Session cookie security (RT-018)
+
+Outcome: SameSite=Lax (Strict where viable), Secure, HttpOnly, scoped paths; CSRF tokens required for all state-changing requests.
+Verification: Runtime tests green; cross-site auth and embedded flows validated in staging and canary.
+3. Authentication rate limiting
+
+Outcome: Per-IP, per-account velocity limits; exponential backoff with jitter; soft lock + user notice; anomaly audit trail.
+KPI: ≥95% of brute-force attempts blocked; false positives <0.5%.
+Verification: Synthetic attack run in staging; dashboards show blocked attempts and FP rate.
+4. Billing precision and reconciliation
+
+Outcome: All amounts in integer minor units end-to-end (no floats); Stripe idempotency keys enforced; reconciliation monitor and ledger events live.
+KPI: $0 rounding differences; 100% idempotent charge creation.
+Verification: Reconciliation job shows zero deltas over 24h; unit and property tests for edge rounding.
+5. Database async error handling
+
+Outcome: Try/catch on async DB ops, transaction rollback on exceptions, retry with capped backoff for transient errors, circuit breaker on hot paths.
+Verification: Fault injection in staging demonstrates clean rollback and no partial writes.
+6. API client resilience (queryClient)
+
+Outcome: Capped retries with backoff; offline queue where safe; unified error normalization; user-visible toasts.
+KPI: Client-side network error rate reduced vs baseline; drop-off from network errors decreased.
+Dashboards that must be live by Hour 48
+
+Security and auth: Blocked attempts/day, FP rate, auth success rate, anomaly log stream.
+Billing: Reconciliation deltas, idempotency failures, charge success/decline reasons.
+Observability: Error budget burn, p95 latency, 5xx rate, canary vs control health.
+Compliance: Log redaction violations (CI + prod sample), CSRF token presence rate on POST/PUT/PATCH/DELETE.
+Risk controls and runbooks
+
+Rate limiting UX: Provide clear user messaging and a support override path for legitimate users locked out.
+Cookie change fallout: Monitor sign-in success and session churn; rollback switch ready if unexpected SSO or embedded contexts break.
+Billing hotfix rollback: Feature flag gating precision changes; reconcile and halt charges if deltas detected.
+What happens immediately after the 72-hour sprint
+We continue the Growth Sprint without delay. Priorities (owners already assigned):
+
+SEO engine (Auto Page Maker): Publish the first 5–10k pages; structured data + sitemap; Core Web Vitals guardrail; index coverage report.
+Conversion and monetization: Launch two A/Bs (pricing and onboarding) with experiment logging; Stripe entitlement checks live.
+Provider MVP: Listing + application builder + Stripe Connect; secure 20 pilot providers or LOIs; “1‑click apply” behind consent gate.
+Executive telemetry: Live KPI board for B2C/B2B, growth funnel, CWV, fee revenue, SLO/error budget.
+Data/DevOps integration of QA artifacts
+
+Ingest ./qa-analysis-report.json and ./qa-runtime-validation-report.json into the data lake and wire to the Security & Reliability board.
+Establish weekly trendlines: open issues by severity, test pass rate, and time-to-close for High and Medium.
+Final approvals and asks
+
+Proceed now under the provided hour-by-hour sequence. Notify me immediately if any scope threatens SLOs, billing integrity, or introduces user-visible auth friction beyond the stated FP threshold.
+By tomorrow 6 PM local: share the first dashboards (auth abuse, reconciliation, error budget) and a short EOD note confirming RT-015 and RT-018 fixes are live in canary without SLO regressions.
+Separately, provide baseline growth KPIs (last 7 days): organic sessions, free-to-paid conversion, ARPU, index coverage, and provider pipeline count so I can set next month’s revenue targets and budget allocations.
+This keeps us on track to compound low-CAC growth while safeguarding trust, payments, and partner credibility—directly supporting our path to profitable ARR. Execute.
