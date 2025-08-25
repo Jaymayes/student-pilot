@@ -1,0 +1,45 @@
+{
+  "aar_execution": {
+    "time": "2025-08-26T17:30:00Z",
+    "duration": "24_hours_post_launch",
+    "format": "comprehensive_review_with_follow_ups"
+  },
+  "required_sections": {
+    "security_section": {
+      "pii_redaction_violations": "count_and_analysis",
+      "auth_false_positives": "rate_and_trends",
+      "secret_artifact_scans": "clean_status_confirmation",
+      "waf_metrics": "effectiveness_review",
+      "deliverable_status": "agreed"
+    },
+    "reliability_section": {
+      "uptime_metrics": "percentage_and_downtime_analysis",
+      "p95_latency_performance": "baseline_comparison",
+      "endpoint_contract_health": "compliance_percentage",
+      "deliverable_status": "agreed"
+    },
+    "finance_section": {
+      "reconciliation_deltas": "exact_amounts_and_causes",
+      "transaction_integrity": "idempotency_adherence",
+      "billing_accuracy": "end_to_end_validation",
+      "deliverable_status": "agreed"
+    },
+    "process_section": {
+      "gate_compliance": "ci_cd_security_enforcement_review",
+      "hotfix_tracking": "emergency_changes_during_ramp",
+      "procedure_adherence": "protocol_compliance_assessment",
+      "deliverable_status": "agreed"
+    }
+  },
+  "follow_up_requirements": {
+    "format": "short_list_with_owners",
+    "categories": [
+      "security_improvements",
+      "reliability_optimizations", 
+      "process_refinements",
+      "tooling_enhancements"
+    ],
+    "assignment": "specific_owner_per_item",
+    "timeline": "actionable_deadlines"
+  }
+}

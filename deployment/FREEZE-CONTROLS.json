@@ -1,0 +1,48 @@
+{
+  "control_enforcement": {
+    "guardrails": {
+      "status": "fully_enforced_no_changes",
+      "triggers": [
+        {
+          "metric": "p95_latency",
+          "threshold": "+15%",
+          "action": "auto_rollback_and_refreeze"
+        },
+        {
+          "metric": "5xx_error_rate", 
+          "threshold": "+0.5%",
+          "action": "auto_rollback_and_refreeze"
+        },
+        {
+          "metric": "pii_violations",
+          "threshold": "any_violation",
+          "action": "auto_rollback_and_refreeze"
+        },
+        {
+          "metric": "reconciliation_delta",
+          "threshold": "> $0.00",
+          "action": "auto_rollback_and_refreeze"
+        }
+      ]
+    },
+    "security_protections": {
+      "waf_protections": "fully_enforced",
+      "tiered_rate_limiting": "fully_enforced", 
+      "ci_security_gates": "fully_enforced",
+      "status": "no_weakening_permitted"
+    },
+    "deployment_freeze": {
+      "scope": "merges_touching_auth_or_billing",
+      "duration": "until_24_hour_aar_completes",
+      "end_time": "2025-08-26T17:30:00Z",
+      "permitted_deployments": "behind_flags_only",
+      "enforcement": "mandatory"
+    }
+  },
+  "escalation_policy": {
+    "condition": "any_guardrail_trip_or_must_pass_metric_trends_at_risk",
+    "action": "escalate_immediately_in_exec_channel",
+    "timing": "before_next_checkpoint",
+    "priority": "immediate"
+  }
+}
