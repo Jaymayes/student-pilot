@@ -1,0 +1,58 @@
+{
+  "launch_metadata": {
+    "go_decision_timestamp": "2025-08-25T17:25:00Z",
+    "launch_initiated": "2025-08-25T17:25:30Z",
+    "deployment_id": "scholarlink-prod-launch-20250825",
+    "artifact_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c"
+  },
+  "traffic_ramp_schedule": {
+    "phase_1": {
+      "traffic_percentage": 10,
+      "duration": "2 hours",
+      "start_time": "2025-08-25T17:30:00Z",
+      "end_time": "2025-08-25T19:30:00Z",
+      "checkpoint": "T+2h health snapshot required"
+    },
+    "phase_2": {
+      "traffic_percentage": 50,
+      "duration": "4 hours", 
+      "start_time": "2025-08-25T19:30:00Z",
+      "end_time": "2025-08-25T23:30:00Z",
+      "checkpoint": "T+6h stability confirmation required"
+    },
+    "phase_3": {
+      "traffic_percentage": 100,
+      "start_time": "2025-08-25T23:30:00Z",
+      "checkpoint": "T+8h stability report required"
+    }
+  },
+  "guardrails_and_triggers": {
+    "auto_rollback_conditions": [
+      {
+        "metric": "p95_latency",
+        "threshold": "+15% vs baseline",
+        "action": "immediate_rollback"
+      },
+      {
+        "metric": "5xx_error_rate", 
+        "threshold": "+0.5%",
+        "action": "immediate_rollback"
+      },
+      {
+        "metric": "pii_redaction_violations",
+        "threshold": "any violation",
+        "action": "immediate_rollback_and_refreeze"
+      },
+      {
+        "metric": "reconciliation_delta",
+        "threshold": "> $0.00",
+        "action": "immediate_rollback"
+      }
+    ],
+    "waf_protections": {
+      "billing_paths": "active",
+      "sqli_signatures": "active", 
+      "status": "maintained_through_ramp"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "deployment_id": "scholarlink-prod-launch-20250825",
+  "compliance_archive_version": "1.0.0",
+  "created": "2025-08-25T17:30:18.780Z",
+  "artifacts": {
+    "sbom": {
+      "file": "./compliance-archive/sbom-scholarlink-prod-launch-20250825.json",
+      "hash": "17ea2a9e669bb7a35af6e801f9fef437e10b149c94b9a7ff472ef4d0f59e926f",
+      "timestamp": "2025-08-25T17:30:18.780Z"
+    },
+    "provenance": {
+      "file": "./compliance-archive/provenance-scholarlink-prod-launch-20250825.json",
+      "hash": "93858bdae6022646e5f7e85a4c8023dd67e46bb07122ae7ecc292efcb7f42aa6",
+      "timestamp": "2025-08-25T17:30:18.780Z"
+    },
+    "signatures": {
+      "file": "./compliance-archive/signatures-scholarlink-prod-launch-20250825.json",
+      "signatures": {
+        "server_bundle": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+        "client_bundle": "3826181002b0bdbf24ff237df234595232306155c9c267c4aef3a0e34fbbcef5",
+        "styles": "55758cd9c04253527338750099099c880d5f23ba66af35d8540946ee7f2a6339"
+      },
+      "timestamp": "2025-08-25T17:30:18.780Z"
+    },
+    "buildSha": {
+      "commit_sha": "latest-production-commit",
+      "build_timestamp": "2025-08-25T17:22:00Z",
+      "artifact_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+      "build_environment": "production"
+    },
+    "featureFlags": {
+      "deployment_id": "scholarlink-prod-launch-20250825",
+      "flags": {
+        "promoted_listings": false,
+        "entitlement_check": true,
+        "security_monitoring": true,
+        "rate_limiting": true,
+        "cors_protection": true,
+        "waf_protection": true,
+        "sqli_signatures": true
+      },
+      "timestamp": "2025-08-25T17:30:18.780Z"
+    },
+    "changelog": {
+      "deployment_id": "scholarlink-prod-launch-20250825",
+      "security_updates": [
+        "SameSite cookie enforcement implemented",
+        "HSTS headers with includeSubDomains and preload",
+        "Strict CSP policies deployed",
+        "Rate limiting enhanced (tiered: general/auth/billing)",
+        "SQL injection protection validated",
+        "PII redaction monitoring active"
+      ],
+      "compliance_updates": [
+        "SBOM generation automated",
+        "SLSA provenance tracking implemented",
+        "Artifact signing and attestation",
+        "Security gate CI/CD integration"
+      ],
+      "timestamp": "2025-08-25T17:30:18.780Z"
+    },
+    "securityScans": {
+      "file": "./compliance-archive/security-scans-scholarlink-prod-launch-20250825.json",
+      "hash": "55632ca5835506c2bb28c052f5e618a7aaa1848e7c36bc1e153fd06aa746473f",
+      "timestamp": "2025-08-25T17:30:18.780Z"
+    }
+  },
+  "compliance_requirements": {
+    "sbom_archived": true,
+    "provenance_tracked": true,
+    "signatures_verified": true,
+    "security_scans_clean": true,
+    "feature_flags_documented": true,
+    "changelog_complete": true
+  },
+  "retention_policy": {
+    "duration": "7 years",
+    "backup_frequency": "daily",
+    "access_controls": "restricted"
+  }
+}

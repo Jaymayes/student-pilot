@@ -1,0 +1,56 @@
+{
+  "checkpoint_schedule": {
+    "t_plus_2h": {
+      "time": "2025-08-25T19:30:00Z",
+      "phase": "10% → 50% transition",
+      "deliverables": {
+        "ramp_health_snapshot": {
+          "guardrail_status": "confirm_no_breaches",
+          "performance_metrics": "within_baseline_tolerance",
+          "error_rates": "within_acceptable_limits",
+          "reconciliation": "confirm_zero_delta"
+        }
+      },
+      "go_no_go_criteria": "all_guardrails_green_proceed_to_50_percent"
+    },
+    "t_plus_8h": {
+      "time": "2025-08-26T01:30:00Z",
+      "phase": "50% → 100% transition", 
+      "deliverables": {
+        "stability_report": {
+          "reconciliation": "confirm_zero_delta",
+          "pii_redaction": "confirm_clean_checks",
+          "slo_compliance": "within_bounds",
+          "performance": "baseline_maintained"
+        }
+      },
+      "go_no_go_criteria": "full_deployment_approved"
+    },
+    "t_plus_24h": {
+      "time": "2025-08-26T17:30:00Z",
+      "phase": "post_deployment_review",
+      "deliverables": {
+        "after_action_review": {
+          "security_metrics": {
+            "pii_redaction_violations": "target_zero",
+            "auth_false_positives": "target_le_0_5_percent",
+            "secret_scans": "artifact_clean",
+            "waf_metrics": "reviewed_and_validated"
+          },
+          "reliability_metrics": {
+            "uptime": "target_ge_99_9_percent",
+            "p95_latency": "within_plus_minus_10_percent_baseline",
+            "endpoint_contract_health": "target_100_percent"
+          },
+          "compliance_archive": {
+            "sbom": "archived",
+            "signatures_attestations": "archived", 
+            "build_sha": "archived",
+            "feature_flag_inventory": "archived",
+            "changelog_entries": "samesite_security_updates_documented"
+          }
+        }
+      }
+    }
+  }
+}

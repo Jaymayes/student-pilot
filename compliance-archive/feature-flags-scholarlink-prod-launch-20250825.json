@@ -1,0 +1,13 @@
+{
+  "deployment_id": "scholarlink-prod-launch-20250825",
+  "flags": {
+    "promoted_listings": false,
+    "entitlement_check": true,
+    "security_monitoring": true,
+    "rate_limiting": true,
+    "cors_protection": true,
+    "waf_protection": true,
+    "sqli_signatures": true
+  },
+  "timestamp": "2025-08-25T17:30:18.780Z"
+}
