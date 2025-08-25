@@ -1,0 +1,49 @@
+{
+  "execution_timestamp": "2025-08-25T19:30:00Z",
+  "health_snapshot_requirements": {
+    "format": "agreed_comprehensive_template",
+    "include": [
+      "performance_metrics_p95_5xx_resources",
+      "security_auth_waf_pii_reconciliation", 
+      "reliability_contracts_ssr_outliers",
+      "change_control_sha_flags_freeze",
+      "cache_hit_rate_trend_vs_baseline",
+      "early_cwv_rum_samples_if_available"
+    ]
+  },
+  "decision_execution": {
+    "green_status": {
+      "action": "ramp_to_50_percent_immediately",
+      "exec_confirmation_timeline": "within_5_minutes",
+      "required_confirmation_metrics": [
+        "updated_p95_and_5xx_rates",
+        "auth_false_positive_rate", 
+        "reconciliation_exact_zero_dollars",
+        "pii_violations_equals_zero",
+        "waf_hits_billing_and_sqli_last_2h",
+        "build_sha_image_digest",
+        "current_feature_flags_state"
+      ]
+    },
+    "amber_status": {
+      "action": "hold_at_10_percent",
+      "investigation_duration": "up_to_30_minutes",
+      "re_evaluation": "required_after_investigation"
+    },
+    "red_status": {
+      "action": "auto_rollback_and_refreeze",
+      "escalation": "exec_channel_immediate",
+      "required_info": [
+        "root_cause_analysis",
+        "eta_for_resolution"
+      ]
+    }
+  },
+  "controls_status": {
+    "waf_protection": "on_unchanged",
+    "tiered_rate_limiting": "on_unchanged",
+    "ci_security_gates": "unchanged", 
+    "auth_billing_merges": "frozen",
+    "other_deploys": "behind_flags_only"
+  }
+}
