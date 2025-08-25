@@ -105,18 +105,23 @@ export function creditsToUsd(credits: number): number {
 export class BillingService {
   // Get current rate for a model
   async getCurrentRate(model: string): Promise<RateCardEntry> {
-    const [rate] = await db
-      .select()
-      .from(rateCard)
-      .where(and(eq(rateCard.model, model), eq(rateCard.active, true)))
-      .orderBy(desc(rateCard.effectiveFrom))
-      .limit(1);
+    try {
+      const [rate] = await db
+        .select()
+        .from(rateCard)
+        .where(and(eq(rateCard.model, model), eq(rateCard.active, true)))
+        .orderBy(desc(rateCard.effectiveFrom))
+        .limit(1);
 
-    if (!rate) {
-      throw new Error(`No active rate found for model: ${model}`);
+      if (!rate) {
+        throw new Error(`No active rate found for model: ${model}`);
+      }
+
+      return rate;
+    } catch (error) {
+      console.error(`Error getting current rate for model ${model}:`, error);
+      throw error;
     }
-
-    return rate;
   }
 
   // Calculate charge in millicredits for usage - QA-010: Fixed precision with BigInt arithmetic
@@ -160,23 +165,28 @@ export class BillingService {
 
   // Get user's current balance
   async getUserBalance(userId: string): Promise<CreditBalance> {
-    let [balance] = await db
-      .select()
-      .from(creditBalances)
-      .where(eq(creditBalances.userId, userId));
+    try {
+      let [balance] = await db
+        .select()
+        .from(creditBalances)
+        .where(eq(creditBalances.userId, userId));
 
-    if (!balance) {
-      // Create initial balance for new user
-      [balance] = await db
-        .insert(creditBalances)
-        .values({
-          userId,
-          balanceMillicredits: BigInt(0),
-        })
-        .returning();
+      if (!balance) {
+        // Create initial balance for new user
+        [balance] = await db
+          .insert(creditBalances)
+          .values({
+            userId,
+            balanceMillicredits: BigInt(0),
+          })
+          .returning();
+      }
+
+      return balance;
+    } catch (error) {
+      console.error(`Error getting user balance for userId ${userId}:`, error);
+      throw error;
     }
-
-    return balance;
   }
 
   // Apply ledger entry with transaction safety

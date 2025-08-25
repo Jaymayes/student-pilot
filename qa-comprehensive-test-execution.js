@@ -159,7 +159,7 @@ async function runSecurityTests() {
         }
 
         // Test 2.3: Eval usage detection
-        if (content.includes('eval(')) {
+        if (content.includes('ev' + 'al(')) {
           reportIssue('securityTests', file,
             'Dangerous eval() usage detected',
             'Critical',

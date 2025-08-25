@@ -11,7 +11,7 @@ import { openaiService } from "./openai";
 import { agentBridge, type Task } from "./agentBridge";
 import { SecureJWTVerifier, AuthError } from "./auth";
 import rateLimit from "express-rate-limit";
-import { billingService, CREDIT_PACKAGES } from "./billing";
+import { billingService, CREDIT_PACKAGES, millicreditsToCredits, creditsToUsd } from "./billing";
 import { db } from "./db";
 import { purchases } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -1055,6 +1055,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     cursor: z.string().max(256).optional()
   });
   
+  // EMERGENCY SECURITY FIX: Add missing /api/billing/balance endpoint with authentication
+  app.get('/api/billing/balance', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ 
+          message: "Authentication required",
+          correlationId: (req as any).correlationId 
+        });
+      }
+
+      const balance = await billingService.getUserBalance(userId);
+      const balanceCredits = millicreditsToCredits(balance.balanceMillicredits || BigInt(0));
+
+      res.json({
+        balanceCredits: Number(balanceCredits.toFixed(2)),
+        balanceUsd: creditsToUsd(balanceCredits),
+        balanceMillicredits: Number(balance.balanceMillicredits || BigInt(0))
+      });
+    } catch (error) {
+      return correlationErrorHandler(error, req, res, (req as any).correlationId);
+    }
+  });
+
   // Get user's billing summary (balance, packages, recent activity)
   app.get('/api/billing/summary', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     try {

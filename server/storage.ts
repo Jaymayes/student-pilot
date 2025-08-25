@@ -104,7 +104,7 @@ export class DatabaseStorage implements IStorage {
     return await withDatabaseErrorHandling(async () => {
       const [newProfile] = await db
         .insert(studentProfiles)
-        .values([profile])
+        .values(profile)
         .returning();
       return newProfile;
     }, 'createStudentProfile');
@@ -119,7 +119,7 @@ export class DatabaseStorage implements IStorage {
       
       const [updatedProfile] = await db
         .update(studentProfiles)
-        .set(updateData)
+        .set(updateData as any)
         .where(eq(studentProfiles.userId, userId))
         .returning();
       
