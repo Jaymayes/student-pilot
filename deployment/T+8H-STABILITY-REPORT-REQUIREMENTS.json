@@ -1,0 +1,71 @@
+{
+  "t_plus_8h_stability_report": {
+    "timestamp": "2025-08-26T01:30:00Z",
+    "phase": "50_percent_to_100_percent_decision",
+    "baseline": "50_percent_phase_performance"
+  },
+  "required_metrics": {
+    "performance": {
+      "p95_latency": {
+        "overall": "vs_50_percent_phase_baseline",
+        "top_5_endpoints": "individual_endpoint_analysis",
+        "comparison": "against_new_baseline_at_50_percent"
+      },
+      "5xx_error_rate": {
+        "overall": "vs_50_percent_phase_baseline",
+        "top_3_error_codes": "trend_analysis_during_50_percent",
+        "comparison": "sustained_performance_validation"
+      },
+      "resource_utilization": {
+        "cpu_memory_db_headroom": "capacity_analysis_at_50_percent",
+        "scaling_behavior": "resource_consumption_trends"
+      },
+      "cache_performance": {
+        "hit_rate_trend": "throughout_50_percent_window",
+        "scaling_validation": "no_degradation_with_increased_traffic"
+      }
+    },
+    "security_integrity": {
+      "auth_metrics": {
+        "blocked_attempts": "count_and_trend_during_50_percent",
+        "false_positive_rate": "sustained_under_0.5_percent"
+      },
+      "waf_protection": {
+        "billing_hits_trend": "throughout_50_percent_window",
+        "sqli_hits_trend": "effectiveness_validation"
+      },
+      "pii_redaction": {
+        "violations_count": "target_zero_maintained",
+        "monitoring": "continuous_validation"
+      },
+      "billing_reconciliation": {
+        "deltas": "target_zero_dollars_sustained",
+        "idempotency_failures": "target_zero_maintained"
+      }
+    },
+    "reliability_ux": {
+      "endpoint_contract_health": "100_percent_compliance_sustained",
+      "ssr_error_rate": "trend_throughout_50_percent_window",
+      "geo_client_outliers": {
+        "mobile_safari": "specific_callout_required",
+        "other_outliers": "identification_and_analysis"
+      },
+      "core_web_vitals": {
+        "lcp_cls_inp": "rum_samples_during_50_percent",
+        "performance_validation": "sustained_user_experience"
+      }
+    },
+    "change_control": {
+      "build_sha_image_digest": "verification_unchanged",
+      "current_feature_flags": "state_confirmation",
+      "deployment_controls": {
+        "auth_billing_merges": "confirm_remain_frozen",
+        "other_deploys": "confirm_flags_only"
+      }
+    },
+    "hotfix_log": {
+      "changes_during_50_percent": "any_modifications_made",
+      "expectation": "none_expected"
+    }
+  }
+}

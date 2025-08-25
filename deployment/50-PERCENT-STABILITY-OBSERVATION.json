@@ -1,0 +1,44 @@
+{
+  "stability_observation": {
+    "phase": "50_percent_stability_window",
+    "start_time": "2025-08-25T19:31:00Z",
+    "observation_duration": "30_to_60_minutes",
+    "end_window": "2025-08-25T20:31:00Z",
+    "purpose": "confirm_stability_before_partner_comms"
+  },
+  "partner_assurance_trigger": {
+    "condition": "metrics_remain_green_for_full_observation_window",
+    "earliest_send_time": "2025-08-25T20:01:00Z",
+    "latest_send_time": "2025-08-25T20:31:00Z",
+    "requirement": "continuous_green_status"
+  },
+  "midpoint_snapshot": {
+    "time": "approximately_50_percent_plus_30_minutes",
+    "target_time": "2025-08-25T20:01:00Z",
+    "delivery": "exec_channel",
+    "content": "same_key_metrics_to_confirm_stability",
+    "purpose": "stability_confirmation"
+  },
+  "watch_items_enhanced": {
+    "geo_client_outliers": {
+      "mobile_safari": "alert_if_any_endpoint_crosses_85_percent_of_p95_threshold",
+      "threshold_85_percent": "146.6ms (85% of 172.5ms)",
+      "monitoring": "continuous"
+    },
+    "auth_false_positive_drift": {
+      "current": "0.3%",
+      "watch_threshold": "approaching_0.5%",
+      "support_override_workflow": "ensure_remains_responsive"
+    },
+    "reconciliation_monitoring": {
+      "hour_boundaries": "monitor_closely",
+      "retry_scenarios": "confirm_zero_delta_steady",
+      "target": "$0.00_maintained"
+    },
+    "cache_performance": {
+      "hit_rate": "no_regression_as_traffic_scales",
+      "baseline": "94.2%",
+      "monitoring": "continuous"
+    }
+  }
+}

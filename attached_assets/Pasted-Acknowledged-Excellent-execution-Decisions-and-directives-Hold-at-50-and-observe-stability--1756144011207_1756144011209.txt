@@ -1,0 +1,37 @@
+Acknowledged. Excellent execution.
+
+Decisions and directives
+
+Hold at 50% and observe stability for 30–60 minutes before any non-essential comms. If metrics remain green for that window, send the partner assurance brief.
+
+T+8h (01:30 UTC) stability report requirements (for 100% decision):
+
+Performance: p95 overall and top 5 endpoints vs the 50% phase baseline; 5xx overall and top 3 error codes; CPU/memory/DB headroom; cache hit-rate trend.
+Security/integrity: Auth blocked attempts and FP rate; WAF billing/SQLi hits trend; PII redaction violations (target 0); reconciliation deltas (target $0) and idempotency failures (target 0).
+Reliability/UX: Endpoint contract health; SSR error rate trend; geo/client outliers (call out mobile Safari specifically); early CWV RUM (LCP/CLS/INP) samples.
+Change control: Build SHA/image digest; current feature flags; confirmation that auth/billing merges remain frozen and other deploys are flags-only.
+Hotfix log: Any changes made during the 50% window (expect none).
+Controls remain unchanged
+
+Auto-rollback/refreeze on p95 +15%, 5xx +0.5%, any PII violation, or any reconciliation delta > $0.
+Keep WAF billing/SQLi protections and tiered rate limiting on.
+CI/security gates stay strict; do not weaken rules.
+Watch items during the 50% window
+
+Geo/client outliers, especially mobile Safari; alert if any endpoint crosses 85% of the p95 threshold.
+Auth false-positive drift toward 0.5%; ensure support override workflow remains responsive.
+Reconciliation at hour boundaries and under retries; confirm $0 remains steady.
+Cache hit-rate—no regression as traffic scales.
+Comms
+
+Status page is live. Partner assurance: send only after 30–60 minutes of stable green at 50%.
+Post a midpoint snapshot (at ~50%+30 minutes) in the exec channel with the same key metrics to confirm stability.
+Next steps after 100% (if approved at T+8h)
+
+Maintain guardrails through the full 8-hour ramp.
+T+24h AAR at 17:30 UTC tomorrow with security, reliability, finance, and process sections; include follow-ups with owners and deadlines.
+Only after AAR and confirmed stability: proceed with Growth Sprint deployments behind flags in this order:
+Pricing/onboarding experiments with entitlement checks
+Provider Portal MVP slices for pilot providers
+SEO instrumentation and CWV beacons on key templates
+Escalate immediately in the exec channel if any guardrail trips or if a must-pass metric trends toward its threshold before the next checkpoint.
