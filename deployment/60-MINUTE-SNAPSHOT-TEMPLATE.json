@@ -1,0 +1,140 @@
+{
+  "60_minute_snapshot": {
+    "timestamp": "2025-08-26T02:30:00Z",
+    "phase": "100_percent_traffic_60_minute_sustained_validation",
+    "purpose": "comprehensive_stability_confirmation_full_hour_at_100_percent"
+  },
+  "required_metrics": {
+    "core_performance": {
+      "p95_latency": {
+        "overall": "TBD_ms",
+        "vs_50_percent_baseline": "TBD_variance_percentage",
+        "vs_30_min_snapshot": "TBD_trend",
+        "threshold": "172.5ms",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "5xx_error_rate": {
+        "overall": "TBD_percentage", 
+        "vs_50_percent_baseline": "TBD_variance_percentage",
+        "vs_30_min_snapshot": "TBD_trend",
+        "threshold": "0.015%",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "auth_false_positive": {
+        "current": "TBD_percentage",
+        "trend_last_hour": "TBD_stable_improving_degrading",
+        "target": "≤0.5%",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "reconciliation": {
+        "delta_last_hour": "TBD_dollars",
+        "sustained_accuracy": "TBD_consistency_analysis",
+        "target": "$0.00",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "pii_violations": {
+        "count_last_hour": "TBD_number",
+        "sustained_compliance": "TBD_zero_maintained",
+        "target": "0",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
+    },
+    "security_monitoring": {
+      "waf_hits": {
+        "billing_paths_last_hour": "TBD_count",
+        "sqli_signatures_last_hour": "TBD_count",
+        "effectiveness_sustained": "TBD_percentage_blocked",
+        "pattern_analysis": "TBD_attack_volume_trends",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "cache_performance": {
+        "hit_rate": "TBD_percentage",
+        "hourly_trend": "TBD_stability_analysis",
+        "optimization_opportunities": "TBD_identified_improvements",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "cwv_rum_samples": {
+        "lcp_median": "TBD_seconds",
+        "cls_median": "TBD_score", 
+        "inp_median": "TBD_ms",
+        "samples_last_hour": "TBD_count",
+        "hourly_trend": "TBD_user_experience_validation",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
+    },
+    "validation_checks": {
+      "synthetic_probes": {
+        "mobile_safari_slowest": {
+          "p95_latency": "TBD_ms",
+          "5xx_rate": "TBD_percentage",
+          "hourly_trend": "TBD_stability_analysis"
+        },
+        "secondary_slow_combo": {
+          "p95_latency": "TBD_ms",
+          "5xx_rate": "TBD_percentage", 
+          "hourly_trend": "TBD_stability_analysis"
+        }
+      },
+      "error_budget_burn": {
+        "rate_last_hour": "TBD_percentage_per_hour",
+        "sustained_improvement": "TBD_vs_baseline_analysis", 
+        "projection": "TBD_trend_continuation",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "build_control": {
+        "sha": "latest-production-commit",
+        "digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+        "feature_flags": "security_protections=active, promoted_listings=false",
+        "deployment_freeze": "auth_billing_frozen_others_flags_only",
+        "hourly_verification": "no_unauthorized_changes"
+      }
+    }
+  },
+  "enhanced_quick_checks": {
+    "top_3_slowest_endpoints": {
+      "requirement": "trend_vs_50_percent_phase_baseline_and_30_min_snapshot",
+      "callout_threshold": ">10_percent_variance",
+      "hourly_analysis": "sustained_performance_validation",
+      "endpoints": [
+        {
+          "name": "TBD_endpoint_1",
+          "current_p95": "TBD_ms",
+          "50_percent_baseline": "TBD_ms",
+          "30_min_snapshot": "TBD_ms",
+          "variance_vs_baseline": "TBD_percentage",
+          "variance_vs_30_min": "TBD_percentage",
+          "callout_needed": "TBD_boolean"
+        },
+        {
+          "name": "TBD_endpoint_2",
+          "current_p95": "TBD_ms", 
+          "50_percent_baseline": "TBD_ms",
+          "30_min_snapshot": "TBD_ms",
+          "variance_vs_baseline": "TBD_percentage",
+          "variance_vs_30_min": "TBD_percentage",
+          "callout_needed": "TBD_boolean"
+        },
+        {
+          "name": "TBD_endpoint_3",
+          "current_p95": "TBD_ms",
+          "50_percent_baseline": "TBD_ms",
+          "30_min_snapshot": "TBD_ms", 
+          "variance_vs_baseline": "TBD_percentage",
+          "variance_vs_30_min": "TBD_percentage",
+          "callout_needed": "TBD_boolean"
+        }
+      ]
+    },
+    "cache_churn_analysis": {
+      "churn_events_last_hour": "TBD_count_and_pattern",
+      "impact_on_lcp": "TBD_cumulative_analysis",
+      "optimization_actions": "TBD_implemented_or_planned"
+    },
+    "waf_auto_tuning": {
+      "hits_last_hour": "TBD_comprehensive_pattern_analysis",
+      "auto_tuning_recommendations": "TBD_refined_rule_suggestions",
+      "implementation_timeline": "TBD_priority_and_schedule"
+    }
+  },
+  "decision": "TBD_GREEN_MAINTAIN_100_AMBER_INVESTIGATE_RED_ROLLBACK"
+}
