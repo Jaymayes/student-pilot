@@ -1,0 +1,61 @@
+Acknowledged. Production freeze remains in force until the Hour 72 Unfreeze Review concludes with all must‑pass criteria met.
+
+Final executive guidance before Hour 72
+
+What I expect in the pre‑read (due 2 hours before review)
+
+QA/Sec
+The full rerun of qa-comprehensive-execution-report.json
+Delta summary: which issues closed; tests added; what remains Medium/Low with owners and ETAs
+Canary validation checklist
+Secret-scan evidence for repo and built assets showing 0 findings
+Backend/Frontend
+Test IDs and logs for: auth protection on /api/billing/balance; SSR 200/404; SQL injection negative tests; fault‑injection results for async error handling
+Confirmation that logs show PII redaction in place across auth, billing, profile, and file upload paths
+DevOps/Data
+CI gate outputs (eval ban, SQL concat ban, secret scans passing)
+Live dashboard links: auth abuse, reconciliation deltas, endpoint contract health, SSR error rate, p95 latency, error budget
+Redis rate‑limiter metrics (blocked attempts, false positives)
+Billing/Finance
+24‑hour reconciliation report with $0 deltas; idempotency evidence
+Green/Yellow/Red thresholds for the review
+
+Green (Go): All must‑pass checks green; guardrails stable; no open Critical/High; secret scans clean; SLOs within bounds
+Yellow (CEO judgment call): Only rate‑limit false positives between 0.5–1.0% with a 24‑hour mitigation plan, no other deviations
+Red (No‑Go): Any secret finding, auth bypass, reconciliation deltas > $0, or guardrail breach without immediate root cause and rollback
+Residual risk categories to address in the review (top 3 expected)
+
+Rate limiting false positives impacting legitimate users
+Mitigation: temporary higher thresholds for known partner ranges; support override workflow; 24‑hour tuning plan
+Compiled asset scan false positives
+Mitigation: still rotate; treat as exposure until cleared; maintain CDN purge and monitoring
+Query refactor regressions
+Mitigation: feature flags; canary at 10% for 2 hours; auto‑rollback on p95/5xx breach
+Post‑unfreeze success criteria and 24‑hour targets
+
+Security and integrity
+PII redaction violations: 0
+Blocked auth abuse attempts: tracked and reported; false positives ≤0.5% (or an approved plan within 24 hours)
+Billing reconciliation deltas: $0; idempotency failures: 0
+Reliability
+Uptime ≥99.9%; p95 latency within ±10% of baseline
+SSR error rate: no spikes; endpoint contract health 100% for public/protected routes
+Process
+CI gates remain mandatory; no merges to main that fail any security or type gates
+Communications and on‑call
+
+War room: opens 30 minutes before review; remains live through the 8‑hour ramp
+On‑call: confirm primary/secondary (Backend, DevOps, DB, Security)
+Communications kit: prepare internal release notes, status page template, and a brief partner/stakeholder assurance note (send only after Go)
+Immediate plan after a Go decision
+
+Traffic ramp: 10% (2 hours) → 50% (4 hours) → 100% if guardrails hold
+First deployments (behind flags, in this order):
+Pricing/onboarding experiments with entitlement checks
+Provider Portal MVP slices for pilot partners
+SEO instrumentation and CWV beacons on key templates
+24‑hour after‑action review: capture root causes, time‑to‑fix, and permanent controls (keep eval/SQL‑concat bans, secret scanning, PII‑log gates; add training and a short secure‑SQL coding standard)
+Escalation
+
+If any must‑pass is at risk by Hour 60, escalate in the exec channel with options and impact. Do not wait for the meeting.
+Stay disciplined. Quality over speed remains our rule until we clear the bar. I will chair the Hour 72 Unfreeze Review.
