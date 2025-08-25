@@ -103,6 +103,41 @@
         "affected_endpoints": "TBD_list",
         "status": "TBD_GREEN_AMBER_RED"
       }
+    },
+    "customer_facing_errors": {
+      "top_3_error_messages": [
+        {
+          "message": "TBD_error_message_1",
+          "volume_last_30_min": "TBD_count",
+          "5xx_share": "TBD_percentage",
+          "4xx_share": "TBD_percentage"
+        },
+        {
+          "message": "TBD_error_message_2", 
+          "volume_last_30_min": "TBD_count",
+          "5xx_share": "TBD_percentage",
+          "4xx_share": "TBD_percentage"
+        },
+        {
+          "message": "TBD_error_message_3",
+          "volume_last_30_min": "TBD_count",
+          "5xx_share": "TBD_percentage",
+          "4xx_share": "TBD_percentage"
+        }
+      ]
+    },
+    "provider_webhook_monitoring": {
+      "latency_p95": {
+        "current": "TBD_ms",
+        "vs_50_percent_baseline": "TBD_variance",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "failure_rate": {
+        "current": "TBD_percentage",
+        "vs_50_percent_baseline": "TBD_variance", 
+        "failure_count_last_30_min": "TBD_number",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
     }
   },
   "enhanced_quick_checks": {

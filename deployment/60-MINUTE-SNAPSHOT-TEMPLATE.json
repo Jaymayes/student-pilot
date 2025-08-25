@@ -120,6 +120,48 @@
         "optimization_opportunities": "TBD_identified_improvements",
         "status": "TBD_GREEN_AMBER_RED"
       }
+    },
+    "customer_facing_errors": {
+      "top_3_error_messages": [
+        {
+          "message": "TBD_error_message_1",
+          "volume_last_hour": "TBD_count",
+          "5xx_share": "TBD_percentage",
+          "4xx_share": "TBD_percentage",
+          "hourly_trend": "TBD_increasing_stable_decreasing"
+        },
+        {
+          "message": "TBD_error_message_2",
+          "volume_last_hour": "TBD_count", 
+          "5xx_share": "TBD_percentage",
+          "4xx_share": "TBD_percentage",
+          "hourly_trend": "TBD_increasing_stable_decreasing"
+        },
+        {
+          "message": "TBD_error_message_3",
+          "volume_last_hour": "TBD_count",
+          "5xx_share": "TBD_percentage",
+          "4xx_share": "TBD_percentage",
+          "hourly_trend": "TBD_increasing_stable_decreasing"
+        }
+      ]
+    },
+    "provider_webhook_monitoring": {
+      "latency_p95": {
+        "current": "TBD_ms",
+        "vs_50_percent_baseline": "TBD_variance",
+        "vs_30_min_snapshot": "TBD_trend",
+        "hourly_trend": "TBD_stability_analysis",
+        "status": "TBD_GREEN_AMBER_RED"
+      },
+      "failure_rate": {
+        "current": "TBD_percentage",
+        "vs_50_percent_baseline": "TBD_variance",
+        "vs_30_min_snapshot": "TBD_trend",
+        "failure_count_last_hour": "TBD_number",
+        "hourly_pattern": "TBD_trend_analysis",
+        "status": "TBD_GREEN_AMBER_RED"
+      }
     }
   },
   "enhanced_quick_checks": {
