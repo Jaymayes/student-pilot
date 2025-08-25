@@ -1,0 +1,404 @@
+{
+  "summary": {
+    "statusCount": {
+      "PASS": 33,
+      "FAIL": 2,
+      "WARN": 9,
+      "INFO": 4
+    },
+    "severityCount": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 9,
+      "Low": 37
+    },
+    "totalTests": 48
+  },
+  "validationDate": "2025-08-25T15:19:51.918Z",
+  "results": [
+    {
+      "testId": "RT-001",
+      "testName": "Environment validation for DATABASE_URL",
+      "status": "PASS",
+      "details": "DATABASE_URL has proper length validation",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.893Z"
+    },
+    {
+      "testId": "RT-002",
+      "testName": "Environment validation for SESSION_SECRET",
+      "status": "PASS",
+      "details": "SESSION_SECRET has proper length validation",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.895Z"
+    },
+    {
+      "testId": "RT-003",
+      "testName": "Environment validation for OPENAI_API_KEY",
+      "status": "PASS",
+      "details": "OPENAI_API_KEY has proper length validation",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.895Z"
+    },
+    {
+      "testId": "RT-004",
+      "testName": "Environment validation fail-fast",
+      "status": "PASS",
+      "details": "Server configured to exit on environment validation failure",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.895Z"
+    },
+    {
+      "testId": "RT-005",
+      "testName": "Database connection error handling",
+      "status": "PASS",
+      "details": "Database pool error handling is configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.896Z"
+    },
+    {
+      "testId": "RT-006",
+      "testName": "Database connection timeouts",
+      "status": "PASS",
+      "details": "Database connection timeouts are configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.896Z"
+    },
+    {
+      "testId": "RT-007",
+      "testName": "Database health check",
+      "status": "PASS",
+      "details": "Database health check function exists",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.897Z"
+    },
+    {
+      "testId": "RT-008",
+      "testName": "Security headers configuration",
+      "status": "PASS",
+      "details": "Helmet security middleware is configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.898Z"
+    },
+    {
+      "testId": "RT-009",
+      "testName": "Rate limiting configuration",
+      "status": "PASS",
+      "details": "Rate limiting middleware is configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.898Z"
+    },
+    {
+      "testId": "RT-010",
+      "testName": "CORS configuration",
+      "status": "WARN",
+      "details": "CORS configuration not explicitly found",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.898Z"
+    },
+    {
+      "testId": "RT-011",
+      "testName": "Response compression",
+      "status": "PASS",
+      "details": "Response compression middleware is configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.899Z"
+    },
+    {
+      "testId": "RT-012",
+      "testName": "Authentication middleware usage",
+      "status": "PASS",
+      "details": "Authentication middleware used 34 times",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.900Z"
+    },
+    {
+      "testId": "RT-013",
+      "testName": "Input validation middleware",
+      "status": "PASS",
+      "details": "Input validation middleware found in routes",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.900Z"
+    },
+    {
+      "testId": "RT-014",
+      "testName": "SQL injection protection",
+      "status": "PASS",
+      "details": "No obvious SQL injection vulnerabilities in string interpolation",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.900Z"
+    },
+    {
+      "testId": "RT-015",
+      "testName": "Sensitive data logging",
+      "status": "FAIL",
+      "details": "Potential sensitive data logging found in routes",
+      "severity": "High",
+      "timestamp": "2025-08-25T15:19:51.900Z"
+    },
+    {
+      "testId": "RT-016",
+      "testName": "Session httpOnly flag",
+      "status": "PASS",
+      "details": "Session httpOnly flag is properly configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.901Z"
+    },
+    {
+      "testId": "RT-017",
+      "testName": "Session secure flag",
+      "status": "PASS",
+      "details": "Session secure flag is properly configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.901Z"
+    },
+    {
+      "testId": "RT-018",
+      "testName": "Session SameSite protection",
+      "status": "FAIL",
+      "details": "Session SameSite protection is missing or improperly configured",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.902Z"
+    },
+    {
+      "testId": "RT-019",
+      "testName": "Session secret from environment",
+      "status": "PASS",
+      "details": "Session secret from environment is properly configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.902Z"
+    },
+    {
+      "testId": "RT-020",
+      "testName": "JWT verification error handling",
+      "status": "PASS",
+      "details": "JWT verification includes error handling",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.902Z"
+    },
+    {
+      "testId": "RT-021",
+      "testName": "Token refresh mechanism",
+      "status": "INFO",
+      "details": "Token refresh mechanism found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.902Z"
+    },
+    {
+      "testId": "RT-022",
+      "testName": "React error boundary",
+      "status": "WARN",
+      "details": "Error boundary implementation not found",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.903Z"
+    },
+    {
+      "testId": "RT-023",
+      "testName": "React routing configuration",
+      "status": "PASS",
+      "details": "React routing is configured",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.903Z"
+    },
+    {
+      "testId": "RT-024",
+      "testName": "Authentication-based routing",
+      "status": "PASS",
+      "details": "Authentication-based routing found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.903Z"
+    },
+    {
+      "testId": "RT-025",
+      "testName": "XSS protection in profile.tsx",
+      "status": "PASS",
+      "details": "No obvious XSS vulnerabilities found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.904Z"
+    },
+    {
+      "testId": "RT-026",
+      "testName": "Form validation in profile.tsx",
+      "status": "WARN",
+      "details": "Form validation implementation not clearly found",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.905Z"
+    },
+    {
+      "testId": "RT-027",
+      "testName": "Error handling in profile.tsx",
+      "status": "WARN",
+      "details": "API calls found but error handling not clear",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.905Z"
+    },
+    {
+      "testId": "RT-028",
+      "testName": "Accessibility in profile.tsx",
+      "status": "INFO",
+      "details": "Limited accessibility attributes found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.905Z"
+    },
+    {
+      "testId": "RT-029",
+      "testName": "XSS protection in dashboard.tsx",
+      "status": "PASS",
+      "details": "No obvious XSS vulnerabilities found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.906Z"
+    },
+    {
+      "testId": "RT-030",
+      "testName": "Error handling in dashboard.tsx",
+      "status": "WARN",
+      "details": "API calls found but error handling not clear",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.906Z"
+    },
+    {
+      "testId": "RT-031",
+      "testName": "Accessibility in dashboard.tsx",
+      "status": "INFO",
+      "details": "Limited accessibility attributes found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.906Z"
+    },
+    {
+      "testId": "RT-032",
+      "testName": "XSS protection in applications.tsx",
+      "status": "PASS",
+      "details": "No obvious XSS vulnerabilities found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.907Z"
+    },
+    {
+      "testId": "RT-033",
+      "testName": "Error handling in applications.tsx",
+      "status": "WARN",
+      "details": "API calls found but error handling not clear",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.907Z"
+    },
+    {
+      "testId": "RT-034",
+      "testName": "Accessibility in applications.tsx",
+      "status": "INFO",
+      "details": "Limited accessibility attributes found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.907Z"
+    },
+    {
+      "testId": "RT-035",
+      "testName": "Client-side token storage",
+      "status": "PASS",
+      "details": "No localStorage usage found for token storage",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.908Z"
+    },
+    {
+      "testId": "RT-036",
+      "testName": "Token expiration handling",
+      "status": "WARN",
+      "details": "Token expiration handling not clearly implemented",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.908Z"
+    },
+    {
+      "testId": "RT-037",
+      "testName": "Database index optimization",
+      "status": "PASS",
+      "details": "Adequate indexing appears to be in place",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.909Z"
+    },
+    {
+      "testId": "RT-038",
+      "testName": "Enum definition #1",
+      "status": "PASS",
+      "details": "Enum has multiple values defined",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.910Z"
+    },
+    {
+      "testId": "RT-039",
+      "testName": "Enum definition #2",
+      "status": "PASS",
+      "details": "Enum has multiple values defined",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.910Z"
+    },
+    {
+      "testId": "RT-040",
+      "testName": "Enum definition #3",
+      "status": "PASS",
+      "details": "Enum has multiple values defined",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.910Z"
+    },
+    {
+      "testId": "RT-041",
+      "testName": "Enum definition #4",
+      "status": "PASS",
+      "details": "Enum has multiple values defined",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.911Z"
+    },
+    {
+      "testId": "RT-042",
+      "testName": "Enum definition #5",
+      "status": "PASS",
+      "details": "Enum has multiple values defined",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.911Z"
+    },
+    {
+      "testId": "RT-043",
+      "testName": "Cascading delete configuration",
+      "status": "WARN",
+      "details": "Foreign key constraints may lack cascade delete configuration",
+      "severity": "Medium",
+      "timestamp": "2025-08-25T15:19:51.911Z"
+    },
+    {
+      "testId": "RT-044",
+      "testName": "Schema validation",
+      "status": "PASS",
+      "details": "Insert schema validation found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.911Z"
+    },
+    {
+      "testId": "RT-045",
+      "testName": "Billing transaction integrity",
+      "status": "PASS",
+      "details": "Database transactions found in billing operations",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.912Z"
+    },
+    {
+      "testId": "RT-046",
+      "testName": "Billing calculation precision",
+      "status": "WARN",
+      "details": "Mixed BigInt and Number usage may cause precision errors",
+      "severity": "High",
+      "timestamp": "2025-08-25T15:19:51.912Z"
+    },
+    {
+      "testId": "RT-047",
+      "testName": "Billing audit trail",
+      "status": "PASS",
+      "details": "Audit trail implementation found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.912Z"
+    },
+    {
+      "testId": "RT-048",
+      "testName": "Balance validation",
+      "status": "PASS",
+      "details": "Balance validation found",
+      "severity": "Low",
+      "timestamp": "2025-08-25T15:19:51.912Z"
+    }
+  ]
+}
