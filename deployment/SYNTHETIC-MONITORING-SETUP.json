@@ -1,0 +1,38 @@
+{
+  "synthetic_monitoring": {
+    "purpose": "validate_performance_from_slowest_geo_client_combinations",
+    "execution_time": "during_50_percent_window",
+    "reporting": "included_in_midpoint_snapshot"
+  },
+  "probe_configurations": {
+    "primary_slow_combo": {
+      "client": "mobile_safari",
+      "geographic_region": "furthest_from_deployment_region",
+      "network_conditions": "representative_mobile_conditions",
+      "metrics": [
+        "p95_latency_end_to_end",
+        "5xx_error_rate",
+        "connection_establishment_time",
+        "first_byte_time"
+      ]
+    },
+    "secondary_slow_combo": {
+      "client": "legacy_browser_or_slow_device",
+      "geographic_region": "second_furthest_region",
+      "network_conditions": "low_bandwidth_conditions",
+      "metrics": [
+        "p95_latency_end_to_end",
+        "5xx_error_rate",
+        "page_load_performance",
+        "timeout_rates"
+      ]
+    }
+  },
+  "test_scenarios": [
+    "auth_login_flow",
+    "dashboard_load",
+    "search_functionality",
+    "billing_operations",
+    "file_upload_basic"
+  ]
+}

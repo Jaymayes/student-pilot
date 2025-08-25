@@ -1,0 +1,79 @@
+{
+  "midpoint_snapshot": {
+    "timestamp": "2025-08-25T20:01:00Z",
+    "phase": "50_percent_stability_30_minute_checkpoint",
+    "purpose": "stability_confirmation_and_partner_assurance_decision"
+  },
+  "core_metrics": {
+    "performance": {
+      "p95_latency_overall": "TBD_ms_vs_baseline",
+      "5xx_error_rate": "TBD_percent_vs_baseline",
+      "resource_headroom": "cpu_memory_db_status",
+      "cache_hit_rate": "TBD_percent_vs_baseline"
+    },
+    "security_integrity": {
+      "auth_false_positive_rate": "TBD_percent_vs_0.5_target",
+      "pii_violations": "TBD_count_target_zero",
+      "reconciliation_delta": "TBD_dollars_target_zero",
+      "waf_hits_trend": "billing_and_sqli_effectiveness"
+    }
+  },
+  "enhanced_requirements": {
+    "synthetic_checks": {
+      "slowest_geo_client_combo": {
+        "mobile_safari": {
+          "p95_latency": "TBD_ms",
+          "5xx_rate": "TBD_percent",
+          "probe_location": "furthest_geographic_region"
+        },
+        "secondary_slow_combo": {
+          "p95_latency": "TBD_ms", 
+          "5xx_rate": "TBD_percent",
+          "client_type": "TBD"
+        }
+      }
+    },
+    "error_budget_analysis": {
+      "current_burn_rate": "TBD_percent_vs_baseline",
+      "since_ramp_start": "burn_rate_since_19:30_UTC",
+      "baseline_comparison": "vs_pre_ramp_period",
+      "trend": "improving_stable_degrading"
+    },
+    "rate_limit_qa": {
+      "auth_block_audit": {
+        "sample_size": 10,
+        "recent_blocks_analyzed": "TBD_count",
+        "false_positive_validation": "TBD_percent_actual_vs_0.5_target",
+        "support_override_workflow": "TBD_working_as_designed"
+      }
+    },
+    "readiness_checks": {
+      "hotfix_bundle": {
+        "status": "TBD_pre_staged",
+        "last_updated": "TBD_timestamp",
+        "ready": "TBD_boolean"
+      },
+      "rollback_artifacts": {
+        "one_click_rollback": "TBD_up_to_date",
+        "last_verified": "TBD_timestamp",
+        "ready": "TBD_boolean"
+      },
+      "on_call_coverage": {
+        "overnight_windows": "TBD_confirmed",
+        "handoff_procedures": "TBD_confirmed",
+        "escalation_paths": "TBD_ready"
+      }
+    }
+  },
+  "decision_criteria": {
+    "partner_assurance_send": {
+      "condition": "all_metrics_green_through_30_minute_window",
+      "action": "send_partner_assurance_brief",
+      "timing": "immediately_after_green_confirmation"
+    },
+    "hold_and_investigate": {
+      "condition": "any_metric_amber_or_red",
+      "action": "hold_at_50_percent_and_report_findings"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "t_plus_8h_decision": {
+    "timestamp": "2025-08-26T01:30:00Z",
+    "decision_point": "50_percent_to_100_percent_ramp"
+  },
+  "must_pass_metrics": {
+    "performance": {
+      "p95_latency": {
+        "requirement": "within_threshold_172.5ms",
+        "status": "must_be_green"
+      },
+      "5xx_error_rate": {
+        "requirement": "within_threshold_0.015_percent",
+        "status": "must_be_green"
+      }
+    },
+    "security_integrity": {
+      "pii_violations": {
+        "requirement": "equals_zero",
+        "status": "must_be_green"
+      },
+      "reconciliation_delta": {
+        "requirement": "equals_zero_dollars",
+        "status": "must_be_green"
+      },
+      "auth_false_positive_rate": {
+        "requirement": "under_or_equal_0.5_percent",
+        "status": "must_be_green"
+      }
+    },
+    "reliability": {
+      "waf_hit_trend": {
+        "requirement": "normal_effectiveness",
+        "status": "must_be_green"
+      },
+      "geo_client_outliers": {
+        "requirement": "no_outliers_detected",
+        "mobile_safari": "within_normal_range",
+        "status": "must_be_green"
+      }
+    }
+  },
+  "decision_logic": {
+    "all_green": {
+      "action": "proceed_to_100_percent_immediately",
+      "execution": "ramp_traffic_to_100_percent"
+    },
+    "any_amber": {
+      "action": "hold_at_50_percent_and_investigate",
+      "requirement": "do_not_move_to_100_percent_until_green",
+      "investigation": "root_cause_analysis_required"
+    },
+    "any_red": {
+      "action": "auto_rollback_and_refreeze",
+      "escalation": "immediate_exec_channel_notification"
+    }
+  }
+}
