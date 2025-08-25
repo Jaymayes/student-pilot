@@ -1,0 +1,40 @@
+{
+  "risk_monitoring": {
+    "active_watch_items": [
+      {
+        "category": "performance_outliers",
+        "item": "geo_client_outliers_in_p95_and_5xx",
+        "specific_concern": "mobile_safari_performance",
+        "monitoring": "proactive",
+        "action": "investigate_and_optimize_if_detected"
+      },
+      {
+        "category": "rate_limiting",
+        "item": "rate_limit_false_positives_near_auth",
+        "specific_concern": "legitimate_user_blocking",
+        "monitoring": "continuous",
+        "action": "ensure_support_override_workflow_works"
+      },
+      {
+        "category": "financial_integrity", 
+        "item": "reconciliation_drift_in_edge_time_windows",
+        "specific_concern": "hour_boundaries_and_retries",
+        "monitoring": "real_time",
+        "action": "immediate_investigation_if_detected"
+      },
+      {
+        "category": "performance_regression",
+        "item": "cwv_regressions_after_cache_churn",
+        "specific_concern": "core_web_vitals_degradation",
+        "monitoring": "post_deployment",
+        "action": "optimize_caching_strategy"
+      }
+    ],
+    "escalation_policy": {
+      "immediate_escalation": "any_guardrail_trip",
+      "timeline": "do_not_wait_for_next_checkpoint",
+      "channel": "exec_channel",
+      "principle": "quality_over_speed_through_8_hour_ramp"
+    }
+  }
+}

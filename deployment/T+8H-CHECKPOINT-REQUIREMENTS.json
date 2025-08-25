@@ -1,0 +1,31 @@
+{
+  "checkpoint_metadata": {
+    "time": "2025-08-26T01:30:00Z", 
+    "phase": "50% → 100% transition decision",
+    "reporting_channel": "exec_channel",
+    "decision_criteria": "guardrails_remain_green_at_50_percent"
+  },
+  "required_stability_report_metrics": {
+    "performance": {
+      "p95_latency": "vs_baseline_and_trend",
+      "5xx_delta": "vs_baseline_sustained"
+    },
+    "security": {
+      "auth_metrics": "false_positive_rate_sustained",
+      "pii_redaction_violations": "zero_violations_confirmed",
+      "waf_hit_metrics": "billing_path_protection_validated"
+    },
+    "financial": {
+      "reconciliation_delta": "exact_zero_confirmed"
+    },
+    "waf_protection": {
+      "billing_paths": "protection_active_and_effective",
+      "sqli_signatures": "blocking_rate_and_effectiveness"
+    }
+  },
+  "go_no_go_decision": {
+    "condition": "all_guardrails_green_and_stable",
+    "action_if_green": "proceed_to_100_percent_traffic",
+    "action_if_red": "hold_at_50_percent_investigate"
+  }
+}

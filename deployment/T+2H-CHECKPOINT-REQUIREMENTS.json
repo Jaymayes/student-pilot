@@ -1,0 +1,54 @@
+{
+  "checkpoint_metadata": {
+    "time": "2025-08-25T19:30:00Z",
+    "phase": "10% → 50% transition decision",
+    "reporting_channel": "exec_channel",
+    "decision_criteria": "guardrails_remain_green"
+  },
+  "required_health_snapshot_metrics": {
+    "performance": {
+      "p95_latency": {
+        "vs_baseline": "percentage_change",
+        "trend": "direction_over_last_2_hours",
+        "baseline_value": "150ms",
+        "current_threshold": "172.5ms (+15%)",
+        "status": "monitoring"
+      }
+    },
+    "reliability": {
+      "5xx_delta": {
+        "vs_baseline": "percentage_point_change", 
+        "baseline_rate": "0.01%",
+        "alert_threshold": "+0.5%",
+        "status": "monitoring"
+      }
+    },
+    "security": {
+      "auth_metrics": {
+        "blocked_attempts": "count_and_trend",
+        "false_positive_rate": "percentage",
+        "target_fp_rate": "≤0.5%",
+        "status": "monitoring"
+      },
+      "pii_redaction_violations": {
+        "count": "absolute_count",
+        "target": 0,
+        "tolerance": "zero_tolerance",
+        "status": "monitoring"
+      }
+    },
+    "financial": {
+      "reconciliation_delta": {
+        "amount": "dollar_amount",
+        "target": "$0.00",
+        "tolerance": "exact_zero",
+        "status": "monitoring"
+      }
+    }
+  },
+  "go_no_go_decision": {
+    "condition": "all_guardrails_green",
+    "action_if_green": "proceed_to_50_percent_traffic",
+    "action_if_red": "maintain_10_percent_investigate"
+  }
+}

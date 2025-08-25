@@ -1,0 +1,71 @@
+{
+  "aar_metadata": {
+    "time": "2025-08-26T17:30:00Z",
+    "type": "24_hour_after_action_review",
+    "scope": "full_production_deployment_retrospective"
+  },
+  "required_deliverables": {
+    "security_metrics": {
+      "pii_redaction_violations": {
+        "target": 0,
+        "actual": "to_be_measured",
+        "pass_criteria": "exactly_zero"
+      },
+      "auth_false_positives": {
+        "target": "≤0.5%",
+        "actual": "to_be_measured", 
+        "pass_criteria": "at_or_below_threshold"
+      },
+      "secret_artifact_scans": {
+        "target": "clean",
+        "actual": "verified_clean_in_deployment",
+        "pass_criteria": "zero_violations"
+      },
+      "waf_metrics": {
+        "requirement": "reviewed_and_validated",
+        "billing_path_protection": "effectiveness_analysis",
+        "sqli_signature_performance": "blocking_accuracy"
+      }
+    },
+    "reliability_metrics": {
+      "uptime": {
+        "target": "≥99.9%",
+        "actual": "to_be_measured",
+        "pass_criteria": "meets_or_exceeds_target"
+      },
+      "p95_latency": {
+        "target": "within_±10%_baseline",
+        "baseline": "150ms",
+        "tolerance_range": "135ms - 165ms",
+        "actual": "to_be_measured"
+      },
+      "endpoint_contract_health": {
+        "target": "100%",
+        "actual": "to_be_measured",
+        "pass_criteria": "perfect_compliance"
+      }
+    },
+    "financial_metrics": {
+      "reconciliation_deltas": {
+        "target": "$0.00",
+        "actual": "to_be_measured",
+        "pass_criteria": "exact_zero_throughout_ramp"
+      },
+      "idempotency_adherence": {
+        "requirement": "report_on_duplicate_transaction_handling",
+        "scope": "billing_and_credit_operations"
+      }
+    },
+    "process_integrity": {
+      "gate_compliance": {
+        "requirement": "confirm_all_gates_stayed_mandatory",
+        "ci_cd_gates": "no_weakening_confirmed",
+        "security_gates": "maintained_throughout"
+      },
+      "hotfix_tracking": {
+        "requirement": "list_any_hotfixes_applied_during_ramp",
+        "scope": "emergency_fixes_only"
+      }
+    }
+  }
+}

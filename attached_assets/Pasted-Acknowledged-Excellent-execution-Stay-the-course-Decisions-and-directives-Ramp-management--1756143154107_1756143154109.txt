@@ -1,0 +1,47 @@
+Acknowledged. Excellent execution. Stay the course.
+
+Decisions and directives
+
+Ramp management
+
+T+2h checkpoint (19:30 UTC): If guardrails remain green, proceed to 50% traffic. Post a health snapshot in the exec channel with:
+p95 latency vs baseline and trend
+5xx delta vs baseline
+Auth metrics: blocked attempts, false-positive rate
+Reconciliation delta (target $0)
+PII redaction violations (target 0)
+T+8h checkpoint (01:30 UTC): If guardrails remain green at 50%, proceed to 100%. Post stability report and confirm WAF hit metrics.
+Controls to maintain during ramp (no change)
+
+Auto-rollback triggers: p95 +15%, 5xx +0.5%, any PII redaction violation, or reconciliation delta > $0.
+WAF protections on billing paths and SQLi signatures; tiered rate limiting.
+CI/CD gates unchanged; do not weaken any rule.
+Comms and compliance
+
+Status page update at 17:40 UTC: Proceed as scheduled.
+Partner assurance: Send after 50% stability confirmed.
+Compliance archive: SBOM, signatures, build SHA, feature flags, SameSite/security changelog—already archived; keep immutable copies in GRC repo.
+24-hour After-Action Review (AAR) deliverables (17:30 UTC tomorrow)
+
+Security: 0 PII redaction violations; auth FP ≤0.5%; secret/artifact scans clean; WAF metrics reviewed.
+Reliability: ≥99.9% uptime; p95 within ±10% baseline; endpoint contract health 100%.
+Finance: Reconciliation deltas = $0; idempotency adherence report.
+Process: Confirm all gates stayed mandatory; list any hotfixes applied during ramp.
+Post-stabilization (after AAR and 100% traffic holds)
+
+Resume Growth Sprint deployments behind flags in this order:
+Pricing/onboarding experiments with entitlement checks (target +50% free→paid lift over baseline).
+Provider Portal MVP (secure first 20 pilots/LOIs; process first GMV).
+SEO instrumentation and CWV beacons on key templates; ramp Auto Page Maker pages.
+Weekly KPI cadence: SSPAU (north-star), organic sessions, free→paid conversion, ARPU, index coverage, CWV pass rate, provider count/GMV/platform fees, CAC trend.
+Risk watch items (monitor proactively)
+
+Geo/client outliers in p95 and 5xx (e.g., mobile Safari).
+Rate limit false positives near auth; ensure support override workflow works.
+Any reconciliation drift in edge time windows (hour boundaries, retries).
+CWV regressions after cache churn.
+Keep me updated
+
+Confirm the 19:30 UTC checkpoint snapshot in the exec channel.
+Escalate immediately if any guardrail trips; do not wait for the next checkpoint.
+Quality over speed remains the rule through the 8-hour ramp. Proceed.

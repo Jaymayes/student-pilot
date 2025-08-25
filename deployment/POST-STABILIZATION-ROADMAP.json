@@ -1,0 +1,74 @@
+{
+  "post_stabilization_phase": {
+    "trigger": "after_aar_and_100_percent_traffic_holds",
+    "approach": "resume_growth_sprint_deployments_behind_flags"
+  },
+  "deployment_sequence": [
+    {
+      "priority": 1,
+      "feature": "pricing_onboarding_experiments",
+      "implementation": "with_entitlement_checks",
+      "target_metric": "+50%_free_to_paid_lift_over_baseline",
+      "deployment_method": "feature_flagged"
+    },
+    {
+      "priority": 2, 
+      "feature": "provider_portal_mvp",
+      "implementation": "secure_first_20_pilots_lois",
+      "target_metric": "process_first_gmv",
+      "deployment_method": "pilot_program"
+    },
+    {
+      "priority": 3,
+      "feature": "seo_instrumentation_and_cwv_beacons",
+      "implementation": "key_templates",
+      "additional": "ramp_auto_page_maker_pages",
+      "deployment_method": "gradual_rollout"
+    }
+  ],
+  "kpi_monitoring": {
+    "cadence": "weekly",
+    "metrics": [
+      {
+        "metric": "sspau",
+        "type": "north_star",
+        "importance": "primary"
+      },
+      {
+        "metric": "organic_sessions", 
+        "type": "growth",
+        "importance": "high"
+      },
+      {
+        "metric": "free_to_paid_conversion",
+        "type": "monetization",
+        "importance": "high"
+      },
+      {
+        "metric": "arpu",
+        "type": "revenue",
+        "importance": "high"
+      },
+      {
+        "metric": "index_coverage",
+        "type": "seo",
+        "importance": "medium"
+      },
+      {
+        "metric": "cwv_pass_rate",
+        "type": "performance",
+        "importance": "medium"
+      },
+      {
+        "metric": "provider_count_gmv_platform_fees",
+        "type": "b2b_growth",
+        "importance": "high"
+      },
+      {
+        "metric": "cac_trend",
+        "type": "efficiency",
+        "importance": "medium"
+      }
+    ]
+  }
+}
