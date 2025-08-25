@@ -1,0 +1,201 @@
+{
+  "health_snapshot_metadata": {
+    "timestamp": "2025-08-25T19:30:00Z",
+    "traffic_percentage": "10%",
+    "duration": "2_hours_since_launch",
+    "decision_point": "10_percent_to_50_percent_ramp"
+  },
+  "performance_metrics": {
+    "p95_latency": {
+      "overall": {
+        "current": "TBD_ms",
+        "baseline": "150ms", 
+        "threshold": "172.5ms (+15%)",
+        "status": "TBD"
+      },
+      "top_5_endpoints": [
+        {
+          "endpoint": "/api/auth/user",
+          "current": "TBD_ms",
+          "baseline": "TBD_ms",
+          "status": "TBD"
+        },
+        {
+          "endpoint": "/api/dashboard/stats", 
+          "current": "TBD_ms",
+          "baseline": "TBD_ms",
+          "status": "TBD"
+        },
+        {
+          "endpoint": "/api/matches",
+          "current": "TBD_ms", 
+          "baseline": "TBD_ms",
+          "status": "TBD"
+        },
+        {
+          "endpoint": "/api/applications",
+          "current": "TBD_ms",
+          "baseline": "TBD_ms", 
+          "status": "TBD"
+        },
+        {
+          "endpoint": "/api/billing/credits",
+          "current": "TBD_ms",
+          "baseline": "TBD_ms",
+          "status": "TBD"
+        }
+      ]
+    },
+    "5xx_error_rate": {
+      "overall": {
+        "current": "TBD_%",
+        "baseline": "0.01%",
+        "threshold": "0.015% (+0.5%)",
+        "status": "TBD"
+      },
+      "top_3_error_codes": [
+        {
+          "code": "500",
+          "count": "TBD",
+          "rate": "TBD_%",
+          "trend": "TBD"
+        },
+        {
+          "code": "502", 
+          "count": "TBD",
+          "rate": "TBD_%",
+          "trend": "TBD"
+        },
+        {
+          "code": "503",
+          "count": "TBD", 
+          "rate": "TBD_%",
+          "trend": "TBD"
+        }
+      ]
+    },
+    "resource_headroom": {
+      "app_resources": {
+        "cpu_usage": "TBD_%",
+        "memory_usage": "TBD_%",
+        "status": "TBD"
+      },
+      "database": {
+        "cpu_usage": "TBD_%",
+        "connections": "TBD/max",
+        "status": "TBD"
+      },
+      "cache_hit_rate": {
+        "percentage": "TBD_%",
+        "status": "TBD"
+      }
+    }
+  },
+  "security_and_integrity": {
+    "auth_metrics": {
+      "blocked_attempts": {
+        "count_last_2h": "TBD",
+        "trend": "TBD"
+      },
+      "false_positive_rate": {
+        "percentage": "TBD_%",
+        "target": "≤0.5%",
+        "status": "TBD"
+      }
+    },
+    "waf_metrics": {
+      "billing_paths": {
+        "hit_count_last_2h": "TBD",
+        "trend": "TBD",
+        "effectiveness": "TBD"
+      },
+      "sqli_signatures": {
+        "hit_count_last_2h": "TBD", 
+        "blocked_attempts": "TBD",
+        "trend": "TBD"
+      }
+    },
+    "pii_redaction": {
+      "violations_count": "TBD",
+      "target": 0,
+      "status": "TBD"
+    },
+    "billing_reconciliation": {
+      "last_2h_deltas": {
+        "amount": "TBD",
+        "target": "$0.00",
+        "status": "TBD"
+      },
+      "idempotency_failures": {
+        "count": "TBD",
+        "target": 0,
+        "status": "TBD"
+      }
+    }
+  },
+  "reliability_and_ux": {
+    "endpoint_contract_health": {
+      "public_routes": {
+        "pass_count": "TBD",
+        "fail_count": "TBD", 
+        "percentage": "TBD_%",
+        "status": "TBD"
+      },
+      "protected_routes": {
+        "pass_count": "TBD",
+        "fail_count": "TBD",
+        "percentage": "TBD_%", 
+        "status": "TBD"
+      }
+    },
+    "ssr_error_rate": {
+      "current": "TBD_%",
+      "baseline": "TBD_%",
+      "trend": "TBD",
+      "status": "TBD"
+    },
+    "geo_client_outliers": {
+      "mobile_safari": {
+        "p95_latency": "TBD_ms",
+        "error_rate": "TBD_%",
+        "outlier_status": "TBD"
+      },
+      "other_outliers": "TBD"
+    }
+  },
+  "change_control": {
+    "build_info": {
+      "sha": "latest-production-commit",
+      "image_digest": "db6059fcbe161e4f23aeb6742ca71511998a58b71186a9240b6a22b36540be7c",
+      "status": "verified"
+    },
+    "feature_flags": {
+      "promoted_listings": false,
+      "entitlement_check": true,
+      "security_monitoring": true,
+      "rate_limiting": true,
+      "cors_protection": true,
+      "waf_protection": true
+    },
+    "deployment_controls": {
+      "auth_billing_merges": "frozen_until_aar",
+      "other_deploys": "behind_flags_only",
+      "status": "enforced"
+    }
+  },
+  "decision_matrix": {
+    "all_green": {
+      "action": "ramp_to_50_percent_immediately",
+      "post_action": "post_snapshot_confirmation"
+    },
+    "amber_within_5_percent": {
+      "action": "hold_at_10_percent",
+      "investigation_time": "30_minutes",
+      "re_evaluation": "required"
+    },
+    "guardrail_trip": {
+      "action": "auto_rollback_refreeze",
+      "escalation": "exec_channel_with_root_cause_and_eta"
+    }
+  }
+}

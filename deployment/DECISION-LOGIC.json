@@ -1,0 +1,53 @@
+{
+  "t_plus_2h_decision_rules": {
+    "green_status": {
+      "criteria": [
+        "p95_latency_under_172_5ms_all_endpoints",
+        "5xx_rate_under_0_015_percent", 
+        "auth_fp_rate_under_0_5_percent",
+        "zero_pii_violations",
+        "zero_reconciliation_delta",
+        "zero_idempotency_failures",
+        "endpoint_contract_health_100_percent"
+      ],
+      "action": "ramp_to_50_percent_immediately",
+      "timeline": "immediate_execution"
+    },
+    "amber_status": {
+      "criteria": [
+        "any_metric_within_5_percent_of_threshold",
+        "examples": [
+          "p95_latency_164_to_172ms",
+          "5xx_rate_0_0143_to_0_015_percent",
+          "auth_fp_rate_0_475_to_0_5_percent"
+        ]
+      ],
+      "action": "hold_at_10_percent_investigate",
+      "investigation_duration": "30_minutes_maximum",
+      "re_evaluation": "required_after_investigation",
+      "escalation": "if_no_improvement_in_30_minutes"
+    },
+    "red_status": {
+      "criteria": [
+        "any_guardrail_threshold_exceeded",
+        "p95_latency_over_172_5ms",
+        "5xx_rate_over_0_015_percent", 
+        "any_pii_violation",
+        "any_reconciliation_delta_over_zero"
+      ],
+      "action": "auto_rollback_and_refreeze",
+      "escalation": "immediate_exec_channel_notification",
+      "required_info": [
+        "root_cause_analysis",
+        "eta_for_resolution",
+        "impact_assessment"
+      ]
+    }
+  },
+  "metric_collection_sources": {
+    "performance": "application_monitoring_system",
+    "security": "waf_and_auth_logs",
+    "billing": "reconciliation_system",
+    "reliability": "endpoint_health_checks"
+  }
+}
