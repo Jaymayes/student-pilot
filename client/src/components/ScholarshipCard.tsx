@@ -24,9 +24,10 @@ interface ScholarshipCardProps {
   };
   onBookmark: (id: string, bookmarked: boolean) => void;
   onDismiss: (id: string) => void;
+  onView?: (matchId: string, scholarshipId: string, matchScore?: number) => void;
 }
 
-export function ScholarshipCard({ match, onBookmark, onDismiss }: ScholarshipCardProps) {
+export function ScholarshipCard({ match, onBookmark, onDismiss, onView }: ScholarshipCardProps) {
   const { scholarship } = match;
   
   const getChanceBadgeClass = (chanceLevel: string) => {
@@ -65,6 +66,7 @@ export function ScholarshipCard({ match, onBookmark, onDismiss }: ScholarshipCar
     <div 
       className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
       data-testid={`scholarship-card-${scholarship.id}`}
+      onClick={() => onView?.(match.id, scholarship.id, match.matchScore || undefined)}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">

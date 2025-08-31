@@ -19,6 +19,8 @@ import Stripe from "stripe";
 import express from "express";
 import { correlationIdMiddleware, correlationErrorHandler, billingCorrelationMiddleware } from "./middleware/correlationId";
 import { validateInput, BillingPaginationSchema, escapeHtml } from "./validation";
+import { ttvTracker } from "./analytics/ttvTracker";
+import { cohortManager } from "./analytics/cohortManager";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -1325,6 +1327,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Webhook processing failed",
         correlationId 
       });
+    }
+  });
+
+  // TTV Analytics and Cohort Management Routes
+  app.post('/api/analytics/ttv-event', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      const { eventType, metadata, sessionId } = req.body;
+      const correlationId = (req as any).correlationId;
+      
+      await ttvTracker.trackEvent(userId, eventType, {
+        metadata,
+        sessionId,
+        correlationId
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Failed to track TTV event:', error);
+      res.status(500).json({ error: 'Failed to track event' });
+    }
+  });
+
+  app.get('/api/analytics/user-ttv', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      const metrics = await ttvTracker.getUserTtvMetrics(userId);
+      res.json(metrics);
+    } catch (error) {
+      console.error('Failed to get user TTV metrics:', error);
+      res.status(500).json({ error: 'Failed to get metrics' });
+    }
+  });
+
+  // Cohort Management Routes
+  app.post('/api/cohorts', isAuthenticated, async (req, res) => {
+    try {
+      const { name, description, targetSize } = req.body;
+      const cohort = await cohortManager.createCohort({ name, description, targetSize });
+      res.json(cohort);
+    } catch (error) {
+      console.error('Failed to create cohort:', error);
+      res.status(500).json({ error: 'Failed to create cohort' });
+    }
+  });
+
+  app.get('/api/cohorts', isAuthenticated, async (req, res) => {
+    try {
+      const cohorts = await cohortManager.getActiveCohorts();
+      res.json(cohorts);
+    } catch (error) {
+      console.error('Failed to get cohorts:', error);
+      res.status(500).json({ error: 'Failed to get cohorts' });
+    }
+  });
+
+  app.get('/api/cohorts/:cohortId', isAuthenticated, async (req, res) => {
+    try {
+      const { cohortId } = req.params;
+      const cohortData = await cohortManager.getCohortWithStats(cohortId);
+      if (!cohortData) {
+        return res.status(404).json({ error: 'Cohort not found' });
+      }
+      res.json(cohortData);
+    } catch (error) {
+      console.error('Failed to get cohort:', error);
+      res.status(500).json({ error: 'Failed to get cohort' });
+    }
+  });
+
+  app.post('/api/cohorts/:cohortId/users', isAuthenticated, async (req, res) => {
+    try {
+      const { cohortId } = req.params;
+      const userId = (req.user as any)?.claims?.sub;
+      const userCohort = await cohortManager.addUserToCohort(userId, cohortId);
+      res.json(userCohort);
+    } catch (error: any) {
+      console.error('Failed to add user to cohort:', error);
+      res.status(500).json({ error: error.message || 'Failed to add user to cohort' });
+    }
+  });
+
+  app.get('/api/cohorts/:cohortId/users', isAuthenticated, async (req, res) => {
+    try {
+      const { cohortId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const cohortUsers = await cohortManager.getCohortUsers(cohortId, limit, offset);
+      res.json(cohortUsers);
+    } catch (error) {
+      console.error('Failed to get cohort users:', error);
+      res.status(500).json({ error: 'Failed to get cohort users' });
+    }
+  });
+
+  app.get('/api/cohorts/:cohortId/analytics', isAuthenticated, async (req, res) => {
+    try {
+      const { cohortId } = req.params;
+      const analytics = await ttvTracker.getCohortAnalytics(cohortId);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Failed to get cohort analytics:', error);
+      res.status(500).json({ error: 'Failed to get analytics' });
+    }
+  });
+
+  // Launch 100-user cohort endpoint
+  app.post('/api/cohorts/launch-100-user', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.body;
+      const cohort = await cohortManager.launch100UserCohort(name);
+      res.json(cohort);
+    } catch (error) {
+      console.error('Failed to launch 100-user cohort:', error);
+      res.status(500).json({ error: 'Failed to launch cohort' });
     }
   });
 

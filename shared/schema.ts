@@ -495,3 +495,163 @@ export type RateCardEntry = typeof rateCard.$inferSelect;
 export type InsertRateCardEntry = z.infer<typeof insertRateCardSchema>;
 export type UsageEvent = typeof usageEvents.$inferSelect;
 export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
+
+// ========== TTV ANALYTICS SCHEMA ==========
+
+// TTV event types enum
+export const ttvEventTypeEnum = pgEnum("ttv_event_type", [
+  "signup",
+  "profile_complete",
+  "first_match_generated", 
+  "first_match_viewed",
+  "first_application_started",
+  "first_essay_assistance",
+  "first_ai_usage",
+  "first_credit_purchase",
+  "first_application_submitted"
+]);
+
+// Cohort table for tracking user groups
+export const cohorts = pgTable("cohorts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull().unique(),
+  description: text("description"),
+  targetSize: integer("target_size").notNull(),
+  currentSize: integer("current_size").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  activatedAt: timestamp("activated_at"),
+  completedAt: timestamp("completed_at"),
+});
+
+// User cohort membership
+export const userCohorts = pgTable("user_cohorts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  cohortId: varchar("cohort_id").notNull().references(() => cohorts.id),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+}, (table) => [
+  index("idx_user_cohorts_user_cohort").on(table.userId, table.cohortId),
+  index("idx_user_cohorts_cohort_active").on(table.cohortId, table.isActive),
+]);
+
+// TTV events tracking
+export const ttvEvents = pgTable("ttv_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  cohortId: varchar("cohort_id").references(() => cohorts.id),
+  eventType: ttvEventTypeEnum("event_type").notNull(),
+  metadata: jsonb("metadata"), // Additional context about the event
+  sessionId: varchar("session_id"), // Browser session for attribution
+  correlationId: varchar("correlation_id"), // Request correlation for debugging
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_ttv_events_user_type").on(table.userId, table.eventType),
+  index("idx_ttv_events_cohort_type").on(table.cohortId, table.eventType),
+  index("idx_ttv_events_created").on(table.createdAt),
+]);
+
+// TTV milestone tracking - calculated metrics for each user
+export const ttvMilestones = pgTable("ttv_milestones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
+  cohortId: varchar("cohort_id").references(() => cohorts.id),
+  
+  // Milestone timestamps (null means not reached yet)
+  signupAt: timestamp("signup_at"),
+  profileCompleteAt: timestamp("profile_complete_at"), 
+  firstMatchAt: timestamp("first_match_at"),
+  firstMatchViewAt: timestamp("first_match_view_at"),
+  firstApplicationAt: timestamp("first_application_at"),
+  firstEssayAt: timestamp("first_essay_at"),
+  firstAiUsageAt: timestamp("first_ai_usage_at"),
+  firstPurchaseAt: timestamp("first_purchase_at"),
+  firstSubmissionAt: timestamp("first_submission_at"),
+  
+  // Calculated TTV metrics (in seconds)
+  timeToProfileComplete: integer("time_to_profile_complete"), // signup -> profile
+  timeToFirstMatch: integer("time_to_first_match"), // signup -> first match
+  timeToFirstValue: integer("time_to_first_value"), // signup -> first meaningful action
+  timeToMonetization: integer("time_to_monetization"), // signup -> first purchase
+  
+  // Profile completion percentage snapshot
+  maxProfileCompletion: integer("max_profile_completion").default(0),
+  
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_ttv_milestones_cohort").on(table.cohortId),
+  index("idx_ttv_milestones_signup").on(table.signupAt),
+]);
+
+// TTV analytics schemas
+export const insertCohortSchema = createInsertSchema(cohorts).omit({
+  id: true,
+  createdAt: true,
+  currentSize: true,
+});
+
+export const insertUserCohortSchema = createInsertSchema(userCohorts).omit({
+  id: true,
+  joinedAt: true,
+});
+
+export const insertTtvEventSchema = createInsertSchema(ttvEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTtvMilestoneSchema = createInsertSchema(ttvMilestones).omit({
+  id: true,
+  updatedAt: true,
+});
+
+// TTV relations
+export const cohortsRelations = relations(cohorts, ({ many }) => ({
+  userCohorts: many(userCohorts),
+  ttvEvents: many(ttvEvents),
+  ttvMilestones: many(ttvMilestones),
+}));
+
+export const userCohortsRelations = relations(userCohorts, ({ one }) => ({
+  user: one(users, {
+    fields: [userCohorts.userId],
+    references: [users.id],
+  }),
+  cohort: one(cohorts, {
+    fields: [userCohorts.cohortId],
+    references: [cohorts.id],
+  }),
+}));
+
+export const ttvEventsRelations = relations(ttvEvents, ({ one }) => ({
+  user: one(users, {
+    fields: [ttvEvents.userId],
+    references: [users.id],
+  }),
+  cohort: one(cohorts, {
+    fields: [ttvEvents.cohortId],
+    references: [cohorts.id],
+  }),
+}));
+
+export const ttvMilestonesRelations = relations(ttvMilestones, ({ one }) => ({
+  user: one(users, {
+    fields: [ttvMilestones.userId],
+    references: [users.id],
+  }),
+  cohort: one(cohorts, {
+    fields: [ttvMilestones.cohortId],
+    references: [cohorts.id],
+  }),
+}));
+
+// TTV types
+export type Cohort = typeof cohorts.$inferSelect;
+export type InsertCohort = z.infer<typeof insertCohortSchema>;
+export type UserCohort = typeof userCohorts.$inferSelect;
+export type InsertUserCohort = z.infer<typeof insertUserCohortSchema>;
+export type TtvEvent = typeof ttvEvents.$inferSelect;
+export type InsertTtvEvent = z.infer<typeof insertTtvEventSchema>;
+export type TtvMilestone = typeof ttvMilestones.$inferSelect;
+export type InsertTtvMilestone = z.infer<typeof insertTtvMilestoneSchema>;

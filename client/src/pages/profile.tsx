@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import { User, Save, Plus, X } from "lucide-react";
+import { useTtvTracking } from "@/hooks/useTtvTracking";
 
 interface StudentProfile {
   id: string;
@@ -37,6 +38,7 @@ export default function Profile() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { trackProfileComplete } = useTtvTracking();
 
   const [formData, setFormData] = useState<Partial<StudentProfile>>({
     gpa: '',
@@ -80,7 +82,7 @@ export default function Profile() {
     retry: false,
   });
 
-  // Update form data when profile loads
+  // Update form data when profile loads and track completion
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -96,8 +98,13 @@ export default function Profile() {
         achievements: profile.achievements || [],
         financialNeed: profile.financialNeed || false,
       });
+
+      // Track profile completion milestone
+      if (profile.completionPercentage >= 80) {
+        trackProfileComplete(profile.completionPercentage);
+      }
     }
-  }, [profile]);
+  }, [profile, trackProfileComplete]);
 
   // Save profile mutation
   const saveMutation = useMutation({

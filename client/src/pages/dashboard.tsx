@@ -67,6 +67,7 @@ export default function Dashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { trackFirstMatchViewed } = useTtvTracking();
 
   // AI-powered scholarship matching
   const generateMatchesMutation = useMutation({
@@ -377,6 +378,9 @@ export default function Dashboard() {
                         match={match}
                         onBookmark={handleBookmark}
                         onDismiss={handleDismiss}
+                        onView={(matchId, scholarshipId, matchScore) => 
+                          trackFirstMatchViewed(matchId, matchScore)
+                        }
                       />
                     ))}
                   </div>
