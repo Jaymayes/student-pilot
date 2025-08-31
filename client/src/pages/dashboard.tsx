@@ -26,6 +26,8 @@ import {
 import { Link } from "wouter";
 import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { TtvDashboardTile } from "@/components/TtvDashboardTile";
+import { InfrastructureDashboardTile } from "@/components/InfrastructureDashboardTile";
+import { SecurityDashboardTile } from "@/components/SecurityDashboardTile";
 
 interface DashboardStats {
   activeApplications: number;
@@ -239,9 +241,16 @@ export default function Dashboard() {
           <p className="text-gray-600">Here's your scholarship journey overview for today.</p>
         </div>
 
-        {/* TTV Performance Tile */}
-        <div className="mb-8">
+        {/* Dashboard Tiles Grid */}
+        <div className="space-y-8 mb-8">
+          {/* TTV Performance Tile */}
           <TtvDashboardTile />
+          
+          {/* Infrastructure & Security Tiles */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <InfrastructureDashboardTile />
+            <SecurityDashboardTile />
+          </div>
         </div>
 
         {/* Quick Stats */}
