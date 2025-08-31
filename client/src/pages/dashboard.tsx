@@ -24,6 +24,8 @@ import {
   Check
 } from "lucide-react";
 import { Link } from "wouter";
+import { useTtvTracking } from "@/hooks/useTtvTracking";
+import { TtvDashboardTile } from "@/components/TtvDashboardTile";
 
 interface DashboardStats {
   activeApplications: number;
@@ -235,6 +237,11 @@ export default function Dashboard() {
             Welcome back, {user?.firstName || 'Student'}!
           </h1>
           <p className="text-gray-600">Here's your scholarship journey overview for today.</p>
+        </div>
+
+        {/* TTV Performance Tile */}
+        <div className="mb-8">
+          <TtvDashboardTile />
         </div>
 
         {/* Quick Stats */}

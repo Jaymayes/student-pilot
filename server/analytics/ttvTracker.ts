@@ -430,6 +430,30 @@ export class TtvTracker {
       };
     }
   }
+
+  /**
+   * Get raw TTV metrics for median/P95 calculation
+   */
+  async getCohortTtvMetrics(cohortId: string): Promise<number[]> {
+    try {
+      const metrics = await db
+        .select({
+          timeToFirstValue: ttvMilestones.timeToFirstValue
+        })
+        .from(ttvMilestones)
+        .where(and(
+          eq(ttvMilestones.cohortId, cohortId),
+          sql`${ttvMilestones.timeToFirstValue} IS NOT NULL`
+        ));
+
+      return metrics
+        .map(m => m.timeToFirstValue)
+        .filter((time): time is number => time !== null);
+    } catch (error) {
+      console.error(`Failed to get TTV metrics for cohort ${cohortId}:`, error);
+      return [];
+    }
+  }
 }
 
 // Export singleton instance

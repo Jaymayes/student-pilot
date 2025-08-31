@@ -1448,6 +1448,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TTV Dashboard Analytics endpoint
+  app.get('/api/analytics/ttv-dashboard', isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      // Get active cohorts for analysis
+      const activeCohorts = await cohortManager.getActiveCohorts();
+      
+      if (activeCohorts.length === 0) {
+        return res.json({
+          medianTTV: null,
+          p95TTV: null,
+          targetMet: false,
+          cohortDetails: [],
+          totalUsers: 0,
+          performanceStatus: 'no-data'
+        });
+      }
+
+      // Get TTV metrics across all active cohorts
+      let allMetrics: number[] = [];
+      let cohortDetails = [];
+      let totalUsers = 0;
+
+      for (const cohort of activeCohorts) {
+        const analytics = await ttvTracker.getCohortAnalytics(cohort.id);
+        totalUsers += analytics.userCount;
+        
+        // Get detailed metrics for median/P95 calculation
+        const cohortMetrics = await ttvTracker.getCohortTtvMetrics(cohort.id);
+        allMetrics = allMetrics.concat(cohortMetrics.filter((m: number | null): m is number => m !== null));
+
+        cohortDetails.push({
+          id: cohort.id,
+          name: cohort.name,
+          userCount: analytics.userCount,
+          avgTimeToFirstValue: analytics.avgTimeToFirstValue,
+          conversionRates: analytics.conversionRates
+        });
+      }
+
+      // Calculate median and P95
+      if (allMetrics.length === 0) {
+        return res.json({
+          medianTTV: null,
+          p95TTV: null,
+          targetMet: false,
+          cohortDetails,
+          totalUsers,
+          performanceStatus: 'insufficient-data'
+        });
+      }
+
+      allMetrics.sort((a, b) => a - b);
+      const medianIndex = Math.floor(allMetrics.length / 2);
+      const median = allMetrics.length % 2 === 0 
+        ? (allMetrics[medianIndex - 1] + allMetrics[medianIndex]) / 2
+        : allMetrics[medianIndex];
+
+      const p95Index = Math.floor(allMetrics.length * 0.95);
+      const p95 = allMetrics[p95Index];
+
+      // Convert from seconds to minutes
+      const medianMinutes = median / 60;
+      const p95Minutes = p95 / 60;
+
+      // Check if targets are met (≤3 minutes median, ≤7 minutes P95)
+      const medianTargetMet = medianMinutes <= 3;
+      const p95TargetMet = p95Minutes <= 7;
+      const overallTargetMet = medianTargetMet && p95TargetMet;
+
+      let performanceStatus = 'excellent';
+      if (!medianTargetMet || !p95TargetMet) {
+        performanceStatus = medianMinutes <= 5 && p95Minutes <= 10 ? 'warning' : 'needs-attention';
+      }
+
+      res.json({
+        medianTTV: Math.round(medianMinutes * 10) / 10, // Round to 1 decimal
+        p95TTV: Math.round(p95Minutes * 10) / 10,
+        medianTargetMet,
+        p95TargetMet,
+        targetMet: overallTargetMet,
+        cohortDetails,
+        totalUsers,
+        performanceStatus,
+        targets: {
+          median: 3,
+          p95: 7
+        }
+      });
+    } catch (error) {
+      console.error('TTV dashboard analytics error:', error);
+      res.status(500).json({ error: 'Failed to get TTV analytics' });
+    }
+  });
+
   // Infrastructure/SRE endpoints
   app.get("/api/backup/health", isAuthenticated, async (req, res) => {
     const correlationId = (req as any).correlationId;
