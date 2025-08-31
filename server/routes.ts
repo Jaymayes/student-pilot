@@ -21,6 +21,9 @@ import { correlationIdMiddleware, correlationErrorHandler, billingCorrelationMid
 import { validateInput, BillingPaginationSchema, escapeHtml } from "./validation";
 import { ttvTracker } from "./analytics/ttvTracker";
 import { cohortManager } from "./analytics/cohortManager";
+import { backupRestoreManager } from "./backupRestore";
+import { soc2EvidenceCollector } from "./compliance/soc2Evidence";
+import { piiLineageTracker } from "./compliance/piiLineage";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -1442,6 +1445,153 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to launch 100-user cohort:', error);
       res.status(500).json({ error: 'Failed to launch cohort' });
+    }
+  });
+
+  // Infrastructure/SRE endpoints
+  app.get("/api/backup/health", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const result = await backupRestoreManager.testDatabaseConnectivity();
+      res.json(result);
+    } catch (error) {
+      console.error("Backup health check error:", error);
+      res.status(500).json({ error: "Health check failed" });
+    }
+  });
+
+  app.post("/api/backup/test", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const result = await backupRestoreManager.performBackupTest();
+      res.json(result);
+    } catch (error) {
+      console.error("Backup test error:", error);
+      res.status(500).json({ error: "Backup test failed" });
+    }
+  });
+
+  app.get("/api/backup/metadata", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const metadata = await backupRestoreManager.generateBackupMetadata();
+      res.json(metadata);
+    } catch (error) {
+      console.error("Backup metadata error:", error);
+      res.status(500).json({ error: "Failed to generate metadata" });
+    }
+  });
+
+  app.get("/api/backup/stats", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const stats = await backupRestoreManager.getDatabaseStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Database stats error:", error);
+      res.status(500).json({ error: "Failed to get database stats" });
+    }
+  });
+
+  // SOC2 Compliance endpoints
+  app.get("/api/compliance/soc2/access-control", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const evidence = await soc2EvidenceCollector.collectAccessControlEvidence();
+      res.json(evidence);
+    } catch (error) {
+      console.error("SOC2 access control evidence error:", error);
+      res.status(500).json({ error: "Failed to collect access control evidence" });
+    }
+  });
+
+  app.get("/api/compliance/soc2/system-operations", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const evidence = await soc2EvidenceCollector.collectSystemOperationsEvidence();
+      res.json(evidence);
+    } catch (error) {
+      console.error("SOC2 system operations evidence error:", error);
+      res.status(500).json({ error: "Failed to collect system operations evidence" });
+    }
+  });
+
+  app.get("/api/compliance/soc2/data-protection", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const evidence = await soc2EvidenceCollector.collectDataProtectionEvidence();
+      res.json(evidence);
+    } catch (error) {
+      console.error("SOC2 data protection evidence error:", error);
+      res.status(500).json({ error: "Failed to collect data protection evidence" });
+    }
+  });
+
+  app.post("/api/compliance/soc2/generate-report", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const reportId = await soc2EvidenceCollector.generateSOC2EvidenceReport();
+      res.json({ reportId, message: "SOC2 evidence report generated successfully" });
+    } catch (error) {
+      console.error("SOC2 report generation error:", error);
+      res.status(500).json({ error: "Failed to generate SOC2 report" });
+    }
+  });
+
+  // PII Lineage endpoints
+  app.get("/api/compliance/pii/inventory", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const inventory = piiLineageTracker.getPIIInventory();
+      res.json(inventory);
+    } catch (error) {
+      console.error("PII inventory error:", error);
+      res.status(500).json({ error: "Failed to get PII inventory" });
+    }
+  });
+
+  app.get("/api/compliance/pii/data-flows", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const flows = piiLineageTracker.getDataFlows();
+      res.json(flows);
+    } catch (error) {
+      console.error("PII data flows error:", error);
+      res.status(500).json({ error: "Failed to get data flows" });
+    }
+  });
+
+  app.get("/api/compliance/pii/processing-activities", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const activities = piiLineageTracker.getProcessingActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error("PII processing activities error:", error);
+      res.status(500).json({ error: "Failed to get processing activities" });
+    }
+  });
+
+  app.post("/api/compliance/pii/generate-report", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    try {
+      const reportId = await piiLineageTracker.generatePIILineageReport();
+      res.json({ reportId, message: "PII lineage report generated successfully" });
+    } catch (error) {
+      console.error("PII lineage report error:", error);
+      res.status(500).json({ error: "Failed to generate PII lineage report" });
     }
   });
 
