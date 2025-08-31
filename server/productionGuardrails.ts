@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { creditBalance, usageEvents } from "@shared/schema";
+import { CreditBalance, usageEvents } from "@shared/schema";
 import { eq, and, gte, sum, desc } from "drizzle-orm";
 
 // Production guardrails and circuit breakers for billing system
