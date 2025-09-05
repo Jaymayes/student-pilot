@@ -15,6 +15,7 @@ import Documents from "@/pages/documents";
 import EssayAssistant from "@/pages/essay-assistant";
 import Billing from "@/pages/Billing";
 import RecommendationAnalytics from "@/pages/RecommendationAnalytics";
+import AutofillEssayTest from "@/pages/AutofillEssayTest";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,6 +35,7 @@ function Router() {
           <Route path="/essay-assistant" component={EssayAssistant} />
           <Route path="/billing" component={Billing} />
           <Route path="/recommendation-analytics" component={RecommendationAnalytics} />
+          <Route path="/autofill-essay-test" component={AutofillEssayTest} />
         </>
       )}
       <Route component={NotFound} />

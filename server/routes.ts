@@ -30,6 +30,8 @@ import { recommendationEngine } from "./services/recommendationEngine";
 import { recommendationValidator } from "./services/recommendationValidation";
 import { fixtureManager } from "./services/fixtureManager";
 import { kpiService } from "./services/recommendationKpiService";
+import { applicationAutofillService } from "./services/applicationAutofill";
+import { enhancedEssayAssistanceService } from "./services/enhancedEssayAssistance";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -2285,6 +2287,276 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Validation history error:", error);
       res.status(500).json({ error: "Failed to get validation history" });
+    }
+  });
+
+  // ========== APPLICATION AUTOFILL & ENHANCED ESSAY ASSISTANCE ==========
+
+  // Generate intelligent application autofill suggestions
+  app.post("/api/applications/autofill", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { studentId, scholarshipId, formFields } = req.body;
+      const userId = req.user?.claims?.sub;
+
+      if (!studentId || !scholarshipId || !formFields || !Array.isArray(formFields)) {
+        return res.status(400).json({ error: "Missing required fields: studentId, scholarshipId, formFields" });
+      }
+
+      const autofillResults = await applicationAutofillService.autofillApplication(
+        userId,
+        studentId,
+        scholarshipId,
+        formFields
+      );
+
+      res.json({
+        success: true,
+        results: autofillResults,
+        metadata: {
+          totalFields: formFields.length,
+          suggestionsGenerated: autofillResults.length,
+          safetyChecked: true,
+          explainable: true
+        }
+      });
+    } catch (error) {
+      console.error("Application autofill error:", error);
+      res.status(500).json({ error: "Failed to generate autofill suggestions" });
+    }
+  });
+
+  // Track autofill suggestion usage
+  app.post("/api/applications/autofill/track", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { traceId, used } = req.body;
+
+      if (!traceId || typeof used !== 'boolean') {
+        return res.status(400).json({ error: "Missing required fields: traceId, used" });
+      }
+
+      await applicationAutofillService.trackSuggestionUsage(traceId, used);
+
+      res.json({ success: true, message: 'Usage tracked successfully' });
+    } catch (error) {
+      console.error("Autofill tracking error:", error);
+      res.status(500).json({ error: "Failed to track suggestion usage" });
+    }
+  });
+
+  // Get explanation for autofill suggestion
+  app.get("/api/applications/autofill/explain/:traceId", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { traceId } = req.params;
+      const explanation = await applicationAutofillService.explainSuggestion(traceId);
+
+      if (!explanation) {
+        return res.status(404).json({ error: "Suggestion not found" });
+      }
+
+      res.json({ explanation });
+    } catch (error) {
+      console.error("Autofill explanation error:", error);
+      res.status(500).json({ error: "Failed to get suggestion explanation" });
+    }
+  });
+
+  // Enhanced essay analysis with safety rails
+  app.post("/api/essays/analyze-safe", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { content, prompt } = req.body;
+      const userId = req.user?.claims?.sub;
+
+      if (!content) {
+        return res.status(400).json({ error: "Essay content is required" });
+      }
+
+      const analysis = await enhancedEssayAssistanceService.analyzeEssayWithSafety(
+        content,
+        prompt || '',
+        userId
+      );
+
+      res.json({
+        success: true,
+        analysis,
+        metadata: {
+          integrityChecked: true,
+          explainable: true,
+          traceId: analysis.traceId
+        }
+      });
+    } catch (error) {
+      console.error("Safe essay analysis error:", error);
+      res.status(500).json({ 
+        error: error.message || "Failed to analyze essay safely" 
+      });
+    }
+  });
+
+  // Enhanced essay improvement with safety rails
+  app.post("/api/essays/improve-safe", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { content, focusArea = "overall" } = req.body;
+      const userId = req.user?.claims?.sub;
+
+      if (!content) {
+        return res.status(400).json({ error: "Essay content is required" });
+      }
+
+      const improvement = await enhancedEssayAssistanceService.improveEssayContentWithSafety(
+        content,
+        focusArea,
+        userId
+      );
+
+      res.json({
+        success: true,
+        improvement,
+        metadata: {
+          integrityScore: improvement.integrityCheck.score,
+          changesCount: improvement.changes.length,
+          safetyChecked: true,
+          traceId: improvement.traceId
+        }
+      });
+    } catch (error) {
+      console.error("Safe essay improvement error:", error);
+      res.status(500).json({ 
+        error: error.message || "Failed to improve essay safely" 
+      });
+    }
+  });
+
+  // Generate safe essay outline based on student profile
+  app.post("/api/essays/outline-safe", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { prompt, essayType = "general", studentId } = req.body;
+      const userId = req.user?.claims?.sub;
+
+      if (!prompt) {
+        return res.status(400).json({ error: "Essay prompt is required" });
+      }
+
+      // Get student profile for context
+      const studentProfile = studentId ? await storage.getStudentProfile(studentId) : null;
+
+      const outline = await enhancedEssayAssistanceService.generateSafeEssayOutline(
+        prompt,
+        studentProfile,
+        essayType,
+        userId
+      );
+
+      res.json({
+        success: true,
+        outline,
+        metadata: {
+          profileBased: !!studentProfile,
+          safetyChecked: true,
+          integrityNote: outline.integrityNote
+        }
+      });
+    } catch (error) {
+      console.error("Safe essay outline error:", error);
+      res.status(500).json({ error: "Failed to generate essay outline safely" });
+    }
+  });
+
+  // Track essay assistance suggestion usage
+  app.post("/api/essays/track-usage", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { traceId, used } = req.body;
+
+      if (!traceId || typeof used !== 'boolean') {
+        return res.status(400).json({ error: "Missing required fields: traceId, used" });
+      }
+
+      await enhancedEssayAssistanceService.trackSuggestionUsage(traceId, used);
+
+      res.json({ success: true, message: 'Usage tracked successfully' });
+    } catch (error) {
+      console.error("Essay assistance tracking error:", error);
+      res.status(500).json({ error: "Failed to track suggestion usage" });
+    }
+  });
+
+  // Get explanation for essay assistance suggestion
+  app.get("/api/essays/explain/:traceId", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { traceId } = req.params;
+      const explanation = await enhancedEssayAssistanceService.explainSuggestion(traceId);
+
+      if (!explanation) {
+        return res.status(404).json({ error: "Suggestion not found" });
+      }
+
+      res.json({ explanation });
+    } catch (error) {
+      console.error("Essay explanation error:", error);
+      res.status(500).json({ error: "Failed to get suggestion explanation" });
+    }
+  });
+
+  // Get audit trail for user's autofill and essay assistance usage
+  app.get("/api/assistance/audit", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      const { studentId, type } = req.query as { studentId?: string; type?: string };
+
+      let auditTrail: any[] = [];
+
+      if (!type || type === 'autofill') {
+        const autofillTrail = await applicationAutofillService.getAuditTrail(userId, studentId);
+        auditTrail = auditTrail.concat(autofillTrail.map(log => ({ ...log, service: 'autofill' })));
+      }
+
+      if (!type || type === 'essay') {
+        const essayTrail = await enhancedEssayAssistanceService.getAuditTrail(userId);
+        auditTrail = auditTrail.concat(essayTrail.map(log => ({ ...log, service: 'essay' })));
+      }
+
+      // Sort by timestamp descending
+      auditTrail.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      res.json({
+        auditTrail,
+        metadata: {
+          totalEntries: auditTrail.length,
+          services: ['autofill', 'essay'],
+          traceable: true,
+          explainable: true
+        }
+      });
+    } catch (error) {
+      console.error("Audit trail error:", error);
+      res.status(500).json({ error: "Failed to get audit trail" });
     }
   });
 
