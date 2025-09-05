@@ -14,6 +14,7 @@ import Applications from "@/pages/applications";
 import Documents from "@/pages/documents";
 import EssayAssistant from "@/pages/essay-assistant";
 import Billing from "@/pages/Billing";
+import RecommendationAnalytics from "@/pages/RecommendationAnalytics";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -32,6 +33,7 @@ function Router() {
           <Route path="/documents" component={Documents} />
           <Route path="/essay-assistant" component={EssayAssistant} />
           <Route path="/billing" component={Billing} />
+          <Route path="/recommendation-analytics" component={RecommendationAnalytics} />
         </>
       )}
       <Route component={NotFound} />

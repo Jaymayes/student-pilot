@@ -858,3 +858,168 @@ export type TtvEvent = typeof ttvEvents.$inferSelect;
 export type InsertTtvEvent = z.infer<typeof insertTtvEventSchema>;
 export type TtvMilestone = typeof ttvMilestones.$inferSelect;
 export type InsertTtvMilestone = z.infer<typeof insertTtvMilestoneSchema>;
+
+// ========== RECOMMENDATION RELEVANCE & VALIDATION SCHEMA ==========
+
+// Ground-truth fixtures for recommendation validation
+export const recommendationFixtures = pgTable("recommendation_fixtures", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(), // Test case name (e.g. "Engineering Student - High GPA")
+  description: text("description"),
+  studentProfile: jsonb("student_profile").notNull(), // Mock student profile
+  expectedScholarships: text("expected_scholarships").array().notNull(), // Array of scholarship IDs that should match
+  topNThreshold: integer("top_n_threshold").default(5), // Expected to appear in top N results
+  minimumScore: integer("minimum_score").default(70), // Minimum expected match score
+  tags: text("tags").array(), // Test categorization (e.g. ["high-gpa", "engineering", "first-generation"])
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Recommendation interaction tracking for KPIs
+export const recommendationInteractions = pgTable("recommendation_interactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  studentId: varchar("student_id").notNull().references(() => studentProfiles.id),
+  scholarshipId: varchar("scholarship_id").notNull().references(() => scholarships.id),
+  matchId: varchar("match_id").references(() => scholarshipMatches.id),
+  interactionType: varchar("interaction_type").notNull(), // "view", "click_details", "save", "apply", "dismiss"
+  recommendationRank: integer("recommendation_rank"), // Position in recommendation list (1-N)
+  matchScore: integer("match_score"), // Score at time of interaction
+  sessionId: varchar("session_id"), // For session-based analysis
+  timestamp: timestamp("timestamp").defaultNow(),
+  metadata: jsonb("metadata"), // Additional context (search filters, etc.)
+}, (table) => [
+  index("idx_rec_interactions_user_type").on(table.userId, table.interactionType),
+  index("idx_rec_interactions_scholarship").on(table.scholarshipId),
+  index("idx_rec_interactions_rank").on(table.recommendationRank),
+  index("idx_rec_interactions_timestamp").on(table.timestamp),
+]);
+
+// Recommendation validation results 
+export const recommendationValidations = pgTable("recommendation_validations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fixtureId: varchar("fixture_id").notNull().references(() => recommendationFixtures.id),
+  algorithmVersion: varchar("algorithm_version").notNull(), // Version of scoring algorithm used
+  totalScholarships: integer("total_scholarships").notNull(), // Number of scholarships evaluated
+  topNResults: text("top_n_results").array().notNull(), // Array of scholarship IDs in ranked order
+  topNScores: integer("top_n_scores").array().notNull(), // Corresponding scores
+  expectedFound: integer("expected_found").notNull(), // How many expected scholarships were found
+  expectedInTopN: integer("expected_in_top_n").notNull(), // How many expected scholarships in top N
+  precisionAtN: decimal("precision_at_n", { precision: 5, scale: 4 }), // Precision @ N metric
+  recallAtN: decimal("recall_at_n", { precision: 5, scale: 4 }), // Recall @ N metric
+  meanAverageScore: decimal("mean_average_score", { precision: 5, scale: 2 }), // Average score of top N
+  executionTimeMs: integer("execution_time_ms"), // Performance metric
+  validatedAt: timestamp("validated_at").defaultNow(),
+});
+
+// KPI aggregation table for dashboard performance
+export const recommendationKpis = pgTable("recommendation_kpis", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  dateKey: varchar("date_key").notNull(), // YYYY-MM-DD format
+  totalRecommendations: integer("total_recommendations").notNull().default(0),
+  totalClicks: integer("total_clicks").notNull().default(0),
+  totalSaves: integer("total_saves").notNull().default(0),
+  totalApplies: integer("total_applies").notNull().default(0),
+  clickThroughRate: decimal("click_through_rate", { precision: 5, scale: 4 }), // CTR
+  saveRate: decimal("save_rate", { precision: 5, scale: 4 }), // Save rate
+  applyRate: decimal("apply_rate", { precision: 5, scale: 4 }), // Apply rate
+  averageRecommendationRank: decimal("avg_recommendation_rank", { precision: 5, scale: 2 }), // Avg position clicked
+  topNPrecision: decimal("top_n_precision", { precision: 5, scale: 4 }), // Precision from validation
+  topNRecall: decimal("top_n_recall", { precision: 5, scale: 4 }), // Recall from validation
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_rec_kpis_date").on(table.dateKey),
+  index("idx_rec_kpis_updated").on(table.updatedAt),
+]);
+
+// Enhanced match scoring factors for algorithm transparency
+export const matchScoringFactors = pgTable("match_scoring_factors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  matchId: varchar("match_id").notNull().references(() => scholarshipMatches.id),
+  gpaWeight: decimal("gpa_weight", { precision: 5, scale: 4 }), // Weight contributed by GPA match
+  majorWeight: decimal("major_weight", { precision: 5, scale: 4 }), // Weight from major alignment
+  demographicsWeight: decimal("demographics_weight", { precision: 5, scale: 4 }), // Demographics factors
+  geographyWeight: decimal("geography_weight", { precision: 5, scale: 4 }), // Location factors
+  extracurricularsWeight: decimal("extracurriculars_weight", { precision: 5, scale: 4 }), // Activities match
+  aiConfidenceScore: decimal("ai_confidence_score", { precision: 5, scale: 4 }), // GPT confidence
+  algorithmVersion: varchar("algorithm_version").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations for new tables
+export const recommendationFixturesRelations = relations(recommendationFixtures, ({ many }) => ({
+  validations: many(recommendationValidations),
+}));
+
+export const recommendationInteractionsRelations = relations(recommendationInteractions, ({ one }) => ({
+  user: one(users, {
+    fields: [recommendationInteractions.userId],
+    references: [users.id],
+  }),
+  student: one(studentProfiles, {
+    fields: [recommendationInteractions.studentId],
+    references: [studentProfiles.id],
+  }),
+  scholarship: one(scholarships, {
+    fields: [recommendationInteractions.scholarshipId],
+    references: [scholarships.id],
+  }),
+  match: one(scholarshipMatches, {
+    fields: [recommendationInteractions.matchId],
+    references: [scholarshipMatches.id],
+  }),
+}));
+
+export const recommendationValidationsRelations = relations(recommendationValidations, ({ one }) => ({
+  fixture: one(recommendationFixtures, {
+    fields: [recommendationValidations.fixtureId],
+    references: [recommendationFixtures.id],
+  }),
+}));
+
+export const matchScoringFactorsRelations = relations(matchScoringFactors, ({ one }) => ({
+  match: one(scholarshipMatches, {
+    fields: [matchScoringFactors.matchId],
+    references: [scholarshipMatches.id],
+  }),
+}));
+
+// Insert schemas for new tables
+export const insertRecommendationFixtureSchema = createInsertSchema(recommendationFixtures).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRecommendationInteractionSchema = createInsertSchema(recommendationInteractions).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertRecommendationValidationSchema = createInsertSchema(recommendationValidations).omit({
+  id: true,
+  validatedAt: true,
+});
+
+export const insertRecommendationKpiSchema = createInsertSchema(recommendationKpis).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertMatchScoringFactorsSchema = createInsertSchema(matchScoringFactors).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for new tables
+export type RecommendationFixture = typeof recommendationFixtures.$inferSelect;
+export type InsertRecommendationFixture = z.infer<typeof insertRecommendationFixtureSchema>;
+export type RecommendationInteraction = typeof recommendationInteractions.$inferSelect;
+export type InsertRecommendationInteraction = z.infer<typeof insertRecommendationInteractionSchema>;
+export type RecommendationValidation = typeof recommendationValidations.$inferSelect;
+export type InsertRecommendationValidation = z.infer<typeof insertRecommendationValidationSchema>;
+export type RecommendationKpi = typeof recommendationKpis.$inferSelect;
+export type InsertRecommendationKpi = z.infer<typeof insertRecommendationKpiSchema>;
+export type MatchScoringFactors = typeof matchScoringFactors.$inferSelect;
+export type InsertMatchScoringFactors = z.infer<typeof insertMatchScoringFactorsSchema>;

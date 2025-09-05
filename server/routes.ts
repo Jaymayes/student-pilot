@@ -26,6 +26,10 @@ import { soc2EvidenceCollector } from "./compliance/soc2Evidence";
 import { piiLineageTracker } from "./compliance/piiLineage";
 import { consentService, type ConsentDecision } from "./services/consentService";
 import { encryptionValidator } from "./compliance/encryptionValidation";
+import { recommendationEngine } from "./services/recommendationEngine";
+import { recommendationValidator } from "./services/recommendationValidation";
+import { fixtureManager } from "./services/fixtureManager";
+import { kpiService } from "./services/recommendationKpiService";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -2065,6 +2069,222 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Encryption validation error:", error);
       res.status(500).json({ error: "Failed to validate encryption compliance" });
+    }
+  });
+
+  // ========== RECOMMENDATION RELEVANCE & VALIDATION ENDPOINTS ==========
+
+  // Generate personalized scholarship recommendations
+  app.get("/api/recommendations/:studentId", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { studentId } = req.params;
+      const { 
+        topN = 10, 
+        minScore = 30, 
+        sessionId 
+      } = req.query as { topN?: string; minScore?: string; sessionId?: string };
+
+      const userId = req.user?.claims?.sub;
+      
+      const recommendations = await recommendationEngine.generateRecommendations(
+        studentId,
+        {
+          topN: parseInt(topN),
+          minScore: parseInt(minScore),
+          trackInteraction: true,
+          sessionId: sessionId
+        }
+      );
+
+      res.json({
+        studentId,
+        recommendations,
+        metadata: {
+          totalRecommendations: recommendations.length,
+          algorithmVersion: '2.0.0-hybrid',
+          generatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error("Recommendation generation error:", error);
+      res.status(500).json({ error: "Failed to generate recommendations" });
+    }
+  });
+
+  // Track recommendation interaction
+  app.post("/api/recommendations/interactions", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const {
+        studentId,
+        scholarshipId,
+        interactionType,
+        recommendationRank,
+        sessionId,
+        metadata
+      } = req.body;
+
+      const userId = req.user?.claims?.sub;
+
+      await kpiService.recordInteraction(
+        userId,
+        studentId,
+        scholarshipId,
+        interactionType,
+        recommendationRank,
+        sessionId,
+        metadata
+      );
+
+      res.json({ success: true, message: 'Interaction recorded' });
+    } catch (error) {
+      console.error("Interaction tracking error:", error);
+      res.status(500).json({ error: "Failed to record interaction" });
+    }
+  });
+
+  // Validate recommendations against ground-truth fixtures
+  app.post("/api/recommendations/validate", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { topN = 5 } = req.body;
+      
+      const validationResults = await recommendationValidator.validateAllFixtures(topN);
+      const summary = await recommendationValidator.generateValidationSummaryReport();
+
+      res.json({
+        validationResults,
+        summary,
+        executedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Recommendation validation error:", error);
+      res.status(500).json({ error: "Failed to validate recommendations" });
+    }
+  });
+
+  // Initialize ground-truth fixtures
+  app.post("/api/recommendations/fixtures/init", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      await fixtureManager.createSampleScholarships();
+      await fixtureManager.initializeFixtures();
+      
+      res.json({ success: true, message: 'Fixtures initialized successfully' });
+    } catch (error) {
+      console.error("Fixture initialization error:", error);
+      res.status(500).json({ error: "Failed to initialize fixtures" });
+    }
+  });
+
+  // Get recommendation KPI metrics
+  app.get("/api/recommendations/kpis", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { days = 30, startDate, endDate } = req.query as { 
+        days?: string; 
+        startDate?: string; 
+        endDate?: string; 
+      };
+
+      let metrics;
+      
+      if (startDate && endDate) {
+        metrics = await kpiService.getKpiTrends(new Date(startDate), new Date(endDate));
+      } else {
+        metrics = await kpiService.calculateRecentKpis(parseInt(days));
+      }
+
+      const summary = await kpiService.getKpiSummary(parseInt(days));
+      const topScholarships = await kpiService.getTopScholarshipsByInteractions(10, parseInt(days));
+
+      res.json({
+        metrics,
+        summary,
+        topScholarships,
+        period: {
+          days: parseInt(days),
+          startDate,
+          endDate
+        }
+      });
+    } catch (error) {
+      console.error("KPI metrics error:", error);
+      res.status(500).json({ error: "Failed to get KPI metrics" });
+    }
+  });
+
+  // Get detailed interaction analysis
+  app.get("/api/recommendations/analytics", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { 
+        days = 7, 
+        userId 
+      } = req.query as { days?: string; userId?: string; };
+
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - parseInt(days));
+      const endDate = new Date();
+
+      const interactionSummary = await kpiService.getInteractionSummary(
+        startDate, 
+        endDate, 
+        userId
+      );
+
+      const recentMetrics = await kpiService.calculateRecentKpis(parseInt(days));
+
+      res.json({
+        interactionSummary,
+        recentMetrics,
+        period: {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          days: parseInt(days)
+        }
+      });
+    } catch (error) {
+      console.error("Analytics error:", error);
+      res.status(500).json({ error: "Failed to get analytics data" });
+    }
+  });
+
+  // Get validation history for fixtures
+  app.get("/api/recommendations/fixtures/:fixtureId/history", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { fixtureId } = req.params;
+      const { limit = 10 } = req.query as { limit?: string };
+
+      const history = await recommendationValidator.getValidationHistory(
+        fixtureId, 
+        parseInt(limit)
+      );
+
+      res.json({
+        fixtureId,
+        history,
+        count: history.length
+      });
+    } catch (error) {
+      console.error("Validation history error:", error);
+      res.status(500).json({ error: "Failed to get validation history" });
     }
   });
 
