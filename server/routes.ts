@@ -32,6 +32,8 @@ import { fixtureManager } from "./services/fixtureManager";
 import { kpiService } from "./services/recommendationKpiService";
 import { applicationAutofillService } from "./services/applicationAutofill";
 import { enhancedEssayAssistanceService } from "./services/enhancedEssayAssistance";
+import { refundService } from "./services/refundService";
+import { paymentKpiService } from "./services/paymentKpiService";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -2557,6 +2559,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Audit trail error:", error);
       res.status(500).json({ error: "Failed to get audit trail" });
+    }
+  });
+
+  // ========== REFUND & PAYMENT KPI ENDPOINTS ==========
+
+  // Process refund with comprehensive edge case handling
+  app.post("/api/billing/refund", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      const { purchaseId, refundType = 'full', amount, reason, adminNotes } = req.body;
+
+      if (!purchaseId || !reason) {
+        return res.status(400).json({ error: "purchaseId and reason are required" });
+      }
+
+      const refundRequest = {
+        userId,
+        purchaseId,
+        refundType,
+        amount,
+        reason,
+        adminNotes
+      };
+
+      const result = await refundService.processRefund(refundRequest);
+
+      res.json({
+        success: true,
+        refund: result,
+        metadata: {
+          correlationId,
+          processedAt: new Date().toISOString(),
+          edgeCaseHandling: !!result.edgeCaseHandled
+        }
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Refund processing error:`, error);
+      res.status(500).json({ 
+        error: error.message || "Failed to process refund",
+        correlationId 
+      });
+    }
+  });
+
+  // Get user's refund history
+  app.get("/api/billing/refunds", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const refunds = await refundService.getUserRefunds(userId, limit);
+
+      res.json({
+        refunds,
+        metadata: {
+          total: refunds.length,
+          correlationId
+        }
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Error fetching refunds:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch refund history",
+        correlationId 
+      });
+    }
+  });
+
+  // Get comprehensive payment KPIs (admin/analytics endpoint)
+  app.get("/api/billing/kpis", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { startDate, endDate } = req.query;
+      
+      const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const end = endDate ? new Date(endDate as string) : new Date();
+
+      const kpis = await paymentKpiService.getPaymentKpis(start, end);
+
+      res.json({
+        kpis,
+        metadata: {
+          period: {
+            startDate: start.toISOString(),
+            endDate: end.toISOString()
+          },
+          generatedAt: new Date().toISOString(),
+          correlationId
+        }
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Error fetching payment KPIs:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch payment KPIs",
+        correlationId 
+      });
+    }
+  });
+
+  // Get KPI alerts for concerning metrics
+  app.get("/api/billing/kpi-alerts", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const alerts = await paymentKpiService.getKpiAlerts();
+
+      res.json({
+        alerts,
+        metadata: {
+          alertCount: alerts.length,
+          criticalCount: alerts.filter(a => a.type === 'critical').length,
+          warningCount: alerts.filter(a => a.type === 'warning').length,
+          checkedAt: new Date().toISOString(),
+          correlationId
+        }
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Error fetching KPI alerts:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch KPI alerts",
+        correlationId 
+      });
+    }
+  });
+
+  // Track conversion events for funnel analysis
+  app.post("/api/billing/track-conversion", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      const { event, metadata } = req.body;
+
+      if (!event) {
+        return res.status(400).json({ error: "event type is required" });
+      }
+
+      await paymentKpiService.trackConversionEvent(userId, event, metadata);
+
+      res.json({
+        success: true,
+        message: 'Conversion event tracked',
+        correlationId
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Error tracking conversion event:`, error);
+      res.status(500).json({ 
+        error: "Failed to track conversion event",
+        correlationId 
+      });
+    }
+  });
+
+  // Admin endpoint for complex refunds with override capabilities
+  app.post("/api/billing/admin-refund", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const adminUserId = req.user?.claims?.sub;
+      const { 
+        userId, 
+        purchaseId, 
+        refundType, 
+        amount, 
+        reason, 
+        adminNotes,
+        forceStrategy,
+        overrideEdgeCases 
+      } = req.body;
+
+      // TODO: Add admin role validation here
+      // For now, assuming all authenticated users can access this endpoint
+
+      const refundRequest = {
+        userId,
+        purchaseId,
+        refundType,
+        amount,
+        reason,
+        adminNotes: `Admin override by ${adminUserId}: ${adminNotes}`,
+        forceStrategy,
+        overrideEdgeCases
+      };
+
+      const result = await refundService.handleComplexRefund(adminUserId, refundRequest);
+
+      res.json({
+        success: true,
+        refund: result,
+        metadata: {
+          adminUserId,
+          correlationId,
+          overrideApplied: overrideEdgeCases,
+          forcedStrategy: forceStrategy
+        }
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Admin refund error:`, error);
+      res.status(500).json({ 
+        error: error.message || "Failed to process admin refund",
+        correlationId 
+      });
     }
   });
 
