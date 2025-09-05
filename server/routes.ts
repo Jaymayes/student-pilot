@@ -24,6 +24,8 @@ import { cohortManager } from "./analytics/cohortManager";
 import { backupRestoreManager } from "./backupRestore";
 import { soc2EvidenceCollector } from "./compliance/soc2Evidence";
 import { piiLineageTracker } from "./compliance/piiLineage";
+import { consentService, type ConsentDecision } from "./services/consentService";
+import { encryptionValidator } from "./compliance/encryptionValidation";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -1891,6 +1893,178 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Security dashboard error:', error);
       res.status(500).json({ error: 'Failed to get security compliance status' });
+    }
+  });
+
+  // ========== FERPA CONSENT MANAGEMENT ENDPOINTS ==========
+
+  // Initialize consent categories and data use disclosures
+  app.post("/api/consent/initialize", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      await consentService.initializeConsentCategories();
+      await consentService.initializeDataUseDisclosures();
+      res.json({ message: "Consent system initialized successfully" });
+    } catch (error) {
+      console.error("Consent initialization error:", error);
+      res.status(500).json({ error: "Failed to initialize consent system" });
+    }
+  });
+
+  // Get consent categories for onboarding
+  app.get("/api/consent/categories", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const categories = await consentService.getActiveConsentCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Get consent categories error:", error);
+      res.status(500).json({ error: "Failed to get consent categories" });
+    }
+  });
+
+  // Get data use disclosures
+  app.get("/api/consent/disclosures", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const disclosures = await consentService.getDataUseDisclosures();
+      res.json(disclosures);
+    } catch (error) {
+      console.error("Get data use disclosures error:", error);
+      res.status(500).json({ error: "Failed to get data use disclosures" });
+    }
+  });
+
+  // Record consent decisions
+  app.post("/api/consent/record", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const { decisions }: { decisions: ConsentDecision[] } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      if (!decisions || !Array.isArray(decisions)) {
+        return res.status(400).json({ error: "Decisions array is required" });
+      }
+
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const context = {
+        userId,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        correlationId,
+        method: 'web_form'
+      };
+
+      await consentService.recordConsentDecisions(decisions, context);
+      
+      // Check if all required consents are granted
+      const hasRequired = await consentService.hasRequiredConsents(userId);
+      
+      res.json({ 
+        message: "Consent decisions recorded successfully",
+        hasRequiredConsents: hasRequired
+      });
+    } catch (error) {
+      console.error("Record consent error:", error);
+      res.status(500).json({ error: "Failed to record consent decisions" });
+    }
+  });
+
+  // Get user's consent status
+  app.get("/api/consent/status", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const consents = await consentService.getUserConsentStatus(userId);
+      const hasRequired = await consentService.hasRequiredConsents(userId);
+      
+      res.json({
+        consents,
+        hasRequiredConsents: hasRequired
+      });
+    } catch (error) {
+      console.error("Get consent status error:", error);
+      res.status(500).json({ error: "Failed to get consent status" });
+    }
+  });
+
+  // Get onboarding progress
+  app.get("/api/onboarding/progress", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const progress = await consentService.getOnboardingProgress(userId);
+      res.json(progress);
+    } catch (error) {
+      console.error("Get onboarding progress error:", error);
+      res.status(500).json({ error: "Failed to get onboarding progress" });
+    }
+  });
+
+  // Get consent audit trail
+  app.get("/api/consent/audit", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const auditTrail = await consentService.getConsentAuditTrail(userId);
+      res.json(auditTrail);
+    } catch (error) {
+      console.error("Get consent audit trail error:", error);
+      res.status(500).json({ error: "Failed to get consent audit trail" });
+    }
+  });
+
+  // ========== PII ENCRYPTION VALIDATION ENDPOINT ==========
+
+  // Validate PII encryption compliance (FERPA)
+  app.get("/api/compliance/encryption-validation", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const report = await encryptionValidator.validatePiiEncryptionCompliance();
+      const complianceSummary = encryptionValidator.generateFerpaComplianceSummary(report);
+      
+      res.json({
+        report,
+        complianceSummary,
+        ferpaCompliant: report.summary.ferpaCompliant
+      });
+    } catch (error) {
+      console.error("Encryption validation error:", error);
+      res.status(500).json({ error: "Failed to validate encryption compliance" });
     }
   });
 

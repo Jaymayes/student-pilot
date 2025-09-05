@@ -496,6 +496,209 @@ export type InsertRateCardEntry = z.infer<typeof insertRateCardSchema>;
 export type UsageEvent = typeof usageEvents.$inferSelect;
 export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
 
+// ========== FERPA CONSENT MANAGEMENT SCHEMA ==========
+
+// Consent category types
+export const consentCategoryEnum = pgEnum("consent_category", [
+  "ferpa_directory_info",    // FERPA directory information disclosure
+  "ferpa_educational_records", // FERPA educational records access
+  "data_processing",         // General data processing consent
+  "marketing_communications", // Marketing and promotional communications
+  "analytics_tracking",      // Usage analytics and behavior tracking
+  "third_party_sharing",     // Sharing data with scholarship providers
+  "ai_processing"           // AI-powered essay analysis and matching
+]);
+
+// Consent status types
+export const consentStatusEnum = pgEnum("consent_status", [
+  "granted",     // User explicitly granted consent
+  "denied",      // User explicitly denied consent
+  "withdrawn",   // User previously granted but later withdrew
+  "expired"      // Consent expired based on retention policy
+]);
+
+// Data use categories for transparency
+export const dataUseCategoryEnum = pgEnum("data_use_category", [
+  "scholarship_matching",    // Core scholarship matching functionality
+  "application_assistance",  // Essay writing and application help
+  "platform_improvement",   // Product analytics and improvements
+  "communications",         // Email notifications and updates
+  "compliance_reporting",   // Legal and compliance requirements
+  "fraud_prevention",       // Security and fraud detection
+  "customer_support"       // Help desk and user support
+]);
+
+// Consent categories - defines what we need consent for
+export const consentCategories = pgTable("consent_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  category: consentCategoryEnum("category").notNull().unique(),
+  title: varchar("title").notNull(), // Human-readable title
+  description: text("description").notNull(), // Detailed explanation
+  isRequired: boolean("is_required").default(false), // Required for service
+  isFerpaRegulated: boolean("is_ferpa_regulated").default(false), // FERPA compliance flag
+  retentionMonths: integer("retention_months"), // Data retention period
+  effectiveFrom: timestamp("effective_from").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Data use disclosures - what we tell users about data usage
+export const dataUseDisclosures = pgTable("data_use_disclosures", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  category: dataUseCategoryEnum("category").notNull(),
+  purpose: varchar("purpose").notNull(), // Primary purpose statement
+  dataTypes: text("data_types").array().notNull(), // Types of data used
+  thirdParties: text("third_parties").array(), // Third parties who receive data
+  retentionPeriod: varchar("retention_period"), // How long we keep data
+  userRights: text("user_rights").array().notNull(), // User rights (access, delete, etc.)
+  legalBasis: varchar("legal_basis"), // Legal basis for processing
+  version: integer("version").default(1),
+  effectiveFrom: timestamp("effective_from").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_data_disclosures_category_active").on(table.category, table.isActive),
+  index("idx_data_disclosures_effective").on(table.effectiveFrom),
+]);
+
+// User consent records - tracks individual consent decisions
+export const userConsents = pgTable("user_consents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  categoryId: varchar("category_id").notNull().references(() => consentCategories.id),
+  status: consentStatusEnum("status").notNull(),
+  consentTimestamp: timestamp("consent_timestamp").notNull(),
+  expiresAt: timestamp("expires_at"), // When consent expires (if applicable)
+  ipAddress: varchar("ip_address"), // IP address when consent was given
+  userAgent: text("user_agent"), // Browser/device info
+  consentMethod: varchar("consent_method").notNull(), // "web_form", "api", "implied"
+  consentVersion: integer("consent_version").default(1), // Version of consent text
+  metadata: jsonb("metadata"), // Additional context
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_consents_user_category").on(table.userId, table.categoryId),
+  index("idx_user_consents_status").on(table.status),
+  index("idx_user_consents_expires").on(table.expiresAt),
+  index("idx_user_consents_timestamp").on(table.consentTimestamp),
+]);
+
+// Consent audit log - immutable record of all consent changes
+export const consentAuditLog = pgTable("consent_audit_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  categoryId: varchar("category_id").notNull().references(() => consentCategories.id),
+  oldStatus: consentStatusEnum("old_status"),
+  newStatus: consentStatusEnum("new_status").notNull(),
+  changeReason: varchar("change_reason"), // "user_action", "expiration", "admin_action"
+  changeDetails: text("change_details"), // Additional context
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  correlationId: varchar("correlation_id"), // Request tracking
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_consent_audit_user_category").on(table.userId, table.categoryId),
+  index("idx_consent_audit_created").on(table.createdAt),
+  index("idx_consent_audit_correlation").on(table.correlationId),
+]);
+
+// Onboarding progress tracking
+export const onboardingProgress = pgTable("onboarding_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(),
+  consentCompleted: boolean("consent_completed").default(false),
+  consentCompletedAt: timestamp("consent_completed_at"),
+  profileStarted: boolean("profile_started").default(false),
+  profileStartedAt: timestamp("profile_started_at"),
+  profileCompleted: boolean("profile_completed").default(false),
+  profileCompletedAt: timestamp("profile_completed_at"),
+  onboardingCompletedAt: timestamp("onboarding_completed_at"),
+  currentStep: varchar("current_step").default("consent"), // "consent", "profile", "completed"
+  stepData: jsonb("step_data"), // Step-specific progress data
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_onboarding_progress_step").on(table.currentStep),
+  index("idx_onboarding_progress_completed").on(table.onboardingCompletedAt),
+]);
+
+// FERPA consent relations
+export const consentCategoriesRelations = relations(consentCategories, ({ many }) => ({
+  userConsents: many(userConsents),
+  auditLogs: many(consentAuditLog),
+}));
+
+export const userConsentsRelations = relations(userConsents, ({ one }) => ({
+  user: one(users, {
+    fields: [userConsents.userId],
+    references: [users.id],
+  }),
+  category: one(consentCategories, {
+    fields: [userConsents.categoryId],
+    references: [consentCategories.id],
+  }),
+}));
+
+export const consentAuditLogRelations = relations(consentAuditLog, ({ one }) => ({
+  user: one(users, {
+    fields: [consentAuditLog.userId],
+    references: [users.id],
+  }),
+  category: one(consentCategories, {
+    fields: [consentAuditLog.categoryId],
+    references: [consentCategories.id],
+  }),
+}));
+
+export const onboardingProgressRelations = relations(onboardingProgress, ({ one }) => ({
+  user: one(users, {
+    fields: [onboardingProgress.userId],
+    references: [users.id],
+  }),
+}));
+
+// FERPA consent schemas
+export const insertConsentCategorySchema = createInsertSchema(consentCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDataUseDisclosureSchema = createInsertSchema(dataUseDisclosures).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserConsentSchema = createInsertSchema(userConsents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertConsentAuditLogSchema = createInsertSchema(consentAuditLog).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOnboardingProgressSchema = createInsertSchema(onboardingProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// FERPA consent types
+export type ConsentCategory = typeof consentCategories.$inferSelect;
+export type InsertConsentCategory = z.infer<typeof insertConsentCategorySchema>;
+export type DataUseDisclosure = typeof dataUseDisclosures.$inferSelect;
+export type InsertDataUseDisclosure = z.infer<typeof insertDataUseDisclosureSchema>;
+export type UserConsent = typeof userConsents.$inferSelect;
+export type InsertUserConsent = z.infer<typeof insertUserConsentSchema>;
+export type ConsentAuditLogEntry = typeof consentAuditLog.$inferSelect;
+export type InsertConsentAuditLogEntry = z.infer<typeof insertConsentAuditLogSchema>;
+export type OnboardingProgress = typeof onboardingProgress.$inferSelect;
+export type InsertOnboardingProgress = z.infer<typeof insertOnboardingProgressSchema>;
+
 // ========== TTV ANALYTICS SCHEMA ==========
 
 // TTV event types enum

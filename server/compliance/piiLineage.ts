@@ -48,6 +48,133 @@ interface PIIProcessingActivity {
 export class PIILineageTracker {
   
   /**
+   * Validate user consent for PII processing
+   */
+  async validateConsentForPiiProcessing(
+    userId: string,
+    piiType: string,
+    processingPurpose: string
+  ): Promise<boolean> {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const { consentService } = await import("../services/consentService");
+      
+      // Get user's current consent status
+      const consents = await consentService.getUserConsentStatus(userId);
+      
+      // Map PII types to consent categories
+      const requiredConsentCategory = this.mapPiiTypeToConsentCategory(piiType, processingPurpose);
+      
+      if (!requiredConsentCategory) {
+        // If no specific consent required, allow processing
+        return true;
+      }
+      
+      // Find the consent category ID
+      const categories = await consentService.getActiveConsentCategories();
+      const category = categories.find(cat => cat.category === requiredConsentCategory);
+      
+      if (!category) {
+        console.warn(`Consent category not found: ${requiredConsentCategory}`);
+        return false;
+      }
+      
+      // Check if user has granted consent for this category
+      const relevantConsent = consents.find(
+        consent => consent.categoryId === category.id
+      );
+      
+      return relevantConsent?.status === 'granted' && 
+             (!relevantConsent.expiresAt || new Date(relevantConsent.expiresAt) > new Date());
+    } catch (error) {
+      console.error('Error validating consent for PII processing:', error);
+      // In case of error, default to requiring explicit consent
+      return false;
+    }
+  }
+
+  /**
+   * Map PII types to consent categories
+   */
+  private mapPiiTypeToConsentCategory(piiType: string, processingPurpose: string): string | null {
+    // Educational records require FERPA consent
+    if (piiType.includes('academic') || piiType.includes('grade') || piiType.includes('transcript') || 
+        piiType.includes('gpa') || piiType.includes('school')) {
+      return 'ferpa_educational_records';
+    }
+    
+    // Directory information requires specific FERPA consent
+    if (piiType.includes('name') || piiType.includes('enrollment') || piiType.includes('degree') ||
+        piiType.includes('firstName') || piiType.includes('lastName')) {
+      return 'ferpa_directory_info';
+    }
+    
+    // AI processing requires AI consent
+    if (processingPurpose.includes('ai') || processingPurpose.includes('essay') || processingPurpose.includes('matching') ||
+        processingPurpose.includes('openai')) {
+      return 'ai_processing';
+    }
+    
+    // Third-party sharing requires sharing consent
+    if (processingPurpose.includes('share') || processingPurpose.includes('third_party') || 
+        processingPurpose.includes('scholarship_provider')) {
+      return 'third_party_sharing';
+    }
+    
+    // Analytics requires analytics consent
+    if (processingPurpose.includes('analytics') || processingPurpose.includes('tracking') ||
+        processingPurpose.includes('ttv') || processingPurpose.includes('event')) {
+      return 'analytics_tracking';
+    }
+
+    // Marketing communications
+    if (processingPurpose.includes('marketing') || processingPurpose.includes('email') ||
+        processingPurpose.includes('communication')) {
+      return 'marketing_communications';
+    }
+    
+    // Default to data processing consent for general purposes
+    return 'data_processing';
+  }
+
+  /**
+   * Log PII access with consent validation
+   */
+  async logPiiAccess(
+    userId: string,
+    piiField: string,
+    accessType: 'read' | 'write' | 'delete',
+    purpose: string,
+    correlationId?: string
+  ): Promise<void> {
+    try {
+      // Validate consent before logging access
+      const hasConsent = await this.validateConsentForPiiProcessing(userId, piiField, purpose);
+      
+      if (!hasConsent) {
+        console.warn(`PII access attempted without valid consent: userId=${userId}, field=${piiField}, purpose=${purpose}`);
+        // Still log the access attempt for audit purposes
+      }
+
+      // Log the access (in production, this would go to audit log database)
+      console.log(`PII Access Log: {
+        userId: ${userId},
+        field: ${piiField},
+        accessType: ${accessType},
+        purpose: ${purpose},
+        hasValidConsent: ${hasConsent},
+        timestamp: ${new Date().toISOString()},
+        correlationId: ${correlationId || 'N/A'}
+      }`);
+
+      // In production, store in audit log table
+      // await this.storeAuditLog({ userId, piiField, accessType, purpose, hasConsent, correlationId });
+    } catch (error) {
+      console.error('Error logging PII access:', error);
+    }
+  }
+
+  /**
    * Get comprehensive PII inventory across the system
    */
   getPIIInventory(): PIIField[] {

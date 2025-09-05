@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Profile from "@/pages/profile";
+import Onboarding from "@/pages/onboarding";
 import Scholarships from "@/pages/scholarships";
 import Applications from "@/pages/applications";
 import Documents from "@/pages/documents";
@@ -24,6 +25,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Dashboard} />
+          <Route path="/onboarding" component={Onboarding} />
           <Route path="/profile" component={Profile} />
           <Route path="/scholarships" component={Scholarships} />
           <Route path="/applications" component={Applications} />
