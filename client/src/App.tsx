@@ -17,6 +17,7 @@ import Billing from "@/pages/Billing";
 import RecommendationAnalytics from "@/pages/RecommendationAnalytics";
 import AutofillEssayTest from "@/pages/AutofillEssayTest";
 import PaymentDashboard from "@/pages/PaymentDashboard";
+import { AccessibilityTestPanel } from "@/components/AccessibilityTestPanel";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -38,6 +39,7 @@ function Router() {
           <Route path="/recommendation-analytics" component={RecommendationAnalytics} />
           <Route path="/autofill-essay-test" component={AutofillEssayTest} />
           <Route path="/payment-dashboard" component={PaymentDashboard} />
+          <Route path="/accessibility-test" component={AccessibilityTestPanel} />
         </>
       )}
       <Route component={NotFound} />
