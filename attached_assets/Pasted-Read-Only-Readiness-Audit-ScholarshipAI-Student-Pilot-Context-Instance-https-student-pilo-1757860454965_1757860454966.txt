@@ -1,0 +1,53 @@
+Read-Only Readiness Audit — ScholarshipAI Student Pilot
+
+Context
+
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only diagnostic. Do not modify any settings, data, content, campaigns, indexes, or integrations. Do not send emails/messages, trigger jobs, or re-run pipelines. No external web calls; use only existing internal telemetry, logs, and stored reports. If data is missing, mark as UNKNOWN and recommend minimal instrumentation to close the gap.
+Objective
+Assess go-live readiness against the 5-year plan toward $10M profitable ARR and market leadership. Produce an executive summary and a structured diagnostic with explicit PASS/WARN/FAIL judgments, each tied to evidence (dashboard/report names, log IDs, timestamps).
+
+Scope and required checks
+
+B2C funnel (students)
+Last 28d and 90d: MAUs, new signups, activation rate, free→paid conversion, ARPU from credit sales, churn, LTV, CAC by channel.
+SEO/Auto Page Maker performance: impressions, clicks, CTR, index coverage, top landing pages, Core Web Vitals (LCP/FID/CLS) from stored reports, schema/structured data status.
+Value metrics: time-to-first-quality match (median, P90), application completion rate, CSAT/NPS, refund/chargeback rate.
+Compare to plan targets; variance thresholds: >10% = WARN, >20% = FAIL.
+2. Product/SLOs for the student-pilot app
+
+Uptime last 30/90d (target ≥99.9%), P95 latency (target ~120ms), error rate, top 3 incidents, mean time to recovery.
+Data quality: duplicate/invalid scholarships, stale listings, broken links, success rate of match/ranking jobs.
+Observability: alert coverage, paging policy, unresolved P1/P2 issues.
+Endpoint health (read-only checks only): GET /health, /status, /robots.txt, /sitemap.xml, /.well-known/security.txt; record status codes and latency from existing logs only.
+3. Financial and unit economics
+
+Current MRR/ARR split B2C vs B2B, gross margin with explicit AI COGS; confirm 4x markup target by segment.
+Cash burn, runway, CAC payback by cohort, net revenue retention; top 3 variance-to-plan drivers.
+Monetization readiness: credit pricing, payment rails configured, payout accuracy (read from prior test logs only).
+4. Compliance, security, Responsible AI
+
+FERPA/COPPA posture: consent flows, data retention, DPA/ToS coverage, access controls, audit log anomalies.
+Responsible AI: bias audit results for matching/recommendations, model cards/explanations, safeguards against academic dishonesty, last red-team findings and remediations.
+Privacy/security: encryption at rest/in transit, key management, third-party risk, last pen-test summary.
+5. SEO machine (Auto Page Maker)
+
+Page inventory, indexation rate, canonicalization, sitemap health, crawl budget utilization, duplicate/thin content detection, internal linking, backlink highlights (from stored SEO reports).
+Top 10 pages by traffic and conversions; blockers to scaling.
+6. Marketing engine (Scholarship Agent)
+
+Campaign configurations, guardrails, approval states, content library QA. Confirm all autonomous actions are in paused/dry-run state for this audit.
+7. Risk register and readiness decision
+
+Top 10 strategic/operational risks with likelihood, impact, owner, mitigation status.
+Readiness decision: Green/Yellow/Red with justification. List critical blockers, owners, effort, and ETA.
+Output format
+
+Executive summary: 6–10 bullets and a clear go/no-go recommendation.
+KPI dashboard table: rows for each KPI with Current, Target, Variance%, Status (PASS/WARN/FAIL).
+Endpoint health table: endpoint, last-seen status code, last-seen P95 latency, last error (if any), log ID.
+Evidence: link or ID to each dashboard/report/log used.
+JSON payload: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "b2c": {...}, "product_slos": {...}, "financials": {...}, "compliance_security_ai": {...}, "seo_engine": {...}, "marketing_engine": {...}, "risks": [{...}], "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{"owner": "", "eta_days": 0}]} }
+Safety constraints
+
+Do not mutate data or configuration. Do not send emails, payments, or notifications. Do not trigger background jobs, reindexing, migrations, or cache clears. Use only existing telemetry and stored reports. If a required metric is unavailable, return UNKNOWN with the minimal instrumentation required to measure it.
