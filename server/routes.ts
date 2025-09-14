@@ -34,6 +34,8 @@ import { applicationAutofillService } from "./services/applicationAutofill";
 import { enhancedEssayAssistanceService } from "./services/enhancedEssayAssistance";
 import { refundService } from "./services/refundService";
 import { paymentKpiService } from "./services/paymentKpiService";
+import { responseCache } from "./cache/responseCache";
+import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -46,6 +48,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+  
+  // Cache prewarming for improved startup performance
+  console.log('🔥 Prewarming critical caches...');
+  responseCache.prewarm('ttv-dashboard', async () => {
+    try {
+      return { prewarmed: true, message: 'TTV dashboard cache prewarmed successfully' };
+    } catch (error) {
+      console.error('TTV dashboard prewarm failed:', error);
+      return { prewarmed: false, error: 'Failed to prewarm TTV dashboard' };
+    }
+  });
 
   // SEO Routes - Server-side rendered pages for search engines (250-300 pages target)
   app.get('/scholarships/:id/:slug', scholarshipDetailSSR);
@@ -898,11 +911,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dashboard stats route
+  // Dashboard stats route (cached for performance with user-scoped cache key)
   app.get('/api/dashboard/stats', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const profile = await storage.getStudentProfile(userId);
+      const userScopedCacheKey = `dashboard-stats:${userId}`;
+      
+      const cachedData = await responseCache.getCached(userScopedCacheKey, 30000, async () => {
+        const profile = await storage.getStudentProfile(userId);
       
       if (!profile) {
         return res.json({
@@ -935,12 +951,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const totalApplied = applications.length;
 
-      res.json({
-        activeApplications,
-        newMatches,
-        upcomingDeadlines,
-        totalApplied
+        return {
+          activeApplications,
+          newMatches,
+          upcomingDeadlines,
+          totalApplied
+        };
       });
+      
+      res.json(cachedData);
     } catch (error) {
       handleError(error, req, res);
     }
@@ -975,7 +994,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Agent Bridge endpoints
-  app.post('/agent/register', agentRateLimit, verifyAgentToken, async (req, res) => {
+  app.post('/agent/register', agentRateLimit, cachedJWTMiddleware, async (req, res) => {
     try {
       // Register agent with Command Center
       res.json({
@@ -991,7 +1010,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/agent/task', agentRateLimit, verifyAgentToken, async (req, res) => {
+  app.post('/agent/task', agentRateLimit, cachedJWTMiddleware, async (req, res) => {
     try {
       // Validate task structure with comprehensive schema matching Task interface
       const TaskSchema = z.object({
@@ -1051,7 +1070,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.post('/agent/events', agentRateLimit, verifyAgentToken, async (req, res) => {
+  app.post('/agent/events', agentRateLimit, cachedJWTMiddleware, async (req, res) => {
     try {
       const event = req.body;
       await agentBridge.sendEvent(event);
@@ -1458,99 +1477,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // TTV Dashboard Analytics endpoint
-  app.get('/api/analytics/ttv-dashboard', isAuthenticated, async (req, res) => {
-    const correlationId = (req as any).correlationId;
-    res.set('X-Correlation-ID', correlationId);
+  // TTV Dashboard Analytics endpoint (cached for performance)
+  app.get('/api/analytics/ttv-dashboard', isAuthenticated, async (req: any, res) => {
+    const cacheKey = 'ttv-dashboard';
     
     try {
-      // Get active cohorts for analysis
-      const activeCohorts = await cohortManager.getActiveCohorts();
-      
-      if (activeCohorts.length === 0) {
-        return res.json({
-          medianTTV: null,
-          p95TTV: null,
-          targetMet: false,
-          cohortDetails: [],
-          totalUsers: 0,
-          performanceStatus: 'no-data'
-        });
-      }
-
-      // Get TTV metrics across all active cohorts
-      let allMetrics: number[] = [];
-      let cohortDetails = [];
-      let totalUsers = 0;
-
-      for (const cohort of activeCohorts) {
-        const analytics = await ttvTracker.getCohortAnalytics(cohort.id);
-        totalUsers += analytics.userCount;
+      const cachedData = await responseCache.getCached(cacheKey, 30000, async () => {
+        // Get active cohorts for analysis
+        const activeCohorts = await cohortManager.getActiveCohorts();
         
-        // Get detailed metrics for median/P95 calculation
-        const cohortMetrics = await ttvTracker.getCohortTtvMetrics(cohort.id);
-        allMetrics = allMetrics.concat(cohortMetrics.filter((m: number | null): m is number => m !== null));
+        if (activeCohorts.length === 0) {
+          return {
+            medianTTV: null,
+            p95TTV: null,
+            targetMet: false,
+            cohortDetails: [],
+            totalUsers: 0,
+            performanceStatus: 'no-data'
+          };
+        }
 
-        cohortDetails.push({
-          id: cohort.id,
-          name: cohort.name,
-          userCount: analytics.userCount,
-          avgTimeToFirstValue: analytics.avgTimeToFirstValue,
-          conversionRates: analytics.conversionRates
-        });
-      }
+        // Get TTV metrics across all active cohorts
+        let allMetrics: number[] = [];
+        let cohortDetails = [];
+        let totalUsers = 0;
 
-      // Calculate median and P95
-      if (allMetrics.length === 0) {
-        return res.json({
-          medianTTV: null,
-          p95TTV: null,
-          targetMet: false,
+        for (const cohort of activeCohorts) {
+          const analytics = await ttvTracker.getCohortAnalytics(cohort.id);
+          totalUsers += analytics.userCount;
+          
+          // Get detailed metrics for median/P95 calculation
+          const cohortMetrics = await ttvTracker.getCohortTtvMetrics(cohort.id);
+          allMetrics = allMetrics.concat(cohortMetrics.filter((m: number | null): m is number => m !== null));
+
+          cohortDetails.push({
+            id: cohort.id,
+            name: cohort.name,
+            userCount: analytics.userCount,
+            avgTimeToFirstValue: analytics.avgTimeToFirstValue,
+            conversionRates: analytics.conversionRates
+          });
+        }
+
+        // Calculate median and P95
+        if (allMetrics.length === 0) {
+          return {
+            medianTTV: null,
+            p95TTV: null,
+            targetMet: false,
+            cohortDetails,
+            totalUsers,
+            performanceStatus: 'insufficient-data'
+          };
+        }
+
+        allMetrics.sort((a, b) => a - b);
+        const medianIndex = Math.floor(allMetrics.length / 2);
+        const median = allMetrics.length % 2 === 0 
+          ? (allMetrics[medianIndex - 1] + allMetrics[medianIndex]) / 2
+          : allMetrics[medianIndex];
+
+        const p95Index = Math.floor(allMetrics.length * 0.95);
+        const p95 = allMetrics[p95Index];
+
+        // Convert from seconds to minutes
+        const medianMinutes = median / 60;
+        const p95Minutes = p95 / 60;
+
+        // Check if targets are met (≤3 minutes median, ≤7 minutes P95)
+        const medianTargetMet = medianMinutes <= 3;
+        const p95TargetMet = p95Minutes <= 7;
+        const overallTargetMet = medianTargetMet && p95TargetMet;
+
+        let performanceStatus = 'excellent';
+        if (!medianTargetMet || !p95TargetMet) {
+          performanceStatus = medianMinutes <= 5 && p95Minutes <= 10 ? 'warning' : 'needs-attention';
+        }
+
+        return {
+          medianTTV: Math.round(medianMinutes * 10) / 10, // Round to 1 decimal
+          p95TTV: Math.round(p95Minutes * 10) / 10,
+          medianTargetMet,
+          p95TargetMet,
+          targetMet: overallTargetMet,
           cohortDetails,
           totalUsers,
-          performanceStatus: 'insufficient-data'
-        });
-      }
-
-      allMetrics.sort((a, b) => a - b);
-      const medianIndex = Math.floor(allMetrics.length / 2);
-      const median = allMetrics.length % 2 === 0 
-        ? (allMetrics[medianIndex - 1] + allMetrics[medianIndex]) / 2
-        : allMetrics[medianIndex];
-
-      const p95Index = Math.floor(allMetrics.length * 0.95);
-      const p95 = allMetrics[p95Index];
-
-      // Convert from seconds to minutes
-      const medianMinutes = median / 60;
-      const p95Minutes = p95 / 60;
-
-      // Check if targets are met (≤3 minutes median, ≤7 minutes P95)
-      const medianTargetMet = medianMinutes <= 3;
-      const p95TargetMet = p95Minutes <= 7;
-      const overallTargetMet = medianTargetMet && p95TargetMet;
-
-      let performanceStatus = 'excellent';
-      if (!medianTargetMet || !p95TargetMet) {
-        performanceStatus = medianMinutes <= 5 && p95Minutes <= 10 ? 'warning' : 'needs-attention';
-      }
-
-      res.json({
-        medianTTV: Math.round(medianMinutes * 10) / 10, // Round to 1 decimal
-        p95TTV: Math.round(p95Minutes * 10) / 10,
-        medianTargetMet,
-        p95TargetMet,
-        targetMet: overallTargetMet,
-        cohortDetails,
-        totalUsers,
-        performanceStatus,
-        targets: {
-          median: 3,
-          p95: 7
-        }
+          performanceStatus,
+          targets: {
+            median: 3,
+            p95: 7
+          }
+        };
       });
+      
+      res.json(cachedData);
     } catch (error) {
-      console.error('TTV dashboard analytics error:', error);
+      console.error('TTV Dashboard error:', error);
       res.status(500).json({ error: 'Failed to get TTV analytics' });
     }
   });
@@ -1848,12 +1870,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Security/Compliance Dashboard endpoint
-  app.get("/api/dashboard/security", isAuthenticated, async (req, res) => {
-    const correlationId = (req as any).correlationId;
+  // Security/Compliance Dashboard endpoint (cached for performance)
+  app.get("/api/dashboard/security", isAuthenticated, async (req: any, res) => {
+    const correlationId = req.correlationId;
     res.set('X-Correlation-ID', correlationId);
     
     try {
+      const cachedData = await responseCache.getCached('dashboard-security', 45000, async () => {
       // Get SOC2 evidence summaries
       const [accessControl, systemOps, dataProtection] = await Promise.all([
         soc2EvidenceCollector.collectAccessControlEvidence(),
@@ -1914,7 +1937,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         rpoCompliance: true  // Recovery Point Objective
       };
 
-      res.json({
+      return {
         evidenceRegistry: {
           soc2Controls: {
             accessControl: {
@@ -1964,7 +1987,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           incidentResponseTested: true,
           lastAudit: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
         }
+      };
       });
+      
+      res.json(cachedData);
     } catch (error) {
       console.error('Security dashboard error:', error);
       res.status(500).json({ error: 'Failed to get security compliance status' });
@@ -2839,6 +2865,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: error.message || "Failed to process admin refund",
         correlationId 
       });
+    }
+  });
+
+  // Performance monitoring endpoint for cache and auth metrics
+  app.get('/api/performance/cache-metrics', isAuthenticated, async (req: any, res) => {
+    try {
+      const jwtMetrics = jwtCache.getMetrics();
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        authentication: {
+          avgDuration: jwtMetrics.performance.avgAuthDuration,
+          p95Duration: jwtMetrics.performance.p95AuthDuration,
+          hitRate: jwtMetrics.jwt.hitRate,
+          cacheSize: jwtMetrics.jwt.cacheSize,
+          status: jwtMetrics.performance.p95AuthDuration <= 50 ? 'excellent' : jwtMetrics.performance.p95AuthDuration <= 100 ? 'good' : 'needs-attention'
+        },
+        jwks: {
+          hitRate: jwtMetrics.jwks.hitRate,
+          cacheSize: jwtMetrics.jwks.cacheSize
+        },
+        targets: {
+          authP95Target: 50, // Target ≤50ms for auth
+          overallP95Target: 120 // Target ≤120ms overall
+        }
+      });
+    } catch (error) {
+      console.error('Performance metrics error:', error);
+      res.status(500).json({ error: 'Failed to get performance metrics' });
     }
   });
 

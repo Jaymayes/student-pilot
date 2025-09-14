@@ -224,47 +224,57 @@ export class BackupRestoreManager {
     return JSON.parse(content);
   }
 
+  // Performance optimization - Cache expensive database statistics
+  private statsCache: { data: any; timestamp: number } | null = null;
+  private readonly STATS_CACHE_TTL = 180000; // 3 minutes cache (architect recommendation)
+
   /**
-   * Get database statistics for monitoring
+   * Get database statistics for monitoring (optimized with caching)
    */
   async getDatabaseStats(): Promise<any> {
     try {
+      // Return cached stats if still valid (performance optimization)
+      if (this.statsCache && Date.now() - this.statsCache.timestamp < this.STATS_CACHE_TTL) {
+        return this.statsCache.data;
+      }
+
+      // Lightweight, fast queries only for critical metrics
       const [
         connectionStats,
-        tableStats,
-        indexStats
+        basicTableStats
       ] = await Promise.all([
-        // Connection statistics
+        // Simplified connection statistics (fast)
         db.execute(sql`
           SELECT count(*) as total_connections, 
-                 count(*) FILTER (WHERE state = 'active') as active_connections,
-                 count(*) FILTER (WHERE state = 'idle') as idle_connections
+                 count(*) FILTER (WHERE state = 'active') as active_connections
           FROM pg_stat_activity
         `).then(result => (result.rows || result as any[])[0]),
         
-        // Table statistics
+        // Essential table stats only (limited and fast)
         db.execute(sql`
-          SELECT schemaname, tablename, n_tup_ins, n_tup_upd, n_tup_del, n_live_tup
-          FROM pg_stat_user_tables 
-          ORDER BY n_live_tup DESC 
-          LIMIT 10
-        `).then(result => result.rows || result as any[]),
-        
-        // Index usage statistics
-        db.execute(sql`
-          SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch
-          FROM pg_stat_user_indexes 
-          ORDER BY idx_scan DESC 
-          LIMIT 10
-        `).then(result => result.rows || result as any[])
+          SELECT count(*) as total_tables
+          FROM pg_stat_user_tables
+        `).then(result => (result.rows || result as any[])[0])
       ]);
 
-      return {
-        timestamp: new Date().toISOString(),
-        connections: connectionStats,
-        tables: tableStats,
-        indexes: indexStats
+      const statsData = {
+        connections: {
+          total: connectionStats.total_connections || 0,
+          active: connectionStats.active_connections || 0
+        },
+        tables: {
+          total: basicTableStats.total_tables || 0
+        },
+        timestamp: new Date().toISOString()
       };
+
+      // Cache the results (performance optimization)
+      this.statsCache = {
+        data: statsData,
+        timestamp: Date.now()
+      };
+
+      return statsData;
     } catch (error) {
       throw new Error(`Failed to get database stats: ${error}`);
     }
