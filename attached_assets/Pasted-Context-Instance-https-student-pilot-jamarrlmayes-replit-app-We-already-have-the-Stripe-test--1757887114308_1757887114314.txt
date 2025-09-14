@@ -1,0 +1,60 @@
+Context
+
+Instance: https://student-pilot-jamarrlmayes.replit.app
+We already have the Stripe test API keys stored. Your task is to verify presence and wiring, not to create or rotate anything.
+Prime objective
+Verify that both Stripe TEST keys exist, are correctly scoped to test mode, and are wired into the app. Return masked values and evidence. Do not expose full secrets in chat logs.
+
+Keys to verify
+
+TESTING_VITE_STRIPE_PUBLIC_KEY (must start with pk_test_)
+TESTING_STRIPE_SECRET_KEY (must start with sk_test_)
+Data sources to check (read-only)
+
+Runtime environment variables
+Secrets manager / CI/CD variables (e.g., Replit Secrets or equivalent)
+Build-time env mapping for Vite (ensure client-exposed key originates from a VITE_* variable at build time)
+Server initialization code path for Stripe SDK (reads secret from env, never bundled to client)
+Required checks
+
+Presence and format
+Confirm both variables exist and are non-empty.
+Validate patterns: pk_test_… and sk_test_….
+Report length and prefix validation (PASS/WARN/FAIL).
+2. Scope and exposure boundaries
+
+Confirm the publishable key is only client-exposed via Vite and never logged.
+Confirm the secret key is server-only (not sent to client, not bundled, not logged).
+3. Wiring and usage
+
+Frontend: Verify the value feeding the client at build time is VITE_STRIPE_PUBLIC_KEY. If we use TESTING_VITE_STRIPE_PUBLIC_KEY, confirm a mapping step sets VITE_STRIPE_PUBLIC_KEY for the test build.
+Backend: Verify Stripe SDK is initialized with process.env.TESTING_STRIPE_SECRET_KEY in test mode.
+4. Optional live read-only sanity (only if allowed without mutation)
+
+Perform a non-mutating GET to Stripe Test API (e.g., List PaymentIntents limit=1) using sk_test_… to confirm key validity.
+Confirm publishable key can create a client-only test Elements config (no writes).
+5. Safety and compliance
+
+Search recent logs for accidental key leakage; report zero findings or cite masked examples.
+Ensure secrets are not printed in full in any logs or telemetry.
+Output format
+
+Executive summary: 5–7 bullets with PASS/WARN/FAIL per area.
+Keys (masked):
+TESTING_VITE_STRIPE_PUBLIC_KEY = pk_test_XXXXXX…YYYY (masked: show first 6 and last 4)
+TESTING_STRIPE_SECRET_KEY = sk_test_XXXXXX…YYYY (masked)
+Evidence:
+Source: env/secret manager name + variable path
+Last modified/updated timestamp if available
+Build-time mapping proof for Vite (file/path or build log ID)
+Stripe SDK init log/trace ID (no secrets)
+If live check run: endpoint called and HTTP 200 with request ID
+JSON: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "stripe_keys": { "public": {"name": "TESTING_VITE_STRIPE_PUBLIC_KEY", "masked": "pk_test_XXXXXX…YYYY", "present": true, "prefix_ok": true, "source": "env|secrets_manager", "last_updated": "..."}, "secret": {"name": "TESTING_STRIPE_SECRET_KEY", "masked": "sk_test_XXXXXX…YYYY", "present": true, "prefix_ok": true, "source": "env|secrets_manager", "last_updated": "..."} }, "exposure": { "frontend_var": "VITE_STRIPE_PUBLIC_KEY", "mapped_from": "TESTING_VITE_STRIPE_PUBLIC_KEY", "client_exposed": true, "logged": false, "backend_var": "TESTING_STRIPE_SECRET_KEY", "client_exposed": false, "logged": false }, "live_check": {"ran": true|false, "paymentintents_list_ok": true|false, "request_id": "…"}, "decision": {"status": "PASS|WARN|FAIL", "notes": "..."} }
+Constraints
+
+Do not output full key values in this chat. Only masked values and sources.
+Do not create, rotate, or modify any keys or settings.
+If a key is missing or mis-scoped, return MISSING and the minimal remediation steps, including owner and ETA.
+If you must provide full key values
+
+Do not place secrets in chat. Instead, write them to the approved secrets manager and return the secret IDs/paths and a confirmation that the values match the required prefixes.
