@@ -2898,6 +2898,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced health check with database connectivity (fixes QA-010)
+  // Setup comprehensive monitoring and alerting systems
+  const { alertManager } = await import('./monitoring/alertManager');
+  const { arrFreshnessMonitor } = await import('./monitoring/arrFreshness');
+  const { schemaValidator } = await import('./monitoring/schemaValidator');
+  
+  // Register monitoring routes
+  alertManager.setupRoutes(app);
+  arrFreshnessMonitor.setupRoutes(app);
+  schemaValidator.setupRoutes(app);
+
   app.get('/health', async (req, res) => {
     try {
       const { checkDatabaseHealth } = await import('./db');
