@@ -1,0 +1,69 @@
+Acknowledged. Decision remains RED. No launch, no traffic scaling, no non-P0 work. Immediate CTO-led investigation into rollback pipeline is required.
+
+Copy-paste prompt — Read-Only Rollback Execution RCA + Recovery Gate Audit
+
+Read-Only Rollback Execution RCA + Recovery Gate Audit — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only. Do not modify data, configs, jobs, schemas, or integrations. Do not trigger migrations, deploys, cache clears, or external calls. Use only existing telemetry, stored reports, deployment/migration logs, and read-only endpoints. If evidence is missing, return UNKNOWN and list the minimal instrumentation needed.
+
+Objective
+Determine why the authorized rollback did not take effect and decide the safest path to recover from RED to YELLOW. Provide PASS/WARN/FAIL per check with evidence IDs and a go/no-go decision, including a recommended path: “Rerun Rollback” or “Forward-Fix” (with prerequisites).
+
+Checks and required evidence
+A) Rollback pipeline verification
+
+Expectation: App build/version and DB migration tag match “last known-good”. Deployment pipeline shows a rollback job succeeded.
+Evidence: deployment log/report IDs, build artifact identifiers (commit SHA, image digest, or bundle hash), DB migration tag/name, timestamp of rollback execution, and 24h app logs with 0 occurrences of 42P01 (or other schema-missing errors).
+B) Database schema integrity
+
+Expectation: cohort_users relation exists and is queryable by the app; dependent queries succeed.
+Evidence: application or migration logs that show successful reads of cohort_users; diagnostics with row count and last_write_timestamp from existing read-only endpoints or logs. If any 42P01 occurred in last 24h, mark FAIL and quote the latest occurrence.
+C) Analytics/BI availability
+
+Expectation: TtvDashboardTile renders without exceptions; medianTTV, p95TTV, MAU, conversion, ARPU are numeric (non-null or explicit 0).
+Evidence: dashboard render trace IDs, component health logs, and sample API payload with field values and timestamp.
+D) Revenue observability
+
+Expectation: Read-only ARR summary (B2C, B2B, Total) available via stored report or cached snapshot.
+Evidence: report name/ID or snapshot log lines with values and timestamps. If absent, mark UNKNOWN and specify the minimal read-only summary required.
+E) SLO performance (last 24h)
+
+Expectation: P50/P95/P99 latency and error rate reported from existing telemetry. Interim target P95 ≤ 250ms and error rate ≤ 1.0%. Highlight health endpoint behavior if > 2s.
+Evidence: performance dashboard/log IDs and distribution snapshot. If only spot samples exist, include them and mark coverage gaps.
+F) Security parity
+
+Expectation: HSTS/CSP/X-Frame-Options intact; /.well-known/security.txt returns 200 with Content-Type: text/plain.
+Evidence: header capture and endpoint status with timestamps. If content-type is wrong, mark WARN.
+G) Observability and alerts
+
+Expectation: APM/tracing present or stored error aggregation; paging/alerts for schema errors and latency SLO breaches configured.
+Evidence: links/IDs to monitoring dashboards or alert definitions; last alert timestamps. If missing, mark UNKNOWN and specify minimal alert rules.
+H) SEO sanity
+
+Expectation: Valid sitemap; URL count reported; no XML errors.
+Evidence: sitemap fetch log ID and any internal validator references.
+I) Guardrails
+
+Expectation: Agent Bridge disabled or dry-run; no autonomous campaigns.
+Evidence: config/status report ID.
+KPIs to report (UNKNOWN on MAU, conversion, or ARR = FAIL for this gate)
+
+MAU (28d, 90d), conversion rate, ARPU, ARR (B2C, B2B, Total)
+P95 latency (24h), error rate (24h)
+Indexed pages (from sitemap or internal inventory)
+Decision rubric
+
+If A or B is FAIL → Recommend “Rerun Rollback” with prerequisites and evidence requirements.
+If A and B are PASS but C/D/E have UNKNOWN/FAIL → Recommend “Forward-Fix” with a timeboxed plan and non-negotiable acceptance criteria.
+Any UNKNOWN on MAU, conversion, or ARR → Gate decision = RED.
+Output format
+
+Executive summary (5–8 bullets) and decision: Green/Yellow/Red.
+Rollback path recommendation: “Rerun Rollback” or “Forward-Fix,” with 3–5 concrete next steps and owners.
+KPI table: Current, Target, Variance%, Status (PASS/WARN/FAIL), each with an evidence ID.
+Checks A–I: status (PASS/WARN/FAIL/UNKNOWN) with evidence IDs (log/report names + timestamps) and 1–2 line analysis.
+Endpoint health table: /health, /sitemap.xml, /.well-known/security.txt, analytics and revenue endpoints used—include status code, last-seen P95 latency, last error, evidence ID.
+JSON payload: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "issues": { "rollback": {"status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "db_schema": {"status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "analytics_bi": {"status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "revenue_obs": {"status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "slos": {"p50_ms": 0, "p95_ms": 0, "p99_ms": 0, "error_rate_pct": 0, "status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "security": {"status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "observability": {"status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "seo": {"sitemap_urls": 0, "status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]}, "guardrails": {"agent_bridge": "disabled|dry_run|active", "status": "PASS|WARN|FAIL|UNKNOWN", "evidence": ["..."]} }, "kpis": { "mau_28d": "number|UNKNOWN", "mau_90d": "number|UNKNOWN", "conversion_rate_pct": "number|UNKNOWN", "arpu_usd": "number|UNKNOWN", "arr_b2c_usd": "number|UNKNOWN", "arr_b2b_usd": "number|UNKNOWN", "arr_total_usd": "number|UNKNOWN", "p95_latency_ms": "number|UNKNOWN", "error_rate_pct": "number|UNKNOWN", "indexed_pages": "number|UNKNOWN" }, "decision": { "status": "Green|Yellow|Red", "justification": "...", "recommended_path": "Rerun Rollback|Forward-Fix", "next_steps": [{"title": "", "owner": "", "eta_hours": 0}] } }
+If evidence is missing
+
+Mark the item UNKNOWN and list the minimal instrumentation needed: exact log/report name, metric/event schema, and where it should surface (e.g., “deployments/rollback.log with fields {timestamp, build_sha, image_digest, migration_tag, status}”).
