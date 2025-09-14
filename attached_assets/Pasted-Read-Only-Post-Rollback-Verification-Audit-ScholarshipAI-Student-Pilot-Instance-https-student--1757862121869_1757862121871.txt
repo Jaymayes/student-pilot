@@ -1,0 +1,62 @@
+Read-Only Post-Rollback Verification Audit — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only diagnostic. Do not modify data, configs, jobs, or integrations. Do not trigger migrations, reindexing, cache clears, or external calls. Use only existing telemetry, stored reports, and read-only endpoints. If anything is missing, return UNKNOWN and list the minimal instrumentation to collect it.
+
+Objective
+Verify that the rollback to the last known-good state was executed and that all P0 blockers are cleared or have met interim thresholds. Provide PASS/WARN/FAIL with evidence IDs and a go/no-go decision to move from RED to YELLOW.
+
+Verification checks (must include evidence IDs: log/report names + timestamps)
+A) Rollback confirmation
+
+Expect: App build/version and DB migration tag match “last known-good”; no schema drift alerts.
+Evidence: version banner or /about info, migration log/report ID, and last 24h application logs with 0 occurrences of 42P01 (or equivalent “relation does not exist”).
+B) DB schema integrity
+
+Expect: cohort_users relation exists and is accessible to the app; dependent queries succeed.
+Evidence: latest app logs showing successful cohort queries; diagnostics with row count and last_write_timestamp (read-only).
+C) Analytics/BI availability
+
+Expect: TtvDashboardTile renders successfully; medianTTV, p95TTV, MAU, conversion, ARPU are numeric (non-null; zero allowed).
+Evidence: dashboard render trace IDs and sample API payload with values and timestamp.
+D) Revenue observability
+
+Expect: Read-only ARR summary available (B2C, B2B, Total) with last-generated timestamp.
+Evidence: report name/ID or cached snapshot log lines with values.
+E) SLO performance (last 24h)
+
+Expect: P95 latency ≤ 250ms and error rate ≤ 1.0% (interim); show P50/P95/P99.
+Evidence: performance dashboard/log IDs and distribution snapshot.
+F) Security parity
+
+Expect: HSTS/CSP/X-Frame-Options present; /.well-known/security.txt returns 200 with Content-Type: text/plain.
+Evidence: header capture and endpoint status.
+G) SEO sanity
+
+Expect: Valid sitemap; URL count reported; no XML errors.
+Evidence: sitemap fetch log ID and validator reference (internal).
+H) Guardrails
+
+Expect: Agent Bridge disabled or dry-run; no autonomous campaigns executing.
+Evidence: config/status report ID.
+KPIs to report (Current vs Year 1 targets; UNKNOWN on MAU, conversion, or ARR = FAIL)
+
+MAU (28d, 90d)
+Free→Paid conversion rate
+ARPU (credit sales)
+ARR (B2C, B2B, Total)
+P95 latency (24h), error rate (24h)
+Indexed pages (from sitemap or internal inventory)
+Scoring thresholds
+
+Variance >10% vs plan = WARN; >20% = FAIL.
+Any UNKNOWN for MAU, conversion, or ARR = FAIL for this gate.
+Output format
+
+Executive summary (5–8 bullets) with decision: Green/Yellow/Red.
+KPI table: Current, Target, Variance%, Status (PASS/WARN/FAIL), with evidence IDs.
+A–H results with PASS/WARN/FAIL and evidence IDs.
+Endpoint health table: /health, /sitemap.xml, /.well-known/security.txt, and analytics/revenue endpoints used; include status code, last-seen P95 latency, last error, evidence ID.
+JSON payload: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "issues": { "rollback": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "db_schema": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "analytics_bi": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "revenue_obs": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "slos": {"p50_ms": 0, "p95_ms": 0, "p99_ms": 0, "error_rate_pct": 0, "status": "PASS|WARN|FAIL", "evidence": ["..."]}, "security": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "seo": {"sitemap_urls": 0, "status": "PASS|WARN|FAIL", "evidence": ["..."]}, "guardrails": {"agent_bridge": "disabled|dry_run|active", "status": "PASS|WARN|FAIL", "evidence": ["..."]} }, "kpis": { "mau_28d": "number|UNKNOWN", "mau_90d": "number|UNKNOWN", "conversion_rate_pct": "number|UNKNOWN", "arpu_usd": "number|UNKNOWN", "arr_b2c_usd": "number|UNKNOWN", "arr_b2b_usd": "number|UNKNOWN", "arr_total_usd": "number|UNKNOWN", "p95_latency_ms": "number|UNKNOWN", "error_rate_pct": "number|UNKNOWN", "indexed_pages": "number|UNKNOWN" }, "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{"owner": "", "eta_days": 0}]} }
+Constraints
+
+Strictly read-only. If evidence is unavailable, return UNKNOWN and specify the minimal instrumentation required (metric name, event/schema or log, and where it should surface).
