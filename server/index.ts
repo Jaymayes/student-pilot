@@ -116,18 +116,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Security.txt endpoint (RFC 9116 compliance) - placed before Vite middleware for priority
-app.get('/.well-known/security.txt', (req, res) => {
-  res.type('text/plain; charset=utf-8');
-  res.set('Cache-Control', 'public, max-age=3600, immutable');
-  res.send(`Contact: security@scholarshipai.com
-Acknowledgments: https://scholarshipai.com/security
-Policy: https://scholarshipai.com/security-policy
-Expires: 2025-12-31T23:59:59.000Z
-Preferred-Languages: en`);
-});
-
 (async () => {
+  // CRITICAL: Early path imports for security.txt handler
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const publicDir = path.resolve(__dirname, '..', 'client', 'public');
+
+  // CRITICAL: Early security.txt handler BEFORE any routing (including registerRoutes)
+  // to prevent SPA catch-all from intercepting RFC 9116 compliance endpoints
+  app.use((req, res, next) => {
+    if (req.path === '/.well-known/security.txt') {
+      res.type('text/plain; charset=utf-8');
+      res.set('Cache-Control', 'public, max-age=3600, immutable');
+      return res.sendFile(path.join(publicDir, '.well-known', 'security.txt'));
+    }
+    next();
+  });
   const server = await registerRoutes(app);
 
   // Setup monitoring dashboards for T+48 review
@@ -164,6 +169,12 @@ Preferred-Languages: en`);
       correlationId: isProduction ? correlationId : undefined
     });
   });
+
+  // General static file serving for non-.well-known assets
+  app.use(express.static(publicDir, { 
+    dotfiles: 'ignore', 
+    fallthrough: true 
+  }));
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

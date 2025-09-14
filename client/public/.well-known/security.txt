@@ -1,0 +1,5 @@
+Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en

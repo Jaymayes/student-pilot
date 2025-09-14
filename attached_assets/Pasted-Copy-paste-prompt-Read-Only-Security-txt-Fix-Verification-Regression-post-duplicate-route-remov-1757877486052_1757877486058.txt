@@ -1,0 +1,63 @@
+Copy-paste prompt — Read-Only Security.txt Fix Verification + Regression (post-duplicate-route removal)
+
+Read-Only Security.txt Fix Verification — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only. Do not modify data, configs, routes, or caches. Use only existing telemetry, logs, and read-only endpoints.
+
+Objective
+Confirm the duplicate route was removed and the /.well-known/security.txt endpoint now serves correct content-type and content without regressions to security headers or performance.
+
+Checks and required evidence
+
+Primary endpoint correctness
+GET /.well-known/security.txt returns:
+Status: 200
+Content-Type: text/plain (no HTML wrappers)
+Body contains required fields: Contact, Acknowledgments, Policy
+ETag or Last-Modified present
+Cache-Control present (report its value)
+Evidence: header capture ID, body SHA256, timestamp.
+2. Single-route confirmation (duplicate removed)
+
+From current application logs/telemetry only (no code changes):
+Show the matched route/handler name or route-id for the request.
+Count of matched handlers for this path in the most recent router match logs = 1.
+No warnings about duplicate route definitions in startup logs.
+Evidence: log IDs, timestamps, and the matched route identifier string.
+3. Security header parity (no regressions)
+
+Root path (/) and key dashboards (/api/dashboard/security, /api/dashboard/stats):
+HSTS, CSP, X-Frame-Options, X-Content-Type-Options present and unchanged.
+Evidence: header captures (IDs) and any stored “security headers” dashboard/report reference.
+4. Performance SLO for the endpoint
+
+/.well-known/security.txt latency:
+P50, P95, P99 over last 1–24h (use whatever window exists).
+Target: P95 ≤ 100ms; Error rate = 0.
+Evidence: performance log/report IDs and distribution snapshot.
+5. No SEO or system regressions
+
+/robots.txt and /sitemap.xml still 200 and valid; report last-seen P95 and last error (if any).
+Health check /health remains 200 and within normal latency band.
+Evidence: endpoint health table with log IDs.
+6. Negative/edge behavior (read-only verification)
+
+HEAD /.well-known/security.txt returns 200 with correct headers.
+GET with Accept: text/html still responds as text/plain.
+Evidence: header capture IDs and timestamps.
+Output format
+
+Executive summary (5–7 bullets) with PASS/WARN/FAIL and a Go/No-Go recommendation for closing the security.txt ticket.
+Endpoint health table:
+endpoint | status | p50 | p95 | p99 | error_rate% | last_error | evidence_id
+Security headers summary for / and key dashboards: list header names and “UNCHANGED/CHANGED” with evidence IDs.
+JSON payload: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "security_txt": { "status": "PASS|WARN|FAIL", "content_type": "text/plain|other", "has_contact": true, "has_acknowledgments": true, "has_policy": true, "etag": "value|UNKNOWN", "cache_control": "value|UNKNOWN", "sha256": "....", "evidence": ["header_capture_id", "body_hash_id", "route_match_log_id"] }, "single_route_check": { "matched_route_id": "string|UNKNOWN", "matched_handlers_count": 1, "startup_duplicate_warnings": 0, "status": "PASS|WARN|FAIL", "evidence": ["router_logs_id"] }, "security_headers_parity": { "root": {"hsts": "UNCHANGED", "csp": "UNCHANGED", "xfo": "UNCHANGED", "xcto": "UNCHANGED", "evidence": ["..."]}, "dashboards": {"security": "...", "stats": "...", "evidence": ["..."]}, "status": "PASS|WARN|FAIL" }, "performance": { "security_txt": {"p50_ms": 0, "p95_ms": 0, "p99_ms": 0, "error_rate_pct": 0, "status": "PASS|WARN|FAIL", "evidence": ["perf_report_id"]}, "robots": {"p95_ms": 0, "status": "PASS|WARN|FAIL"}, "sitemap": {"p95_ms": 0, "status": "PASS|WARN|FAIL"}, "health": {"p95_ms": 0, "status": "PASS|WARN|FAIL"} }, "decision": { "close_ticket": true|false, "justification": "..." } }
+Close conditions (must all be true to close the ticket)
+
+security.txt: 200, Content-Type: text/plain, required fields present, P95 ≤ 100ms, error rate = 0.
+Single-route confirmed (one handler matched; no duplicate warnings).
+No regressions to HSTS/CSP/XFO/XCTO on root and dashboards.
+Robots and sitemap unaffected.
+If any item FAIL or UNKNOWN
+
+Return the minimal evidence or instrumentation needed (exact log/report name and fields), and mark the ticket as not closed.
