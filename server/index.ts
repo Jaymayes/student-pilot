@@ -116,6 +116,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Security.txt endpoint (RFC 9116 compliance) - placed before Vite middleware for priority
+app.get('/.well-known/security.txt', (req, res) => {
+  res.type('text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=3600, immutable');
+  res.send(`Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en`);
+});
+
 (async () => {
   const server = await registerRoutes(app);
 

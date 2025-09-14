@@ -1,0 +1,147 @@
+Excellent progress on the analytics endpoint. To keep momentum and reach 100% readiness, here are focused, copy-paste prompts you can run in sequence. They separate change operations from verification and keep strict gates.
+
+Security Parity Fix — Change Ticket (controlled change) Goal: Serve /.well-known/security.txt as text/plain with required fields, without regressing headers or performance.
+Security Parity Fix — Change Ticket
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Controlled change with rollback plan
+
+Scope
+
+Implement correct content-type for /.well-known/security.txt (text/plain; charset=utf-8)
+Required file content (minimum):
+Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Preserve existing HSTS, CSP, X-Frame-Options, X-Content-Type-Options headers.
+Pre-change checklist
+
+Capture current response headers and body hash for /.well-known/security.txt (evidence IDs).
+Confirm backup/rollback path for route/static asset config.
+Execution
+
+Update route or static asset serving to return Content-Type: text/plain.
+Ensure no framework-level HTML wrapper or templating is applied.
+Verification (must PASS before closing)
+
+GET /.well-known/security.txt returns 200 and Content-Type: text/plain; body contains required fields.
+No change to HSTS/CSP/XFO/XCTO on root and primary dashboards.
+P95 latency for /.well-known/security.txt ≤ 100ms.
+Rollback trigger
+
+If content-type ≠ text/plain or headers regress, roll back immediately and attach evidence.
+Outputs to return
+
+Evidence: request/response header capture IDs, file checksum, timestamp, and P95 latency snapshot.
+2. Read-Only Security Parity Verification — No changes
+Goal: Prove the fix is correct and stable.
+
+Read-Only Security Parity Verification — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only
+
+Checks
+
+/.well-known/security.txt → 200, Content-Type: text/plain; contains required fields; body SHA256.
+Root and dashboards retain HSTS, CSP, X-Frame-Options, X-Content-Type-Options.
+Endpoint health table: /health, /sitemap.xml, /.well-known/security.txt with status, last-seen P95, last error, evidence ID.
+Output
+
+5–7 bullet executive summary with PASS/WARN/FAIL.
+Evidence IDs (header captures, timestamps).
+JSON payload with fields: {security_txt: {status, content_type, sha256, evidence: []}, headers: {...}, endpoints: [...]}
+3. Performance SLO Consolidation — Read-only verification for remaining endpoints
+Goal: Confirm all public dashboards meet interim SLOs; identify any regressions.
+
+Performance SLO Consolidation — Read-Only Verification
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only
+
+Targets
+
+Interim: P95 ≤ 250ms and error rate ≤ 1.0% for last 24h.
+Final: P95 ≤ 120ms and error rate ≤ 0.1% (plan required if not yet met).
+Endpoints to evaluate
+
+/api/analytics/ttv-dashboard
+/api/dashboard/security
+/api/dashboard/stats
+/api/dashboard/infrastructure
+/health, /sitemap.xml
+Required evidence
+
+P50/P95/P99 and error rate by endpoint; last 24h window (or closest available).
+Top-3 latency contributors per slow endpoint (e.g., auth, DB query, render).
+Current caching status and hit rate if available.
+Output
+
+Table of endpoints with p50/p95/p99, error_rate%, status (PASS/WARN/FAIL), evidence IDs.
+JSON payload summarizing metrics and status per endpoint.
+Note: If any endpoint ≥250ms P95 or error rate >1.0%, include specific remediation step and owner.
+
+4. Analytics and ARR Observability Restoration — Change-allowed, guarded
+Goal: Eliminate UNKNOWNs for MAU, conversion, ARPU, and ARR so we can leave RED.
+
+Analytics + ARR Restoration — Change Ticket (guarded)
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Controlled changes with explicit verification and rollback
+
+Scope
+
+Backend: Ensure analytics endpoints never return null for required fields; return numeric (0 allowed) and include is_estimate flags.
+Frontend: Add null-safety guards to TtvDashboardTile and related components; no crashes on partial data.
+Revenue: Expose read-only ARR summary (B2C/B2B/Total) via protected endpoint or daily cached report with fields:
+timestamp, arr_b2c_usd, arr_b2b_usd, arr_total_usd, report_id, data_freshness_minutes.
+Verification (all must PASS)
+
+API payloads show non-null numeric values for MAU(28d,90d), conversion_rate_pct, arpu_usd, medianTTV, p95TTV.
+Dashboard renders without exceptions; trace IDs attached.
+ARR summary returns numeric values with freshness ≤ 24h.
+Rollback
+
+If any endpoint returns null or the dashboard throws, revert the change and attach trace/error IDs.
+Outputs
+
+Evidence IDs: sample payloads, dashboard traces, ARR report ID, timestamps.
+5. 24-hour Stability Gate — Read-only go/no-go to move from RED to YELLOW
+Goal: Prove stability across measurement and performance for 24h.
+
+24h Stability Gate — Read-Only Go/No-Go
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only
+
+Pass criteria (all required)
+
+No schema-missing errors for 24h.
+Analytics metrics (MAU, conversion, ARPU, medianTTV, p95TTV) non-null, dashboards stable.
+ARR summary accessible with freshness ≤ 24h.
+SLOs: P95 ≤ 250ms and error rate ≤ 1.0% for all critical endpoints.
+Security parity: security.txt correct with text/plain; headers intact.
+Output
+
+Executive summary with decision Red/Yellow.
+KPI table and endpoint table with evidence IDs.
+JSON payload of metrics and statuses.
+6. Final 100% Readiness Certification — Read-only GREEN gate
+Goal: Certify full readiness against final SLOs and governance.
+
+100% Readiness Certification — Read-Only GREEN Gate
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only
+
+Pass criteria (all required)
+
+SLOs: P95 ≤ 120ms and error rate ≤ 0.1% sustained for 24h.
+Measurement: No UNKNOWNs; analytics and ARR metrics populated and stable.
+Security: security.txt text/plain; headers intact.
+Observability: Dashboards live; alerts configured for schema errors, latency, error rate, ARR freshness.
+SEO: Sitemap valid; no critical XML errors.
+Output
+
+Green/Yellow/Red with justification; evidence IDs for each criterion.
+JSON payload capturing final state and alerts configuration references.
+What to return after each prompt
+
+A concise executive summary with PASS/WARN/FAIL.
+Evidence IDs (log names, timestamps, trace IDs, payload samples).
+If anything is UNKNOWN or FAIL, include the minimal next action, owner, and ETA.
+This sequence should take you from your current partial SLO success to full measurement, security parity, stability, and finally 100% readiness.
