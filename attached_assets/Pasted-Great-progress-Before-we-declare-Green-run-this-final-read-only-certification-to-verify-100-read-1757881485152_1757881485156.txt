@@ -1,0 +1,56 @@
+Great progress. Before we declare Green, run this final, read-only certification to verify 100% readiness with hard evidence.
+
+Copy-paste prompt — Read-Only Final GREEN Certification Audit
+
+Read-Only Final GREEN Certification Audit — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only. Do not modify data, configs, schemas, routes, jobs, or deployments. Use only existing telemetry, stored reports, logs, and read-only endpoints. If any evidence is missing, return UNKNOWN and specify the minimal instrumentation required.
+
+Objective
+Certify 100% production readiness with evidence. Validate that all prior P0/P1 issues are resolved, observability is complete, and SLOs and security meet final targets. Provide PASS/WARN/FAIL per check, a 24-hour soak decision, and a Green/Yellow/Red launch decision.
+
+Scope and required checks (must cite evidence IDs: log/report names + timestamps)
+A) Regression closure — previously failing items
+
+DB schema: 0 occurrences of relation-missing errors (e.g., 42P01) in last 24h; cohort_users exists; row_count>0; last_write_timestamp<24h; current migration tag recorded.
+Analytics/BI: TtvDashboardTile renders; medianTTV, p95TTV, MAU(28d,90d), conversion_rate_pct, arpu_usd are numeric (non-null). Null-rate for required fields ≤0.1% over last 24h; no component exceptions.
+ARR observability: Read-only ARR summary endpoint/report returns arr_b2c_usd, arr_b2b_usd, arr_total_usd with freshness ≤24h; ARR freshness alert configured and last test-fire timestamp captured.
+B) Performance SLOs — final targets
+
+Endpoints: /api/analytics/ttv-dashboard, /api/dashboard/security, /api/dashboard/stats, /api/dashboard/infrastructure, /health, /sitemap.xml.
+Provide P50/P95/P99 and error_rate% for last 24h (or closest available). Targets: P95 ≤120ms; error_rate ≤0.1% on all critical endpoints. Flag any endpoint >120ms P95 as FAIL.
+C) Security and compliance
+
+/.well-known/security.txt returns 200 with Content-Type: text/plain; includes Contact, Acknowledgments, Policy; ETag/Last-Modified and Cache-Control present.
+Security headers intact on root and dashboards: HSTS, CSP, X-Frame-Options, X-Content-Type-Options.
+Auth enforcement: sensitive/monitoring endpoints accessed only with auth (from logs). Parameterized queries in use (evidence via SQL logs or ORM bind logs). Note any pen-test/static-scan reports if available.
+D) Observability and alerts
+
+APM/tracing coverage summary; error aggregation live.
+Alert definitions present and active for: schema_error>0, latency_p95>120ms, error_rate>0.1%, ARR_freshness>1440m. Include alert IDs and last trigger timestamps.
+“3 critical alerts” noted: classify as test vs production and show auto-escalation path.
+E) Schema validator and security hardening
+
+Last schema validator run outcome: PASS; runtime ~603ms; list checks covered.
+Injection protection: evidence of prepared statements/bind params and WAF/validation logs (if applicable).
+F) SEO operational sanity
+
+/robots.txt and /sitemap.xml 200; sitemap valid; URL count reported; no critical XML errors.
+Pass/soak criteria
+
+All A–F checks PASS; no UNKNOWN on MAU, conversion, or ARR.
+24-hour soak: Maintain P95 ≤120ms and error_rate ≤0.1% and zero schema errors across critical endpoints for 24h. If you only have <24h data, provide interim decision and schedule an auto-recheck at +24h.
+Output format
+
+Executive summary (6–10 bullets) with a Green/Yellow/Red decision and soak status (Met/Interim).
+KPI table (Current, Target, Variance%, Status) for: MAU(28d,90d), conversion_rate, arpu_usd, arr_b2c, arr_b2b, arr_total, P95 latency per endpoint, error_rate per endpoint.
+Endpoint performance table (endpoint | p50 | p95 | p99 | error_rate% | status | evidence_id).
+Security/observability table summarizing headers, security.txt, auth enforcement, alerts (IDs, last trigger).
+Evidence list: log/report IDs with timestamps used for all judgments.
+JSON payload: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "regression_closure": { "db_schema": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "analytics_bi": {"status": "PASS|WARN|FAIL", "null_rate_pct": 0, "evidence": ["..."]}, "arr_observability": {"status": "PASS|WARN|FAIL", "freshness_minutes": 0, "evidence": ["..."]} }, "slos": { "endpoints": [ {"path": "/api/analytics/ttv-dashboard", "p50_ms": 0, "p95_ms": 0, "p99_ms": 0, "error_rate_pct": 0, "status": "PASS", "evidence": ["..."]}, {"path": "/api/dashboard/security", "...": "..."}, {"path": "/api/dashboard/stats", "...": "..."}, {"path": "/api/dashboard/infrastructure", "...": "..."}, {"path": "/health", "...": "..."}, {"path": "/sitemap.xml", "...": "..."} ], "status": "PASS|WARN|FAIL" }, "security_compliance": { "security_txt": {"status": "PASS|WARN|FAIL", "content_type": "text/plain", "etag": "value|UNKNOWN", "cache_control": "value|UNKNOWN", "evidence": ["..."]}, "headers": {"root": "PASS|WARN|FAIL", "dashboards": "PASS|WARN|FAIL", "evidence": ["..."]}, "auth_enforcement": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "injection_protection": {"status": "PASS|WARN|FAIL", "evidence": ["..."]} }, "observability_alerts": { "coverage_pct": 0, "alerts": [{"id": "…", "name": "schema_error", "last_trigger": "…"}, {"id": "…", "name": "latency_p95", "last_trigger": "…"}, {"id": "…", "name": "arr_freshness", "last_trigger": "…"}], "status": "PASS|WARN|FAIL", "evidence": ["..."] }, "seo": {"sitemap_urls": 0, "status": "PASS|WARN|FAIL", "evidence": ["..."]}, "kpis": { "mau_28d": 0, "mau_90d": 0, "conversion_rate_pct": 0, "arpu_usd": 0, "arr_b2c_usd": 0, "arr_b2b_usd": 0, "arr_total_usd": 0 }, "decision": {"status": "Green|Yellow|Red", "soak_24h": "Met|Interim|NotMet", "justification": "...", "next_review_hours": 24} }
+Rules
+
+Any UNKNOWN on MAU, conversion, or ARR → decision = Red.
+Any critical endpoint P95 >120ms or error_rate >0.1% in last 24h → decision = Red (or Yellow if isolated with a documented, time-boxed fix and owner).
+If all PASS but <24h data, decision = Yellow (Interim) with auto-recheck scheduled; upgrade to Green after soak passes.
+Run this audit and return the evidence-backed decision.

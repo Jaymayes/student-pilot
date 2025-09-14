@@ -70,7 +70,7 @@ export function TtvDashboardTile() {
     );
   }
 
-  if (error || !ttvData) {
+  if (error || !ttvData || !ttvData.targets) {
     return (
       <Card className="border border-red-200">
         <CardHeader className="border-b border-gray-200">
@@ -83,6 +83,9 @@ export function TtvDashboardTile() {
           <div className="text-center text-red-600">
             <XCircle className="mx-auto h-8 w-8 mb-2" />
             <p>Failed to load TTV analytics</p>
+            {ttvData && 'message' in ttvData && (
+              <p className="text-sm mt-2">{(ttvData as any).message}</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -180,12 +183,12 @@ export function TtvDashboardTile() {
                   {formatTime(ttvData.medianTTV)}
                 </span>
                 <span className="text-sm text-blue-600">
-                  Target: ≤{ttvData.targets.median}min
+                  Target: ≤{ttvData.targets?.median || 0}min
                 </span>
               </div>
-              {ttvData.medianTTV !== null && (
+              {ttvData.medianTTV !== null && ttvData.targets?.median && (
                 <Progress 
-                  value={Math.min((ttvData.medianTTV / ttvData.targets.median) * 100, 100)} 
+                  value={Math.min((ttvData.medianTTV / (ttvData.targets?.median || 1)) * 100, 100)} 
                   className="mt-2 h-2"
                   style={{
                     '--progress-background': ttvData.medianTargetMet ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
@@ -212,12 +215,12 @@ export function TtvDashboardTile() {
                   {formatTime(ttvData.p95TTV)}
                 </span>
                 <span className="text-sm text-purple-600">
-                  Target: ≤{ttvData.targets.p95}min
+                  Target: ≤{ttvData.targets?.p95 || 0}min
                 </span>
               </div>
-              {ttvData.p95TTV !== null && (
+              {ttvData.p95TTV !== null && ttvData.targets?.p95 && (
                 <Progress 
-                  value={Math.min((ttvData.p95TTV / ttvData.targets.p95) * 100, 100)} 
+                  value={Math.min((ttvData.p95TTV / (ttvData.targets?.p95 || 1)) * 100, 100)} 
                   className="mt-2 h-2"
                   style={{
                     '--progress-background': ttvData.p95TargetMet ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
