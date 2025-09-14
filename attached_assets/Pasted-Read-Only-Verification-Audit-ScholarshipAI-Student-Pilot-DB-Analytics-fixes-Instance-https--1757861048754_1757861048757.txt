@@ -1,0 +1,63 @@
+Read-Only Verification Audit — ScholarshipAI Student Pilot (DB + Analytics fixes)
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only diagnostic. Do not modify data, config, jobs, or integrations. Do not trigger migrations, reindexing, or cache clears. Use only existing telemetry, logs, stored reports, and currently exposed read-only endpoints. If data is missing, return UNKNOWN and specify the minimal instrumentation to collect it.
+
+Objective
+Validate that the critical issues identified in the prior RED audit are resolved and that we can measure progress toward Year 1 targets without changing the system. Provide PASS/WARN/FAIL judgments with evidence links/IDs and a go/no-go recommendation.
+
+Issues to re-verify (must all pass)
+A) Database schema integrity
+
+Confirm the cohort_users relation now exists and is queryable by the application (no 42P01 errors).
+Evidence required: latest application logs and/or migration logs showing successful initialization; last error occurrence timestamp; count of rows or last-modified timestamp surfaced via existing diagnostics only (no direct DB writes or schema changes).
+B) Analytics/BI availability
+
+TtvDashboardTile no longer throws null pointer exceptions; MAU, conversion, ARPU, and TTV metrics render with non-null values.
+Evidence: dashboard render logs/trace IDs, component health logs, and the first/last successful data fetch timestamps.
+C) Revenue observability
+
+Ability to read current B2C/B2B MRR/ARR from existing reports or telemetry. If billing endpoints are protected, use stored summaries or last successful job output.
+Evidence: report names/IDs, log lines showing values and timestamps.
+D) Performance SLOs
+
+P95 API latency ≤120ms over the last 24h (or closest available window).
+Error rate ≤0.1% (5xx plus application-level failures).
+Evidence: performance dashboard/log IDs; distribution snapshot (P50/P95/P99) and error histogram.
+E) Security and compliance parity
+
+Security posture unchanged or improved: HSTS, CSP, X-Frame-Options present; /.well-known/security.txt returns 200.
+Evidence: header captures, status codes, and last pen-test/scan summary reference if stored.
+F) SEO machine health (sanity)
+
+Sitemap is healthy and enumerates programmatic pages; page count reported; no critical XML errors.
+Evidence: sitemap fetch logs and sitemap validator output (internal).
+G) Operational guardrails
+
+Agent Bridge remains disabled or in dry-run; no autonomous campaigns executing.
+Evidence: config snapshot or last agent scheduler/status report.
+KPIs to report (Current vs Year 1 target; mark UNKNOWN if unavailable)
+
+MAU (28d, 90d)
+Free→Paid conversion rate
+ARPU (credit sales)
+Churn
+LTV
+CAC by channel (SEO, direct, referral)
+B2C ARR, B2B ARR, Total ARR
+P95 latency (24h), error rate (24h)
+Indexed pages (count from sitemap or internal inventory)
+Scoring thresholds
+
+Variance >10% vs plan = WARN; >20% = FAIL.
+Any UNKNOWN on MAU, conversion, or ARR = FAIL for this verification.
+Output format
+
+Executive summary (5–8 bullets) with a clear decision: Green/Yellow/Red.
+KPI table with Current, Target, Variance%, Status (PASS/WARN/FAIL).
+Issue re-verify results (A–G) with PASS/WARN/FAIL and evidence (report names, log IDs, timestamps).
+Endpoint health table (read-only): /health, /robots.txt, /sitemap.xml, /.well-known/security.txt, and any analytics endpoints used. Include status code, last-seen P95 latency, last error, log/trace ID.
+JSON payload: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "issues": { "db_schema": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "analytics_bi": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "revenue_obs": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "slos": {"p95_ms": 0, "error_rate_pct": 0, "status": "PASS|WARN|FAIL", "evidence": ["..."]}, "security_compliance": {"status": "PASS|WARN|FAIL", "evidence": ["..."]}, "seo": {"sitemap_urls": 0, "status": "PASS|WARN|FAIL", "evidence": ["..."]}, "guardrails": {"agent_bridge": "disabled|dry_run|active", "status": "PASS|WARN|FAIL", "evidence": ["..."]} }, "kpis": { "mau_28d": "number|UNKNOWN", "mau_90d": "number|UNKNOWN", "conversion_rate_pct": "number|UNKNOWN", "arpu_usd": "number|UNKNOWN", "churn_pct": "number|UNKNOWN", "ltv_usd": "number|UNKNOWN", "cac_by_channel": {"seo": "number|UNKNOWN", "direct": "number|UNKNOWN", "referral": "number|UNKNOWN"}, "arr_b2c_usd": "number|UNKNOWN", "arr_b2b_usd": "number|UNKNOWN", "arr_total_usd": "number|UNKNOWN", "p95_latency_ms": "number|UNKNOWN", "error_rate_pct": "number|UNKNOWN", "indexed_pages": "number|UNKNOWN" }, "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{"owner": "", "eta_days": 0}]} }
+If any item is UNKNOWN, list the minimal instrumentation required (name the metric, exact event/schema or log needed, and where to surface it).
+Constraints
+
+Do not execute migrations, schema changes, jobs, or external calls. Report only on what exists. If logs or dashboards are absent, return UNKNOWN with a concrete instrumentation recommendation.
