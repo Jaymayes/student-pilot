@@ -1,0 +1,96 @@
+Goal
+Drive the ScholarshipAI Student Pilot from RED to 100% readiness by restoring schema, analytics, revenue observability, performance SLOs, and observability/alerts. Execute only through gated, auditable steps with automatic rollback on failure.
+
+Context
+
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Authority: You are authorized to perform controlled, auditable changes required to reach full readiness.
+Change window: [SET CHANGE_WINDOW_START/END UTC]
+Approvals: [SET APPROVAL_TICKET_ID], [INCIDENT_CMD = CTO or delegate]
+Last known-good references:
+DB migration tag: [SET LAST_KNOWN_GOOD_DB_TAG]
+App build SHA: [SET LAST_KNOWN_GOOD_BUILD_SHA]
+Safety: Every step must produce evidence (log/report IDs, timestamps). If a check fails, abort and roll back per the rollback plan.
+Pre-flight (must pass before any change)
+
+Freeze: Pause non-P0 development deploys and marketing automations; confirm Agent Bridge remains disabled.
+Backups: Snapshot database and export config/secrets. Evidence: backup job ID, artifact URIs, timestamps.
+Baseline: Capture current version, migration state, and health/latency/error snapshots. Evidence IDs recorded.
+Execution plan (phased, with gates)
+
+Database schema recovery (P0)
+Action: Roll back or forward-fix to restore the cohort_users relation and all dependent analytics tables to the LAST_KNOWN_GOOD_DB_TAG.
+Verification:
+App logs show 0 occurrences of relation-does-not-exist errors for 15 minutes after restart.
+Read-only diagnostics return: cohort_users.row_count >= 1 and last_write_timestamp within 24h (or populated via backfill step below).
+If verification fails: Abort and roll back to the pre-flight snapshot; escalate.
+2. Analytics/BI restoration (P0)
+
+Actions (in order):
+Ensure backend analytics endpoints never return null for required fields; return numeric (including zero) with is_estimate flags when data incomplete.
+Add null-safety to TtvDashboardTile and dependent components.
+Backfill minimum analytics: MAU(28d,90d), conversion, ARPU, medianTTV, p95TTV using existing events/logs.
+Verification:
+Dashboard renders without exceptions.
+API payload contains non-null numeric fields for MAU, conversion_rate_pct, arpu_usd, medianTTV, p95TTV.
+If verification fails: Revert code change and re-open task with error trace IDs.
+3. Revenue observability (P0)
+
+Action: Expose a read-only ARR summary (B2C, B2B, Total) via a protected endpoint or cached daily report.
+Source of truth: existing billing tables/exports; if auth required, wire to internal token.
+Output fields: timestamp, arr_b2c_usd, arr_b2b_usd, arr_total_usd, report_id, data_freshness_minutes.
+Verification: Endpoint/report returns numeric values and a timestamp within 24h.
+4. App build rollback or forward-fix (P0)
+
+If the current build is not LAST_KNOWN_GOOD_BUILD_SHA, deploy the known-good build to canary (10%), run smoke tests, then ramp to 100%.
+Verification: No schema errors, dashboard healthy, and SLOs at or better than interim targets during canary.
+5. Performance SLO recovery (P0 → P1)
+
+Actions (prioritized):
+Enable APM/tracing; sample ≥10% requests; instrument slow endpoints (esp. infrastructure dashboard).
+Eliminate N+1 queries; add caching for read-heavy endpoints; set connection pool limits; enable gzip/br.
+Tune DB indices for analytics queries; add HTTP keep-alive and micro-batching on heavy endpoints.
+Targets:
+Interim (within 24h): P95 ≤ 250ms, error rate ≤ 1.0%.
+Final (within 72h): P95 ≤ 120ms, error rate ≤ 0.1%.
+Verification: Performance dashboard with P50/P95/P99 and error histogram; evidence IDs captured.
+6. Security parity fix (P1 quick win)
+
+Action: Serve /.well-known/security.txt as text/plain with correct content.
+Verification: 200 OK, Content-Type: text/plain; file includes contact and policy lines.
+7. Observability and alerts (P0 for detection)
+
+Actions:
+Dashboards: latency, error rate, schema errors, analytics payload null-rate, ARR freshness.
+Alerts: schema_error>0 for 5m; p95_ms>250 for 10m; error_rate>1% for 5m; arr_freshness>1440m.
+Verification: Provide dashboard URLs/IDs and alert definition IDs.
+8. SEO operational sanity (P2)
+
+Keep sitemap valid. Do not scale beyond 155→1k→10k pages until SLOs are GREEN. Gate expansion increments on latency/error stability.
+Rollback plan (must be ready before each step)
+
+If any step fails verification: revert to pre-flight state for that component (DB/app), document failure with evidence IDs, and page Incident Commander for decision.
+Definition of Done — 100% readiness
+
+Zero schema errors (e.g., 42P01) for 24h.
+Analytics: MAU, conversion, ARPU, medianTTV, p95TTV are non-null numeric and displayed without exceptions for 24h.
+Revenue: Read-only ARR summary returns numeric values with freshness ≤24h.
+SLOs: P95 ≤ 120ms and error rate ≤ 0.1% for 24h across public APIs and dashboards.
+Security: /.well-known/security.txt serves text/plain with correct content.
+Observability: Live dashboards and alerts for schema errors, latency, error rate, and ARR freshness.
+SEO: Sitemap valid; indexable; no critical XML errors.
+All evidence captured with log/report IDs and timestamps.
+Output format (what you must return)
+
+Executive summary: 6–10 bullets with decision Green/Yellow/Red.
+Change log: Each step with status, evidence IDs, start/end times, and rollback status.
+KPI table: Current vs Targets with Variance% and PASS/WARN/FAIL.
+Endpoint health table: /health, /sitemap.xml, /.well-known/security.txt, analytics endpoints, ARR endpoint; status, P95, last error, evidence ID.
+JSON: { "timestamp": "...", "instance": "https://student-pilot-jamarrlmayes.replit.app", "changes": [ {"step": "db_recovery", "status": "PASS|FAIL", "evidence": ["..."], "started_at": "...", "ended_at": "...", "rolled_back": false}, {"step": "analytics_restore", "status": "PASS|FAIL", "evidence": ["..."]}, {"step": "revenue_obs", "status": "PASS|FAIL", "evidence": ["..."]}, {"step": "build_rollout", "status": "PASS|FAIL", "canary": {"p95_ms": 0, "error_rate_pct": 0}, "evidence": ["..."]}, {"step": "performance_slo", "status": "PASS|WARN|FAIL", "p50_ms": 0, "p95_ms": 0, "p99_ms": 0, "error_rate_pct": 0, "evidence": ["..."]}, {"step": "security_txt", "status": "PASS|FAIL", "evidence": ["..."]}, {"step": "observability_alerts", "status": "PASS|UNKNOWN", "evidence": ["..."]} ], "kpis": { "mau_28d": 0, "mau_90d": 0, "conversion_rate_pct": 0, "arpu_usd": 0, "arr_b2c_usd": 0, "arr_b2b_usd": 0, "arr_total_usd": 0, "p95_latency_ms": 0, "error_rate_pct": 0, "indexed_pages": 0 }, "decision": {"status": "Green|Yellow|Red", "justification": "...", "next_review_hours": 24} }
+Guardrails
+
+No destructive operations without verified backups and explicit evidence IDs.
+No schema or deploy changes without passing the pre-flight checks and setting a rollback point.
+Abort and roll back on any verification failure; do not proceed to the next step until GREEN at current step.
+Keep Agent Bridge disabled until SLOs are GREEN and analytics/ARR are non-null for 24h.
+Fill the bracketed variables before execution and run this end-to-end with strict gating to achieve and verify 100% readiness.

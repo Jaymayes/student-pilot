@@ -39,7 +39,7 @@ export class BackupRestoreManager {
     const tables = [
       'users', 'student_profiles', 'scholarships', 'applications', 
       'scholarship_matches', 'essays', 'documents', 'ttv_events',
-      'cohorts', 'cohort_users', 'purchases', 'credit_balances',
+      'cohorts', 'user_cohorts', 'purchases', 'credit_balances',
       'sessions'
     ];
 
