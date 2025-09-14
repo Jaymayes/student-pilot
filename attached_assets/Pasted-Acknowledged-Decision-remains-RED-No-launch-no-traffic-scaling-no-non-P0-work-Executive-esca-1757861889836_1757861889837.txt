@@ -1,0 +1,83 @@
+Acknowledged. Decision remains RED. No launch, no traffic scaling, no non-P0 work.
+
+Executive escalation and orders (effective immediately)
+
+Single owner: CTO is Incident Commander. 24/7 war-room. Hourly Slack updates; 4-hour executive checkpoints with evidence IDs.
+Ship freeze: All non-P0 development and marketing spend paused for 72 hours.
+Auto-revert authorized: Roll back to last known-good DB migration tag and app build if P0 closure is not demonstrated within 8 hours.
+P0 closure plan with deadlines and acceptance criteria
+
+DB schema integrity — DUE T+8h (Owner: DBA lead)
+Fix: Restore cohort_users and reconcile migration drift.
+Acceptance: 0 occurrences of 42P01 for 24h; dependent queries succeed; migration report ID and app log IDs attached.
+2. Analytics/BI availability — DUE T+12h (Owner: Frontend + Analytics)
+
+Fix: Null-safety guards in TtvDashboardTile; API returns numeric values or explicit 0s (never null).
+Acceptance: Dashboard renders without exceptions; payload fields non-null; trace IDs provided.
+3. Revenue observability — DUE T+12h (Owner: Backend)
+
+Fix: Read-only ARR summary (B2C/B2B/Total) exposed from existing data or cached job output; auth-protected; no writes.
+Acceptance: arr_b2c_usd, arr_b2b_usd, arr_total_usd populated with timestamp and report/log IDs.
+4. SLO recovery — DUE T+24h (Owner: SRE/Infra)
+
+Fix: Identify and remediate slow paths; enable APM and error aggregation; add caching/N+1 guards.
+Acceptance: P95 ≤ 250ms and error rate ≤ 1.0% for 24h; plan documented to reach P95 ≤ 120ms and error ≤ 0.1% in 72h.
+P1 hygiene (parallel; non-blocking)
+
+security.txt must serve text/plain — DUE T+4h (Owner: Security).
+SEO scale plan beyond 155 URLs ready once SLOs stabilize — DUE T+72h (Owner: Growth Eng).
+Move-to-Yellow gate (all must pass)
+
+No schema errors (e.g., 42P01) for 24h.
+MAU, conversion, ARR are non-null and logged daily.
+P95 ≤ 250ms and error rate ≤ 1.0% for 24h; path to 120ms/0.1% defined.
+Read-only ARR summary accessible to execs.
+SLO dashboard and on-call alerts live with named owners.
+Copy-paste prompt — 24h Red→Yellow Gate Check (read-only)
+Read-Only Red→Yellow Gate Check — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only. Do not modify data, configs, jobs, or integrations. Use only existing telemetry, logs, stored reports, and read-only endpoints. If any metric is missing, return UNKNOWN and list the minimal instrumentation to collect it.
+
+Objective
+Verify closure of P0 blockers and decide whether to move from RED to YELLOW. Provide PASS/WARN/FAIL with evidence IDs and a go/no-go decision.
+
+Checks and required evidence
+A) DB schema integrity
+
+Expect: 0 occurrences of 42P01 (or equivalent) in last 24h; cohort_users accessible to the app.
+Evidence: latest app/migration logs (IDs, timestamps); dependent query success logs.
+B) Analytics/BI availability
+
+Expect: TtvDashboardTile renders; MAU, conversion, ARPU, medianTTV, p95TTV are non-null (numeric or zero).
+Evidence: dashboard render trace IDs; sample API payload with fields and timestamps.
+C) Revenue observability
+
+Expect: Read-only ARR summary visible (B2C, B2B, Total) with timestamp.
+Evidence: report name/ID, last-generated timestamp, values.
+D) SLO performance (last 24h)
+
+Expect: P95 ≤ 250ms; error rate ≤ 1.0%; show P50/P95/P99.
+Evidence: performance dashboard/log IDs and distribution snapshot.
+E) Security parity
+
+Expect: HSTS/CSP/X-Frame-Options present; /.well-known/security.txt returns 200 with content-type text/plain.
+Evidence: header capture and endpoint status.
+F) SEO sanity
+
+Expect: Valid sitemap; URL count; no critical XML errors.
+Evidence: sitemap fetch log ID and validator reference.
+G) Guardrails
+
+Expect: Agent Bridge disabled or dry-run; no autonomous campaigns.
+Evidence: config/status report ID.
+KPIs to report (UNKNOWN = FAIL for MAU, conversion, or ARR)
+
+MAU (28d, 90d), conversion rate, ARPU, ARR (B2C/B2B/Total), P95 latency (24h), error rate (24h), indexed pages.
+Output format
+
+Executive summary (5–8 bullets) with decision: Green/Yellow/Red.
+KPI table: Current, Target, Variance%, Status (PASS/WARN/FAIL).
+A–G results with PASS/WARN/FAIL and evidence IDs (log or report names + timestamps).
+Endpoint health table: /health, /sitemap.xml, /.well-known/security.txt, analytics endpoints.
+JSON: { "timestamp": "...", "instance": "...", "issues": {...}, "kpis": {...}, "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{"owner": "", "eta_days": 0}]} }
+If this gate fails again, we extend the freeze, execute auto-revert to last known-good schema/build, and reassign owners.
