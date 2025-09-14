@@ -1,0 +1,50 @@
+Read-Only Executive Readiness Audit — ScholarshipAI
+
+You are operating in strict read-only diagnostic mode. Do not modify any settings, data, content, campaigns, indexes, or integrations. Do not send messages, trigger jobs, or re-run pipelines. Use only existing telemetry, logs, and stored reports. If a check requires external access, use the latest available internal snapshot. Objective: Assess go-live readiness against the 5-year plan toward $10M profitable ARR and market leadership. Provide an executive summary plus a structured diagnostic with explicit PASS/WARN/FAIL judgments. Cite data sources (dashboard/report names, log ids, timestamps).
+
+Scope and required checks
+
+B2C funnel readiness (students)
+Report last 28d and 90d: MAUs, new signups, activation rate, free→paid conversion rate, ARPU from credit sales, churn, LTV, CAC by channel.
+Break out acquisition by channel with emphasis on SEO/Auto Page Maker: impressions, clicks, CTR, index coverage, top landing pages, Core Web Vitals (LCP/FID/CLS), schema/structured data status.
+Compare each KPI to the financial projection model targets; show variance in % and absolute. Flag any variance >10% as WARN, >20% as FAIL.
+Surface north-star user value metrics: time-to-first-quality match (median, P90), application completion rate, user CSAT/NPS, refund/chargeback rate.
+2. B2B provider funnel readiness (foundations/institutions)
+
+Counts: total onboarded providers, active providers, pipeline by stage. Average time-to-onboard and first-listing-to-first-application lag.
+Revenue from 3% platform fee (last 28d/90d), take rate realized, payout accuracy, disputes.
+Contracting/KYB status, tax forms, payout rail health, API/webhook success rates, provider dashboard engagement.
+Compare to plan targets; apply WARN/FAIL thresholds as above.
+3. Financial health and unit economics
+
+Current MRR/ARR split B2C vs B2B, gross margin with explicit AI COGS and confirmation that 4x markup target is achieved by segment.
+Cash burn, runway, payback period by cohort, net revenue retention, top 3 variance-to-plan drivers.
+Capital allocation snapshot: in-flight initiatives, expected ROI, and any blocked high-ROI items.
+4. Product and SLOs (all seven applications)
+
+List each application with last 30/90d uptime (target ≥99.9%) and P95 latency (target ~120ms). Include error rate, top 3 incidents, and mean time to recovery.
+Data quality checks: duplicate/invalid scholarships, stale listings, broken links, success rate of match/ranking jobs.
+Observability: coverage of critical alerts, paging policy, and unresolved P1/P2 issues.
+5. Compliance, security, and Responsible AI
+
+FERPA/COPPA compliance posture: consent flows, data retention, DPA/ToS coverage, access controls, audit log anomalies.
+Responsible AI: bias audit results on matching and recommendation, model cards/explainability, safeguards against academic dishonesty, red-team findings and remediations.
+Privacy/security: encryption at rest/in transit, key management, third-party risk, last pen-test summary.
+6. SEO machine (Auto Page Maker) operational readiness
+
+Page inventory, indexation rate, canonicalization, sitemap health, crawl budget utilization, duplicate/thin content detection, internal linking, backlink profile highlights.
+Top 10 pages by traffic and conversions; issues blocking additional scale.
+7. Marketing engine (Scholarship Agent) safety check
+
+Autonomous campaign configurations, guardrails, approval states, content library QA. Confirm all are in dry-run/paused state for this audit.
+8. Risk register and decision
+
+Top 10 strategic/operational risks with likelihood, impact, owner, and mitigation status.
+Readiness decision: Green/Yellow/Red with justification. List critical blockers, owners, effort, and ETA.
+Output format
+
+Executive summary: 6–10 bullet highlights with the go/no-go recommendation.
+Dashboard: Provide a compact table of KPIs with Current, Target, Variance%, and Status (PASS/WARN/FAIL).
+JSON payload: { "timestamp": "...", "b2c": {...}, "b2b": {...}, "financials": {...}, "product_slos": {...}, "compliance_security_ai": {...}, "seo_engine": {...}, "marketing_engine": {...}, "risks": [{...}], "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{ "owner": "", "eta_days": 0 }]} }
+Include links/ids to internal reports and logs for verification.
+Do not execute any changes or jobs. If data is missing, mark as UNKNOWN and recommend the minimal instrumentation to close the gap.
