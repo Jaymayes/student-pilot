@@ -14,7 +14,7 @@ import rateLimit from "express-rate-limit";
 import { billingService, CREDIT_PACKAGES, millicreditsToCredits, creditsToUsd } from "./billing";
 import { db } from "./db";
 import { purchases } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import Stripe from "stripe";
 import express from "express";
 import { correlationIdMiddleware, correlationErrorHandler, billingCorrelationMiddleware } from "./middleware/correlationId";
@@ -1552,6 +1552,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('TTV dashboard analytics error:', error);
       res.status(500).json({ error: 'Failed to get TTV analytics' });
+    }
+  });
+
+  // Revenue Observability - ARR Summary endpoint
+  app.get('/api/revenue/arr-summary', isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      // Calculate B2C ARR from fulfilled purchases in last 12 months
+      const b2cRevenueResult = await db
+        .select({
+          totalRevenueCents: sql<number>`SUM(${purchases.priceUsdCents})`,
+          purchaseCount: sql<number>`COUNT(*)`
+        })
+        .from(purchases)
+        .where(
+          and(
+            eq(purchases.status, 'fulfilled'),
+            sql`${purchases.createdAt} >= NOW() - INTERVAL '12 months'`
+          )
+        );
+      
+      const b2cRevenueCents = b2cRevenueResult[0]?.totalRevenueCents || 0;
+      const purchaseCount = b2cRevenueResult[0]?.purchaseCount || 0;
+      
+      // Convert cents to dollars for ARR calculation
+      const b2cArrUsd = Math.round(b2cRevenueCents) / 100;
+      
+      // B2B ARR from marketplace partnerships (placeholder - no B2B revenue tracking yet)
+      const b2bArrUsd = 0; // TODO: Implement B2B marketplace revenue tracking
+      
+      // Total ARR calculation
+      const totalArrUsd = b2cArrUsd + b2bArrUsd;
+      
+      // Data freshness (time since last purchase)
+      const latestPurchaseResult = await db
+        .select({ createdAt: purchases.createdAt })
+        .from(purchases)
+        .where(eq(purchases.status, 'fulfilled'))
+        .orderBy(desc(purchases.createdAt))
+        .limit(1);
+      
+      const lastPurchaseTime = latestPurchaseResult[0]?.createdAt;
+      const dataFreshnessMinutes = lastPurchaseTime 
+        ? Math.floor((Date.now() - new Date(lastPurchaseTime).getTime()) / (1000 * 60))
+        : null;
+      
+      const reportId = `arr-summary-${Date.now()}`;
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        arr_b2c_usd: b2cArrUsd,
+        arr_b2b_usd: b2bArrUsd,
+        arr_total_usd: totalArrUsd,
+        report_id: reportId,
+        data_freshness_minutes: dataFreshnessMinutes,
+        metadata: {
+          b2c_purchase_count: purchaseCount,
+          calculation_period_months: 12,
+          b2b_partnerships_active: 0, // Placeholder
+          last_updated: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('ARR summary error:', error);
+      res.status(500).json({ error: 'Failed to calculate ARR summary' });
     }
   });
 
