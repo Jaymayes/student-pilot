@@ -1,0 +1,87 @@
+Acknowledged. Decision remains RED. No launch, no traffic scaling, no new features until P0s are cleared.
+
+Executive directives (effective immediately)
+
+War-room activation (Owner: CTO). 24/7 coverage, hourly Slack updates, 4-hour executive brief. Single source of truth doc with logs and checkpoints.
+Freeze all non-P0 work and marketing spend for 72 hours. Engineering focus: schema integrity, analytics availability, SLO recovery, revenue observability.
+Hard stop gates. Nothing ships until the acceptance criteria below are met and verified by audit.
+P0 blockers, owners, deadlines, acceptance
+
+DB schema integrity — 8 hours (Owner: DBA lead)
+Fix: Restore missing cohort_users and reconcile migrations/drift.
+Acceptance: 0 occurrences of 42P01 for 24h in app logs; cohort_users visible to the app; dependent queries succeed; migration report ID posted.
+2. Analytics/BI availability — 12 hours (Owner: Frontend + Analytics)
+
+Fix: Null-safety for TtvDashboardTile; API must return non-null fields or explicit 0s; add contract tests for medianTTV/MAU/conversion/ARPU.
+Acceptance: Dashboard renders with numeric values; no null-pointer exceptions for 24h; trace IDs captured.
+3. Revenue observability — 12 hours (Owner: Backend)
+
+Fix: Expose read-only ARR summary (B2C/B2B) from existing data or cached job output; auth-protected; no writes.
+Acceptance: arr_b2c_usd, arr_b2b_usd, arr_total_usd populated daily with timestamp and report ID.
+4. SLO recovery — 24 hours (Owner: SRE/Infra)
+
+Fix: Identify slow paths; implement caching, N+1 guards, and APM/error aggregation.
+Acceptance: P95 ≤ 250ms and error rate ≤ 1.0% for 24h, with a documented plan to reach P95 ≤ 120ms and error ≤ 0.1% in 72h.
+P1 items (parallel, do not block P0)
+
+security.txt content-type correction to text/plain (Owner: Security) — 4 hours.
+SEO inventory plan to scale beyond 155 URLs after SLOs stabilize (Owner: Growth Eng) — proposal due in 72 hours.
+Move-to-Yellow gate (must all be true)
+
+No schema errors (e.g., 42P01) for 24h.
+MAU, conversion, ARR are non-null and logged daily.
+P95 ≤ 250ms and error rate ≤ 1.0% for 24h; path to 120ms/0.1% defined.
+Read-only revenue summary accessible to execs.
+SLO dashboard and on-call alerts live with owners.
+Copy-paste re-verification prompt (run every 6–8 hours; read-only)
+Read-Only Delta Gate Check — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only. Do not change data, configs, jobs, or integrations.
+
+Objective
+Verify closure of P0 blockers and readiness to move from RED to YELLOW. Provide PASS/WARN/FAIL, evidence IDs, and a go/no-go.
+
+Checks and evidence
+A) DB schema integrity
+
+Expect: 0 occurrences of 42P01 (or equivalent) in last 24h; cohort_users visible to app.
+Evidence: latest application/migration logs, row count or last_write_timestamp via existing diagnostics.
+B) Analytics/BI
+
+Expect: TtvDashboardTile renders; MAU, conversion, ARPU non-null.
+Evidence: dashboard trace IDs; sample payload with fields: mau_28d, conversion_rate_pct, arpu_usd, medianTTV, p95TTV.
+C) Revenue observability
+
+Expect: Read-only ARR summary accessible (B2C, B2B, total) with timestamp.
+Evidence: report name/ID and values.
+D) SLOs (last 24h)
+
+Expect: P95 ≤ 250ms, error rate ≤ 1.0%; include P50/P95/P99 snapshot.
+Evidence: performance dashboard/log IDs.
+E) Security parity
+
+Expect: HSTS/CSP/X-Frame-Options unchanged; /.well-known/security.txt returns 200 text/plain.
+Evidence: header capture and content-type.
+F) SEO sanity
+
+Expect: Valid sitemap; URL count reported; no XML errors.
+Evidence: sitemap fetch logs.
+G) Guardrails
+
+Expect: Agent Bridge disabled or dry-run; no autonomous campaigns.
+Evidence: config/status report ID.
+KPIs to report (UNKNOWN = FAIL for MAU, conversion, or ARR)
+
+MAU (28d, 90d), conversion rate, ARPU, ARR (B2C/B2B/Total), P95 latency, error rate, indexed pages.
+Output
+
+Executive summary (5–8 bullets) with decision: Green/Yellow/Red.
+KPI table: Current, Target, Variance%, Status.
+A–G with PASS/WARN/FAIL and evidence IDs.
+Endpoint health: /health, /sitemap.xml, /.well-known/security.txt, analytics endpoints.
+JSON: { "timestamp": "...", "instance": "...", "issues": {...}, "kpis": {...}, "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{"owner": "", "eta_days": 0}]} }
+Communication cadence
+
+Hourly war-room updates; 4-hour executive checkpoints using the above output.
+If any A–D item regresses, auto-revert recent changes and re-run the Gate Check within 60 minutes.
+This preserves strict read-only validation while enforcing the path to measurable readiness.
