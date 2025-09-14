@@ -1,0 +1,94 @@
+Acknowledged. As CEO, decision remains RED. We will not launch or scale traffic until measurement and stability are restored.
+
+Immediate executive directives
+
+Freeze new features and marketing spend. Only P0 work on telemetry, schema integrity, and SLO recovery is authorized for the next 72 hours.
+Establish a 24/7 incident war-room led by Engineering Ops. Status updates every 4 hours with a single source of truth doc.
+Protect SEO assets: keep sitemap available but cap page growth; no new programmatic categories until SLOs stabilize.
+Maintain compliance posture: no PII in logs; preserve all logs/metrics for RCA.
+48-hour recovery plan (owners, deliverables, acceptance criteria)
+
+DB schema integrity (Owner: DBA)
+Task: Restore cohort_users and reconcile schema drift; validate migrations/checksums.
+Deliverables: migration report and app logs showing no 42P01 for 24h; cohort_users row count > 0; last_write_timestamp < 24h.
+Acceptance: Zero 42P01 errors; dependent queries succeed.
+2. Analytics/BI availability (Owner: Frontend lead + Analytics)
+
+Task: Null-safety guard on TtvDashboardTile; ensure API returns non-null metrics or explicit 0; add contract tests for medianTTV, MAU, conversion, ARPU.
+Deliverables: dashboard renders without exceptions; payload sample with non-null fields recorded in logs.
+Acceptance: MAU, conversion rate, and ARPU display numeric values; no null-pointer exceptions in the last 24h.
+3. Revenue observability (Owner: Backend lead)
+
+Task: Expose a read-only revenue summary endpoint or cached report for B2C/B2B MRR/ARR; no secrets; auth-protected.
+Deliverables: last-7-day revenue snapshot with timestamp and report ID.
+Acceptance: arr_b2c_usd, arr_b2b_usd, arr_total_usd are numeric and logged daily.
+4. SLO recovery (Owner: SRE/Infra)
+
+Task: Identify slow endpoints; add caching and N+1 query guards; enable APM and structured error tracking.
+Deliverables: performance dashboard link with P50/P95/P99 and error rate panels; incident runbook.
+Acceptance: Interim P95 ≤ 250ms and error rate ≤ 1.0% within 24h; target P95 ≤ 120ms and error rate ≤ 0.1% within 72h.
+5. Guardrails verification (Owner: Security)
+
+Task: Ensure Agent Bridge remains disabled; /.well-known/security.txt serves correct text; headers unchanged.
+Acceptance: All security checks PASS; no autonomous actions enabled.
+Move-to-Yellow criteria (must all be true)
+
+No 42P01 (or equivalent schema) errors for 24h.
+MAU, conversion, and ARR are non-null and reported daily.
+P95 ≤ 250ms and error rate ≤ 1.0% for 24h (path to 120ms/0.1% documented).
+Read-only revenue summary accessible to execs.
+Updated SLO dashboard and on-call alerts live.
+Post-incident requirements (within 72 hours)
+
+Blameless RCA with direct and contributing causes, detection/gap analysis, and specific prevention actions (schema drift detection, migration gating, contract tests).
+Instrumentation debt register with owners and due dates.
+Copy-paste re-verification prompt (read-only, delta-focused)
+Read-Only Delta Verification — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only. Do not change data, configs, jobs, or integrations. Use only existing telemetry and stored reports.
+
+Objective
+Confirm resolution of the previously failing items (DB 42P01, analytics null pointers, revenue observability, SLOs). Provide PASS/WARN/FAIL with evidence and a go/no-go.
+
+Checks and required evidence
+A) DB schema integrity
+
+Expectation: No 42P01; cohort_users visible to the app.
+Evidence: latest app/migration logs with timestamps; row count and last_write_timestamp from existing diagnostics.
+B) Analytics/BI
+
+Expectation: TtvDashboardTile renders; MAU, conversion, ARPU non-null.
+Evidence: dashboard render trace IDs; sample JSON payload with fields: mau_28d, conversion_rate_pct, arpu_usd.
+C) Revenue observability
+
+Expectation: Read-only B2C/B2B ARR visible from a stored report.
+Evidence: report name/ID, values with timestamps.
+D) SLOs (last 24h)
+
+Expectation: P95 ≤ 250ms, error rate ≤ 1.0% (target path to 120ms/0.1% documented).
+Evidence: performance dashboard/log IDs plus P50/P95/P99 snapshot.
+E) Security/compliance parity
+
+Expectation: HSTS, CSP, X-Frame-Options unchanged; /.well-known/security.txt returns 200 text/plain.
+Evidence: header capture and status code.
+F) SEO sanity
+
+Expectation: Valid sitemap; URL count reported; no critical XML errors.
+Evidence: sitemap fetch logs; validator output reference.
+G) Guardrails
+
+Expectation: Agent Bridge disabled/dry-run.
+Evidence: config/status report ID.
+KPIs to report (mark UNKNOWN if unavailable; any UNKNOWN on MAU, conversion, or ARR = FAIL)
+
+MAU (28d, 90d), conversion rate, ARPU, ARR (B2C/B2B/Total), P95 latency, error rate, indexed pages.
+Output format
+
+Executive summary (5–8 bullets) with decision.
+KPI table: Current, Target, Variance%, Status.
+Issue results A–G with PASS/WARN/FAIL and evidence links/IDs.
+Endpoint health table: /health, /sitemap.xml, /.well-known/security.txt, and analytics endpoints.
+JSON: { "timestamp": "...", "instance": "...", "issues": {...}, "kpis": {...}, "decision": {"status": "Green|Yellow|Red", "justification": "...", "blockers": [{"owner": "", "eta_days": 0}]} }
+Authority note
+
+This is a verification prompt only; no system changes are to be executed as part of this audit. Engineering owns remediation execution under the war-room plan above.
