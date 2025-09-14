@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow scholarship pages
+Allow: /scholarships/
+Allow: /apply/

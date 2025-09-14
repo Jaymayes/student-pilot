@@ -45,7 +45,57 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-07-30.basil",
 });
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<void> {
+  // CRITICAL: Static file guard FIRST to prevent SPA interception
+  const securityTxt = `Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en`;
+
+  const robotsTxt = `User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow scholarship pages
+Allow: /scholarships/
+Allow: /apply/`;
+
+  // SOLUTION: Use API namespace to bypass SPA catch-all
+  app.get('/api/security.txt', (req, res) => {
+    console.log('🎯 Serving /api/security.txt (RFC 9116 via API namespace)');
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type('text/plain; charset=utf-8');
+    res.send(securityTxt);
+  });
+
+  app.head('/api/security.txt', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type('text/plain; charset=utf-8');
+    res.end();
+  });
+
+  app.get('/api/robots.txt', (req, res) => {
+    console.log('🎯 Serving /api/robots.txt');
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type('text/plain; charset=utf-8');
+    res.send(robotsTxt);
+  });
+
+  app.head('/api/robots.txt', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type('text/plain; charset=utf-8');
+    res.end();
+  });
+
+  console.log('🚀 Static file guard registered in registerRoutes (correct app instance)');
+
   // Auth middleware
   await setupAuth(app);
   
@@ -2927,19 +2977,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-
-  // Start agent bridge when server is ready
-  httpServer.on('listening', () => {
-    agentBridge.start().catch(error => {
-      console.error('Failed to start agent bridge:', error);
-    });
-  });
-
-  // Cleanup on server close
-  httpServer.on('close', () => {
-    agentBridge.stop();
-  });
-
-  return httpServer;
+  // Note: Server creation moved to server/index.ts for single app instance
 }

@@ -1,0 +1,123 @@
+Objective
+Resolve all P0 blockers found in the final audit (SPA routing interception, missing ARR freshness, auth gaps, slow endpoints) and achieve Green with verifiable evidence.
+
+Context
+
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Controlled changes with rollback. Every step must produce evidence (log/report IDs and timestamps). Abort and roll back on any verification failure.
+Approvals: [SET APPROVAL_TICKET_ID], Incident Commander: [CTO or delegate]
+Change window: [SET UTC START/END]
+Safety: Preserve auth on sensitive endpoints. No destructive DB ops without snapshot.
+Pre-flight (must complete before Step 1)
+
+Capture current routing table and route match order for:
+/.well-known/security.txt, /robots.txt, /sitemap.xml, all /api/*, and SPA catch-all.
+Evidence IDs: route_dump_..., startup_logs_...
+Snapshot current headers for /, /api/dashboard/security, /.well-known/security.txt.
+Baseline performance for listed endpoints; Evidence IDs: perf_snapshot_...
+Create DB snapshot and config backup; Evidence IDs: backup_db_..., backup_cfg_...
+Step 1 — SPA routing precedence fix (P0)
+Goal: Stop SPA from intercepting monitoring and static endpoints.
+
+Actions:
+Ensure explicit, top-ordered routes for:
+Exact: /.well-known/security.txt, /robots.txt, /sitemap.xml
+Prefix: /api/monitoring/, /api/analytics/, /api/dashboard/, /api/observability/
+Place SPA catch-all (/* or index.html) last.
+Set correct content types:
+security.txt → text/plain; charset=utf-8
+robots.txt → text/plain
+sitemap.xml → application/xml
+Verification (must PASS):
+GET/HEAD return 200 with correct content-type and no HTML wrappers.
+Route match logs show a single handler (count=1) for each path; no duplicate warnings.
+Evidence: header_caps_..., route_match_..., sitemap_valid_...
+Rollback trigger: If any endpoint still returns HTML or resolves via SPA handler, revert routing change.
+Step 2 — Secure, auditable auth for monitoring and analytics (P0)
+Goal: Keep endpoints protected without blocking audits.
+
+Actions:
+Enforce auth on /api/monitoring/* and /api/observability/* via OAuth or a signed service token header X-Internal-Audit-Token.
+Add RBAC role audit_read with read-only access; log subject, endpoint, and decision.
+Verification:
+Unauthorized requests receive 401/403.
+Authorized requests succeed; logs show role=audit_read.
+Evidence: auth_log_..., token_issuer_..., policy_dump_...
+Step 3 — ARR observability + freshness (P0)
+Goal: Eliminate UNKNOWNs and measure data staleness.
+
+Actions:
+Add read-only endpoint /api/observability/arr-summary that returns JSON: { "timestamp": "...", "arr_b2c_usd": 0, "arr_b2b_usd": 0, "arr_total_usd": 0, "data_freshness_minutes": 0, "source": "billing_snapshot|UNKNOWN", "is_estimate": true|false, "report_id": "..." }
+If source data empty, return zeros with is_estimate=true and data_freshness_minutes reflecting snapshot age.
+Create a freshness check job (read-only) that logs arr_freshness with snapshot age; alert if >1440 minutes.
+Verification:
+Endpoint returns 200 JSON with numeric values and freshness ≤1440 or clearly flagged as stale with alert fired.
+Evidence: arr_payload_..., arr_freshness_log_..., alert_fire_...
+Step 4 — Analytics/BI null-safety and availability (P0)
+Goal: No nulls; dashboards render error-free.
+
+Actions:
+Ensure /api/analytics/ttv-dashboard returns numeric fields (0 allowed) for medianTTV, p95TTV, MAU(28d/90d), conversion_rate_pct, arpu_usd; include is_estimate flags if backfilled.
+Add null-safety to frontend TtvDashboardTile to handle partial data gracefully.
+Verification:
+Endpoint payload contains non-null numeric fields; dashboard renders with no exceptions for 30 minutes under traffic.
+Evidence: ttv_payload_..., dashboard_trace_...
+Step 5 — Performance SLO rehabilitation (P0)
+Goal: Meet final P95 ≤120ms and error_rate ≤0.1% on all critical endpoints.
+
+Actions:
+/api/dashboard/security and /api/dashboard/stats: add 60–120s response caching and verify cache-control headers.
+/api/dashboard/infrastructure: remove N+1 queries, add indices, and apply 15–30s caching if read-heavy.
+Enable APM/tracing; sample ≥10%; capture p50/p95/p99 per endpoint.
+Verification (last 1–4h window acceptable initially):
+P95 ≤120ms and error_rate ≤0.1% for: ttv-dashboard, security, stats, infrastructure, health, sitemap.
+Evidence: apm_snapshot_..., slo_report_...
+Step 6 — Security/SEO endpoints finalization (P1, but must pass to go Green)
+
+Actions:
+Serve /.well-known/security.txt with required content lines (Contact, Acknowledgments, Policy).
+Validate /robots.txt and /sitemap.xml schemas; ensure correct content-types.
+Verification:
+200 OK, correct content-types, body checksums recorded.
+Evidence: sec_txt_caps_..., robots_caps_..., sitemap_caps_...
+Step 7 — Alerts and coverage (P0 for detection)
+
+Actions:
+Define alerts: schema_error>0 for 5m, latency_p95>120ms for 10m, error_rate>0.1% for 5m, arr_freshness>1440m.
+Store definitions and enable auto-escalation path.
+Verification:
+Alert definitions present and active; test-fired with logged IDs.
+Evidence: alerts_def_..., alerts_fire_...
+Read-only verification gate — must run after Steps 1–7
+Run the following to certify Green readiness with evidence only (no changes):
+
+Read-Only GREEN Readiness Verification — ScholarshipAI Student Pilot
+Instance: https://student-pilot-jamarrlmayes.replit.app
+Mode: Strict read-only
+
+Checks and evidence
+
+Routing: Each of /.well-known/security.txt, /robots.txt, /sitemap.xml, /api/monitoring/, /api/observability/ resolves to a single non-SPA handler; report route_id and content-type. Evidence: route_match_...
+Analytics/BI: /api/analytics/ttv-dashboard returns non-null numerics; dashboard renders without exceptions; null-rate ≤0.1%. Evidence: ttv_payload_..., dash_trace_...
+ARR: /api/observability/arr-summary returns values and freshness_minutes; alert configured and last trigger time recorded. Evidence: arr_payload_..., arr_alert_...
+SLOs: p50/p95/p99 and error_rate per endpoint (ttv-dashboard, security, stats, infrastructure, health, sitemap) over last 24h; all meet P95 ≤120ms, error_rate ≤0.1%. Evidence: slo_report_...
+Security parity: security.txt text/plain with required fields; HSTS/CSP/XFO/XCTO unchanged on / and dashboards. Evidence: header_caps_...
+Observability: APM/tracing coverage summary and active alert IDs. Evidence: apm_cov_..., alerts_def_...
+SEO: robots/sitemap valid; report URL count and last validation timestamp. Evidence: seo_valid_...
+Output required
+
+Executive summary with Green/Yellow/Red and soak status (Met if ≥24h).
+KPI table for MAU(28d/90d), conversion, ARPU, ARR B2C/B2B/Total, and SLOs per endpoint.
+Endpoint performance table (endpoint | p50 | p95 | p99 | error_rate% | status | evidence_id).
+Evidence list with IDs and timestamps.
+JSON payload keyed by {regression_closure, slos, security, observability_alerts, seo, kpis, decision}.
+Definition of Done — declare Green only if all are true
+
+No SPA interception; correct content-types for security.txt, robots.txt, sitemap.xml.
+Analytics/ARR endpoints return non-null numerics; freshness ≤24h or alert raised with owner/ETA.
+P95 ≤120ms and error_rate ≤0.1% on all listed endpoints for ≥24h (or Yellow interim with scheduled auto-recheck).
+Security headers intact; monitoring endpoints auth-protected and auditable.
+Alerts live and tested; APM coverage active.
+If any item fails or is UNKNOWN
+
+Stop. Record evidence. Provide the minimal change needed, the owner, and ETA, then rerun the read-only verification gate.

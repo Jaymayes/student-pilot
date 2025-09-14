@@ -3,12 +3,48 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
 import path from "path";
+import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { env, isProduction } from "./environment";
 import * as crypto from "crypto";
 
 const app = express();
+
+// CRITICAL: Top-of-stack guard middleware to serve static compliance files
+const securityTxt = `Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en`;
+
+const robotsTxt = `User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow scholarship pages
+Allow: /scholarships/
+Allow: /apply/`;
+
+app.use((req, res, next) => {
+  if ((req.method === 'GET' || req.method === 'HEAD') && 
+      (req.path === '/.well-known/security.txt' || req.path === '/robots.txt')) {
+    console.log(`🎯 GUARD MIDDLEWARE serving: ${req.path} (method: ${req.method})`);
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type('text/plain; charset=utf-8');
+    res.set('X-WellKnown-Served', '1');
+    return res.send(req.path === '/.well-known/security.txt' ? securityTxt : robotsTxt);
+  }
+  next();
+});
+
+console.log('🚀 Top-level guard middleware registered for static compliance files');
 
 // Configure EJS for server-side rendering
 app.set('view engine', 'ejs');
@@ -74,6 +110,93 @@ app.use('/api', generalLimiter);
 app.use('/api/auth', authLimiter);
 app.use('/api/billing', billingLimiter);
 
+// CRITICAL: Static file routes FIRST to prevent Vite interception
+// RFC 9116 compliance for security.txt - serve inline to avoid filesystem dependencies
+app.get('/.well-known/security.txt', (req, res) => {
+  console.log('✅ Serving security.txt via explicit top-level route');
+  res.type('text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=3600, immutable');
+  res.send(`Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en`);
+});
+
+app.head('/.well-known/security.txt', (req, res) => {
+  res.type('text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=3600, immutable');
+  res.end();
+});
+
+// SEO robots.txt compliance - serve inline
+app.get('/robots.txt', (req, res) => {
+  console.log('✅ Serving robots.txt via explicit top-level route');
+  res.type('text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=3600, immutable');
+  res.send(`User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow scholarship pages
+Allow: /scholarships/
+Allow: /apply/`);
+});
+
+app.head('/robots.txt', (req, res) => {
+  res.type('text/plain; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=3600, immutable');
+  res.end();
+});
+
+console.log('✅ Registered security.txt and robots.txt routes at MODULE TOP LEVEL');
+
+// CRITICAL: Short-circuit middleware for static compliance files before Vite catch-all
+const PLAIN_ROUTES = new Map([
+  ['/.well-known/security.txt', { 
+    type: 'text/plain; charset=utf-8', 
+    body: `Contact: security@scholarshipai.com
+Acknowledgments: https://scholarshipai.com/security
+Policy: https://scholarshipai.com/security-policy
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en` 
+  }],
+  ['/robots.txt', { 
+    type: 'text/plain; charset=utf-8', 
+    body: `User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow scholarship pages
+Allow: /scholarships/
+Allow: /apply/` 
+  }]
+]);
+
+app.use((req, res, next) => {
+  const pathname = req.path.replace(/\/+$/, ''); // strip trailing slashes
+  const route = PLAIN_ROUTES.get(pathname);
+  if (route) {
+    console.log(`🎯 Short-circuit serving: ${pathname} (method: ${req.method})`);
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type(route.type).send(route.body);
+    return; // HARD STOP: never fall through to Vite
+  }
+  next();
+});
+
 // Body parsing with size limits
 app.use(express.json({ limit: '1mb', strict: true }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
@@ -123,22 +246,20 @@ app.use((req, res, next) => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const publicDir = path.resolve(__dirname, '..', 'client', 'public');
 
-  // CRITICAL: Early security.txt handler BEFORE any routing (including registerRoutes)
-  // to prevent SPA catch-all from intercepting RFC 9116 compliance endpoints
-  app.use((req, res, next) => {
-    if (req.path === '/.well-known/security.txt') {
-      res.type('text/plain; charset=utf-8');
-      res.set('Cache-Control', 'public, max-age=3600, immutable');
-      return res.sendFile(path.join(publicDir, '.well-known', 'security.txt'));
-    }
-    next();
-  });
-  const server = await registerRoutes(app);
+  // Register all application routes
+  await registerRoutes(app);
+  
+  // Create single HTTP server after all routes are registered
+  const server = createServer(app);
 
-  // Setup monitoring dashboards for T+48 review
-  const dashboards = await import('./monitoring/dashboards.js');
-  const monitoring = new dashboards.default();
-  monitoring.setupRoutes(app);
+  // Setup monitoring dashboards for T+48 review - skip if not available
+  try {
+    const dashboards = await import('./monitoring/dashboards.js');
+    const monitoring = new dashboards.default();
+    monitoring.setupRoutes(app);
+  } catch (error) {
+    console.log('Monitoring dashboards not available, skipping...');
+  }
 
   // Production-safe error handler
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
