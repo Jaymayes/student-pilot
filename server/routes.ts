@@ -1769,79 +1769,87 @@ Allow: /apply/`;
     }
   });
 
-  // Infrastructure/SRE Dashboard endpoint
+  // Infrastructure/SRE Dashboard endpoint with caching for performance
   app.get("/api/dashboard/infrastructure", isAuthenticated, async (req, res) => {
     const correlationId = (req as any).correlationId;
     res.set('X-Correlation-ID', correlationId);
     
     try {
-      // Get backup health and connectivity
-      const backupHealth = await backupRestoreManager.testDatabaseConnectivity();
-      const backupMetadata = await backupRestoreManager.generateBackupMetadata();
+      // Use in-memory caching to dramatically improve performance (15s cache as per architect recommendation)
+      const cacheKey = 'infrastructure-dashboard';
+      const cachedResponse = await responseCache.getCached(cacheKey, 15000, async () => {
+        // Get backup health and connectivity (expensive operations - ~400-500ms)
+        const [backupHealth, backupMetadata] = await Promise.all([
+          backupRestoreManager.testDatabaseConnectivity(),
+          backupRestoreManager.generateBackupMetadata()
+        ]);
       
-      // Mock last backup info (would integrate with actual backup system)
-      const lastBackup = {
-        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-        size: '245 MB',
-        status: 'success'
-      };
+        // Mock last backup info (would integrate with actual backup system)
+        const lastBackup = {
+          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+          size: '245 MB',
+          status: 'success'
+        };
 
-      // Mock restore test history
-      const restoreTests = {
-        lastTest: {
-          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-          success: true,
-          duration: '3m 42s'
-        },
-        nextTest: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
-      };
-      
-      // Check alerting status
-      const alertingStatus = {
-        configured: true,
-        activeAlerts: 0,
-        lastCheck: new Date().toISOString(),
-        channels: ['email', 'slack']
-      };
+        // Mock restore test history
+        const restoreTests = {
+          lastTest: {
+            date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+            success: true,
+            duration: '3m 42s'
+          },
+          nextTest: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+        };
+        
+        // Check alerting status
+        const alertingStatus = {
+          configured: true,
+          activeAlerts: 0,
+          lastCheck: new Date().toISOString(),
+          channels: ['email', 'slack']
+        };
 
-      // DR runbook availability
-      const drRunbook = {
-        available: true,
-        url: '/docs/disaster-recovery-runbook.md',
-        lastUpdated: '2025-08-31T12:00:00Z',
-        procedures: [
-          'Database Backup and Restore',
-          'Application Rollback',
-          'Traffic Shifting',
-          'Emergency Contacts'
-        ]
-      };
+        // DR runbook availability
+        const drRunbook = {
+          available: true,
+          url: '/docs/disaster-recovery-runbook.md',
+          lastUpdated: '2025-08-31T12:00:00Z',
+          procedures: [
+            'Database Backup and Restore',
+            'Application Rollback',
+            'Traffic Shifting',
+            'Emergency Contacts'
+          ]
+        };
 
-      res.json({
-        backup: {
-          status: backupHealth.success ? 'healthy' : 'error',
-          lastBackupTime: lastBackup.timestamp,
-          lastBackupSize: lastBackup.size,
-          backupRetention: '30 days',
-          automatedBackups: true,
-          details: backupHealth.details
-        },
-        restoreTesting: {
-          lastTestDate: restoreTests.lastTest.date,
-          lastTestResult: restoreTests.lastTest.success,
-          testDuration: restoreTests.lastTest.duration,
-          testFrequency: 'Weekly',
-          nextScheduledTest: restoreTests.nextTest
-        },
-        alerting: alertingStatus,
-        disasterRecovery: drRunbook,
-        systemHealth: {
-          database: backupHealth.success,
-          storage: true,
-          monitoring: true,
-          backupSystem: backupHealth.success
-        }
+        return {
+          backup: {
+            status: backupHealth.success ? 'healthy' : 'error',
+            lastBackupTime: lastBackup.timestamp,
+            lastBackupSize: lastBackup.size,
+            backupRetention: '30 days',
+            automatedBackups: true,
+            details: backupHealth.details
+          },
+          restoreTesting: {
+            lastTestDate: restoreTests.lastTest.date,
+            lastTestResult: restoreTests.lastTest.success,
+            testDuration: restoreTests.lastTest.duration,
+            testFrequency: 'Weekly',
+            nextScheduledTest: restoreTests.nextTest
+          },
+          alerting: alertingStatus,
+          disasterRecovery: drRunbook,
+          systemHealth: {
+            database: backupHealth.success,
+            storage: true,
+            monitoring: true,
+            backupSystem: backupHealth.success
+          }
+        };
       });
+
+      res.json(cachedResponse);
     } catch (error) {
       console.error('Infrastructure dashboard error:', error);
       res.status(500).json({ error: 'Failed to get infrastructure status' });
@@ -2352,6 +2360,9 @@ Allow: /apply/`;
       } = req.body;
 
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
 
       await kpiService.recordInteraction(
         userId,
@@ -2520,6 +2531,9 @@ Allow: /apply/`;
     try {
       const { studentId, scholarshipId, formFields } = req.body;
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
 
       if (!studentId || !scholarshipId || !formFields || !Array.isArray(formFields)) {
         return res.status(400).json({ error: "Missing required fields: studentId, scholarshipId, formFields" });
@@ -2597,6 +2611,9 @@ Allow: /apply/`;
     try {
       const { content, prompt } = req.body;
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
 
       if (!content) {
         return res.status(400).json({ error: "Essay content is required" });
@@ -2633,6 +2650,9 @@ Allow: /apply/`;
     try {
       const { content, focusArea = "overall" } = req.body;
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
 
       if (!content) {
         return res.status(400).json({ error: "Essay content is required" });
@@ -2670,6 +2690,9 @@ Allow: /apply/`;
     try {
       const { prompt, essayType = "general", studentId } = req.body;
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
 
       if (!prompt) {
         return res.status(400).json({ error: "Essay prompt is required" });
@@ -2748,6 +2771,9 @@ Allow: /apply/`;
     
     try {
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
       const { studentId, type } = req.query as { studentId?: string; type?: string };
 
       let auditTrail: any[] = [];
@@ -2789,6 +2815,9 @@ Allow: /apply/`;
     
     try {
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
       const { purchaseId, refundType = 'full', amount, reason, adminNotes } = req.body;
 
       if (!purchaseId || !reason) {
@@ -2831,6 +2860,9 @@ Allow: /apply/`;
     
     try {
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
       const limit = parseInt(req.query.limit as string) || 20;
 
       const refunds = await refundService.getUserRefunds(userId, limit);
@@ -2918,6 +2950,9 @@ Allow: /apply/`;
     
     try {
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
       const { event, metadata } = req.body;
 
       if (!event) {
@@ -2947,6 +2982,9 @@ Allow: /apply/`;
     
     try {
       const adminUserId = req.user?.claims?.sub;
+      if (!adminUserId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
       const { 
         userId, 
         purchaseId, 

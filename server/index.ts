@@ -50,8 +50,16 @@ console.log('🚀 Top-level guard middleware registered for static compliance fi
 app.set('view engine', 'ejs');
 app.set('views', path.join(import.meta.dirname, 'views'));
 
-// Enable compression for better performance
-app.use(compression());
+// Enable compression for better performance (gzip/brotli)
+app.use(compression({
+  level: 6,  // Good balance of compression vs CPU usage
+  threshold: 1024, // Only compress files > 1KB
+  filter: (req, res) => {
+    // Don't compress responses that shouldn't be compressed
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
 
 // Security middleware - helmet with initial configuration
 app.use(helmet({
@@ -65,23 +73,28 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
-// CSP in report-only mode initially
+// CSP with environment-specific policies for security and performance
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 app.use(helmet.contentSecurityPolicy({
   useDefaults: true,
   directives: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "https://js.stripe.com"],
+    scriptSrc: isDevelopment 
+      ? ["'self'", "https://js.stripe.com", "'unsafe-inline'", "https://replit.com"] // Dev: allow inline for Vite HMR
+      : ["'self'", "https://js.stripe.com"], // Prod: strict, no unsafe-inline
     frameSrc: ["'self'", "https://js.stripe.com"],
-    connectSrc: [
-      "'self'", 
-      "https://api.stripe.com", 
-      "https://api.openai.com",
-      "https://storage.googleapis.com"
-    ],
+    connectSrc: isDevelopment
+      ? ["'self'", "https://api.stripe.com", "https://api.openai.com", "https://storage.googleapis.com", "wss://localhost:*", "ws://localhost:*"] // Dev: allow HMR
+      : ["'self'", "https://api.stripe.com", "https://api.openai.com", "https://storage.googleapis.com"], // Prod: no dev origins
+    styleSrc: isDevelopment
+      ? ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"] // Dev: allow inline for Vite
+      : ["'self'", "https://fonts.googleapis.com"], // Prod: no unsafe-inline
+    fontSrc: ["'self'", "https://fonts.gstatic.com"],
     imgSrc: ["'self'", "data:", "https:"],
     objectSrc: ["'none'"]
   },
-  reportOnly: true // Start with report-only
+  reportOnly: false // Enforce CSP for security and performance
 }));
 
 // Rate limiting
