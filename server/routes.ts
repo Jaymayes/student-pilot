@@ -37,6 +37,24 @@ import { paymentKpiService } from "./services/paymentKpiService";
 import { responseCache } from "./cache/responseCache";
 import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 
+// Extend Express Request type to include user with claims
+interface AuthenticatedUser {
+  claims: {
+    sub: string;
+    email?: string;
+    [key: string]: any;
+  };
+  expires_at?: number;
+  refresh_token?: string;
+  [key: string]: any;
+}
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: AuthenticatedUser;
+  }
+}
+
 // Initialize Stripe with environment-appropriate keys
 import { getStripeKeys } from "./environment";
 
@@ -451,7 +469,7 @@ Allow: /apply/`;
     if (error instanceof z.ZodError) statusCode = 400;
     
     return res.status(statusCode).json({ 
-      message: error.message || "Internal server error",
+      message: (error as Error).message || "Internal server error",
       correlationId,
       ...(error instanceof z.ZodError && { 
         details: error.errors.map(e => ({ 
@@ -2235,8 +2253,8 @@ Allow: /apply/`;
     try {
       const { studentId } = req.params;
       const { 
-        topN = 10, 
-        minScore = 30, 
+        topN = "10", 
+        minScore = "30", 
         sessionId 
       } = req.query as { topN?: string; minScore?: string; sessionId?: string };
 
@@ -2245,8 +2263,8 @@ Allow: /apply/`;
       const recommendations = await recommendationEngine.generateRecommendations(
         studentId,
         {
-          topN: parseInt(topN),
-          minScore: parseInt(minScore),
+          topN: parseInt(topN as string),
+          minScore: parseInt(minScore as string),
           trackInteraction: true,
           sessionId: sessionId
         }
@@ -2345,7 +2363,7 @@ Allow: /apply/`;
     res.set('X-Correlation-ID', correlationId);
     
     try {
-      const { days = 30, startDate, endDate } = req.query as { 
+      const { days = "30", startDate, endDate } = req.query as { 
         days?: string; 
         startDate?: string; 
         endDate?: string; 
@@ -2356,18 +2374,18 @@ Allow: /apply/`;
       if (startDate && endDate) {
         metrics = await kpiService.getKpiTrends(new Date(startDate), new Date(endDate));
       } else {
-        metrics = await kpiService.calculateRecentKpis(parseInt(days));
+        metrics = await kpiService.calculateRecentKpis(parseInt(days as string));
       }
 
-      const summary = await kpiService.getKpiSummary(parseInt(days));
-      const topScholarships = await kpiService.getTopScholarshipsByInteractions(10, parseInt(days));
+      const summary = await kpiService.getKpiSummary(parseInt(days as string));
+      const topScholarships = await kpiService.getTopScholarshipsByInteractions(10, parseInt(days as string));
 
       res.json({
         metrics,
         summary,
         topScholarships,
         period: {
-          days: parseInt(days),
+          days: parseInt(days as string),
           startDate,
           endDate
         }
@@ -2385,12 +2403,12 @@ Allow: /apply/`;
     
     try {
       const { 
-        days = 7, 
+        days = "7", 
         userId 
       } = req.query as { days?: string; userId?: string; };
 
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - parseInt(days));
+      startDate.setDate(startDate.getDate() - parseInt(days as string));
       const endDate = new Date();
 
       const interactionSummary = await kpiService.getInteractionSummary(
@@ -2407,7 +2425,7 @@ Allow: /apply/`;
         period: {
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
-          days: parseInt(days)
+          days: parseInt(days as string)
         }
       });
     } catch (error) {
@@ -2423,11 +2441,11 @@ Allow: /apply/`;
     
     try {
       const { fixtureId } = req.params;
-      const { limit = 10 } = req.query as { limit?: string };
+      const { limit = "10" } = req.query as { limit?: string };
 
       const history = await recommendationValidator.getValidationHistory(
         fixtureId, 
-        parseInt(limit)
+        parseInt(limit as string)
       );
 
       res.json({
@@ -2551,7 +2569,7 @@ Allow: /apply/`;
     } catch (error) {
       console.error("Safe essay analysis error:", error);
       res.status(500).json({ 
-        error: error.message || "Failed to analyze essay safely" 
+        error: (error as Error).message || "Failed to analyze essay safely" 
       });
     }
   });
@@ -2588,7 +2606,7 @@ Allow: /apply/`;
     } catch (error) {
       console.error("Safe essay improvement error:", error);
       res.status(500).json({ 
-        error: error.message || "Failed to improve essay safely" 
+        error: (error as Error).message || "Failed to improve essay safely" 
       });
     }
   });
@@ -2749,7 +2767,7 @@ Allow: /apply/`;
     } catch (error) {
       console.error(`[${correlationId}] Refund processing error:`, error);
       res.status(500).json({ 
-        error: error.message || "Failed to process refund",
+        error: (error as Error).message || "Failed to process refund",
         correlationId 
       });
     }
@@ -2918,7 +2936,7 @@ Allow: /apply/`;
     } catch (error) {
       console.error(`[${correlationId}] Admin refund error:`, error);
       res.status(500).json({ 
-        error: error.message || "Failed to process admin refund",
+        error: (error as Error).message || "Failed to process admin refund",
         correlationId 
       });
     }

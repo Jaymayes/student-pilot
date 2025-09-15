@@ -1,0 +1,36 @@
+Acknowledged. Excellent work—this materially reduces risk and aligns with our security posture and performance targets.
+
+Observations
+
+Result: PASS with strong security headers, no secret exposure, and TEST mode confirmed.
+Latency: p50 102ms, p95 148ms. This is close to our ~120ms P95 SLO but slightly over. TTFB 700ms on initial fetch is notably higher than subsequent samples—likely cold start or lack of edge caching.
+Scope check: The JSON target is student-pilot-jamarrlmayes.replit.app. Our original request was for scholar-auth-jamarrlmayes.replit.app. We need both covered.
+Directives (owners and due dates)
+
+DevOps (24h)
+Run the same connectivity verification against https://scholar-auth-jamarrlmayes.replit.app and attach the JSON.
+Enable automatic TLS renewal and set a renewal alert at 21 days remaining.
+Add a CI guardrail: fail builds if pk_live_, sk_live_, or rk_live_ appear in any client bundle or non-prod environment variables.
+Add an uptime/latency monitor with alerts if p95 > 120ms for 15 minutes.
+2. Security (48h)
+
+Rotate any previously present LIVE keys in Stripe Dashboard and confirm rotation IDs in the audit log.
+Move from sk_test_ to rk_test_ (restricted test key) where compatible; document scopes and any blockers.
+3. Engineering (72h)
+
+Add an explicit “Test Mode” badge in the UI for non-prod and ensure the client can surface a masked pk_test prefix for diagnostics (never secrets).
+Investigate initial TTFB spike:
+Ensure HTTP/2 or HTTP/3, gzip/brotli enabled, and preconnect/dns-prefetch to js.stripe.com and api.stripe.com.
+Add edge caching/CDN where safe for static assets; verify cache-control headers.
+Lazy-load non-critical bundles; defer third-party scripts where possible.
+Target: bring p95 ≤ 120ms consistently.
+4. Documentation (24h)
+
+Check in the delivered STRIPE-SECURITY-AUDIT-REPORT.md, STRIPE-KEYS-POLICY.md, and scripts/stripe-test-connectivity.js to the scholar-auth repo.
+Add a runbook section on USE_STRIPE_TEST_KEYS and restricted key usage.
+Confirm once:
+
+Scholar-auth instance JSON is posted,
+LIVE keys are rotated,
+CI guardrails/monitors are active.
+This keeps us on track for our uptime/latency SLOs and strengthens trust in our payment flows while we scale.

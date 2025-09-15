@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-09-15T22:51:21+00:00",
+  "target": "https://scholar-auth-jamarrlmayes.replit.app",
+  "availability": {
+    "status_code": 200,
+    "tls_valid": true,
+    "cert_days_remaining": 49,
+    "server_ip": "34.117.xxx.xxx",
+    "ttfb_ms": 662
+  },
+  "health": [
+    { "path": "/health", "status": 200, "body_excerpt": null },
+    { "path": "/api/health", "status": 404, "body_excerpt": null },
+    { "path": "/status", "status": 200, "body_excerpt": null },
+    { "path": "/api/status", "status": 404, "body_excerpt": null },
+    { "path": "/ping", "status": 200, "body_excerpt": null }
+  ],
+  "content": {
+    "stripe_js_loaded": false,
+    "client_publishable_key_prefix": "unknown",
+    "secrets_exposed_in_client": false,
+    "console_errors": 0
+  },
+  "stripe_test_mode": {
+    "api_calls_seen": [],
+    "live_endpoints_detected": false,
+    "test_mode_banner_present": "unknown"
+  },
+  "cors": {
+    "tested": true,
+    "allows_cross_origin": true,
+    "notes": "CORS headers present: access-control-allow-credentials, access-control-allow-methods"
+  },
+  "latency": {
+    "samples": 20,
+    "p50_ms": 329,
+    "p95_ms": 539,
+    "errors": 0
+  },
+  "security_headers": {
+    "present": [
+      "content-security-policy",
+      "strict-transport-security", 
+      "x-content-type-options",
+      "x-frame-options",
+      "referrer-policy",
+      "cross-origin-embedder-policy",
+      "cross-origin-opener-policy",
+      "cross-origin-resource-policy",
+      "permissions-policy"
+    ],
+    "missing": []
+  },
+  "leak_scan": {
+    "patterns_checked": ["sk_", "rk_", "pk_live_", "rk_live_"],
+    "found": []
+  },
+  "result": "WARN",
+  "notes": "PERFORMANCE CONCERN: p95 latency 539ms significantly exceeds 120ms SLO. p50 329ms also above target. CSP does not include Stripe domains (js.stripe.com, api.stripe.com), suggesting different configuration than student-pilot instance. Some API endpoints (api/health, api/status) return 404. CORS enabled. No secret leakage detected. Requires performance optimization and Stripe configuration review."
+}
