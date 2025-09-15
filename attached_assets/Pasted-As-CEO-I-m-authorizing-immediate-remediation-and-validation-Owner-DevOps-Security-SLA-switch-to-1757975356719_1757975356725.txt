@@ -1,0 +1,73 @@
+As CEO, I’m authorizing immediate remediation and validation. Owner: DevOps/Security. SLA: switch to test keys within 2 hours; full verification report within 24 hours. This aligns with our Playbook’s security posture (Year 2 “First Security Audit” and path to SOC 2) and protects our growth engine and brand trust .
+
+Copy/paste prompt for the DevOps/Security Agent (target: scholar-auth Replit instance)
+Objective:
+
+Audit https://scholar-auth-jamarrlmayes.replit.app for Stripe configuration.
+Replace any LIVE Stripe keys with TEST keys for development/testing.
+Add missing test secrets and verify non-mutating Stripe connectivity.
+Produce an auditable report and rotate any exposed LIVE keys.
+Scope and constraints:
+
+Environment: Replit Secrets Manager for scholar-auth.
+Never use LIVE keys in this instance. Use Stripe TEST mode only.
+Use non-mutating API calls only (e.g., retrieve/list).
+Maintain server-only exposure for secret keys; only publishable key is client-exposed.
+Tasks:
+
+Baseline audit
+
+Snapshot all Stripe-related env vars (mask values): list env vars that contain “STRIPE” or “VITE_STRIPE”.
+Confirm whether the app currently references any LIVE keys (pk_live_, sk_live_, rk_live_).
+Identify where keys are read in code (env mapping). If environment selection is ambiguous, introduce a toggle USE_STRIPE_TEST_KEYS=true (server and client builds) so TEST keys are always used in this instance.
+Add required TEST secrets in Replit
+
+Add these env vars if missing or incorrect:
+TESTING_VITE_STRIPE_PUBLIC_KEY = pk_test_xxx
+TESTING_STRIPE_SECRET_KEY = rk_test_xxx (preferred, restricted test key with least-privilege) or sk_test_xxx if restricted key is not supported by the current code.
+If the app currently expects VITE_STRIPE_PUBLIC_KEY and STRIPE_SECRET_KEY, set them to their TEST equivalents for this instance or update the env mapping to read TESTING_* when USE_STRIPE_TEST_KEYS=true.
+Ensure secret keys are never exposed to client; only pk_test_* flows to client.
+Key hygiene and rotation
+
+If any LIVE keys were present, immediately remove them from Replit for this instance.
+Open a subtask for Stripe dashboard rotation of the corresponding LIVE keys at the account level, to invalidate any potential exposure (assign to the account owner). Document which keys were rotated.
+Connectivity checks (non-mutating)
+
+From the server runtime (Node/TypeScript), initialize Stripe with TESTING_STRIPE_SECRET_KEY.
+Perform non-mutating calls in TEST mode:
+Retrieve account details (stripe.accounts.retrieve()) or retrieve balance (stripe.balance.retrieve()) depending on permissions of the restricted key. Expect 200 OK in test mode or a 403 if permissions are intentionally restricted; log and justify either outcome.
+Verify client initialization with TESTING_VITE_STRIPE_PUBLIC_KEY (pk_test_*) by loading the app and confirming no console/network errors when Stripe JS initializes (do not perform real Checkout; if a UI exists, it must clearly show “Test mode”).
+Confirm that any server logs never print full secrets.
+Configuration mapping
+
+Ensure the app prefers TEST keys in this instance:
+Add USE_STRIPE_TEST_KEYS=true and update config so when true, TESTING_* keys are sourced.
+Fall back to LIVE keys only in production environments with explicit prod flags (never by default).
+Security boundaries
+
+Validate that secret keys are server-only and not embedded in client bundles.
+Grep the code and build artifacts for “sk_”, “rk_”, “pk_live_”, and “rk_live_” to ensure no leakage in client or logs.
+Deliverables
+
+A short report including:
+Env var snapshot (names only; values masked).
+Confirmation of TEST keys in use (prefix check pk_test_, rk_test_ or sk_test_).
+Output of non-mutating Stripe test call (status code, endpoint, and permission notes).
+Confirmation that no LIVE keys remain in this instance.
+If applicable, confirmation that LIVE keys were rotated at the account level (or ticket created).
+Add a “runbook” note inside the repo/wiki: “Stripe Keys Policy for Replit Instances” describing the TEST/LIVE key selection logic and the USE_STRIPE_TEST_KEYS toggle.
+Acceptance criteria:
+
+scholar-auth instance contains only TEST Stripe keys (pk_test_ for public; rk_test_ or sk_test_ for secret).
+No LIVE key prefixes (pk_live_, rk_live_, sk_live_) exist in the Replit env for this instance.
+Non-mutating Stripe call succeeds in TEST mode (or is denied due to least-privilege as designed, with rationale documented).
+Client bundle contains no secret key material; server logs contain no secrets.
+A one-page audit report is posted and linked in the project tracker.
+Contingency:
+
+If code requires LIVE keys to boot (should not), halt, open a P1 bug to decouple environment selection, and disable any payment features in this instance until TEST mode is supported end-to-end.
+Notes:
+
+Prefer restricted test secrets (rk_test_) with the minimum scopes required by the app. Fall back to sk_test_ only if the code or Stripe features in use are incompatible with restricted keys.
+This work supports our security milestones and brand trust commitments as laid out in the AI Scholarship Playbook (security audit and compliance trajectory) .
+If you want, I can also provide a minimal Node test script template for the server to validate Stripe test connectivity using the configured secret key.
