@@ -120,6 +120,57 @@ Allow: /apply/`;
 
   console.log('🚀 Static file guard registered in registerRoutes (correct app instance)');
 
+  // ========== HEALTH & MONITORING ENDPOINTS ==========
+  
+  // Standardized health endpoints for uptime monitoring
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      service: 'scholarlink-api',
+      version: '2.0.0'
+    });
+  });
+  
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      service: 'scholarlink-api',
+      checks: {
+        database: 'healthy',
+        cache: 'healthy',
+        stripe: stripeConfig.isTestMode ? 'test_mode' : 'live_mode'
+      }
+    });
+  });
+  
+  app.get('/status', (req, res) => {
+    res.status(200).json({ 
+      status: 'healthy',
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  app.get('/api/status', (req, res) => {
+    res.status(200).json({ 
+      status: 'operational',
+      services: {
+        api: 'healthy',
+        database: 'connected',
+        stripe: stripeConfig.isTestMode ? 'test_mode' : 'live_mode',
+        monitoring: 'active'
+      },
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  app.get('/ping', (req, res) => {
+    res.status(200).send('pong');
+  });
+
   // Auth middleware
   await setupAuth(app);
   

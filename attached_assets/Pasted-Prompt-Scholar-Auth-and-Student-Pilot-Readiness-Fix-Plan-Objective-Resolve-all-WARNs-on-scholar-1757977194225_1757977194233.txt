@@ -1,0 +1,89 @@
+Prompt: Scholar-Auth and Student-Pilot Readiness Fix Plan
+
+Objective
+Resolve all WARNs on scholar-auth and lock in parity with student-pilot so both instances meet security, performance, and reliability SLOs:
+
+Security: No LIVE keys in non-prod; Stripe in TEST mode only; CSP/CORS hardened; no secret exposure.
+Performance: p95 latency ≤ 120ms and p50 ≤ 80ms for base and primary API endpoints; TTFB ≤ 250ms.
+Reliability: 99.9% uptime target with working health endpoints and monitors.
+Scope
+
+Instances: https://scholar-auth-jamarrlmayes.replit.app (failing SLOs) and https://student-pilot-jamarrlmayes.replit.app (baseline PASS).
+Stripe: Test mode only; ensure identical key-selection logic across both.
+No downtime: If a restart is required, use a short maintenance window and communicate in the runbook.
+Constraints
+
+Never use LIVE Stripe keys in these instances.
+Mask all secrets in logs and reports.
+Non-mutating Stripe checks only.
+Workstream A: Stripe configuration parity (scholar-auth)
+
+Environment and key handling
+Ensure USE_STRIPE_TEST_KEYS=true on scholar-auth.
+Confirm TESTING_VITE_STRIPE_PUBLIC_KEY=pk_test_* and TESTING_STRIPE_SECRET_KEY=rk_test_* (preferred) or sk_test_* are present and used.
+Verify the key-selection helper routes to TESTING_* when USE_STRIPE_TEST_KEYS=true.
+2. CSP for Stripe
+
+Update CSP to include:
+script-src: js.stripe.com
+connect-src: api.stripe.com
+frame-src: js.stripe.com
+Keep object-src 'none' and other security headers intact.
+Validate that Stripe.js loads and initialize only where needed.
+3. Verification
+
+Client reports pk_test prefix only; no sk_/rk_ visible anywhere.
+Re-run non-mutating Stripe connectivity checks (account/balance retrieval, lists) from the server using test secrets.
+Workstream B: Performance remediation (scholar-auth)
+
+Quick wins to reduce TTFB and p95
+Enable HTTP/2 or HTTP/3, and gzip/brotli compression.
+Add CDN/edge caching for static assets; set Cache-Control/ETag headers.
+Preconnect/dns-prefetch to js.stripe.com and api.stripe.com on pages using Stripe.
+Lazy-load non-critical scripts; defer third-party scripts not needed at first paint.
+Optimize middleware order; remove expensive request-time operations from the hot path.
+Ensure production builds: minified, no source maps shipped publicly.
+Keep-alive/warmup ping to prevent cold starts (if applicable on Replit).
+Confirm Node process has adequate resources and connection pooling for any DB/auth calls.
+2. Deeper profiling if still over budget
+
+Capture server-side timing (queue, app, downstream) to isolate bottlenecks.
+Add lightweight APM or timing logs with request IDs for the top endpoints.
+Optimize the slowest 20% of requests until p95 ≤ 120ms.
+Workstream C: Health endpoints and monitoring
+
+Standardize health endpoints: implement /health and /api/health to return 200 JSON {status:"ok"}.
+Keep /status and /ping as aliases if already used; avoid 404s.
+Wire uptime and latency monitors with alerts: trigger if p95 > 120ms for 15 minutes; send to the on-call channel.
+Workstream D: CORS and header hygiene
+
+If cross-origin is not required, restrict to same-origin only.
+If cross-origin is required, enforce an allowlist of exact origins; do not use wildcards.
+Maintain the current strong header set (HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, COOP/COEP/CORP, CSP).
+Workstream E: CI guardrails and code quality
+
+Add CI checks to fail builds if pk_live_, sk_live_, rk_live_ appear in client bundles or non-prod envs.
+Add a grep/scan in CI for secret-like patterns and ensure no client leakage.
+Reduce remaining TypeScript LSP errors to zero; keep strict mode on for auth models and error handling.
+Document any remaining suppressed errors and create tickets.
+Deliverables (attach to ticket)
+
+Config diffs and PRs: CSP changes, env mapping, health endpoints, performance configs.
+Validation JSONs (run for both instances using the existing verification procedure):
+scholar-auth: PASS with p95 ≤ 120ms and stripe_js_loaded=true.
+student-pilot: PASS unchanged or improved.
+Stripe verification output: evidence of test-mode initialization and successful non-mutating calls.
+CI/monitoring artifacts: screenshots or logs showing guardrails active; alert policies for latency and TLS expiry.
+Runbooks updated:
+STRIPE-KEYS-POLICY.md (restricted test keys usage).
+PERFORMANCE-PLAYBOOK.md (caching, compression, warmup, preconnect).
+HEALTH-AND-MONITORING.md (endpoints and alert thresholds).
+Acceptance criteria
+
+scholar-auth: Result=PASS; stripe_js_loaded=true; client_publishable_key_prefix=pk_test; live_endpoints_detected=false; secrets_exposed_in_client=false; p50 ≤ 80ms, p95 ≤ 120ms; TTFB ≤ 250ms.
+student-pilot: Remains PASS with equal or better latency; no regression in headers/security.
+Health endpoints return 200; no 404s for declared endpoints.
+CI guardrails preventing live keys in non-prod are merged and active.
+Documentation and runbooks updated; all steps reproducible.
+Report back with links to merged PRs, the two final JSON reports, and a short root-cause note for scholar-auth latency (one paragraph).
+
