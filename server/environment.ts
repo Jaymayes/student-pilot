@@ -17,6 +17,11 @@ const EnvironmentSchema = z.object({
   STRIPE_SECRET_KEY: z.string().regex(/^(sk_|rk_)/),
   VITE_STRIPE_PUBLIC_KEY: z.string().regex(/^pk_/).optional(),
   
+  // Stripe TEST keys for development/testing
+  USE_STRIPE_TEST_KEYS: z.string().optional().default('true'),
+  TESTING_STRIPE_SECRET_KEY: z.string().regex(/^(sk_test_|rk_test_)/).optional(),
+  TESTING_VITE_STRIPE_PUBLIC_KEY: z.string().regex(/^pk_test_/).optional(),
+  
   // Object storage
   DEFAULT_OBJECT_STORAGE_BUCKET_ID: z.string().optional(),
   PRIVATE_OBJECT_DIR: z.string().optional(),
@@ -61,6 +66,17 @@ export { env };
 // Helper to check if we're in production
 export const isProduction = env.NODE_ENV === 'production';
 export const isDevelopment = env.NODE_ENV === 'development';
+
+// Helper to get appropriate Stripe keys based on environment
+export function getStripeKeys() {
+  const useTestKeys = env.USE_STRIPE_TEST_KEYS === 'true' || isDevelopment;
+  
+  return {
+    secretKey: useTestKeys ? env.TESTING_STRIPE_SECRET_KEY : env.STRIPE_SECRET_KEY,
+    publicKey: useTestKeys ? env.TESTING_VITE_STRIPE_PUBLIC_KEY : env.VITE_STRIPE_PUBLIC_KEY,
+    isTestMode: useTestKeys
+  };
+}
 
 // Safe environment variable access
 export function getRequiredEnv(key: string): string {

@@ -37,11 +37,17 @@ import { paymentKpiService } from "./services/paymentKpiService";
 import { responseCache } from "./cache/responseCache";
 import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 
-// Initialize Stripe
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Initialize Stripe with environment-appropriate keys
+import { getStripeKeys } from "./environment";
+
+const stripeConfig = getStripeKeys();
+if (!stripeConfig.secretKey) {
+  throw new Error('Missing required Stripe secret key for current environment');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+
+console.log(`🔒 Stripe initialized in ${stripeConfig.isTestMode ? 'TEST' : 'LIVE'} mode`);
+
+const stripe = new Stripe(stripeConfig.secretKey, {
   apiVersion: "2025-07-30.basil",
 });
 
