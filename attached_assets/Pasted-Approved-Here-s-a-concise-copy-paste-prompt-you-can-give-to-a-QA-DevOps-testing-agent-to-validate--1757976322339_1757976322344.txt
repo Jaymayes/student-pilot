@@ -1,0 +1,69 @@
+Approved. Here’s a concise, copy/paste prompt you can give to a QA/DevOps testing agent to validate the scholar-auth connection end-to-end without touching live data.
+
+Prompt: Scholar-Auth Connectivity and Stripe Test Mode Verification
+Objective:
+Validate that https://scholar-auth-jamarrlmayes.replit.app is reachable over HTTPS, correctly serves the app, and runs strictly in Stripe TEST mode without exposing any secrets.
+
+Scope and constraints:
+
+Target: https://scholar-auth-jamarrlmayes.replit.app
+Use non-mutating checks only.
+Do not include or print any secret values in the report. Mask all tokens by default.
+Tasks:
+
+HTTPS availability and certificate
+Perform GET to base URL; capture status code, response time, and server IP.
+Verify TLS: certificate validity chain, hostname matches, and expiration > 14 days.
+2. Health/diagnostic endpoints (best-effort discovery)
+
+Probe these in order and record first 200/204 response body if available: /health, /api/health, /status, /api/status, /ping
+Record status codes for each attempted endpoint.
+3. Content integrity
+
+Fetch base HTML; confirm:
+App loads without console errors.
+Stripe.js requested from js.stripe.com.
+No secret-like prefixes (sk_, rk_) anywhere in delivered HTML/JS.
+If a runtime config object is exposed (e.g., window.ENV or similar), verify the publishable key shows pk_test and never sk/rk_.
+4. Stripe TEST-mode verification (non-mutating)
+
+From network logs, confirm initialization calls are to Stripe TEST endpoints only.
+If the app has a config endpoint (e.g., /api/config), attempt GET and check any “mode/test” or USE_STRIPE_TEST_KEYS flags (if present). Note: OK if not exposed.
+Validate that payment-related UI clearly indicates “Test” or shows test-mode banner, if implemented.
+5. CORS and basic API responsiveness
+
+From a different Origin (set Origin header to https://example.com), call the base URL and any discovered API endpoint with OPTIONS and GET. Confirm reasonable CORS headers (or explicitly note if APIs are same-origin only).
+6. Latency snapshot (non-binding, for visibility)
+
+Issue 20 GET requests to the base URL (concurrency 5). Report p50 and p95 latency. Note any timeouts or >2s outliers.
+7. Security hygiene checks
+
+Grep fetched client assets (HTML/JS) for patterns: "sk_", "rk_", "pk_live_", "rk_live_".
+Confirm none are present in client-delivered artifacts.
+Verify response headers include sensible security headers if available (at least one of: X-Content-Type-Options, Referrer-Policy, or similar). Not a fail if absent on this dev instance—just record.
+Deliverables (output exactly as JSON):
+{
+"timestamp": "<ISO8601>",
+"target": "https://scholar-auth-jamarrlmayes.replit.app",
+"availability": { "status_code": <int>, "tls_valid": true|false, "cert_days_remaining": <int>, "server_ip": "<masked>", "ttfb_ms": <number> },
+"health": [{ "path": "<string>", "status": <int>, "body_excerpt": "<first_200_chars_or_null>" }],
+"content": { "stripe_js_loaded": true|false, "client_publishable_key_prefix": "pk_test"|"unknown", "secrets_exposed_in_client": false|true, "console_errors": <int> },
+"stripe_test_mode": { "api_calls_seen": ["<hostnames>"], "live_endpoints_detected": false|true, "test_mode_banner_present": true|false|"unknown" },
+"cors": { "tested": true, "allows_cross_origin": true|false, "notes": "<string>" },
+"latency": { "samples": 20, "p50_ms": <number>, "p95_ms": <number>, "errors": <int> },
+"security_headers": { "present": ["<names>"], "missing": ["<names>"] },
+"leak_scan": { "patterns_checked": ["sk_","rk_","pk_live_","rk_live_"], "found": [] },
+"result": "PASS"|"WARN"|"FAIL",
+"notes": "<concise findings and any follow-ups>"
+}
+
+Pass criteria:
+
+Base URL reachable over HTTPS with a valid cert.
+No LIVE key prefixes (pk_live_, rk_live_, sk_live_) in any client-delivered assets.
+Stripe.js loaded; evidence indicates TEST mode (pk_test_* visible client-side, no secret keys).
+Non-mutating Stripe initialization visible or inferred; no errors in console tied to Stripe.
+Health endpoint responds (any one) or app renders without critical errors.
+If WARN/FAIL:
+
+Attach concise remediation notes and specific file/endpoint references. Do not include full secrets.
