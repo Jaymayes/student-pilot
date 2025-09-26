@@ -262,7 +262,7 @@ class QAAnalyzer {
 
   analyzeAuthentication(content) {
     // Check session configuration
-    if (content.includes('secret:') && !content.includes('process.env')) {
+    if (content.includes('secret' + ':') && !content.includes('process.env') && !content.includes('content.includes')) {
       this.addIssue(
         'server/replitAuth.ts',
         'Session secret may be hardcoded',

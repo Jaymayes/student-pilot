@@ -66,7 +66,7 @@ if (!stripeConfig.secretKey) {
 console.log(`🔒 Stripe initialized in ${stripeConfig.isTestMode ? 'TEST' : 'LIVE'} mode`);
 
 const stripe = new Stripe(stripeConfig.secretKey, {
-  apiVersion: "2025-07-30.basil",
+  apiVersion: "2024-12-18.acacia",
 });
 
 export async function registerRoutes(app: Express): Promise<void> {
@@ -586,8 +586,8 @@ Allow: /apply/`;
     }
   });
 
-  // Scholarship routes
-  app.get('/api/scholarships', isAuthenticated, async (req, res) => {
+  // Scholarship routes - Public access for browsing
+  app.get('/api/scholarships', async (req, res) => {
     try {
       const scholarships = await storage.getScholarships();
       res.json(scholarships);
@@ -596,7 +596,7 @@ Allow: /apply/`;
     }
   });
 
-  app.get('/api/scholarships/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/scholarships/:id', async (req, res) => {
     try {
       const scholarship = await storage.getScholarshipById(req.params.id);
       if (!scholarship) {
@@ -1781,7 +1781,7 @@ Allow: /apply/`;
     
     try {
       // Use in-memory caching to dramatically improve performance (15s cache as per architect recommendation)
-      const cacheKey = 'infrastructure-dashboard';
+      const cacheKey = 'infra-dash';
       const cachedResponse = await responseCache.getCached(cacheKey, 15000, async () => {
         // Get backup health and connectivity (expensive operations - ~400-500ms)
         const [backupHealth, backupMetadata] = await Promise.all([

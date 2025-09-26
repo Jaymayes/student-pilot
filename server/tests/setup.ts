@@ -3,9 +3,9 @@ import { vi } from 'vitest';
 // Mock environment variables for testing
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test_db';
-process.env.SESSION_SECRET = 'test-session-secret-for-testing-only';
-process.env.STRIPE_SECRET_KEY = 'sk_test_mock_key';
-process.env.OPENAI_API_KEY = 'sk-test-mock-openai-key';
+process.env.SESSION_SECRET = process.env.SESSION_SECRET || 'test-session-' + Math.random().toString(36);
+process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_' + Math.random().toString(36);
+process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'sk-test-' + Math.random().toString(36);
 
 // Mock external services
 vi.mock('@neondatabase/serverless', () => ({

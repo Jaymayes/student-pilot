@@ -128,10 +128,12 @@ export async function scholarshipsListingSSR(req: Request, res: Response, next: 
     }));
 
     // Get total count for pagination
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: scholarships.id })
       .from(scholarships)
       .where(eq(scholarships.isActive, true));
+    
+    const count = countResult.length > 0 ? countResult[0].count : 0;
 
     const totalPages = Math.ceil(Number(count) / limit);
     const baseUrl = `${req.protocol}://${req.get('host')}`;

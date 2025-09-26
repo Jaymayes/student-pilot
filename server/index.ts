@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
+import cors from "cors";
 import path from "path";
 import { createServer } from "http";
 import { registerRoutes } from "./routes";
@@ -59,6 +60,19 @@ app.use(compression({
     if (req.headers['x-no-compression']) return false;
     return compression.filter(req, res);
   }
+}));
+
+// CORS configuration - permissive in development, strict in production
+app.use(cors({
+  origin: process.env.NODE_ENV === 'development' ? true : [
+    'http://localhost:5000',
+    'https://student-pilot-jamarrlmayes.replit.app',
+    process.env.VITE_BASE_URL || ''
+  ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
+  maxAge: 86400 // 24 hours
 }));
 
 // Security middleware - helmet with initial configuration

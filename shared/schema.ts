@@ -73,7 +73,10 @@ export const scholarships = pgTable("scholarships", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("IDX_scholarships_is_active").on(table.isActive),
+  index("IDX_scholarships_deadline").on(table.deadline),
+]);
 
 // Application status enum
 export const applicationStatusEnum = pgEnum("application_status", [
@@ -96,7 +99,10 @@ export const applications = pgTable("applications", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("IDX_applications_student_id").on(table.studentId),
+  index("IDX_applications_scholarship_id").on(table.scholarshipId),
+]);
 
 // Scholarship matches with scoring
 export const scholarshipMatches = pgTable("scholarship_matches", {
@@ -109,7 +115,11 @@ export const scholarshipMatches = pgTable("scholarship_matches", {
   isBookmarked: boolean("is_bookmarked").default(false),
   isDismissed: boolean("is_dismissed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("IDX_scholarship_matches_student_id").on(table.studentId),
+  index("IDX_scholarship_matches_dismissed").on(table.isDismissed),
+  index("IDX_scholarship_matches_score").on(table.matchScore),
+]);
 
 // Documents
 export const documents = pgTable("documents", {
@@ -121,7 +131,10 @@ export const documents = pgTable("documents", {
   filePath: varchar("file_path").notNull(),
   fileSize: integer("file_size"),
   uploadedAt: timestamp("uploaded_at").defaultNow(),
-});
+}, (table) => [
+  index("IDX_documents_student_id").on(table.studentId),
+  index("IDX_documents_type").on(table.type),
+]);
 
 // Essay assistance
 export const essays = pgTable("essays", {
@@ -135,7 +148,9 @@ export const essays = pgTable("essays", {
   wordCount: integer("word_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("IDX_essays_student_id").on(table.studentId),
+]);
 
 // Relations
 export const usersRelations = relations(users, ({ one }) => ({
