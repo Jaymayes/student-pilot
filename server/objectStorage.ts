@@ -2,6 +2,7 @@ import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { env } from "./environment";
 import { randomUUID } from "crypto";
+import { reliabilityManager } from "./reliability";
 import {
   ObjectAclPolicy,
   ObjectPermission,
@@ -85,8 +86,15 @@ export class ObjectStorageService {
       const bucket = objectStorageClient.bucket(bucketName);
       const file = bucket.file(objectName);
 
-      // Check if file exists
-      const [exists] = await file.exists();
+      // Check if file exists with circuit breaker protection
+      const [exists] = await reliabilityManager.executeWithProtection(
+        'storage',
+        async () => file.exists(),
+        async () => {
+          console.warn('Storage check failed, assuming file does not exist');
+          return [false]; // Graceful degradation - assume file doesn't exist
+        }
+      );
       if (exists) {
         return file;
       }

@@ -10,6 +10,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { env, isProduction } from "./environment";
 import * as crypto from "crypto";
 import { metricsCollector } from "./monitoring/metrics";
+import { reliabilityManager } from "./reliability";
 // Import alerting system to register event listeners
 import "./monitoring/alerting";
 
@@ -334,6 +335,27 @@ app.use((req, res, next) => {
       database: metricsCollector.getDbMetrics(),
       ai: metricsCollector.getAiMetrics(),
       resources: metricsCollector.getResourceMetrics()
+    });
+  });
+
+  // Enterprise reliability health endpoint - Task perf-5
+  app.get('/api/health/reliability', (req, res) => {
+    const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();
+    res.setHeader('X-Correlation-ID', correlationId);
+    
+    const serviceHealth = reliabilityManager.getServiceHealth();
+    const overallHealth = Object.values(serviceHealth).every((service: any) => service.healthy);
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      correlationId,
+      status: overallHealth ? 'healthy' : 'degraded',
+      services: serviceHealth,
+      circuitBreakers: {
+        total: Object.keys(serviceHealth).length,
+        healthy: Object.values(serviceHealth).filter((service: any) => service.healthy).length,
+        degraded: Object.values(serviceHealth).filter((service: any) => !service.healthy).length
+      }
     });
   });
   

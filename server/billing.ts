@@ -1,5 +1,7 @@
 import { eq, and, desc, sql, lt } from "drizzle-orm";
 import { db } from "./db";
+import { reliabilityManager } from "./reliability";
+import { withDatabaseProtection } from "./reliability/databaseWrapper";
 import {
   creditBalances,
   creditLedger,
@@ -106,12 +108,15 @@ export class BillingService {
   // Get current rate for a model
   async getCurrentRate(model: string): Promise<RateCardEntry> {
     try {
-      const [rate] = await db
-        .select()
-        .from(rateCard)
-        .where(and(eq(rateCard.model, model), eq(rateCard.active, true)))
-        .orderBy(desc(rateCard.effectiveFrom))
-        .limit(1);
+      const [rate] = await withDatabaseProtection(
+        async () => db
+          .select()
+          .from(rateCard)
+          .where(and(eq(rateCard.model, model), eq(rateCard.active, true)))
+          .orderBy(desc(rateCard.effectiveFrom))
+          .limit(1),
+        `get_rate_${model}`
+      );
 
       if (!rate) {
         throw new Error(`No active rate found for model: ${model}`);

@@ -3,6 +3,7 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { purchases, creditLedger, creditBalances } from '@shared/schema';
 import { billingService } from '../billing';
+import { reliabilityManager } from '../reliability';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -223,17 +224,25 @@ class RefundService {
 
   private async executeFullStripeRefund(purchase: any, refundId: string, request: RefundRequest): Promise<RefundResult> {
     try {
-      // Process Stripe refund
-      const stripeRefund = await stripe.refunds.create({
-        payment_intent: purchase.stripePaymentIntentId,
-        amount: request.amount || purchase.priceUsdCents,
-        metadata: {
-          refundId,
-          userId: purchase.userId,
-          originalPurchaseId: purchase.id,
-          reason: request.reason
+      // Process Stripe refund with circuit breaker protection
+      const stripeRefund = await reliabilityManager.executeWithProtection(
+        'stripe',
+        async () => stripe.refunds.create({
+          payment_intent: purchase.stripePaymentIntentId,
+          amount: request.amount || purchase.priceUsdCents,
+          metadata: {
+            refundId,
+            userId: purchase.userId,
+            originalPurchaseId: purchase.id,
+            reason: request.reason
+          }
+        }),
+        async () => {
+          // Critical: Never duplicate refunds - queue for manual review
+          console.error('Stripe refund failed, queuing for manual review');
+          throw new Error('Payment processing temporarily unavailable. Refund queued for manual processing.');
         }
-      });
+      );
 
       // Deduct credits from user balance (negative ledger entry)
       const creditDeduction = -(purchase.totalCredits * 1000); // Convert to negative millicredits
@@ -279,18 +288,26 @@ class RefundService {
     const cashRefundAmount = Math.floor(purchase.priceUsdCents * unusedPercentage);
     
     try {
-      // Process partial Stripe refund for unused portion
-      const stripeRefund = await stripe.refunds.create({
-        payment_intent: purchase.stripePaymentIntentId,
-        amount: cashRefundAmount,
-        metadata: {
-          refundId,
-          userId: purchase.userId,
-          originalPurchaseId: purchase.id,
-          reason: request.reason,
-          refundType: 'partial_mixed'
+      // Process partial Stripe refund with circuit breaker protection
+      const stripeRefund = await reliabilityManager.executeWithProtection(
+        'stripe',
+        async () => stripe.refunds.create({
+          payment_intent: purchase.stripePaymentIntentId,
+          amount: cashRefundAmount,
+          metadata: {
+            refundId,
+            userId: purchase.userId,
+            originalPurchaseId: purchase.id,
+            reason: request.reason,
+            refundType: 'partial_mixed'
+          }
+        }),
+        async () => {
+          // Critical: Never duplicate refunds - queue for manual review  
+          console.error('Stripe partial refund failed, queuing for manual review');
+          throw new Error('Payment processing temporarily unavailable. Partial refund queued for manual processing.');
         }
-      });
+      );
 
       // Only deduct the unused credits
       const creditDeduction = -(unusedCredits * 1000); // Convert to negative millicredits

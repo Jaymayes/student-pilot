@@ -561,6 +561,52 @@ class MetricsCollector extends EventEmitter {
     this.metrics.aiOperationDuration = this.metrics.aiOperationDuration.filter((s: MetricSample) => s.timestamp > cutoff);
     this.metrics.aiOperationCost = this.metrics.aiOperationCost.filter((s: MetricSample) => s.timestamp > cutoff);
   }
+
+  /**
+   * Record external API call metrics for circuit breaker monitoring
+   */
+  recordExternalApiCall(serviceName: string, duration: number, success: boolean): void {
+    const timestamp = Date.now();
+    const metricKey = `external_api_${serviceName}`;
+    
+    // Record in request durations for monitoring
+    if (!this.metrics.httpRequestDuration.has(metricKey)) {
+      this.metrics.httpRequestDuration.set(metricKey, []);
+    }
+    
+    const samples = this.metrics.httpRequestDuration.get(metricKey)!;
+    samples.push({ timestamp, value: duration });
+    
+    // Track success/failure counts
+    if (success) {
+      this.metrics.httpRequestTotal.set(
+        metricKey,
+        (this.metrics.httpRequestTotal.get(metricKey) || 0) + 1
+      );
+    } else {
+      this.metrics.httpRequestErrors.set(
+        metricKey,
+        (this.metrics.httpRequestErrors.get(metricKey) || 0) + 1
+      );
+    }
+    
+    // Emit events for alerting
+    if (duration > 5000) { // 5 second threshold for external APIs
+      this.emit('slow-external-api', {
+        service: serviceName,
+        duration,
+        threshold: 5000,
+        timestamp
+      });
+    }
+    
+    if (!success) {
+      this.emit('external-api-error', {
+        service: serviceName,
+        timestamp
+      });
+    }
+  }
 }
 
 // Singleton instance

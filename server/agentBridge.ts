@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { storage } from './storage';
 import { openaiService } from './openai';
 import { env } from './environment';
+import { reliabilityManager } from './reliability';
 
 // Environment variables for agent bridge - using validated environment
 const COMMAND_CENTER_URL = env.COMMAND_CENTER_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
@@ -97,15 +98,22 @@ export class AgentBridge {
     });
 
     try {
-      const response = await fetch(`${COMMAND_CENTER_URL}/orchestrator/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'X-Agent-Id': AGENT_ID
-        },
-        body: JSON.stringify(registrationData)
-      });
+      const response = await reliabilityManager.executeWithProtection(
+        'agent-bridge',
+        async () => fetch(`${COMMAND_CENTER_URL}/orchestrator/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'X-Agent-Id': AGENT_ID
+          },
+          body: JSON.stringify(registrationData)
+        }),
+        async () => {
+          console.warn('Command Center unavailable, operating in local-only mode');
+          return { ok: true, status: 200 }; // Graceful degradation
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Registration failed: ${response.status} ${response.statusText}`);

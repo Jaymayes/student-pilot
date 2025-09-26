@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { env } from "./environment";
 import { responseCache } from "./cache/responseCache";
+import { reliabilityManager } from "./reliability";
 import crypto from "crypto";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -80,13 +81,50 @@ export class OpenAIService {
       };
     }
 
-    // Make the actual OpenAI API call
-    const response = await openai.chat.completions.create({
-      model,
-      messages,
-      max_tokens: maxTokens,
-      temperature,
-    });
+    // Make the actual OpenAI API call with circuit breaker protection
+    const response = await reliabilityManager.executeWithProtection(
+      'openai',
+      async () => {
+        return await openai.chat.completions.create({
+          model,
+          messages,
+          max_tokens: maxTokens,
+          temperature,
+        });
+      },
+      async () => {
+        // Graceful degradation fallback - NEVER charge users for service failures
+        console.warn('OpenAI service unavailable, returning free fallback response');
+        return {
+          id: `fallback-${Date.now()}`,
+          isFallback: true, // Mark as fallback to prevent billing
+          choices: [{
+            message: { 
+              content: "I apologize, but the AI service is temporarily unavailable. Please try again in a few minutes." 
+            }
+          }],
+          usage: {
+            prompt_tokens: 0, // No billing for fallback
+            completion_tokens: 0, // No billing for fallback
+            total_tokens: 0
+          }
+        };
+      }
+    );
+
+    // Check if this is a fallback response - NEVER charge for service failures
+    if (response.isFallback) {
+      console.log('Fallback response detected - no billing applied');
+      return {
+        response,
+        usage: {
+          inputTokens: 0,
+          outputTokens: 0,
+          chargedCredits: 0,
+          chargedUsd: 0,
+        },
+      };
+    }
 
     // Extract usage information
     const usage = response.usage;
