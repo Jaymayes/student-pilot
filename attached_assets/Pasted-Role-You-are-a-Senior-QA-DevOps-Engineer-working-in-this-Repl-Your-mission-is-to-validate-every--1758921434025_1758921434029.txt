@@ -1,0 +1,43 @@
+Role: You are a Senior QA + DevOps Engineer working in this Repl. Your mission is to validate every major code path, fix defects without breaking existing functionality, and produce a production-ready release candidate with CI/CD, security gating, and deployment artifacts.
+Guardrails:
+Work in a new branch: hardening-release. Keep changes scoped, readable, and well-documented.
+Use Replit App Testing frequently to exercise critical user flows end-to-end and confirm fixes via the agent’s test-fix-retest loop. Share a concise test report after each cycle .
+Preserve current features and UX. If a fix risks a regression, propose alternatives.
+Step 1: Repo inventory and environment
+Auto-detect the tech stack, frameworks, build tools, and entry points. Generate a concise system diagram and dependency map.
+Install and pin dependencies. Create or update a lockfile and generate an SBOM (e.g., CycloneDX).
+Add .env.example and document required environment variables with safe defaults. Never commit secrets.
+Step 2: Testing setup and coverage
+Ensure a full testing pyramid: unit, integration, and browser E2E tests. Use appropriate tools by stack (e.g., Jest/Vitest + Testing Library; Pytest; RSpec; Playwright/Cypress for E2E).
+Achieve high-value coverage: prioritize business-critical paths, auth, payments/API calls, and form submissions. Report coverage and list untested risk areas.
+Run App Testing to simulate real user journeys (sign-in, navigation, forms, API calls) and validate the live app in-browser. Summarize defects and repro steps, then fix and retest until green .
+Step 3: Static quality gates
+Add/enable linters and formatters (ESLint/Prettier, Flake8/Black, etc.). Fix all high/critical issues.
+Run SAST, secret scanning, and dependency vulnerability scanning. Remediate or justify any high/critical findings and lock versions. Add these gates to CI so every PR is scanned automatically .
+Step 4: Security and privacy baseline
+Validate secure headers, CSRF protection, input validation, auth flows, and access control. Add rate limiting and request size limits where applicable.
+Add automated checks for common web vulns and regressions; include a passive OWASP ZAP scan in CI to flag obvious issues early. Document data handling and PII practices and ensure no secrets or PII are logged in plaintext. Align with our proactive security posture for a production service handling student data .
+Step 5: Performance, reliability, and accessibility
+Measure baseline performance. For web UIs, run Lighthouse; for APIs, run quick load tests (e.g., k6) and report P95 latency with a target around ~120ms where feasible. Provide clear bottleneck recommendations.
+Add health checks, structured logging, and error monitoring hooks (e.g., Sentry/OpenTelemetry). Include uptime/readiness probes and basic resilience checks consistent with 24/7 availability expectations .
+Run automated a11y audits (axe/Lighthouse) and fix critical violations.
+Step 6: CI/CD and deployment readiness
+Create a CI pipeline that runs: build, tests (unit/integration/E2E), coverage, linters/formatters, SAST, secret scan, and dependency audit on every push/PR. Fail the build on high/critical findings. This aligns with modern CI/CD practice where every merge triggers automated tests and scans, keeping main deployable at all times .
+Produce deployment artifacts:
+If containerized: Dockerfile with multi-stage build, non-root user, minimal image, and HEALTHCHECK. Add a compose or Procfile if helpful.
+If deploying via Replit Deployments: create deployment config, start command, env var mapping, and a runbook with rollback instructions.
+Generate a Release Candidate tag (vX.Y.Z-rc1) and a CHANGELOG summarizing fixes, risks, and migration notes.
+Deliverables:
+Test plan, coverage report, App Testing session summaries with fixes, vulnerability report with remediations, performance and a11y reports, CI/CD config files, Dockerfile or Replit deployment config, .env.example, SBOM, architecture diagram, and a go/no-go checklist for production.
+A brief executive summary: key risks, remaining known issues, and the measured readiness to deploy now.
+How to run this efficiently
+
+Open the Repl, start Replit Agent, paste the prompt, and enable App Testing. Let the agent run its build-test-fix reflection loop and watch the browser-driven tests as it validates user flows .
+Ask the agent to enable “Max Autonomy” for a longer, self-supervised session to complete the end-to-end hardening work in one pass if available .
+Review artifacts, PRs, and the test/deployment reports before approving the Release Candidate. CI/CD keeps every merge automatically tested and deployable going forward .
+What this covers and why it matters
+
+The agent’s in-browser App Testing exercises real user interactions and fixes issues in a test-fix-retest loop, improving reliability beyond static checks alone .
+Security gates (SAST, secrets, dependency audits) must be automated in CI to reduce the higher systemic risks that can surface in modern AI-accelerated codebases .
+Production readiness requires reliable CI/CD, performance baselines, and a proactive security posture suitable for student data and 24/7 service expectations .
+If you want, share the repository files here and I can tailor the prompt to your exact stack and even draft the CI pipeline, Dockerfile, and deployment config line-by-line.
