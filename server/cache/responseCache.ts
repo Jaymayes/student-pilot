@@ -75,7 +75,16 @@ class ResponseCache {
         
       } catch (error) {
         console.error(`Cache error for key ${key}:`, error);
-        next(error);
+        // Check if headers already sent to avoid ERR_HTTP_HEADERS_SENT
+        if (!res.headersSent) {
+          res.status(500).json({ 
+            error: 'Cache error', 
+            correlationId: (req as any).correlationId 
+          });
+        } else {
+          // Headers already sent, log but don't try to send response
+          console.error('Cannot send error response - headers already sent');
+        }
       }
     };
   }
@@ -126,8 +135,32 @@ class ResponseCache {
   
   private generateETag(data: any): string {
     const hash = crypto.createHash('md5');
-    hash.update(JSON.stringify(data));
+    try {
+      // Safe JSON serialization that handles circular references
+      const serializedData = JSON.stringify(data, this.getCircularReplacer());
+      hash.update(serializedData);
+    } catch (error) {
+      // Fallback: use string representation if JSON serialization fails
+      console.warn('ETag generation fallback due to serialization error:', error);
+      hash.update(String(data) + Date.now());
+    }
     return `"${hash.digest('hex')}"`;
+  }
+
+  /**
+   * Circular reference replacer for JSON.stringify
+   */
+  private getCircularReplacer() {
+    const seen = new WeakSet();
+    return (key: string, value: any) => {
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) {
+          return '[Circular Reference]';
+        }
+        seen.add(value);
+      }
+      return value;
+    };
   }
   
   private scheduleBackgroundRefresh<T>(key: string, compute: () => Promise<T>): void {
@@ -138,12 +171,23 @@ class ResponseCache {
     // Background refresh (don't await)
     compute()
       .then(data => {
-        this.cache.set(key, {
-          data,
-          etag: this.generateETag(data),
-          timestamp: Date.now(),
-          isStale: false
-        });
+        try {
+          this.cache.set(key, {
+            data,
+            etag: this.generateETag(data),
+            timestamp: Date.now(),
+            isStale: false
+          });
+        } catch (etagError) {
+          console.error(`ETag generation failed for background refresh ${key}:`, etagError);
+          // Store without ETag as fallback
+          this.cache.set(key, {
+            data,
+            etag: `"fallback-${Date.now()}"`,
+            timestamp: Date.now(),
+            isStale: false
+          });
+        }
         this.backgroundTasks.delete(key);
       })
       .catch(error => {

@@ -519,17 +519,22 @@ Allow: /apply/`;
     if (error instanceof AuthError) statusCode = 401;
     if (error instanceof z.ZodError) statusCode = 400;
     
-    return res.status(statusCode).json({ 
-      message: (error as Error).message || "Internal server error",
-      correlationId,
-      ...(error instanceof z.ZodError && { 
-        details: error.errors.map(e => ({ 
-          field: e.path.join('.'), 
-          message: e.message 
-        }))
-      }),
-      stack: error.stack
-    });
+    // Ensure we don't try to send response if headers already sent
+    if (!res.headersSent) {
+      return res.status(statusCode).json({ 
+        message: (error as Error).message || "Internal server error",
+        correlationId,
+        ...(error instanceof z.ZodError && { 
+          details: error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        }),
+        stack: error.stack
+      });
+    } else {
+      console.error(`Cannot send error response - headers already sent for ${correlationId}`);
+    }
   };
 
   // Auth routes

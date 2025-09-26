@@ -214,13 +214,25 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '1mb', strict: true }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
-// Global BigInt serialization for JSON responses
-app.set('json replacer', (_key: string, value: any) => {
-  if (typeof value === 'bigint') {
-    return value.toString();
-  }
-  return value;
-});
+// Circular reference replacer for safe JSON serialization
+function getCircularReplacer() {
+  const seen = new WeakSet();
+  return (key: string, value: any) => {
+    if (typeof value === 'bigint') {
+      return value.toString();
+    }
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular Reference]';
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+}
+
+// Global BigInt serialization for JSON responses with circular reference safety
+app.set('json replacer', getCircularReplacer());
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -238,7 +250,14 @@ app.use((req, res, next) => {
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        try {
+          // Safe JSON serialization that handles circular references
+          const safeJson = JSON.stringify(capturedJsonResponse, getCircularReplacer());
+          logLine += ` :: ${safeJson}`;
+        } catch (error) {
+          // Fallback to basic string representation if JSON serialization fails
+          logLine += ` :: [Response body - serialization failed]`;
+        }
       }
 
       if (logLine.length > 80) {
