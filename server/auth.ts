@@ -1,4 +1,5 @@
-import jwt, { Algorithm } from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
+import { Algorithm } from 'jsonwebtoken';
 import { timingSafeEqual } from 'crypto';
 
 // Centralized JWT verification with timing-safe operations
@@ -31,12 +32,18 @@ export class SecureJWTVerifier {
     audience?: string;
     expiresIn?: string;
   }): string {
-    return jwt.sign(payload, secret, {
-      algorithm: 'HS256' as Algorithm,
+    if (!secret || secret.length === 0) {
+      throw new Error('JWT secret is required and cannot be empty');
+    }
+    
+    const signOptions: any = {
+      algorithm: 'HS256' as const,
       issuer: options?.issuer,
       audience: options?.audience,
       expiresIn: options?.expiresIn || '15m', // Short-lived tokens
-    });
+    };
+    
+    return jwt.sign(payload, secret, signOptions);
   }
 
   // Timing-safe string comparison

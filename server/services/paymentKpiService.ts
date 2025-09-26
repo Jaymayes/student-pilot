@@ -191,7 +191,7 @@ class PaymentKpiService {
       totalUsers,
       paidUsers: paidUserCount,
       conversionRate: totalUsers > 0 ? (paidUserCount / totalUsers) * 100 : 0,
-      firstTimePayerThisMonth,
+      firstTimePayerThisMonth: firstTimePayersThisMonth,
       returningPayerThisMonth,
       conversionFunnel
     };
@@ -369,7 +369,7 @@ class PaymentKpiService {
       }
 
       // Analyze timing (simplified - would need original purchase date)
-      const timeSinceCreation = Date.now() - refund.createdAt.getTime();
+      const timeSinceCreation = Date.now() - (refund.createdAt || new Date()).getTime();
       const hoursElapsed = timeSinceCreation / (1000 * 60 * 60);
       
       if (hoursElapsed <= 24) {

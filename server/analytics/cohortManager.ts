@@ -58,11 +58,12 @@ export class CohortManager {
         .where(eq(cohorts.id, cohortId))
         .limit(1);
 
-      if (!cohort[0]) {
+      const cohortRow = cohort[0];
+      if (!cohortRow) {
         throw new Error('Cohort not found');
       }
 
-      if (cohort[0].currentSize >= cohort[0].targetSize) {
+      if ((cohortRow.currentSize || 0) >= cohortRow.targetSize) {
         throw new Error('Cohort is at capacity');
       }
 
@@ -80,7 +81,7 @@ export class CohortManager {
         .update(cohorts)
         .set({ 
           currentSize: sql`${cohorts.currentSize} + 1`,
-          activatedAt: cohort[0].activatedAt || new Date() // Set activation time on first user
+          activatedAt: cohortRow.activatedAt || new Date() // Set activation time on first user
         })
         .where(eq(cohorts.id, cohortId));
 
@@ -250,8 +251,8 @@ export class CohortManager {
   async getCohortUsers(cohortId: string, limit = 50, offset = 0): Promise<{
     users: Array<{
       userId: string;
-      email: string;
-      joinedAt: Date;
+      email: string | null;
+      joinedAt: Date | null;
       ttvMetrics: any;
     }>;
     total: number;

@@ -44,6 +44,9 @@ export interface RecruitmentEvent {
     userAgent?: string;
     deviceType?: 'desktop' | 'mobile' | 'tablet';
     conversionValue?: number;
+    promotionLevel?: string;
+    rankingPosition?: number;
+    clickTarget?: 'scholarship_detail' | 'partner_dashboard' | 'apply_button';
   };
 }
 

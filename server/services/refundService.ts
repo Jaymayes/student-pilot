@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { purchases, creditLedger, creditBalances } from '@shared/schema';
 import { billingService } from '../billing';
@@ -9,7 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-07-30.basil",
 });
 
 export interface RefundRequest {
@@ -55,7 +55,7 @@ class RefundService {
       // Execute refund based on strategy
       return await this.executeRefund(purchase, strategy, request, edgeCases);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error processing refund:', error);
       throw new Error(`Refund processing failed: ${error.message}`);
     }

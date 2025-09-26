@@ -45,7 +45,7 @@ export function usePartnerTracking(config: Partial<PartnerTrackingConfig> = {}) 
     // In browser environment, use Web Crypto API
     if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
       const encoder = new TextEncoder();
-      const data = encoder.encode(userId + process.env.VITE_HASH_SALT || 'scholarlink-salt');
+      const data = encoder.encode(userId + (import.meta.env.VITE_HASH_SALT || 'scholarlink-salt'));
       const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -54,7 +54,7 @@ export function usePartnerTracking(config: Partial<PartnerTrackingConfig> = {}) 
     // Fallback for server-side or environments without Web Crypto
     // This is a simple hash - in production, use proper server-side hashing
     let hash = 0;
-    const str = userId + (process.env.VITE_HASH_SALT || 'scholarlink-salt');
+    const str = userId + (import.meta.env.VITE_HASH_SALT || 'scholarlink-salt');
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;

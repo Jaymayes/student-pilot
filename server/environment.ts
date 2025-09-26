@@ -29,7 +29,7 @@ const EnvironmentSchema = z.object({
   
   // Agent Bridge
   COMMAND_CENTER_URL: z.string().url().optional(),
-  SHARED_SECRET: z.string().min(1).optional(),
+  SHARED_SECRET: z.string().min(32).optional(), // Enforce minimum length for security
   AGENT_NAME: z.string().min(1).optional(),
   AGENT_ID: z.string().min(1).optional(),
   AGENT_BASE_URL: z.string().url().optional(),
