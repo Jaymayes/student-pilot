@@ -9,6 +9,9 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { env, isProduction } from "./environment";
 import * as crypto from "crypto";
+import { metricsCollector } from "./monitoring/metrics";
+// Import alerting system to register event listeners
+import "./monitoring/alerting";
 
 const app = express();
 
@@ -136,6 +139,9 @@ const billingLimiter = rateLimit({
 app.use('/api', generalLimiter);
 app.use('/api/auth', authLimiter);
 app.use('/api/billing', billingLimiter);
+
+// Performance monitoring middleware - collect metrics for all requests
+app.use(metricsCollector.httpMetricsMiddleware());
 
 // CRITICAL: Static file routes FIRST to prevent Vite interception
 // RFC 9116 compliance for security.txt - serve inline to avoid filesystem dependencies
@@ -294,6 +300,42 @@ app.use((req, res, next) => {
 
   // Register all application routes
   await registerRoutes(app);
+  
+  // Add enterprise monitoring endpoints - Task perf-4
+  app.get('/metrics', (req, res) => {
+    // Security: Require explicit metrics password - no defaults
+    if (!process.env.METRICS_PASSWORD) {
+      return res.status(503).json({ error: 'Metrics endpoint not configured' });
+    }
+    
+    const auth = req.headers.authorization;
+    const expectedAuth = 'Basic ' + Buffer.from('metrics:' + process.env.METRICS_PASSWORD).toString('base64');
+    
+    if (!auth || auth !== expectedAuth) {
+      res.setHeader('WWW-Authenticate', 'Basic realm="Metrics"');
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    // Prometheus-compatible metrics for scraping
+    res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
+    res.send(metricsCollector.getPrometheusMetrics());
+  });
+  
+  app.get('/api/metrics', (req, res) => {
+    // JSON metrics for dashboard consumption
+    const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();
+    res.setHeader('X-Correlation-ID', correlationId);
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      correlationId,
+      http: metricsCollector.getHttpMetrics(),
+      cache: metricsCollector.getCacheMetrics(),
+      database: metricsCollector.getDbMetrics(),
+      ai: metricsCollector.getAiMetrics(),
+      resources: metricsCollector.getResourceMetrics()
+    });
+  });
   
   // Create single HTTP server after all routes are registered
   const server = createServer(app);

@@ -4,6 +4,7 @@
  */
 import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
+import { metricsCollector } from '../monitoring/metrics';
 
 interface CacheEntry {
   data: any;
@@ -37,6 +38,10 @@ class ResponseCache {
           // Update access order for true LRU
           this.accessOrder.set(key, now);
           
+          // Record cache hit metrics
+          metricsCollector.recordCacheHit(key);
+          metricsCollector.updateCacheSize(this.cache.size);
+          
           // Handle conditional GET (If-None-Match)
           const clientETag = req.get('If-None-Match');
           if (clientETag && clientETag === entry.etag) {
@@ -56,6 +61,9 @@ class ResponseCache {
           
           return;
         }
+        
+        // Record cache miss
+        metricsCollector.recordCacheMiss(key);
         
         // Cache miss or expired - compute and cache
         const data = await compute();
@@ -110,8 +118,16 @@ class ResponseCache {
     if (entry && now - entry.timestamp < ttlMs) {
       // Update access order for true LRU
       this.accessOrder.set(key, now);
+      
+      // Record cache hit
+      metricsCollector.recordCacheHit(key);
+      metricsCollector.updateCacheSize(this.cache.size);
+      
       return entry.data;
     }
+    
+    // Record cache miss
+    metricsCollector.recordCacheMiss(key);
     
     const data = await compute();
     
@@ -243,6 +259,11 @@ class ResponseCache {
         const [keyToEvict] = sortedEntries[i];
         this.cache.delete(keyToEvict);
         this.accessOrder.delete(keyToEvict);
+      }
+      
+      // Report eviction metrics
+      if (toEvict > 0) {
+        metricsCollector.recordCacheEviction(toEvict);
       }
     }
   }
