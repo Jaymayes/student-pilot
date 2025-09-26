@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import { env } from "./environment";
+import { responseCache } from "./cache/responseCache";
+import crypto from "crypto";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
@@ -191,88 +193,100 @@ export class OpenAIService {
     }
   }
 
-  // Generate essay outline based on prompt
+  // Generate essay outline based on prompt (with intelligent caching)
   async generateEssayOutline(prompt: string, essayType: string = "general"): Promise<any> {
     try {
-      const systemPrompt = `You are an expert essay coach. Generate a detailed essay outline for scholarship applications. Respond with JSON in this format:
-      {
-        "title": "suggested essay title",
-        "structure": {
-          "introduction": {
-            "hook": "engaging opening line",
-            "background": "brief context",
-            "thesis": "clear thesis statement"
-          },
-          "body": [
-            {
-              "paragraph": 1,
-              "topic": "main point",
-              "details": ["supporting detail 1", "supporting detail 2"],
-              "examples": ["example or story"]
+      // Create content-based cache key
+      const cacheInput = JSON.stringify({ prompt, essayType });
+      const cacheKey = `ai-essay-outline:${crypto.createHash('md5').update(cacheInput).digest('hex')}`;
+      
+      return await responseCache.getCached(cacheKey, 60 * 60 * 1000, async () => {
+        const systemPrompt = `You are an expert essay coach. Generate a detailed essay outline for scholarship applications. Respond with JSON in this format:
+        {
+          "title": "suggested essay title",
+          "structure": {
+            "introduction": {
+              "hook": "engaging opening line",
+              "background": "brief context",
+              "thesis": "clear thesis statement"
+            },
+            "body": [
+              {
+                "paragraph": 1,
+                "topic": "main point",
+                "details": ["supporting detail 1", "supporting detail 2"],
+                "examples": ["example or story"]
+              }
+            ],
+            "conclusion": {
+              "summary": "recap main points",
+              "impact": "future goals or impact",
+              "closing": "memorable closing thought"
             }
+          },
+          "tips": ["writing tip 1", "writing tip 2"]
+        }`;
+
+        const userPrompt = `Essay Type: ${essayType}\nPrompt: ${prompt}`;
+
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
           ],
-          "conclusion": {
-            "summary": "recap main points",
-            "impact": "future goals or impact",
-            "closing": "memorable closing thought"
-          }
-        },
-        "tips": ["writing tip 1", "writing tip 2"]
-      }`;
+          response_format: { type: "json_object" },
+          temperature: 0.8,
+        });
 
-      const userPrompt = `Essay Type: ${essayType}\nPrompt: ${prompt}`;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.8,
+        return JSON.parse(response.choices[0].message.content || "{}");
       });
-
-      return JSON.parse(response.choices[0].message.content || "{}");
     } catch (error) {
       console.error("Error generating outline:", error);
       throw new Error("Failed to generate essay outline");
     }
   }
 
-  // Analyze scholarship match based on student profile
+  // Analyze scholarship match based on student profile (with intelligent caching)
   async analyzeScholarshipMatch(
     studentProfile: any,
     scholarshipCriteria: any
   ): Promise<ScholarshipMatchAnalysis> {
     try {
-      const systemPrompt = `You are an expert scholarship advisor. Analyze how well a student matches a scholarship opportunity. Consider academic qualifications, demographics, interests, and requirements. Respond with JSON in this format:
-      {
-        "matchScore": number (0-100),
-        "matchReason": ["reason1", "reason2"],
-        "chanceLevel": "High Chance" | "Competitive" | "Long Shot"
-      }`;
-
-      const userPrompt = `Student Profile: ${JSON.stringify(studentProfile)}\n\nScholarship Criteria: ${JSON.stringify(scholarshipCriteria)}`;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-      });
-
-      const result = JSON.parse(response.choices[0].message.content || "{}");
+      // Create content-based cache key
+      const cacheInput = JSON.stringify({ studentProfile, scholarshipCriteria });
+      const cacheKey = `ai-scholarship-match:${crypto.createHash('md5').update(cacheInput).digest('hex')}`;
       
-      return {
-        matchScore: Math.max(0, Math.min(100, result.matchScore || 0)),
-        matchReason: Array.isArray(result.matchReason) ? result.matchReason : [],
-        chanceLevel: ["High Chance", "Competitive", "Long Shot"].includes(result.chanceLevel) 
-          ? result.chanceLevel 
-          : "Competitive",
-      };
+      return await responseCache.getCached(cacheKey, 60 * 60 * 1000, async () => {
+        const systemPrompt = `You are an expert scholarship advisor. Analyze how well a student matches a scholarship opportunity. Consider academic qualifications, demographics, interests, and requirements. Respond with JSON in this format:
+        {
+          "matchScore": number (0-100),
+          "matchReason": ["reason1", "reason2"],
+          "chanceLevel": "High Chance" | "Competitive" | "Long Shot"
+        }`;
+
+        const userPrompt = `Student Profile: ${JSON.stringify(studentProfile)}\n\nScholarship Criteria: ${JSON.stringify(scholarshipCriteria)}`;
+
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.3,
+        });
+
+        const result = JSON.parse(response.choices[0].message.content || "{}");
+        
+        return {
+          matchScore: Math.max(0, Math.min(100, result.matchScore || 0)),
+          matchReason: Array.isArray(result.matchReason) ? result.matchReason : [],
+          chanceLevel: ["High Chance", "Competitive", "Long Shot"].includes(result.chanceLevel) 
+            ? result.chanceLevel 
+            : "Competitive",
+        };
+      });
     } catch (error) {
       console.error("Error analyzing scholarship match:", error);
       throw new Error("Failed to analyze scholarship match");

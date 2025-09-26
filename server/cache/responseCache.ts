@@ -15,6 +15,8 @@ interface CacheEntry {
 class ResponseCache {
   private cache = new Map<string, CacheEntry>();
   private backgroundTasks = new Set<string>();
+  private maxSize = 5000; // Bounded cache size
+  private accessOrder = new Map<string, number>(); // LRU tracking
   
   /**
    * Cached response middleware with ETag and conditional GET support
@@ -32,6 +34,9 @@ class ResponseCache {
         
         // Check for cache hit
         if (entry && now - entry.timestamp < ttlMs) {
+          // Update access order for true LRU
+          this.accessOrder.set(key, now);
+          
           // Handle conditional GET (If-None-Match)
           const clientETag = req.get('If-None-Match');
           if (clientETag && clientETag === entry.etag) {
@@ -56,12 +61,14 @@ class ResponseCache {
         const data = await compute();
         const etag = this.generateETag(data);
         
+        this.evictIfNeeded();
         this.cache.set(key, {
           data,
           etag,
           timestamp: now,
           isStale: false
         });
+        this.accessOrder.set(key, now);
         
         // Handle conditional GET for fresh data
         const clientETag = req.get('If-None-Match');
@@ -101,16 +108,25 @@ class ResponseCache {
     const entry = this.cache.get(key);
     
     if (entry && now - entry.timestamp < ttlMs) {
+      // Update access order for true LRU
+      this.accessOrder.set(key, now);
       return entry.data;
     }
     
     const data = await compute();
+    
+    // Evict before adding new entry
+    this.evictIfNeeded();
+    
     this.cache.set(key, {
       data,
       etag: this.generateETag(data),
       timestamp: now,
       isStale: false
     });
+    
+    // Update access order
+    this.accessOrder.set(key, now);
     
     return data;
   }
@@ -121,12 +137,21 @@ class ResponseCache {
   async prewarm<T>(key: string, compute: () => Promise<T>): Promise<void> {
     try {
       const data = await compute();
+      const now = Date.now();
+      
+      // Evict before adding entry
+      this.evictIfNeeded();
+      
       this.cache.set(key, {
         data,
         etag: this.generateETag(data),
-        timestamp: Date.now(),
+        timestamp: now,
         isStale: false
       });
+      
+      // Update access order
+      this.accessOrder.set(key, now);
+      
       console.log(`✅ Cache prewarmed: ${key}`);
     } catch (error) {
       console.error(`❌ Cache prewarm failed: ${key}`, error);
@@ -197,11 +222,38 @@ class ResponseCache {
   }
   
   /**
+   * Delete specific cache entry (for invalidation)
+   */
+  delete(key: string): void {
+    this.cache.delete(key);
+    this.accessOrder.delete(key);
+  }
+
+  /**
+   * Evict LRU entries if cache is full
+   */
+  private evictIfNeeded(): void {
+    if (this.cache.size >= this.maxSize) {
+      // Sort by access time and remove oldest 10%
+      const sortedEntries = Array.from(this.accessOrder.entries())
+        .sort(([,a], [,b]) => a - b);
+      
+      const toEvict = Math.floor(this.maxSize * 0.1);
+      for (let i = 0; i < toEvict && sortedEntries.length > 0; i++) {
+        const [keyToEvict] = sortedEntries[i];
+        this.cache.delete(keyToEvict);
+        this.accessOrder.delete(keyToEvict);
+      }
+    }
+  }
+
+  /**
    * Clear cache (for testing/debugging)
    */
   clear(): void {
     this.cache.clear();
     this.backgroundTasks.clear();
+    this.accessOrder.clear();
   }
 }
 

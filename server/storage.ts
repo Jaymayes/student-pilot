@@ -23,6 +23,7 @@ import {
 import { db } from "./db";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { withDatabaseErrorHandling } from "./errors/databaseErrors";
+import { responseCache } from "./cache/responseCache";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -67,8 +68,11 @@ export class DatabaseStorage implements IStorage {
   // User operations (required for Replit Auth) - QA-011: Enhanced error handling
   async getUser(id: string): Promise<User | undefined> {
     return await withDatabaseErrorHandling(async () => {
-      const [user] = await db.select().from(users).where(eq(users.id, id));
-      return user;
+      const cacheKey = `user:${id}`;
+      return await responseCache.getCached(cacheKey, 5 * 60 * 1000, async () => {
+        const [user] = await db.select().from(users).where(eq(users.id, id));
+        return user;
+      });
     }, 'getUser');
   }
 
@@ -85,6 +89,10 @@ export class DatabaseStorage implements IStorage {
           },
         })
         .returning();
+      
+      // Invalidate user cache
+      responseCache.delete(`user:${user.id}`);
+      
       return user;
     }, 'upsertUser');
   }
@@ -92,11 +100,14 @@ export class DatabaseStorage implements IStorage {
   // Student profile operations - QA-011: Enhanced error handling
   async getStudentProfile(userId: string): Promise<StudentProfile | undefined> {
     return await withDatabaseErrorHandling(async () => {
-      const [profile] = await db
-        .select()
-        .from(studentProfiles)
-        .where(eq(studentProfiles.userId, userId));
-      return profile;
+      const cacheKey = `student-profile:${userId}`;
+      return await responseCache.getCached(cacheKey, 5 * 60 * 1000, async () => {
+        const [profile] = await db
+          .select()
+          .from(studentProfiles)
+          .where(eq(studentProfiles.userId, userId));
+        return profile;
+      });
     }, 'getStudentProfile');
   }
 
@@ -104,7 +115,7 @@ export class DatabaseStorage implements IStorage {
     return await withDatabaseErrorHandling(async () => {
       const [newProfile] = await db
         .insert(studentProfiles)
-        .values(profile)
+        .values([profile])
         .returning();
       return newProfile;
     }, 'createStudentProfile');
@@ -126,6 +137,10 @@ export class DatabaseStorage implements IStorage {
       if (!updatedProfile) {
         throw new Error(`Student profile not found for user ${userId}`);
       }
+      
+      // Invalidate caches
+      responseCache.delete(`student-profile:${userId}`);
+      responseCache.delete(`scholarship-matches:${updatedProfile.id}`);
       
       return updatedProfile;
     }, 'updateStudentProfile');
@@ -212,28 +227,31 @@ export class DatabaseStorage implements IStorage {
   // Scholarship matching operations - QA-011: Enhanced error handling
   async getScholarshipMatches(studentId: string): Promise<(ScholarshipMatch & { scholarship: Scholarship })[]> {
     return await withDatabaseErrorHandling(async () => {
-      return await db
-        .select({
-          id: scholarshipMatches.id,
-          studentId: scholarshipMatches.studentId,
-          scholarshipId: scholarshipMatches.scholarshipId,
-          matchScore: scholarshipMatches.matchScore,
-          matchReason: scholarshipMatches.matchReason,
-          chanceLevel: scholarshipMatches.chanceLevel,
-          isBookmarked: scholarshipMatches.isBookmarked,
-          isDismissed: scholarshipMatches.isDismissed,
-          createdAt: scholarshipMatches.createdAt,
-          scholarship: scholarships,
-        })
-        .from(scholarshipMatches)
-        .innerJoin(scholarships, eq(scholarshipMatches.scholarshipId, scholarships.id))
-        .where(
-          and(
-            eq(scholarshipMatches.studentId, studentId),
-            eq(scholarshipMatches.isDismissed, false)
+      const cacheKey = `scholarship-matches:${studentId}`;
+      return await responseCache.getCached(cacheKey, 2 * 60 * 1000, async () => {
+        return await db
+          .select({
+            id: scholarshipMatches.id,
+            studentId: scholarshipMatches.studentId,
+            scholarshipId: scholarshipMatches.scholarshipId,
+            matchScore: scholarshipMatches.matchScore,
+            matchReason: scholarshipMatches.matchReason,
+            chanceLevel: scholarshipMatches.chanceLevel,
+            isBookmarked: scholarshipMatches.isBookmarked,
+            isDismissed: scholarshipMatches.isDismissed,
+            createdAt: scholarshipMatches.createdAt,
+            scholarship: scholarships,
+          })
+          .from(scholarshipMatches)
+          .innerJoin(scholarships, eq(scholarshipMatches.scholarshipId, scholarships.id))
+          .where(
+            and(
+              eq(scholarshipMatches.studentId, studentId),
+              eq(scholarshipMatches.isDismissed, false)
+            )
           )
-        )
-        .orderBy(desc(scholarshipMatches.matchScore));
+          .orderBy(desc(scholarshipMatches.matchScore));
+      });
     }, 'getScholarshipMatches');
   }
 
@@ -243,6 +261,10 @@ export class DatabaseStorage implements IStorage {
         .insert(scholarshipMatches)
         .values(match)
         .returning();
+      
+      // Invalidate scholarship matches cache for this student
+      responseCache.delete(`scholarship-matches:${match.studentId}`);
+      
       return newMatch;
     }, 'createScholarshipMatch');
   }
@@ -254,6 +276,12 @@ export class DatabaseStorage implements IStorage {
         .set(match)
         .where(eq(scholarshipMatches.id, id))
         .returning();
+      
+      // Invalidate scholarship matches cache for this student
+      if (updatedMatch) {
+        responseCache.delete(`scholarship-matches:${updatedMatch.studentId}`);
+      }
+      
       return updatedMatch;
     }, 'updateScholarshipMatch');
   }
