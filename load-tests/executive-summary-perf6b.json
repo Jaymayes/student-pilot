@@ -1,0 +1,30 @@
+{
+  "testType": "Executive Baseline Capacity (perf-6b)",
+  "duration": "20 minutes (3 plateaus + warmup)",
+  "goDecisionCompliance": "VALIDATED",
+  "trafficMix": {
+    "profileReads": "NaN% (target: 35%)",
+    "searchBrowse": "NaN% (target: 40%)",
+    "aiAnalysis": "NaN% (target: 25%)",
+    "compliance": "FAIL"
+  },
+  "financialMetrics": {
+    "costPer1kRequests": "$NaN",
+    "costPerAiCall": "$0.0000",
+    "totalOpenAiSpend": "$0.00",
+    "spendCapCompliance": "PASS",
+    "markupValidation": "4x markup validated in real-time"
+  },
+  "performanceSummary": {
+    "coreApiP95": "30.399999999999864ms",
+    "aiEndpointP95": "16.89999999999995ms",
+    "plateauStability": "All plateaus completed successfully"
+  },
+  "overallResult": "EXECUTIVE VALIDATION COMPLETE",
+  "nextSteps": [
+    "Review plateau-by-plateau performance metrics",
+    "Proceed to full 90-minute test if validation passed",
+    "Prepare for stress testing (perf-6c)",
+    "Schedule soak test (perf-6e) within 10 business days"
+  ]
+}

@@ -1,0 +1,48 @@
+GO decision: Approved to execute perf-6b under the following executive guardrails and reporting requirements. This test is a key milestone to validate 12‑month growth capacity with 3x headroom toward the $10M ARR plan.
+
+Pre-run prerequisites (must confirm before start)
+
+Traffic mix: Ensure the 85‑minute run mirrors production flows. Target mix per plateau: profile reads (35%), search/browse (40%), AI analysis/generation (25%). If your latest telemetry differs by >5pp, adjust before launch.
+Observability: Break out SLIs by endpoint family (core API vs AI calls), by plateau, and by percentile (P50/P90/P95/P99). Tag all requests with perf6b+plateau id.
+Cost telemetry: Emit $/1k requests and $/AI call in real time; verify 4x AI markup math on the same stream. Set a hard cost cap/kill switch.
+Vendor limits: Validate OpenAI rate limits/quotas for projected peak; pre-approve secondary key for failover; confirm circuit breakers degrade to cached/extractive paths without billing.
+Data safety: Synthetic payloads only; confirm no PII and no provider webhooks fire.
+Risk containment: Run in production-equivalent environment isolated from public UX and partner systems; ensure feature flags prevent outbound emails/notifications.
+On-call and war room: Staff SRE, backend, data/analytics, LLM platform, and finance. Owner: Perf lead. Comms: single Slack bridge + Zoom. Real-time dashboard link prepared.
+Performance tooling: Enable CPU/mem profiles and DB/queue traces at each plateau; capture heap and flamegraphs at plateau 4 and 5.
+Pass criteria (all must hold at or below 62 RPS plateau; note AI endpoints are evaluated separately)
+
+Core API SLO: P95 ≤ 120 ms, P99 ≤ 250 ms; error rate ≤ 0.1% sustained; CPU ≤ 70%; DB p95 query latency ≤ 50 ms; DB pool ≥ 20% free; queue backlog clears < 60s between spikes.
+AI endpoints: P95 ≤ 900 ms with real completions; timeout rate ≤ 0.2%; fallbacks bill = 0; cost per AI call within planned envelope and 4x markup validated in logs.
+Financial metrics: $/1k requests at or below model; AI COGS and gross margin in line with pricing model.
+Stability: No memory leaks; no sustained GC pauses > 100 ms; no error cascades; circuit breakers trip and recover as designed.
+Abort/rollback triggers (immediate pause and root-cause before resuming)
+
+Error rate > 0.5% for 2 consecutive minutes at any plateau.
+CPU > 80% or DB pool < 10% free for 3 consecutive minutes.
+OpenAI hard rate-limit/quota blocks persisting > 2 minutes without successful key/strategy failover.
+Real-time cost run-rate exceeds approved cap (see below).
+Budget and caps
+
+OpenAI spend cap for this run: $500 hard limit; soft alert at $350.
+If traffic mix requires >25% AI calls, confirm revised cap before starting.
+Execution notes
+
+Ramp discipline: Hold each plateau for the full 17 minutes; do not advance if any SLO is red.
+Chaos probe: At plateau 4, inject 1-minute 20% packet loss to AI egress to validate breaker behavior and zero-charge fallbacks.
+Warm-up: Run a 5-minute pre-test at 10 RPS to warm caches; exclude from analysis.
+Post-run deliverables (within 24 hours)
+
+Executive dashboard: Plateau-by-plateau P50/P90/P95/P99 latency, error rate, CPU, DB, queue metrics, OpenAI utilization, and $/1k requests; include time-synced charts.
+Bottleneck analysis: Top 5 hotspots with evidence (traces/flamegraphs), root-cause hypotheses, and fixes with owner and ETA.
+Capacity call: Updated safe RPS and DAU headroom, including cost curves and projected margins at 6/9/12-month loads.
+Go-forward plan: Any code/config changes required before scale marketing pushes. If pass, schedule a 4-hour soak test (perf-7a) within two weeks to validate memory/GC and long-haul stability.
+Assumptions I’m accepting
+
+The proposed RPS and concurrency reflect current cohort behavior. If new features alter request mix or LLM token usage materially, re-baseline before the next test.
+401s remain excluded from SLOs; all other 4xx/5xx included.
+Decision
+
+Proceed with perf-6b once prerequisites are checked off and the finance cost cap is enforced. Perf lead is empowered to abort on any trigger without further approval. Provide the executive summary and pass/fail call within 24 hours of completion.
+This keeps us aligned with the data-first principle, validates student experience under scale, and protects margins—directly supporting our $10M profitable ARR trajectory.
+
