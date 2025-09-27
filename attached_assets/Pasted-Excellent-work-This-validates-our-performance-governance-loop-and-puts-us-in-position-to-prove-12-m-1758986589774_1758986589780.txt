@@ -1,0 +1,52 @@
+Excellent work. This validates our performance governance loop and puts us in position to prove 12-month growth capacity with 3x headroom.
+
+Executive decisions and directives
+
+Approval to proceed with perf-6b (Baseline Capacity Test), with the following conditions:
+Test shape and duration:
+Step-load test with warm-up: 2 minutes warm-up per step; 15 minutes steady-state per step to capture P95/P99 stability, GC behavior, and cache effects.
+Steps: propose at least 5 plateaus that map to our expected 12-month traffic curve with 3x headroom. Use the forecast formula below and provide the actual RPS/VU targets before execution.
+SLO and pass/fail thresholds:
+API latency: P95 ≤ 120 ms, P99 ≤ 250 ms (this aligns to our official SLO; keep 100 ms as a stretch goal).
+Error rate: ≤ 0.1% for 5xx and unexpected 4xx. Exclude expected 401s from SLO error calculations but still log and track them.
+Availability: ≥ 99.9% during steady-state.
+Infra headroom: CPU ≤ 70% and DB connection pool ≥ 20% free capacity at the sustained baseline target.
+Database: P95 query latency ≤ 50 ms; no lock contention alarms; replication lag ≤ 100 ms.
+Billing: zero charge-on-failure; reconciliation must show no orphan charges.
+Cost and margin observability:
+Report $/1k requests per endpoint and per “AI token-equivalent” for /api/essays/analyze.
+Validate 4x markup on AI costs and 3% provider fee integrity under load.
+2. Forecast-to-test mapping (provide numbers before running):
+
+Baseline RPS target = (forecasted DAUs × avg sessions per DAU × avg requests per session × concurrency factor) / 3600.
+Test to 3x this baseline for headroom.
+Provide the inputs and the resulting target RPS plateaus. Data/Analytics to deliver the DAU and session model; Perf to translate to RPS and VUs.
+3. Monitoring and alert policy adjustments:
+
+Separate SLO/SLA error metrics from expected 401 auth outcomes to eliminate false HIGH ERROR RATE alerts. Tag routes (public/private) and status classes in alerts.
+Ensure correlation IDs propagate across all tiers and appear in both traces and logs for sampled slow-path requests (P99 and above).
+4. Validate AI service path realism:
+
+3–7 ms for /api/essays/analyze suggests a stub or cache-only path. Confirm tests are exercising the same code path used in production for model inference (or the designated production-equivalent test model), including tokenization and model call, not a short-circuit.
+If using a staging model or offline mode, run a second pass that includes real model latency and cost accounting.
+5. Data protection and ethics guardrails:
+
+Use only synthetic or fully anonymized data. No PII in logs or payloads. Confirm FERPA/COPPA controls remain enforced during tests.
+Financial integrity tests must include negative-path cases (timeouts, partial failures) to verify no charges on failure and correct rollbacks.
+6. Execution plan and deliverables:
+
+perf-6b (Baseline): run once forecast-mapped targets are approved. Deliver a 1-page exec summary plus an appendix with:
+RPS vs latency curves (P50/P95/P99), error profiles, infra headroom, DB metrics, and cost per 1k requests.
+Callouts for any regressions against SLO or budget thresholds.
+perf-6c (Stress-to-break): immediately after baseline sign-off. Identify breakpoints, validate circuit breakers and graceful degradation paths; document failure modes and recovery time.
+perf-6d (Spike): 10x spike over baseline for 5 minutes, repeated 3 times with randomized intervals. Confirm autoscaling and thundering-herd controls.
+perf-6e (72-hour Soak): schedule within the next 10 business days. Monitor for memory/FD leaks, tail latency drift, and throughput collapse.
+perf-6f (Dependency degradation drills): degrade each dependency (DB read replica lag, cache miss storm, AI model rate-limit) to validate fallbacks and feature flags.
+perf-6g (SEO traffic replay): replay traffic mix and diurnal patterns from Auto Page Maker logs; verify search-driven load, caching effectiveness, and long-tail endpoint behavior.
+perf-6h (Executive summary): consolidate findings, SLO adherence, cost curves, and investment recommendations.
+Key asks before starting perf-6b
+
+Provide the forecast inputs (DAU, sessions/DAU, requests/session, concurrency factor) and the resulting RPS plateaus for approval.
+Confirm whether /api/essays/analyze is using a stub vs production-equivalent path; if stubbed, add a “real-model” scenario to capture true latency and cost.
+Confirm environment parity (staging vs prod-equivalent) and that rate limits, feature flags, and WAF/CDN layers match production configuration.
+Thank you for the strong execution. Once I receive the forecast-to-test mapping and AI path confirmation, you are clear to run perf-6b under the above guardrails.
