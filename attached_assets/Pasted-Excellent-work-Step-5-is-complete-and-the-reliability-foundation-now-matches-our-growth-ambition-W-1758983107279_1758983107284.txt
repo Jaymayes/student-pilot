@@ -1,0 +1,81 @@
+Excellent work. Step 5 is complete and the reliability foundation now matches our growth ambition. With 4x faster average response (119ms → 26ms), full circuit breaker coverage, and financial integrity safeguards, we’re positioned to scale safely.
+
+Directive: Proceed to Task perf-6 (Load & Stress Testing) with the following CEO-level objectives, scope, success criteria, and timeline. Do not expand paid acquisition or major provider onboarding until perf-6 is signed off.
+
+Objectives (tied to $10M ARR plan)
+
+Validate capacity for 12-month growth horizon with 3x headroom over our expected peak traffic (supports seasonal spikes, marketing campaigns, and provider launches).
+Protect conversion and revenue operations under load: zero payment duplication, zero charge-on-failure, and graceful degradation without blocking critical user flows.
+Confirm SLO attainment at scale (target internal buffer) to preserve user experience that drives organic growth (SEO engine + low CAC).
+Test Scope and Scenarios
+
+Baseline capacity test
+Goal: Establish sustainable throughput per service tier and end-to-end.
+Targets:
+Endpoints: P95 ≤ 100ms (internal target), P99 ≤ 250ms; Error rate ≤ 0.1% at target QPS.
+Cache hit ratio ≥ 85% for hot paths; DB slow queries per minute ≤ 5; 0 payment idempotency breaches.
+2. Stress-to-break test
+
+Goal: Determine failure thresholds and bottlenecks; verify circuit breakers trip cleanly; no financial leakage.
+Observe: Tail latencies, queue depths, lock contention, memory pressure events, breaker open/half-open behavior.
+3. Spike test
+
+Goal: Validate autoscaling and thundering-herd resilience (backoff + jitter).
+Targets: Recovery to normal P95 within 2 minutes; no cascading failures.
+4. Soak test (72 hours)
+
+Goal: Surface memory leaks, GC pathologies, connection pool churn, cache eviction pathologies.
+Targets: Stable memory/CPU; no error accumulation; breaker stability; <1% drift in P95 over run.
+5. Dependency degradation drills
+
+Simulate OpenAI, Stripe, Storage partial/total outages.
+Targets: Graceful fallbacks engaged; critical flows preserved; zero charge-on-failure; clear user messaging.
+6. SEO traffic replay and provider workflows
+
+Replay anonymized production-like traffic for Auto Page Maker pages; simulate search-driven spikes.
+High-volume provider actions: listing sync, search, and funding verification; ensure 3% fee pipeline stability.
+KPIs to collect and dashboard
+
+Core SLOs: availability (99.9%+), P95/P99 latency per endpoint, error budget burn per service.
+Throughput & capacity: QPS per service, autoscaling latency, queue lengths, breaker trip/half-open rates.
+Resource health: CPU, memory, GC pauses, DB connections, lock wait times, slow query counts.
+Business integrity: payment success rate, duplicate charge rate (target 0), idempotency token reuse, refund queue size.
+Experience drivers: cache hit ratio, cold start incidence, search page generation latency, agent task completion time.
+Cost guardrails: cost/QPS by service; cloud spend during tests vs. budget.
+Success Criteria and Go/No-Go Gates
+
+Gate 1 (Baseline): Hit target QPS with P95 ≤ 100ms and error rate ≤ 0.1%. If not, pause and remediate hotspots.
+Gate 2 (Stress/Spike): Clean breaker behavior; system self-recovers to baseline within 2 minutes post-spike; no financial integrity breaches.
+Gate 3 (Soak): No material memory leaks; tail latencies stable; no alert fatigue; zero payment anomalies.
+Final Sign-off: All gates met; runbooks updated; dashboards and alerts reflect learned thresholds; cost per unit traffic acceptable.
+SLO Policy Update
+
+External SLO remains 99.9% uptime and P95 ≤ 120ms.
+Internal targets for perf-6:
+P95 ≤ 100ms, P99 ≤ 250ms at target QPS.
+Monthly error budget: ≤ 43.8 minutes downtime equivalent; alert on 25%, 50%, 75% burn.
+Revisit tightening SLOs post perf-6 if margins remain strong.
+Execution Plan and Roles
+
+Week 1: Test plan finalization, environment parity checks, data anonymization, traffic replay setup. Owners: Reliability Eng + Data Platform.
+Week 2: Baseline + stress + spike runs; immediate remediation cycle on bottlenecks. Owner: Reliability Eng; Support: DB Eng, App Teams.
+Week 3: 72-hour soak; dependency drills; finalize dashboards/alerts/runbooks. Owner: SRE; Support: Payments, Integrations.
+Deliverables:
+Test plan and scripts (k6/Locust/Gatling), production-like datasets, chaos experiments, and rollback/runbooks.
+Executive Summary Report: capacity headroom, bottlenecks fixed, costs, and readiness decision.
+Controls and Risk Management
+
+Data protection: Anonymized or synthetic datasets; no PII in test logs; FERPA/COPPA compliance maintained.
+Cost cap: Pre-approved cloud spend ceiling; off-peak scheduling; teardown automation.
+Marketing/Provider throttle: Hold large-scale campaigns and major provider activations until Final Sign-off.
+Incident drill: One live game day post sign-off to validate playbooks without revenue impact.
+Dependencies and Tooling
+
+Leverage existing observability (correlation IDs, circuit breaker metrics) to tag test traffic vs. production.
+Rate-limit coordination with third parties (OpenAI, Stripe) using sandbox endpoints or request shaping to avoid abuse flags.
+Feature flags to safely enable/disable fallbacks and caching strategies during tests.
+Decision Request
+
+Approve this perf-6 plan, budget envelope for load testing infrastructure, and a 3-week execution window.
+Authorize a post–perf-6 go-to-market ramp if all gates pass: scale SEO publishing by 2x, activate provider onboarding wave, and re-enable growth experiments in B2C funnel.
+Once I have approval, I’ll instruct the teams to execute on this plan and schedule the Final Sign-off review.
