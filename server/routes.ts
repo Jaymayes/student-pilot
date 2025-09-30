@@ -36,6 +36,7 @@ import { refundService } from "./services/refundService";
 import { paymentKpiService } from "./services/paymentKpiService";
 import { responseCache } from "./cache/responseCache";
 import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
+import { pilotDashboard } from "./monitoring/pilotDashboard";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -144,6 +145,9 @@ Allow: /apply/`;
       }
     });
   });
+  
+  // CEO Student Pilot Dashboard - Real-time monitoring with SLO tracking
+  app.get('/api/monitoring/pilot-dashboard', pilotDashboard.dashboardMiddleware());
   
   app.get('/status', (req, res) => {
     res.status(200).json({ 
@@ -574,11 +578,20 @@ Allow: /apply/`;
         // Use strict update schema for existing profiles
         const validatedData = updateStudentProfileSchema.parse(req.body);
         const updatedProfile = await storage.updateStudentProfile(userId, validatedData);
+        
+        // CEO Analytics: Track profile completion progress
+        const completionPercent = updatedProfile.completionPercentage || 0;
+        console.log(`[ANALYTICS] Profile updated: user=${userId}, completion=${completionPercent}%`);
+        
         res.json(updatedProfile);
       } else {
         // Use full schema for new profiles
         const profileData = insertStudentProfileSchema.parse({ ...req.body, userId });
         const newProfile = await storage.createStudentProfile(profileData);
+        
+        // CEO Analytics: Track new profile creation
+        console.log(`[ANALYTICS] Profile created: user=${userId}, initial_completion=${newProfile.completionPercentage || 0}%`);
+        
         res.json(newProfile);
       }
     } catch (error) {
@@ -586,11 +599,27 @@ Allow: /apply/`;
     }
   });
 
-  // Scholarship routes - Public access for browsing
-  app.get('/api/scholarships', async (req, res) => {
+  // Scholarship routes - Public access for browsing with aggressive caching for P95 ≤120ms
+  // Custom handler combining caching + analytics to track ALL requests accurately
+  app.get('/api/scholarships', async (req, res, next) => {
     try {
-      const scholarships = await storage.getScholarships();
-      res.json(scholarships);
+      // Use cache middleware manually to get data without sending response yet
+      const now = Date.now();
+      const cacheKey = 'scholarships-list';
+      const ttlMs = 60000;
+      
+      // Try to get from response cache directly
+      const cachedData = await responseCache.getCached(cacheKey, ttlMs, async () => {
+        return await storage.getScholarships();
+      });
+      
+      // CEO Analytics: Track ALL requests with accurate count
+      const resultCount = Array.isArray(cachedData) ? cachedData.length : 0;
+      pilotDashboard.recordSearch(resultCount);
+      console.log(`[ANALYTICS] Search executed: results=${resultCount}, params=${JSON.stringify(req.query)}`);
+      
+      // Send cached response
+      res.json(cachedData);
     } catch (error) {
       handleError(error, req, res);
     }
@@ -602,6 +631,10 @@ Allow: /apply/`;
       if (!scholarship) {
         return res.status(404).json({ message: "Scholarship not found" });
       }
+      
+      // CEO Analytics: Track scholarship detail view (CTR tracking)
+      console.log(`[ANALYTICS] Scholarship detail view: id=${req.params.id}, user=${req.user?.claims?.sub || 'anonymous'}`);
+      
       res.json(scholarship);
     } catch (error) {
       handleError(error, req, res);
@@ -1477,6 +1510,11 @@ Allow: /apply/`;
 
         // Award credits to user
         await billingService.awardPurchaseCredits(purchaseId);
+        
+        // CEO Analytics: Track conversion event (credit purchase)
+        const packageCode = session.metadata?.packageCode || 'unknown';
+        const userId = session.metadata?.userId || 'unknown';
+        console.log(`[ANALYTICS] Conversion: user=${userId}, package=${packageCode}, purchase_id=${purchaseId}, amount=${session.amount_total / 100} USD`);
         
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
