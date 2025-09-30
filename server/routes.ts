@@ -3133,5 +3133,16 @@ Allow: /apply/`;
     }
   });
 
+  // 404 handler for API routes (must be last, before SPA catch-all)
+  // Ensures proper JSON error responses for non-existent API endpoints
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ 
+      error: 'API endpoint not found',
+      path: req.path,
+      method: req.method,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Note: Server creation moved to server/index.ts for single app instance
 }
