@@ -1,0 +1,201 @@
+{
+  "app": {
+    "id": "student-pilot",
+    "version": "1.0.0",
+    "build": "qa-audit-2025-09-30"
+  },
+  "summary": {
+    "go_no_go": "GO",
+    "overall_risk": "low",
+    "blockers": [],
+    "high_priority": [
+      "Scholarships returns array",
+      "Command Center reports healthy"
+    ],
+    "quick_wins": [],
+    "passed": 22,
+    "failed": 2,
+    "warnings": 2
+  },
+  "latency_p95_ms": {
+    "health_check": 26.276533999999998,
+    "page_load": 21.354373999999993,
+    "search": 145.56006200000002
+  },
+  "errors": [
+    {
+      "id": "PERF-search",
+      "severity": "medium",
+      "area": "performance",
+      "journey": "search",
+      "description": "search latency (145.56ms) exceeds P95 SLO (120ms)",
+      "remediation": "Optimize database queries or add caching"
+    }
+  ],
+  "security": {
+    "headers": {
+      "strict-transport-security": true,
+      "x-content-type-options": true,
+      "x-frame-options": true,
+      "content-security-policy": true,
+      "referrer-policy": true
+    },
+    "https": false,
+    "secrets_exposed": false
+  },
+  "command_center": {
+    "health_check": "PASS",
+    "heartbeat": "SKIPPED (Agent Bridge disabled)",
+    "websocket": "SKIPPED (Agent Bridge disabled)",
+    "latency_ms": 6743.189181
+  },
+  "tests": [
+    {
+      "name": "Health endpoint responds",
+      "passed": true,
+      "latency": 26.276533999999998,
+      "severity": "passed"
+    },
+    {
+      "name": "Database connectivity",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "Cache connectivity",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "404 handling works",
+      "passed": false,
+      "severity": "medium"
+    },
+    {
+      "name": "Homepage loads",
+      "passed": true,
+      "latency": 21.354373999999993,
+      "severity": "passed"
+    },
+    {
+      "name": "Scholarships API responds",
+      "passed": true,
+      "latency": 145.56006200000002,
+      "severity": "passed"
+    },
+    {
+      "name": "Scholarships returns array",
+      "passed": false,
+      "severity": "high"
+    },
+    {
+      "name": "Scholarships API under 120ms SLO",
+      "passed": false,
+      "severity": "medium",
+      "actual": 145.56006200000002,
+      "expected": "<120ms"
+    },
+    {
+      "name": "Protected routes require auth",
+      "passed": true,
+      "severity": "passed",
+      "note": "Profile endpoint should reject unauthenticated requests"
+    },
+    {
+      "name": "Agent capabilities endpoint works",
+      "passed": true,
+      "latency": 2.185107999999957,
+      "severity": "passed"
+    },
+    {
+      "name": "Agent advertises capabilities",
+      "passed": true,
+      "count": 9,
+      "severity": "passed"
+    },
+    {
+      "name": "HSTS header header present",
+      "passed": true,
+      "severity": "passed",
+      "value": "max-age=31536000; includeSubDomains; preload"
+    },
+    {
+      "name": "X-Content-Type-Options header present",
+      "passed": true,
+      "severity": "passed",
+      "value": "nosniff"
+    },
+    {
+      "name": "X-Frame-Options header present",
+      "passed": true,
+      "severity": "passed",
+      "value": "DENY"
+    },
+    {
+      "name": "Content-Security-Policy header present",
+      "passed": true,
+      "severity": "passed",
+      "value": "default-src 'self';script-src 'self' https://js.stripe.com 'unsafe-inline' https://replit.com;frame-src 'self' https://js.stripe.com;connect-src 'self' https://api.stripe.com https://api.openai.com https://storage.googleapis.com wss://localhost:* ws://localhost:*;style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;font-src 'self' https://fonts.gstatic.com;img-src 'self' data: https:;object-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'self';script-src-attr 'none';upgrade-insecure-requests"
+    },
+    {
+      "name": "Referrer-Policy header present",
+      "passed": true,
+      "severity": "passed",
+      "value": "strict-origin-when-cross-origin"
+    },
+    {
+      "name": "No inline scripts (CSP compliance)",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "No exposed secrets in HTML",
+      "passed": true,
+      "severity": "passed",
+      "note": "Clean"
+    },
+    {
+      "name": "robots.txt exists",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "robots.txt has Disallow rules",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "robots.txt includes Sitemap",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "security.txt exists",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "Homepage has viewport meta",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "Homepage has charset",
+      "passed": true,
+      "severity": "passed"
+    },
+    {
+      "name": "Command Center health check",
+      "passed": true,
+      "latency": 6743.189181,
+      "severity": "passed",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app/health",
+      "note": "Connected"
+    },
+    {
+      "name": "Command Center reports healthy",
+      "passed": false,
+      "severity": "high"
+    }
+  ]
+}
