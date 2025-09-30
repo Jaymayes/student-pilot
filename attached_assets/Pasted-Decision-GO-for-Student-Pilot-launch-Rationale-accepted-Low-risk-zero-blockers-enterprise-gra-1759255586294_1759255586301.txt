@@ -1,0 +1,80 @@
+Decision: GO for Student Pilot launch
+
+Rationale accepted. Low risk, zero blockers, enterprise-grade security, and strong baseline performance. One endpoint over SLO is acceptable for pilot with a clear remediation path. Proceed.
+
+CEO directives and conditions for launch
+
+Non-negotiables before exposure to students (48–72 hours):
+
+Seed scholarship data: Populate the database to eliminate empty search results. Ensure national, regional, and demographic coverage so that ≥95% of pilot users see ≥10 relevant matches on first search. Owner: Product/Data.
+Monitoring and alerting live: Stand up dashboards for P95 latency (per endpoint), error rates, auth failures (401/403/429), and search-result empties. Set alerts for thresholds below. Owner: Engineering/DevOps.
+Analytics instrumentation: Log search queries, result count, click-through to application, profile completion, and conversion events (credit purchase). Owner: Data.
+Performance and reliability targets (pilot):
+
+SLOs: Maintain 99.9% uptime; P95 latency targets—Health <50ms, Homepage <50ms, Search <120ms (current 145.6ms acceptable for week 1).
+Error budgets: API 5xx <0.5% of requests; Auth failures within expected ranges from abuse rate limits.
+Rollback criteria: Sustained Search P95 >250ms for >2 hours, 5xx >2% for 30 minutes, or auth/systemic failures impacting >5% of active users. If triggered, pause new traffic and roll back to last stable.
+Rapid remediations (commit now, deliver on timeline below):
+
+Search latency optimization (A- priority): Add query caching and/or targeted indexing; measure P95 improvement and cache hit rate. Target: ≤120ms P95 within 14 days.
+404 correctness: Fix API 404 contract. Non-blocking, but schedule in first maintenance window.
+Agent Bridge: Keep disabled for week 1 of the pilot. Validate SHARED_SECRET and protocol in staging; plan a controlled enablement after pilot KPIs stabilize.
+Pilot success metrics (data-first, week 1–4)
+North-star outcome: More completed quality scholarship applications per active student, at sustainable unit economics.
+
+B2C funnel KPIs:
+
+Acquisition (organic-first): Sessions via Auto Page Maker pages; indexation rate; top-100 keyword count; CTR from SERP.
+Activation: % of signups completing profile; time-to-first-match; match CTR.
+Monetization: Free-to-paid conversion rate; ARPU from credits; refunds/chargebacks <0.5%.
+Engagement/Value: Avg relevant matches per user; applications started/completed; weekly retention (W1, W2).
+B2B/provider KPIs:
+
+Providers onboarded (pilot cohort), listings activated, and application click-through.
+Revenue from 3% platform fee; provider NPS and time-to-first-applicant.
+Cost and profitability:
+
+CAC: Track by channel; keep paid experiments tiny. Prioritize SEO-driven signups.
+Unit economics: Maintain ≥4x markup on AI services; infra cost per active user benchmarked weekly.
+Risk and compliance oversight (continuous):
+
+Security: Maintain current header posture; weekly CSP report review.
+Privacy/regulatory: Confirm FERPA/COPPA posture and data minimization in logging/analytics.
+Responsible AI: Bias and fairness spot-checks on matching; transparent explanations for match rationale; never facilitate academic dishonesty.
+Execution plan and owners
+
+T-72 to T-24 hours (pre-launch):
+
+Data seeding complete; search-result empties below 5% in staging telemetry.
+Dashboards and alerts live; synthetic checks for Health/Homepage/Search running every minute.
+Comms: Pilot cohort announcement, support runbooks, and status page link. Owners: Growth, Support.
+T-0 (launch):
+
+Gradual ramp: 10% traffic for 2 hours → 50% → 100% if error budgets hold.
+War room staffed by Product, Eng, Data, Support.
+T+72 hours:
+
+Ship first search optimization (index/caching); report new P95 and cache hit rate.
+Decide on enabling Agent Bridge in a canary (≤10% traffic) after contract verification.
+T+14 days:
+
+Hit Search P95 ≤120ms; 404 fix deployed.
+Review KPIs vs. targets; decide on pilot expansion.
+Governance and cadence
+
+Daily pilot standup (15 min) with owners across Eng, Product, Data, Growth.
+Weekly CEO review: KPI dashboard, error budgets, SEO indexation, unit economics, and risk register.
+Decision log updated with any SLO or scope changes; all changes gated by impact on ARR path.
+Capital allocation
+
+Approve modest engineering time for caching/indexing and monitoring (high ROI, immediate UX impact).
+Keep paid acquisition spend minimal; put resources into Auto Page Maker content velocity and technical SEO.
+What I need reported to me daily during the pilot
+
+Traffic, signups, active users, and core funnel rates.
+P95 per endpoint, 5xx rate, search empty-result rate, and top errors.
+Monetization: credits purchased, conversion rate, ARPU.
+SEO: pages published, indexed, impressions, clicks.
+Any risk/compliance exceptions.
+Conclusion
+Greenlight confirmed. Execute the above pre-launch tasks, launch with a controlled ramp, and focus on data-driven optimization of search latency, zero empty results, and SEO-led acquisition. This aligns with our Prime Directive: scalable, organic growth toward profitable ARR while delivering the highest student value.
