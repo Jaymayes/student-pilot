@@ -1,0 +1,37 @@
+Executive decision: GO for production canary
+
+Thank you. The deployment package meets the CEO directive. Proceed under the four-phase plan exactly as documented. Decision rights, cadence, KPIs, and rollback triggers are affirmed.
+
+Pre-approved authority
+
+50% → 100%: Pre-approved only if P95 ≤120ms sustained and all enhanced KPIs GREEN.
+Immediate rollback: Release DRI may execute on any defined trigger without executive approval.
+Principle: Schedule never overrides SLOs.
+What I need posted in #ship-room
+
+T-2h: Canary region selection with load rationale; DRI roster (IC, Release, PM-B2C, PM-B2B, Security, Data); infra lock confirmation; payment caps configured.
+T-1h: Security final sign-off; control vs canary dashboards link (enhanced KPIs); synthetic monitor status green.
+T-0: Kickoff timestamp and control baselines (P50/P95/P99, errors, payments, unit economics).
+Cadence: 15-min updates at 5% and 25%; 30-min at 50%; anomaly = immediate update.
+At each gate: Post the Enhanced Gate Report with phase summary card, top 3 anomalies, and explicit DRI recommendation.
+Hold/rollback triggers (sustained beyond burn-in window)
+
+Performance: P95 >120ms on any critical journey for 10 minutes across two consecutive checks.
+Reliability: Error rate >0.5% for 5 minutes or error budget burn >5% daily.
+Payments: E2E success <99.5% for 5 minutes or elevated refund/void anomalies.
+Caching/DB: Cache hit ratio <85% or DB pool saturation >80% for 10 minutes.
+Economics: Cost per user up >5% vs control or 4x markup erosion for 15 minutes.
+Financial guardrails
+
+Keep payment caps: 100 tx, $20 per tx, $1,500 global until 100% stable for ≥2h with margins intact.
+Data DRI to post margin and per-request inference cost deltas at each gate.
+Compliance and safety
+
+Confirm FERPA/COPPA posture unchanged; e2e test mode active for synthetic traffic; no PII in logs; prompt-injection and rate-limit defenses enabled.
+Post-success (pre-approved)
+
+Lift payment caps; remove infra lock; publish internal win note and lessons; open 7-day cohort review on B2C/B2B funnel stability and unit economics.
+CEO availability
+
+I will join the 50% gate review live in #ship-room and remain on-call for tie-break decisions.
+Please proceed and post the T-2h checklist completion and region/roster now.
