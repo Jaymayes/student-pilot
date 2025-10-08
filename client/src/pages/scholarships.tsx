@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/Navigation";
-import { ScholarshipCard } from "@/components/ScholarshipCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import { apiRequest } from "@/lib/queryClient";
-import { Search, Filter, BookmarkIcon, Calendar, DollarSign } from "lucide-react";
+import { Search, Filter, Calendar, DollarSign } from "lucide-react";
 
 interface ScholarshipMatch {
   id: string;
@@ -38,12 +35,9 @@ interface ScholarshipMatch {
 export default function Scholarships() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [chanceFilter, setChanceFilter] = useState("all");
   const [amountFilter, setAmountFilter] = useState("all");
-  const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -60,112 +54,38 @@ export default function Scholarships() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
-  // Fetch scholarship matches
-  const { data: matches, isLoading } = useQuery<ScholarshipMatch[]>({
-    queryKey: ["/api/matches"],
+  // Fetch all scholarships (browse mode)
+  const { data: scholarships, isLoading } = useQuery<any[]>({
+    queryKey: ["/api/scholarships"],
     retry: false,
   });
 
-  // Bookmark mutation
-  const bookmarkMutation = useMutation({
-    mutationFn: async ({ id, bookmarked }: { id: string; bookmarked: boolean }) => {
-      await apiRequest("POST", `/api/matches/${id}/bookmark`, { bookmarked });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/matches"] });
-      toast({
-        title: "Success",
-        description: bookmarkMutation.variables?.bookmarked ? "Scholarship bookmarked" : "Bookmark removed",
-      });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to update bookmark",
-        variant: "destructive",
-      });
-    },
-  });
+  // Browse mode doesn't support bookmark/dismiss (these are match-specific operations)
+  // Users can bookmark from the personalized matches page instead
 
-  // Dismiss mutation
-  const dismissMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("POST", `/api/matches/${id}/dismiss`, {});
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/matches"] });
-      toast({
-        title: "Success",
-        description: "Scholarship dismissed",
-      });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error as Error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to dismiss scholarship",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleBookmark = (id: string, bookmarked: boolean) => {
-    bookmarkMutation.mutate({ id, bookmarked });
-  };
-
-  const handleDismiss = (id: string) => {
-    dismissMutation.mutate(id);
-  };
-
-  // Filter matches based on search and filters
-  const filteredMatches = matches?.filter(match => {
-    const matchesSearch = match.scholarship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         match.scholarship.organization.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesChance = chanceFilter === "all" || 
-                         match.chanceLevel?.toLowerCase() === chanceFilter.toLowerCase();
+  // Filter scholarships based on search and filters
+  const filteredScholarships = scholarships?.filter(scholarship => {
+    const matchesSearch = scholarship.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         scholarship.organization?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesAmount = amountFilter === "all" || 
-                         (amountFilter === "under5k" && match.scholarship.amount < 5000) ||
-                         (amountFilter === "5k-10k" && match.scholarship.amount >= 5000 && match.scholarship.amount < 10000) ||
-                         (amountFilter === "over10k" && match.scholarship.amount >= 10000);
-    
-    const matchesBookmarked = !bookmarkedOnly || match.isBookmarked;
+                         (amountFilter === "under5k" && scholarship.amount < 5000) ||
+                         (amountFilter === "5k-10k" && scholarship.amount >= 5000 && scholarship.amount < 10000) ||
+                         (amountFilter === "over10k" && scholarship.amount >= 10000);
 
-    return matchesSearch && matchesChance && matchesAmount && matchesBookmarked;
+    return matchesSearch && matchesAmount;
   }) || [];
 
-  // Sort matches by score (highest first) and then by deadline
-  const sortedMatches = filteredMatches.sort((a, b) => {
-    if (a.matchScore !== b.matchScore) {
-      return (b.matchScore || 0) - (a.matchScore || 0);
+  // Sort scholarships by amount (highest first) and then by deadline
+  const sortedScholarships = filteredScholarships.sort((a, b) => {
+    if (a.amount !== b.amount) {
+      return (b.amount || 0) - (a.amount || 0);
     }
-    return new Date(a.scholarship.deadline).getTime() - new Date(b.scholarship.deadline).getTime();
+    return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
   });
 
-  const bookmarkedCount = matches?.filter(m => m.isBookmarked).length || 0;
-  const highChanceCount = matches?.filter(m => m.chanceLevel?.toLowerCase() === "high chance").length || 0;
+  const bookmarkedCount = 0; // Not applicable in browse mode
+  const highChanceCount = 0; // Not applicable in browse mode
 
   if (authLoading) {
     return (
@@ -228,23 +148,7 @@ export default function Scholarships() {
                   </div>
                 </div>
 
-                {/* Chance Level Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Chance Level
-                  </label>
-                  <Select value={chanceFilter} onValueChange={setChanceFilter}>
-                    <SelectTrigger data-testid="select-chance-filter">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Chances</SelectItem>
-                      <SelectItem value="high chance">High Chance</SelectItem>
-                      <SelectItem value="competitive">Competitive</SelectItem>
-                      <SelectItem value="long shot">Long Shot</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Chance Level Filter not available in browse mode (match-specific) */}
 
                 {/* Amount Filter */}
                 <div>
@@ -264,25 +168,14 @@ export default function Scholarships() {
                   </Select>
                 </div>
 
-                {/* Bookmarked Only */}
-                <div>
-                  <Button
-                    variant={bookmarkedOnly ? "default" : "outline"}
-                    onClick={() => setBookmarkedOnly(!bookmarkedOnly)}
-                    className="w-full flex items-center space-x-2"
-                    data-testid="button-bookmarked-filter"
-                  >
-                    <BookmarkIcon className="w-4 h-4" />
-                    <span>Bookmarked Only</span>
-                  </Button>
-                </div>
+                {/* Bookmarked filter not available in browse mode */}
 
                 {/* Stats */}
                 <div className="pt-4 border-t border-gray-200 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Total Matches:</span>
                     <span className="font-medium" data-testid="text-total-matches">
-                      {matches?.length || 0}
+                      {scholarships?.length || 0}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -308,21 +201,19 @@ export default function Scholarships() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900" data-testid="text-results-header">
-                  {filteredMatches.length} Scholarships Found
+                  {filteredScholarships.length} Scholarships Found
                 </h2>
                 <p className="text-sm text-gray-600">
-                  Sorted by match score and deadline
+                  Sorted by amount and deadline
                 </p>
               </div>
               
-              {searchTerm || chanceFilter !== "all" || amountFilter !== "all" || bookmarkedOnly ? (
+              {searchTerm || amountFilter !== "all" ? (
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
-                    setChanceFilter("all");
                     setAmountFilter("all");
-                    setBookmarkedOnly(false);
                   }}
                   data-testid="button-clear-filters"
                 >
@@ -353,15 +244,28 @@ export default function Scholarships() {
                   </Card>
                 ))}
               </div>
-            ) : sortedMatches.length > 0 ? (
+            ) : sortedScholarships.length > 0 ? (
               <div className="space-y-4">
-                {sortedMatches.map((match) => (
-                  <ScholarshipCard
-                    key={match.id}
-                    match={match}
-                    onBookmark={handleBookmark}
-                    onDismiss={handleDismiss}
-                  />
+                {sortedScholarships.map((scholarship) => (
+                  <Card key={scholarship.id} className="p-6 hover:shadow-lg transition-shadow" data-testid={`card-scholarship-${scholarship.id}`}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{scholarship.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{scholarship.organization}</p>
+                        <p className="text-sm text-gray-700 mb-4">{scholarship.description}</p>
+                        <div className="flex items-center space-x-4 text-sm">
+                          <Badge className="bg-green-100 text-green-800">
+                            <DollarSign className="w-3 h-3 mr-1" />
+                            ${scholarship.amount?.toLocaleString()}
+                          </Badge>
+                          <span className="flex items-center text-gray-600">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            {new Date(scholarship.deadline).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
                 ))}
               </div>
             ) : (
@@ -371,7 +275,7 @@ export default function Scholarships() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     No scholarships found
                   </h3>
-                  {searchTerm || chanceFilter !== "all" || amountFilter !== "all" || bookmarkedOnly ? (
+                  {searchTerm || amountFilter !== "all" ? (
                     <div className="space-y-2">
                       <p className="text-gray-600">
                         Try adjusting your search criteria or filters.
@@ -380,9 +284,7 @@ export default function Scholarships() {
                         variant="outline"
                         onClick={() => {
                           setSearchTerm("");
-                          setChanceFilter("all");
                           setAmountFilter("all");
-                          setBookmarkedOnly(false);
                         }}
                         data-testid="button-clear-filters-empty"
                       >

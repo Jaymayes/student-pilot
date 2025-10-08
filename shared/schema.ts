@@ -225,8 +225,9 @@ export const insertStudentProfileSchema = createInsertSchema(studentProfiles).om
   updatedAt: true,
 }).extend({
   // Enhanced validation for critical fields (VAL-001)
-  gpa: z.number().min(0).max(4.0).nullable().optional(),
-  graduationYear: z.number()
+  // Use coerce to handle form data (strings) and convert to numbers
+  gpa: z.coerce.number().min(0).max(4.0).nullable().optional(),
+  graduationYear: z.coerce.number()
     .int()
     .min(new Date().getFullYear())
     .max(new Date().getFullYear() + 10)

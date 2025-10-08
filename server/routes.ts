@@ -182,10 +182,38 @@ Allow: /apply/`;
   console.log('🔥 Prewarming critical caches...');
   responseCache.prewarm('ttv-dashboard', async () => {
     try {
-      return { prewarmed: true, message: 'TTV dashboard cache prewarmed successfully' };
+      // Return proper structure matching TtvDashboardData interface
+      return {
+        medianTTV: null,
+        p95TTV: null,
+        medianTargetMet: false,
+        p95TargetMet: false,
+        targetMet: false,
+        cohortDetails: [],
+        totalUsers: 0,
+        performanceStatus: 'no-data' as const,
+        targets: {
+          median: 3,
+          p95: 7
+        }
+      };
     } catch (error) {
       console.error('TTV dashboard prewarm failed:', error);
-      return { prewarmed: false, error: 'Failed to prewarm TTV dashboard' };
+      // Return valid structure even on error
+      return {
+        medianTTV: null,
+        p95TTV: null,
+        medianTargetMet: false,
+        p95TargetMet: false,
+        targetMet: false,
+        cohortDetails: [],
+        totalUsers: 0,
+        performanceStatus: 'no-data' as const,
+        targets: {
+          median: 3,
+          p95: 7
+        }
+      };
     }
   });
 
@@ -556,9 +584,17 @@ Allow: /apply/`;
   app.get('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      console.log(`[DEBUG] GET /api/profile for userId: ${userId}`);
       const profile = await storage.getStudentProfile(userId);
+      console.log(`[DEBUG] Profile fetched:`, profile ? `id=${profile.id}, userId=${profile.userId}` : 'null');
+      
+      if (!profile) {
+        console.log(`[DEBUG] No profile found for userId: ${userId}, returning null`);
+      }
+      
       res.json(profile);
     } catch (error) {
+      console.error(`[ERROR] GET /api/profile failed:`, error);
       handleError(error, req, res);
     }
   });
@@ -567,8 +603,8 @@ Allow: /apply/`;
     try {
       const userId = req.user.claims.sub;
       
-      // Reject requests with unknown fields or dangerous content
-      if (req.body.__proto__ || req.body.constructor || req.body.prototype) {
+      // Reject requests with prototype pollution attempts (check explicit properties, not inherited)
+      if (req.body.hasOwnProperty('__proto__') || req.body.hasOwnProperty('constructor') || req.body.hasOwnProperty('prototype')) {
         return res.status(400).json({ message: "Invalid request data" });
       }
       
@@ -579,6 +615,9 @@ Allow: /apply/`;
         const validatedData = updateStudentProfileSchema.parse(req.body);
         const updatedProfile = await storage.updateStudentProfile(userId, validatedData);
         
+        // Invalidate cache to ensure GET returns fresh data
+        responseCache.delete(`student-profile:${userId}`);
+        
         // CEO Analytics: Track profile completion progress
         const completionPercent = updatedProfile.completionPercentage || 0;
         console.log(`[ANALYTICS] Profile updated: user=${userId}, completion=${completionPercent}%`);
@@ -588,6 +627,9 @@ Allow: /apply/`;
         // Use full schema for new profiles
         const profileData = insertStudentProfileSchema.parse({ ...req.body, userId });
         const newProfile = await storage.createStudentProfile(profileData);
+        
+        // Invalidate cache to ensure GET returns fresh data
+        responseCache.delete(`student-profile:${userId}`);
         
         // CEO Analytics: Track new profile creation
         console.log(`[ANALYTICS] Profile created: user=${userId}, initial_completion=${newProfile.completionPercentage || 0}%`);
@@ -1678,12 +1720,18 @@ Allow: /apply/`;
           const cohortMetrics = await ttvTracker.getCohortTtvMetrics(cohort.id);
           allMetrics = allMetrics.concat(cohortMetrics.filter((m: number | null): m is number => m !== null));
 
+          // Explicitly create POJO to avoid circular references from Drizzle ORM
           cohortDetails.push({
-            id: cohort.id,
-            name: cohort.name,
-            userCount: analytics.userCount,
-            avgTimeToFirstValue: analytics.avgTimeToFirstValue,
-            conversionRates: analytics.conversionRates
+            id: String(cohort.id),
+            name: String(cohort.name || 'Unknown'),
+            userCount: Number(analytics.userCount || 0),
+            avgTimeToFirstValue: analytics.avgTimeToFirstValue !== null ? Number(analytics.avgTimeToFirstValue) : null,
+            conversionRates: {
+              profileComplete: Number(analytics.conversionRates?.profileComplete || 0),
+              firstMatch: Number(analytics.conversionRates?.firstMatch || 0),
+              firstApplication: Number(analytics.conversionRates?.firstApplication || 0),
+              firstPurchase: Number(analytics.conversionRates?.firstPurchase || 0)
+            }
           });
         }
 
@@ -2113,47 +2161,51 @@ Allow: /apply/`;
         rpoCompliance: true  // Recovery Point Objective
       };
 
+      // Explicitly create POJO to avoid circular references from evidence collectors
+      const totalUsers = Number(accessControl?.authenticationMechanisms?.evidenceItems?.[0]?.data?.total_users) || 0;
+      const activeSessions = Number(accessControl?.authorizationControls?.evidenceItems?.[0]?.data?.active_sessions) || 0;
+      
       return {
         evidenceRegistry: {
           soc2Controls: {
             accessControl: {
-              status: 'effective',
-              controls: accessControl.authenticationMechanisms ? 3 : 0,
-              lastAssessment: new Date().toISOString()
+              status: String('effective'),
+              controls: Number(accessControl?.authenticationMechanisms ? 3 : 0),
+              lastAssessment: String(new Date().toISOString())
             },
             systemOperations: {
-              status: 'effective', 
-              controls: systemOps.systemMonitoring ? 4 : 0,
-              lastAssessment: new Date().toISOString()
+              status: String('effective'), 
+              controls: Number(systemOps?.systemMonitoring ? 4 : 0),
+              lastAssessment: String(new Date().toISOString())
             },
             dataProtection: {
-              status: 'effective',
-              controls: dataProtection.encryptionAtRest ? 3 : 0,
-              lastAssessment: new Date().toISOString()
+              status: String('effective'),
+              controls: Number(dataProtection?.encryptionAtRest ? 3 : 0),
+              lastAssessment: String(new Date().toISOString())
             }
           },
-          totalControlsAssessed: 10,
-          effectiveControls: 10,
-          controlsNeedingAttention: 0
+          totalControlsAssessed: Number(10),
+          effectiveControls: Number(10),
+          controlsNeedingAttention: Number(0)
         },
         rbacMatrix: {
           roles: ['admin', 'user', 'support'],
           permissions: ['read', 'write', 'delete', 'admin'],
-          activeUsers: accessControl.authenticationMechanisms?.evidenceItems?.[0]?.data?.total_users || 0,
-          activeSessions: accessControl.authorizationControls?.evidenceItems?.[0]?.data?.active_sessions || 0,
-          lastReview: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+          activeUsers: Number(totalUsers),
+          activeSessions: Number(activeSessions),
+          lastReview: String(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
         },
         rateLimits: rateLimitConfig,
         auditLogs: auditLogSummary,
         drEvidence: drEvidence,
         vulnerabilityScans: vulnerabilityScans,
         piiLineage: {
-          totalPIIFields: piiInventory.length,
-          criticalFields: piiInventory.filter(f => f.sensitivity === 'critical').length,
-          dataFlows: dataFlows.length,
-          processingActivities: processingActivities.length,
-          encryptedFields: piiInventory.filter(f => f.encryptionRequired).length,
-          retentionPolicies: processingActivities.length
+          totalPIIFields: Number(piiInventory?.length || 0),
+          criticalFields: Number(piiInventory?.filter(f => f?.sensitivity === 'critical')?.length || 0),
+          dataFlows: Number(dataFlows?.length || 0),
+          processingActivities: Number(processingActivities?.length || 0),
+          encryptedFields: Number(piiInventory?.filter(f => f?.encryptionRequired)?.length || 0),
+          retentionPolicies: Number(processingActivities?.length || 0)
         },
         complianceStatus: {
           soc2Ready: true,
