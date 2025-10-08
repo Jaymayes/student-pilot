@@ -1,0 +1,79 @@
+Executive response (GO to canary with guardrails)
+
+First, excellent work. Option A + B are accepted. Proceed with a phased canary, with the decisions and gates below.
+
+Decisions required by SRE/Platform
+
+Canary region
+Decision: Use the lowest-traffic US region based on the last 7-day average RPS and concurrent sessions. SRE to post the selected region in #ship-room before kickoff. If two regions are within ±5%, choose the one with the most spare capacity and no known scholarship deadline spikes in the next 72 hours.
+Load balancer/CDN and feature flags
+Decision: No infra changes as part of this canary. Use our production providers-of-record (LB/CDN) and our existing feature flag platform. Control exposure via weighted routing + flags; do not ship environment/provider changes during the canary.
+Payments scope
+Decision: Limited real transactions during canary.
+Phase 1 (5%): allow up to 100 real transactions, max $20 each, global cap $1,500. Monitor payment success rate (auth/capture) ≥98.5%, charge error rate ≤1.0%.
+If thresholds are met, maintain the same caps through 25%; unlock normal volume at 50% only after payment KPIs hold steady for the observation window (see gates below).
+If anomalies occur, immediately fall back to smoke-only (no real charges) and investigate before resuming.
+Ship-room leads (owners and escalation)
+Decision: Staff these roles for the full rollout window and publish DRIs in #ship-room:
+Incident Commander: SRE on-call (primary), SRE manager (backup)
+Release Engineering Lead: Platform/Infra lead
+Product/Comms Lead: PM for Student funnel (B2C) + PM for Provider funnel (B2B)
+Security/Compliance Lead: Security lead on-call
+Data/Observability Lead: Analytics/DA owner for funnel KPIs
+Executive Approver: CEO (me) for any step-ups beyond plan or if error budget is consumed
+Post the names/rotations and on-call numbers before T–2h.
+Rollout plan and quantitative gates
+
+Phases and observation windows
+5% → observe 90 minutes minimum
+25% → observe 2 hours minimum
+50% → observe 4 hours minimum
+100% → observe rest of day
+Avoid peak scholarship deadline windows and top-3 traffic hours in the chosen region.
+Go gates (must meet all to advance)
+Platform SLOs: 99.9% availability; P95 latency ≤130ms during soak (target remains ≤120ms)
+Error budget: 5xx ≤0.5% and client-visible error rate within +0.2% of regional baseline
+Payments: success rate ≥98.5%, declines/refunds not elevated vs baseline
+B2C funnel: sign-up and first-session completion rates within 1% of control region
+B2B: provider dashboard error rate ≤1%, time-to-first-interaction within 5% of baseline
+Automatic rollback triggers (any single trigger for 5 consecutive minutes)
+P95 latency >160ms or P99 >350ms
+5xx >1.0% or synthetic monitor failures ≥3 consecutive checks
+Payment auth/capture failures ≥2.0% or >5 consecutive failures
+Material analytics anomalies (e.g., CTR, sign-up completion) deviating >3σ from control
+Observability and alerting
+Synthetic monitor at 60s cadence with exponential backoff: ON for health, B2C happy path, provider dashboard, and payments smoke
+/health, /ready, /metrics, /metrics/prometheus must remain green; auto-alert to #ship-room on threshold breaches
+Enforce e2e=1 test mode where applicable to prevent analytics pollution during scripted checks
+Performance note and requirements
+
+Current dev metrics: P95 ~180ms vs prod target 120ms. We will not block 5% on this alone, but we will not advance past 50% unless prod canary shows P95 ≤120ms for the full observation window.
+Remediation priorities (before 50% step-up)
+Cache: verify CDN/edge caching on read-heavy endpoints (scholarship browse/search), confirm cache keys and TTLs, and ensure prewarming is active on dashboard tiles
+DB: confirm essential indexes for top queries; validate N+1 hotspots are eliminated; cap payload sizes and enable compression
+App: confirm React Query staleTime=0 is scoped to E2E only; avoid forcing no-cache on standard user paths; enable ETag/Last-Modified selectively at the CDN even if disabled in Express
+Infra: verify connection pooling and keep-alives; confirm P95 path-by-path to isolate slow endpoints; reduce cold-start risk on any autoscaled components
+Compliance and risk
+
+FERPA/COPPA: ensure logs and metrics do not capture PII. E2E test mode must be excluded from analytics attribution. Payments: use the processor-of-record’s PCI scope; do not broaden scope during canary.
+Security: confirm prototype pollution and circular refs fixes are in production image; run dependency and container scans pre-ship; enforce least-privileged secrets.
+Business KPIs to watch during canary
+
+B2C: landing → sign-up conversion, first match time, first application start rate, and paid conversion rate; ARPU on paid credit sales
+B2B: active provider sessions, listing edits, and payout events
+CAC/SEO: ensure Auto Page Maker traffic and SERP CTR remain stable; no indexing regressions
+Execution checklist for kickoff (actions)
+
+SRE: Post the chosen canary region, DRI roster, and on-call rotations in #ship-room by T–2h.
+Platform: Lock providers-of-record (LB/CDN, feature flags). No infra substitutions during canary.
+Data: Establish control vs canary dashboards (latency, error rates, funnel KPIs, payments).
+Security: Confirm log scrubbing and secrets posture; sign off in #ship-room by T–1h.
+PM/Comms: Prep status updates at phase gates, per the runbook; confirm stakeholder list.
+Authorization
+
+Executive GO is affirmed for the 4-phase rollout (5% → 25% → 50% → 100%) with the gates and rollback triggers above. Any deviation requires my approval.
+Report back
+
+Post-phase summaries at each gate: SLOs, payment KPIs, funnel KPIs, and a go/no-go recommendation.
+If any rollback trigger fires, revert, postmortem within 24 hours, and propose a fix-forward plan before reattempting.
+Let’s move with urgency and discipline. This canary validates our SLOs and protects our student and provider experience while we scale toward our 5-year objective.
