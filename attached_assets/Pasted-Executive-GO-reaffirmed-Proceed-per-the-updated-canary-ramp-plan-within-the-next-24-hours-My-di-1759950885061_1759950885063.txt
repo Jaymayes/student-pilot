@@ -1,0 +1,59 @@
+Executive GO reaffirmed. Proceed per the updated canary ramp plan within the next 24 hours.
+
+My directives and expectations:
+
+Approval and gates
+
+Ramp: 1% (15m) → 10% (15m) → 25% (15m) → 50% (30m) → 100%.
+Auto-approve 50%→100% only if P95 ≤120ms and all gates GREEN. Otherwise, hold at 50% for my explicit sign-off.
+I will attend the 50% gate live in #ship-room and be available for tie-breaks within 5 minutes.
+SRE deliverables due in #ship-room within 30 minutes
+
+Proposed UTC start time aligned to the lowest 7-day RPS trough (favor West Coast trough if tied).
+DRI roster with on-call escalation path and time zones. Include named backups for each domain (app/API, payments, cache/CDN, DB, infra, cost/markup).
+Dashboard links (must load for CEO and SRE leads): latency/errors, payments, cache/CDN, DB, infra saturation, cost per request/AI markup.
+One-pager pinned in #ship-room: release scope, vYYYYMMDD.X + commit SHA, data changes/migrations (Y/N), rollback command/runbook link, canary routing key definition, and blast radius controls.
+Confirm payment caps enforced: 100 tx total, $20 max/tx, $1,500 total.
+Within 60 minutes
+
+Security sign-off timing confirmed (FERPA/COPPA posture unchanged; PII redaction in logs/synthetic traces checked).
+All dashboard URLs verified; synthetic monitors green and targeting the canary slice.
+T-10 checklist
+
+Execute 5x $1 live payment transactions; post auth/capture results, fraud/limit outcomes, masked txn IDs.
+PITR snapshot pointer posted; restore test command verified.
+CDN/API pre-warm set staged; ready to report cache hit in first 10 minutes after T-0.
+Confirm model routing and token profile telemetry is enabled per route; target: preserve 4x markup.
+Reporting cadence (every 15 minutes in #ship-room)
+
+Latency: P50/P95/P99 vs control; error rate.
+Payments: E2E success ≥99.5%; declines/fraud flags with rule IDs and rates.
+Cache/CDN: Hit ratio ≥85%; origin RPS; note pre-warm efficacy.
+DB: CPU/IO/utilization, connections; keep ≤80% (target ≤70% for headroom).
+Unit economics: Cost/user vs control; AI cost per request; confirm 4x markup intact; top route deltas.
+Synthetic monitors: Pass/fail; response schema checks.
+Flags: Tag me on any YELLOW/RED or >3% margin deviation. Include explicit recommendation: continue, hold, or rollback.
+Rollback authority and triggers (no exec approval needed)
+
+Any SLO breach persisting 15 minutes.
+Any PII risk.
+Cost/user >5% over control or erosion of 4x markup.
+Payments E2E <99.5%.
+Cache hit <85% with user-visible latency.
+DB saturation >80% with spillover risk.
+Time-to-rollback budget: <2 minutes to complete. IC executes immediately; post-mortem follows if triggered.
+Risk watch and mitigations (reiterated)
+
+Cache regression: If hit <85%, expand pre-warm set, tune TTL, cap origin concurrency; report impact after 10 minutes.
+Payments false positives: Do not relax fraud thresholds during canary without SRE lead + CEO concurrence.
+Cost/model drift: Validate routing and token profile vs control; fall back to cheaper route if needed to preserve markup.
+CEO presence and availability
+
+I will be live for the 50% gate review.
+I will join #ship-room at T-0 and remain on-call throughout the canary window; page me on any RED or >3% margin deviation.
+Post-success (pre-approved)
+
+After ≥2 hours stable at 100%: lift payment caps, remove infra lock, publish internal win note (lessons + KPI deltas), open 7-day cohort review (funnels, ARPU, conversion, unit economics), and maintain a 24-hour non-critical change freeze.
+Final instruction
+
+Proceed with urgency and discipline. Post the 30-minute confirmations in #ship-room. I will acknowledge the proposed UTC start time on receipt.
