@@ -1,0 +1,75 @@
+Approved to proceed with canary. Thank you for clearing all P0s and confirming SLOs. Here’s the go-forward plan, gates, and guardrails.
+
+Executive decision
+
+Go for canary: 10% → 50% → 100% with hard gates and a holdback control.
+Objective: confirm stability and protect conversion, margins, and SEO-led acquisition while we scale to full traffic.
+Pre-launch (today, prior to 10% flip)
+
+Smoke test checklist (must pass in prod-like canary env):
+Create account → complete profile (GPA, grad year) → cache invalidation → GET /api/profile returns fresh data
+Browse all scholarships (search + amount filters) → open details → track view event
+Purchase credits → run one AI-assisted action → cost and margin logged
+Provider dashboard loads → submit test posting (if applicable in this release)
+TTV and Security dashboards render with clean POJOs; no circular refs; targets present
+Feature flags and kill switches verified for:
+Browse experience toggle (/api/scholarships)
+Personalized matches (kept off for this release; leave behind a flag for fast rollback to prior UX if needed)
+On-call/observability
+Dedicated canary dashboards with cohort tagging (traffic source, device, region)
+Pager rotation and Slack channel war-room ready
+Risk hardening (quick wins before flip)
+Prototype pollution: current top-level hasOwnProperty check is good; also add nested key guard via schema validation (zod) to reject any payload containing "proto", "constructor", "prototype" at any depth, plus a WAF rule for those tokens in body/query.
+GPA coercion: ensure bounds validation and locale normalization (e.g., “3,7” → 3.7) before z.coerce.number; reject NaN with a user-facing error.
+Canary plan and success gates
+
+10% canary (minimum 25k sessions and 60 minutes, whichever is later)
+Technical gates:
+Error rate ≤0.3%
+P95 latency ≤130ms; P99 ≤220ms
+Cache hit rate ≥95%
+Crash-free sessions ≥99.7%
+Business/finance gates:
+Landing-to-first-scholarship-view CTR within -2% of control or better
+Free→paid day-0 conversion within -1% of control or better
+Gross margin per paid action ≥ planned target (4x AI service markup achieved on median; no >10% of requests below 3.5x)
+If all green, proceed to 50%. If any red for >10 minutes or >500 events, roll back immediately; open incident and root cause.
+50% canary (minimum 4 hours, or 100k sessions)
+Same gates as above, plus:
+Time-to-value (first scholarship view after signup) median ≤3 min; P95 ≤7 min (as per TTV dashboard targets)
+No SEO regressions: bounce rate and crawlable page errors flat vs control cohort
+If green, schedule full rollout.
+100% rollout
+Keep a persistent 5% holdback on the previous version for 7 days to quantify conversion and retention impact.
+Holdback and measurement
+
+Maintain a 5% control group on the prior experience for one week.
+KPIs to compare daily:
+B2C: signup→first view, free→paid conversion, ARPU from credits, 7-day retention
+B2B: provider session success rate (if touched), posting completion rate
+Unit economics: per-request AI cost vs price, gross margin
+Send a 5-minute daily exec summary with deltas vs control and a one-line “ship/no-ship” status for any planned tweaks.
+Rollback criteria (at any stage)
+
+Sustained error rate >0.5% for 10 minutes
+P95 >150ms for 10 minutes or P99 >300ms
+Free→paid conversion down >5% vs control for 60 minutes with no offsetting TTV improvement
+Gross margin breach: more than 10% of AI transactions below 3.2x markup
+Any security anomaly (e.g., blocked prototype pollution attempts >10/minute from >3 ASNs) or privacy incident
+Comms plan
+
+Internal: announce canary start, gates, and kill switch in engineering + GTM Slack with live dashboard links.
+Support: 2-sentence macro explaining browse-only experience; known changes: no bookmark/dismiss/chance filter; ETA for personalization reintroduction.
+Status page: post a maintenance note “progressive rollout” without implying instability.
+Notes on the UX change (browse replaces personalized matches)
+
+Risk: near-term drop in perceived personalization could affect conversion. Mitigation:
+High-intent SEO traffic tends to prefer browse/find-first; measure impact specifically by acquisition channel.
+Keep personalization codepath behind a flag to re-enable for returning users if conversion dips.
+Fast-follow: update sidebar counters for browse context and add lightweight “Quick Picks” heuristic that doesn’t require full personalization.
+Post-rollout (within 72 hours)
+
+Ship the sidebar counter polish and any copy tweaks proven to raise CTR in canary.
+Security hardening PR: deep schema guard + WAF rule for prototype pollution vectors.
+Write a one-page postmortem (even if all green): what moved TTV, what saved milliseconds, what to templatize.
+Decision: Go. Execute the canary plan with the gates above. Page me only on gate breach or if the control-vs-treatment deltas suggest a material conversion or margin impact.

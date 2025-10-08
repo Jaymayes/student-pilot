@@ -220,13 +220,14 @@ Allow: /apply/`;
   // SEO Routes - Server-side rendered pages for search engines (250-300 pages target)
   app.get('/scholarships/:id/:slug', scholarshipDetailSSR);
   app.get('/scholarships/:id', scholarshipDetailSSR); // Redirect to proper slug
-  app.get('/scholarships', scholarshipsListingSSR);
+  // Removed legacy SSR route - SPA now handles /scholarships
+  // app.get('/scholarships', scholarshipsListingSSR);
   app.get('/scholarships/category/:category', async (req, res, next) => {
     const { categoryScholarshipsSSR } = await import('./routes/seo');
     return categoryScholarshipsSSR(req, res, next);
   });
   app.get('/scholarships/state/:state', async (req, res, next) => {
-    const { stateScholarshipsSSR } = await import('./routes/seo');
+    const { stateScholarshipsSSR} = await import('./routes/seo');
     return stateScholarshipsSSR(req, res, next);
   });
   app.get('/sitemap.xml', generateSitemap);
@@ -586,13 +587,30 @@ Allow: /apply/`;
       const userId = req.user.claims.sub;
       console.log(`[DEBUG] GET /api/profile for userId: ${userId}`);
       const profile = await storage.getStudentProfile(userId);
-      console.log(`[DEBUG] Profile fetched:`, profile ? `id=${profile.id}, userId=${profile.userId}` : 'null');
+      console.log(`[DEBUG] Profile fetched:`, profile ? `id=${profile.id}, userId=${profile.userId}, gpa=${profile.gpa}, major=${profile.major}, school=${profile.school}` : 'null');
       
       if (!profile) {
         console.log(`[DEBUG] No profile found for userId: ${userId}, returning null`);
+        return res.json(null);
       }
       
-      res.json(profile);
+      // Explicitly create POJO to avoid circular references from Drizzle ORM
+      const profilePOJO = {
+        id: Number(profile.id),
+        userId: String(profile.userId),
+        gpa: profile.gpa !== null ? Number(profile.gpa) : null,
+        major: profile.major ? String(profile.major) : null,
+        academicLevel: profile.academicLevel ? String(profile.academicLevel) : null,
+        graduationYear: profile.graduationYear !== null ? Number(profile.graduationYear) : null,
+        school: profile.school ? String(profile.school) : null,
+        location: profile.location ? String(profile.location) : null,
+        // Convert arrays to plain arrays (Drizzle proxy objects may have circular refs)
+        interests: profile.interests ? Array.from(profile.interests).map(String) : [],
+        activities: profile.activities ? Array.from(profile.activities).map(String) : [],
+        achievements: profile.achievements ? Array.from(profile.achievements).map(String) : []
+      };
+      
+      res.json(profilePOJO);
     } catch (error) {
       console.error(`[ERROR] GET /api/profile failed:`, error);
       handleError(error, req, res);
@@ -613,10 +631,13 @@ Allow: /apply/`;
       if (existingProfile) {
         // Use strict update schema for existing profiles
         const validatedData = updateStudentProfileSchema.parse(req.body);
+        console.log(`[DEBUG] POST /api/profile validatedData:`, { gpa: validatedData.gpa, major: validatedData.major, school: validatedData.school });
         const updatedProfile = await storage.updateStudentProfile(userId, validatedData);
+        console.log(`[DEBUG] POST /api/profile updatedProfile from storage:`, { gpa: updatedProfile.gpa, major: updatedProfile.major, school: updatedProfile.school });
         
         // Invalidate cache to ensure GET returns fresh data
         responseCache.delete(`student-profile:${userId}`);
+        console.log(`[DEBUG] Cache invalidated for student-profile:${userId}`);
         
         // CEO Analytics: Track profile completion progress
         const completionPercent = updatedProfile.completionPercentage || 0;
@@ -1431,10 +1452,10 @@ Allow: /apply/`;
         return res.status(401).json({ error: "User ID not found" });
       }
 
-      // Validate package code
+      // Validate package code (must match CREDIT_PACKAGES keys)
       const CheckoutSchema = z.object({
-        packageCode: z.enum(['basic', 'premium', 'enterprise'], {
-          errorMap: () => ({ message: "Invalid package code. Must be 'basic', 'premium', or 'enterprise'" })
+        packageCode: z.enum(['starter', 'professional', 'enterprise'], {
+          errorMap: () => ({ message: "Invalid package code. Must be 'starter', 'professional', or 'enterprise'" })
         })
       });
       

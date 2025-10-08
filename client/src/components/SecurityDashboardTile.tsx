@@ -106,13 +106,13 @@ interface SecurityDashboardData {
 }
 
 export function SecurityDashboardTile() {
-  const { data: securityData, isLoading, error } = useQuery<SecurityDashboardData>({
+  const { data: securityData, isLoading, error, isFetching } = useQuery<SecurityDashboardData>({
     queryKey: ["/api/dashboard/security"],
     retry: false,
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
       <Card className="border border-gray-200">
         <CardHeader className="border-b border-gray-200">
@@ -135,7 +135,7 @@ export function SecurityDashboardTile() {
     );
   }
 
-  if (error || !securityData) {
+  if (error || !securityData || !securityData.evidenceRegistry) {
     return (
       <Card className="border border-red-200">
         <CardHeader className="border-b border-gray-200">

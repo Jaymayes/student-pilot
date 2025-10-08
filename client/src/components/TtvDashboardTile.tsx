@@ -83,9 +83,6 @@ export function TtvDashboardTile() {
           <div className="text-center text-red-600">
             <XCircle className="mx-auto h-8 w-8 mb-2" />
             <p>Failed to load TTV analytics</p>
-            {ttvData && 'message' in ttvData && (
-              <p className="text-sm mt-2">{(ttvData as any).message}</p>
-            )}
           </div>
         </CardContent>
       </Card>
