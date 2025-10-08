@@ -42,13 +42,8 @@ class ResponseCache {
           metricsCollector.recordCacheHit(key);
           metricsCollector.updateCacheSize(this.cache.size);
           
-          // Handle conditional GET (If-None-Match)
-          const clientETag = req.get('If-None-Match');
-          if (clientETag && clientETag === entry.etag) {
-            return res.status(304).end();
-          }
-          
-          // Serve from cache immediately
+          // Always serve 200 with JSON body (React Query needs JSON response, not 304)
+          // Keep ETag header for metrics tracking
           res.set('ETag', entry.etag);
           res.set('Cache-Control', `max-age=${Math.floor((ttlMs - (now - entry.timestamp)) / 1000)}`);
           res.json(entry.data);
@@ -78,12 +73,8 @@ class ResponseCache {
         });
         this.accessOrder.set(key, now);
         
-        // Handle conditional GET for fresh data
-        const clientETag = req.get('If-None-Match');
-        if (clientETag && clientETag === etag) {
-          return res.status(304).end();
-        }
-        
+        // Always serve 200 with JSON body (React Query needs JSON response, not 304)
+        // Keep ETag header for metrics tracking
         res.set('ETag', etag);
         res.set('Cache-Control', `max-age=${Math.floor(ttlMs / 1000)}`);
         res.json(data);

@@ -108,7 +108,8 @@ interface SecurityDashboardData {
 export function SecurityDashboardTile() {
   const { data: securityData, isLoading, error, isFetching } = useQuery<SecurityDashboardData>({
     queryKey: ["/api/dashboard/security"],
-    retry: false,
+    retry: 1, // Allow one retry to recover from transient errors
+    refetchOnMount: true, // Force fresh data on mount
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 

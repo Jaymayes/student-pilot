@@ -55,6 +55,9 @@ console.log('🚀 Top-level guard middleware registered for static compliance fi
 app.set('view engine', 'ejs');
 app.set('views', path.join(import.meta.dirname, 'views'));
 
+// Disable ETags globally to prevent 304 responses that break React Query
+app.disable('etag');
+
 // Enable compression for better performance (gzip/brotli)
 app.use(compression({
   level: 6,  // Good balance of compression vs CPU usage

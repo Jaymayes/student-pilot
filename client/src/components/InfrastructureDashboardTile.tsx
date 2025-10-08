@@ -83,7 +83,7 @@ export function InfrastructureDashboardTile() {
     );
   }
 
-  if (error || !infraData) {
+  if (error || !infraData || !infraData.systemHealth) {
     return (
       <Card className="border border-red-200">
         <CardHeader className="border-b border-gray-200">

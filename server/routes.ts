@@ -1807,6 +1807,8 @@ Allow: /apply/`;
         };
       });
       
+      // Disable ETag to prevent 304 responses that break React Query
+      res.set('Cache-Control', 'no-cache');
       res.json(cachedData);
     } catch (error) {
       console.error('TTV Dashboard error:', error);
@@ -2239,6 +2241,8 @@ Allow: /apply/`;
       };
       });
       
+      // Disable ETag to prevent 304 responses that break React Query
+      res.set('Cache-Control', 'no-cache');
       res.json(cachedData);
     } catch (error) {
       console.error('Security dashboard error:', error);
