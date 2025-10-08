@@ -1,0 +1,61 @@
+Acknowledged. Development is complete; SRE/Platform now owns execution.
+
+Executive authorization and directives
+
+Go decision
+Authorization: Proceed with canary deployment within the next 24 hours; preferred window is today/tomorrow during lowest 7‑day RPS trough.
+Canary region: Select the region with the lowest 7‑day RPS and adequate spare capacity; if tied, default to the west coast region with more headroom. Document rationale in the T‑2h post.
+2. Pre‑flight requirements (must be GREEN at T‑1h)
+
+Infra lock active on prod LB/CDN; provider config freeze in effect.
+Payment caps enforced: 100 transactions, $20 max/tx, $1,500 global cap.
+Security sign‑off: FERPA/COPPA posture unchanged; no PII in logs; prompt‑injection defenses and rate limits enabled; e2e test mode excludes analytics.
+Dashboards live: Control vs Canary; Enhanced KPIs (latency, errors, payments, funnels, unit economics); Synthetic monitor.
+Synthetic monitor running at 60s with all health endpoints passing.
+3. Rollout plan and gates
+
+Phase 1: 5% for 90 minutes (15‑min reporting).
+Phase 2: 25% for 60 minutes (15‑min reporting).
+Phase 3: 50% for 90 minutes (15‑min reporting).
+Phase 4: 100% after CEO-involved gate review.
+Gate criteria (must be GREEN to advance): • P95 latency: ≤130ms at 5%/25%; ≤120ms at 50% and for 50%→100%. • Error rate: ≤0.5% (5xx and critical client JS). • Payments E2E: ≥99.5% success. • Caching/DB: cache hit ≥85%; DB pool saturation ≤80%. • Economics: cost/user within ±5% vs control; 4x AI markup intact. • Funnels: B2C/B2B within thresholds vs control.
+4. Automatic hold/rollback triggers (no debate)
+
+P95 >120ms on any critical journey for 10 minutes across two consecutive checks.
+Error rate >0.5% for 5 minutes or error budget burn >5% daily.
+Payments E2E <99.5% for 5 minutes or abnormal refund/void patterns.
+Cache hit <85% or DB saturation >80% for 10 minutes.
+Cost/user up >5% vs control or 4x markup erosion for 15 minutes. The Incident Commander has full pre‑approval to rollback immediately on any trigger.
+5. Reporting and communications
+
+Channel: #ship-room. Use provided T‑2h, T‑1h, and T‑0 templates.
+Cadence: Every 15 minutes during canary; include: • P50/P95/P99 latency (overall and by journey) • Error rate split (5xx, client JS) • Payments E2E • Top 3 anomalies • Unit economics deltas (cost/request, margin, markup) • Recommendation (GO/NO‑GO/ROLLBACK)
+Tag CEO on any YELLOW/RED status or if margins deviate >3%.
+6. Additional must‑confirm checks before T‑0
+
+Database changes: backward‑compatible; rollback plan tested; migration runtime estimated; long‑running migrations isolated from request path.
+Feature flags: default‑off for new surfaces; kill switch validated.
+Observability: logs scrubbed for PII; sampling set to capture canary anomalies; cost telemetry flowing and reconciles with billing estimates.
+SEO/Auto Page Maker: confirm robots, cache behavior, and crawl budget unaffected by canary routing; monitor organic landing latency separately.
+7. Post‑success actions (pre‑approved)
+
+After ≥2 hours stable at 100%: lift payment caps; remove infra lock.
+Publish internal win note with key lessons, anomalies resolved, and KPI deltas.
+Open 7‑day cohort review (B2C/B2B funnel, ARPU, conversion, provider activation, unit economics). Use ENHANCED_GATE_REPORT.md template.
+Maintain a 24‑hour non‑critical change freeze post‑GA.
+8. Roles and authority
+
+DRI roster required at T‑2h with contacts: Incident Commander, Release Eng, PM‑B2C, PM‑B2B, Security/Compliance, Data/Observability; CEO is executive tie‑break.
+IC may pause/rollback at any time to protect SLOs. Schedule never overrides SLOs.
+50%→100%: pre‑approved if P95 ≤120ms and all KPIs GREEN; CEO will join that gate review.
+9. Release administration
+
+Tag: prod release as vYYYYMMDD.X with commit SHA in the #ship-room T‑0 post.
+Change record: link to CEO_FINAL_DIRECTIVE.md, HANDOFF_SUMMARY.md, and dashboards.
+Archive canary logs and metrics for audit.
+Immediate next steps for SRE/Platform (ownership now with you)
+
+Within 30 minutes: Acknowledge this directive in #ship-room, propose canary window (UTC), and post the T‑2h message using the provided template with your selected region, DRI roster, and links.
+Within 60 minutes: Confirm security sign‑off timing and dashboard URLs.
+At T‑0: Execute canary per plan; begin 15‑minute reporting cadence.
+I will be on call for the 50% gate review. Proceed with urgency and discipline.
