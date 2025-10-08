@@ -1807,8 +1807,10 @@ Allow: /apply/`;
         };
       });
       
-      // Disable ETag to prevent 304 responses that break React Query
-      res.set('Cache-Control', 'no-cache');
+      // Prevent all caching: no-store prevents browser/proxy caching
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
       res.json(cachedData);
     } catch (error) {
       console.error('TTV Dashboard error:', error);
@@ -2241,8 +2243,10 @@ Allow: /apply/`;
       };
       });
       
-      // Disable ETag to prevent 304 responses that break React Query
-      res.set('Cache-Control', 'no-cache');
+      // Prevent all caching: no-store prevents browser/proxy caching
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
       res.json(cachedData);
     } catch (error) {
       console.error('Security dashboard error:', error);

@@ -53,16 +53,26 @@ export const getQueryFn: <T>(options: {
     }
   };
 
-// QA-023: Enhanced QueryClient with smart retry logic
+// Test mode detection (URL param ?e2e=1 or env var)
+const isTestMode = new URLSearchParams(window.location.search).has('e2e') || 
+                   import.meta.env.VITE_E2E_MODE === '1';
+
+// Build ID for versioned query keys (prevents cross-build cache pollution)
+export const BUILD_ID = import.meta.env.VITE_BUILD_ID || Date.now().toString();
+
+// QA-023: Enhanced QueryClient with smart retry logic + test mode hygiene
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes cache for better UX
+      refetchOnWindowFocus: isTestMode ? 'always' : false, // Force fresh in test mode
+      staleTime: isTestMode ? 0 : 5 * 60 * 1000, // No cache in test mode
+      gcTime: isTestMode ? 0 : 5 * 60 * 1000, // Immediate cleanup in test mode
+      refetchOnMount: isTestMode ? 'always' : true, // Always refetch in test mode
       // Smart retry: let our resilience layer handle retries for network errors
       retry: (failureCount, error) => {
+        if (isTestMode) return false; // No retries in test mode for faster feedback
         // Don't retry if our resilience layer already handled it
         if (error instanceof APIError) {
           return false; // Let circuit breaker and retry manager handle it
@@ -71,6 +81,7 @@ export const queryClient = new QueryClient({
         return failureCount < 2;
       },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+      networkMode: isTestMode ? 'always' : 'online', // Bypass offline checks in test
     },
     mutations: {
       // Mutations use the resilience layer directly, no additional retry needed
@@ -78,3 +89,30 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Test mode: Clear all caches on initialization
+if (isTestMode) {
+  queryClient.clear();
+  console.log('[E2E] React Query cache cleared - test mode active');
+}
+
+// Expose E2E utilities for test harness
+declare global {
+  interface Window {
+    E2E?: {
+      resetRQ: () => void;
+      queryClient: QueryClient;
+    };
+  }
+}
+
+if (isTestMode) {
+  window.E2E = {
+    resetRQ: () => {
+      queryClient.clear();
+      queryClient.invalidateQueries({ predicate: () => true });
+      console.log('[E2E] React Query cache manually reset');
+    },
+    queryClient,
+  };
+}
