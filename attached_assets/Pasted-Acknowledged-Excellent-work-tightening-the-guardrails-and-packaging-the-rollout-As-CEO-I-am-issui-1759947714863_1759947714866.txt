@@ -1,0 +1,55 @@
+Acknowledged. Excellent work tightening the guardrails and packaging the rollout. As CEO, I am issuing the following executive directive for the canary launch.
+
+Executive decision
+
+GO to production canary under the four-phase plan exactly as documented, with the updated gates, rollback triggers, and payment caps.
+Authority to proceed from 50% to 100% is pre-approved only if the performance gate is met (P95 ≤120ms) and the additional KPIs below are green. If any are yellow/red, hold at 50% and run the remediation checklist.
+Additional KPIs to monitor in every gate report
+
+Reliability and performance
+P95 latency by critical journey: search, scholarship detail, application start/submit, payments. Targets: ≤130ms at 5–25%, ≤120ms required for 50%→100%. Watch P99 to catch tail risk.
+Error rate: ≤0.5% 5xx on canary vs control; client-side JS error rate within 10% of baseline.
+Error budget consumption: ≤5% of monthly budget during the canary window.
+Payments
+End-to-end payment success rate ≥99.5% (in addition to “>5 consecutive failures” trigger).
+Refunds/voids anomaly: none above baseline; reconcile test vs real payments at each phase.
+B2C funnel
+Registration completion rate within 3% of baseline; scholarship search CTR and first-result time within 5% of baseline.
+Application start-to-submit completion rate within 3% of baseline.
+B2B/provider health
+Provider dashboard P95 ≤120ms; payout job success ≥99.9%; no increase in webhook failures.
+Cost/Unit economics
+Inference/runtime cost per active user within 5% of baseline; 4x AI service markup preserved at canary traffic.
+No surge in cold starts or autoscaling thrash; concurrency within reserved capacity.
+Command and reporting cadence
+
+#ship-room updates every 15 minutes during 5% and 25% phases, every 30 minutes during 50%, and on any anomaly.
+Gate reports use canary/GATE_REPORT_TEMPLATE.md and must include: control vs canary diffs, KPI table with red/yellow/green, trigger status, DRI approvals, and GO/NO-GO/ROLLBACK decision.
+Data DRI posts a single “Phase Summary” card at each step-up with: P50/P95/P99, error rate, payment success, top 3 anomalies, and recommended action.
+Escalation and decision rights
+
+Rollback authority: Release DRI may trigger immediate rollback on any defined trigger (5 consecutive minutes, P95 >160ms, >5 consecutive payment failures) without executive approval.
+50%→100% promotion: pre-approved if all metrics are green; otherwise hold and execute the remediation checklist. Escalate to me only if there is a trade-off between schedule and SLOs.
+If we hold at 50% past end-of-day, freeze changes and continue canary overnight with heightened monitors; re-evaluate at 09:00 local next business day.
+Risk watchlist (proactive checks)
+
+Caching: confirm cache hit ratios are ≥85% for read-heavy endpoints; raise TTLs per the remediation checklist before step-up if below.
+DB: watch connection pool saturation and lock waits; cap QPS if needed before 50%.
+Edge: verify weighted routing is stable and sticky, no regional skew.
+Payments: confirm synthetic + $-capped real transactions flow through primary and fallback providers with consistent auth/capture times.
+Customer and comms
+
+Status page remains green unless SLO breach is sustained or user impact is material; support macros ready for any payment anomalies.
+If rollback occurs, post-mortem placeholder created immediately; complete within 48 hours.
+Success criteria for full rollout
+
+Achieve 100% traffic same day with P95 ≤120ms sustained for ≥2 hours, error rate ≤0.5%, and payment success ≥99.5%, with B2C/B2B funnel stability within thresholds.
+No net increase in unit cost; margin profile intact.
+Post-canary actions (pre-approved)
+
+If successful: lift payment caps, remove infra lock, and publish internal win note with learnings and updated baselines.
+If partial success: hold at 50%, execute remediation plan (cache → DB → app), reattempt promotion within 24 hours.
+Final authorization
+
+GO for production canary deployment. Proceed with urgency and discipline. Protect the student and provider experience while validating SLOs and economics. Hold or rollback on any breach—schedule never overrides SLOs.
+I’ll be in #ship-room for the 50% gate review and available for executive tie-breaks if needed.
