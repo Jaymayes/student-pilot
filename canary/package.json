@@ -1,0 +1,16 @@
+{
+  "name": "scholarlink-canary",
+  "version": "1.0.0",
+  "description": "Production canary deployment artifacts for ScholarLink",
+  "scripts": {
+    "monitor": "tsx synthetic-monitor.ts",
+    "baseline": "tsx performance-baseline.ts"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "tsx": "^4.7.1"
+  }
+}

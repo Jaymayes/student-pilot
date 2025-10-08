@@ -11,6 +11,7 @@ import { env, isProduction } from "./environment";
 import * as crypto from "crypto";
 import { metricsCollector } from "./monitoring/metrics";
 import { reliabilityManager } from "./reliability";
+import { healthRouter } from "./health";
 // Import alerting system to register event listeners
 import "./monitoring/alerting";
 
@@ -301,6 +302,9 @@ app.use((req, res, next) => {
   const { fileURLToPath } = await import('url');
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const publicDir = path.resolve(__dirname, '..', 'client', 'public');
+
+  // Register health check and metrics endpoints (before API routes for canary monitoring)
+  app.use(healthRouter);
 
   // Register all application routes
   await registerRoutes(app);

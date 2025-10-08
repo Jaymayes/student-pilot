@@ -1,0 +1,94 @@
+Executive decision: Proceed with a guarded production canary. Execute Option A + Option B in parallel, with SRE/Platform owning production routing and rollback.
+
+Objective
+
+Validate production stability and user value delivery with minimal risk, while preserving our SLOs (99.9% uptime, ~120ms P95 latency) and protecting student data.
+Canary plan
+
+Scope: Route only unauthenticated B2C web traffic in one low-risk region to the new build first; exclude providers and payments for the initial 30 minutes.
+Ramp schedule:
+5% for 30 minutes
+25% for 60 minutes
+50% for 2 hours
+100% after 24-hour bake if success criteria are met
+Gating: Progress between phases requires explicit “go” from SRE + Eng Lead + PM in the ship-room. No auto-advance without green gates.
+Guardrails and rollback criteria
+Trigger an immediate rollback if any single criterion is met in a 10–15 minute rolling window for the canary cohort vs control:
+
+Availability/SLO:
+5xx rate > 0.3% or 4xx (non-user-error) rate > 1.0%
+P95 latency degradation > 30% vs baseline or P95 > 150 ms on critical APIs
+Functional integrity:
+Schema validation failures > 0.1% of requests on any critical endpoint
+Auth error rate +0.5 pp vs baseline or payment auth capture failures > 0.2%
+Security/abuse:
+New WAF rule hits spike > 50% above baseline or new high-severity security finding
+Business impact:
+Student signup completion rate drops > 10% relative to matched control
+Time-to-Value (TTV) 80th percentile regresses > 20% vs baseline
+Error budget:
+Consume > 10% of weekly error budget in canary cohort during any single phase
+Synthetic monitoring (what to build now)
+
+Frequency: 60s checks with exponential backoff on failure; isolate with User-Agent “ScholarshipAI-Canary/1.0” and ?e2e=1 flag to avoid analytics pollution.
+Coverage:
+Health: /health, /ready, /metrics
+B2C critical flow: search scholarships -> view details -> save -> begin application -> draft autosave
+Security: auth flows (signup/login), token refresh, RBAC-protected read, CSRF/headers checks
+Provider (read-only at first): provider dashboard read
+Payments (smoke only; sandbox token): pricing page -> checkout init -> nonce validation
+Validations:
+JSON schema validators for all responses above; strict mode on types and required fields
+Latency budget assertions per call; capture P50/P95/P99
+Negative tests: malformed payload, expired token, over-quota request
+Outputs:
+Metrics tagged with canary=true, path, region, device, cohort (student/provider), build_id, git_sha
+Emit synthetic IDs to correlate logs and traces
+Observability and alerts (production-owned)
+
+Dashboards: Side-by-side canary vs control for availability, latency, error class, conversion funnel, TTV, and top endpoints. Heatmap by region/device.
+Alerts (paged): Any rollback trigger; plus trend alerts for rising 4xx/5xx, latency, schema failures.
+Tracing: 100% trace sampling for canary traffic during the test window.
+Data and privacy guardrails
+
+No PII in logs; scrub request/response bodies except schema hashes and synthetic IDs.
+Use dedicated test accounts and provider IDs for synthetic flows.
+Ensure feature flags prevent any content generation that could be construed as academic dishonesty; verify Responsible AI checks for bias and transparency are unchanged.
+Deployment sequencing and risk controls
+
+DB/migrations: Backward-compatible, additive-only during canary; enable write fences and dual-read if needed. Roll-forward plan ready.
+Feature flags: Gate all user-visible changes; default off for providers and payments in phase 1.
+Rate limits: Ensure canary requests are under synthetic rate thresholds and excluded from abuse detectors.
+WAF and bot filters: Allow synthetic UA/IP ranges; monitor for anomalies.
+Execution checklist
+
+Dev (you) — deliver within this environment:
+Synthetic monitoring suite with configs and schemas
+API health endpoints exposing SLO metrics
+?e2e=1 documentation for QA and analytics
+Performance baseline report (P50/P95/P99 per critical endpoint; control environment)
+Canary runbook (YAML/MD): endpoints, thresholds, alerts, rollback steps, contacts
+SRE/Platform — production actions:
+Traffic routing rules (LB/CDN) for cohorting and ramp logic; session stickiness enabled
+Auto-rollback script tied to metrics thresholds
+Datadog/Grafana/CloudWatch dashboards + alerts; trace sampling to 100% for canary
+Ship-room comms bridge, timeline, and incident commander on-call
+Security/Compliance:
+Confirm logging scrubbing, secrets scanning, WAF rules, and FERPA/COPPA safeguards unchanged
+Sign off that synthetic flows use non-PII and sandbox tokens only
+PM/Data:
+Define TTV and signup conversion measurement for canary vs control; precompute baselines
+Schedule
+
+T0 (today): Dev delivers artifacts; SRE wires dashboards/alerts.
+T0+1: 5% canary in one region, 30 min; if green, 25% for 60 min; if green, 50% for 2 hours.
+Bake: 24 hours at 50%; if green on all business and SLO metrics, proceed to 100% with flag protections removed in stages.
+Decision requests back to me
+
+Confirm region for initial canary (default: lowest-traffic US region).
+Confirm LB/CDN provider and feature flag system for precise ramp config.
+Confirm payment scope: smoke-only or include limited real transactions with refunds disabled.
+Provide names of ship-room leads: SRE, Eng, PM, Security.
+Next steps from you
+
+Proceed with Option A + B now. Deliver the synthetic suite, schema validators, health endpoints, e2e docs, baselines, and a concise runbook. Once you attach these artifacts, I’ll authorize SRE to begin the phased production canary under the above guardrails.
