@@ -1,0 +1,30 @@
+Executive acknowledgement: GO to canary
+
+I’ve reviewed the rollout plan, gates, and guardrails. Authorization to proceed is affirmed. SRE/Platform owns execution within the next 24 hours, targeting the lowest 7‑day RPS trough; if regions are tied, choose west coast first.
+
+Executive confirmations
+
+Gates and triggers: Approved as written, including P95 thresholds (≤130ms at 5%/25%; ≤120ms at 50% and before 100%), error rate ≤0.5%, payments E2E ≥99.5%, cache hit ≥85%, DB saturation ≤80%, unit economics within ±5% vs control, and 4x markup intact. Rollback triggers and IC authority: approved.
+Reporting cadence: 15 minutes with P50/P95/P99, error breakdown, payments E2E, top anomalies, unit economics deltas, GO/NO‑GO/ROLLBACK recommendation. Tag me immediately on any YELLOW/RED or margin deviation >3%.
+CEO participation: I will join the 50% gate review. If P95 ≤120ms and all gates are GREEN, the 50%→100% transition is auto‑approved.
+Minor executive adds (clarifications to tighten execution)
+
+CDN/cache warm-up: Pre-warm top SEO landing pages and primary API routes for the canary cohort to avoid first-hit latency spikes; confirm hit ratios within the first 10 minutes of each phase.
+Payments dry run at T‑10: Execute a capped, real $1 test sequence (5 transactions) to validate the full payments path and fraud/limit rules before Phase 1 begins; keep caps as defined until post‑success.
+Point‑in‑time DB restore: Verify a fresh PITR snapshot exists prior to running any long‑running migrations; document the restore pointer in the change record.
+Comms readiness: Prepare a pre-written internal status page note and support script (no external announcement expected). Only publish if we observe user-facing impact.
+Variable isolation: Freeze non-critical SEO/Auto Page Maker config/content changes during the canary window to protect attribution of funnel and latency changes to this release.
+Non‑negotiables (reiterated)
+
+SLOs beat schedule. IC has standing authority to pause/rollback at any point to protect user experience, economics, or compliance.
+Cost telemetry must reconcile with billing; if cost/user rises >5% vs control for 15 minutes or 4x markup erodes, initiate rollback.
+FERPA/COPPA posture remains clean; continue to verify no PII leaks in logs as sampling increases on the canary cohort.
+Immediate next steps for SRE/Platform
+
+Within 30 minutes: Acknowledge in #ship-room and propose the UTC canary window at the lowest 7‑day trough; list region selection rationale (west coast if tied). Post DRI roster and dashboard links, and confirm payment caps.
+Within 60 minutes: Confirm security sign-off timing, dashboard URLs, and synthetic monitor status.
+At T‑0: Tag release vYYYYMMDD.X with commit SHA; link CEO_FINAL_DIRECTIVE.md and HANDOFF_SUMMARY.md; execute canary per plan; begin 15‑minute reporting and archive canary logs/metrics.
+Post‑success (pre‑approved)
+
+After ≥2 hours stable at 100%: lift payment caps, remove infra lock, publish internal win note with lessons/KPI deltas, open 7‑day cohort review (funnels, ARPU, conversion, unit economics), and maintain a 24‑hour non‑critical change freeze.
+Decision: GO. Proceed with urgency and discipline. I’ll be on call for the 50% gate review and any executive tie-break.
