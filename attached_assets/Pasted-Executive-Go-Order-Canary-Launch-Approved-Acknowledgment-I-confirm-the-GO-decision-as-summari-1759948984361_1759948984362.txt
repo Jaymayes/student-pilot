@@ -1,0 +1,55 @@
+Executive Go Order: Canary Launch Approved
+
+Acknowledgment
+
+I confirm the GO decision as summarized. All gates, triggers, guardrails, and reporting cadence are approved as written. IC has standing pause/rollback authority to protect user experience, economics, and compliance.
+Non‑Negotiables (reiterated)
+
+Performance: P95 ≤130ms at 5%/25%; ≤120ms at 50% and before 100%; error rate ≤0.5%; payments E2E ≥99.5%; cache hit ≥85%; DB saturation ≤80%.
+Unit economics: within ±5% of control; 4x AI markup intact. Rollback if cost/user rises >5% for 15 minutes or markup erodes.
+Compliance: FERPA/COPPA posture must remain clean. Immediate rollback on any suspected PII exposure.
+Reporting: 15-minute updates with P50/P95/P99, error breakdown, payments E2E, top anomalies, unit economics deltas, and GO/NO‑GO/ROLLBACK. Tag CEO immediately on YELLOW/RED or margin deviation >3%.
+Minor Executive Adds (must-do)
+
+CDN/cache warm-up for top SEO pages and primary API routes; confirm hit ratios within first 10 minutes of each phase.
+Payments dry run at T‑10: five $1 real transactions; validate fraud/limit rules; keep caps until post-success.
+Point‑in‑time DB restore: verify fresh PITR snapshot; document restore pointer in the change record.
+Comms readiness: internal status note and support script prepped; no external comms unless user-facing impact.
+Variable isolation: freeze non-critical SEO/Auto Page Maker config/content during canary.
+CEO Participation and Gate Policy
+
+I will join the 50% gate review.
+Auto-approve 50%→100% only if P95 ≤120ms and all gates GREEN.
+If there is any disagreement on GO/NO‑GO, IC may pause; SRE lead and CEO will resolve within 5 minutes.
+SRE/Platform Immediate Actions (timeboxed)
+
+Within 30 minutes:
+Acknowledge in #ship-room.
+Propose UTC canary window at the lowest 7‑day RPS trough; include region rationale (choose west coast if tied).
+Post DRI roster and dashboard links.
+Confirm payment caps (100 tx, $20 max per tx, $1,500 total cap).
+Within 60 minutes:
+Confirm security sign‑off timing.
+Confirm dashboard URLs and synthetic monitor status.
+At T‑10:
+Execute payments dry run ($1 x5).
+Validate fraud/limit rules.
+Verify PITR snapshot exists; record restore pointer.
+At T‑0:
+Tag release vYYYYMMDD.X with commit SHA.
+Link CEO_FINAL_DIRECTIVE.md and HANDOFF_SUMMARY.md in the change.
+Pre‑warm CDN/cache for top SEO pages and API routes.
+Execute canary per plan; begin 15‑minute reporting; archive canary logs/metrics.
+Rollback Triggers (immediate)
+
+Any SLO breach persisting 15 minutes; any PII risk; cost/user >5% over control; 4x markup erosion; payments E2E <99.5%; cache hit <85% with user‑visible latency; DB saturation >80% with risk of spillover.
+Post‑Success (pre‑approved)
+
+After ≥2 hours stable at 100%:
+Lift payment caps; remove infra lock.
+Publish internal win note with lessons and KPI deltas.
+Open 7‑day cohort review (funnels, ARPU, conversion, unit economics).
+Maintain a 24‑hour non‑critical change freeze.
+Final Direction
+
+GO. Execute within the 24‑hour window at the proposed RPS trough. Proceed with urgency and discipline. CEO will be available for the 50% gate and tie‑breaks. Tag me on any YELLOW/RED or >3% margin deviation.
