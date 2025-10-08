@@ -1,0 +1,56 @@
+Executive decision: GO for canary with guardrails
+
+Thank you for the crisp readiness report. Based on the manual validation, the fixed P0s, and the new test-mode hygiene you implemented, I’m authorizing the canary deployment now with the following directives, success criteria, and rollback plan.
+
+Canary scope and timeline
+
+Start now: 2-hour synthetic canary hitting TTV and Security endpoints every 60 seconds, plus schema validation on payloads.
+If clean: ramp real user traffic 5% (30 minutes) → 25% (60 minutes) → 100% production.
+Keep paid acquisition paused during ramp. No external announcements until we’ve reached 100% and stabilized for 2 hours.
+Observability and SLOs
+
+Dashboards (live during canary): API availability, P50/P95/P99 latency, 4xx/5xx rates, DB/queue latency, CPU/memory headroom, WAF/rate-limiting events.
+SLO/thresholds for the canary window:
+Availability: 99.9% during window; 5xx rate <0.5%; non-auth 4xx <1.0%.
+Latency: Global API P95 ≤ 200 ms during canary, with target reversion to our 120 ms P95 SLO post-ramp. Endpoint outliers (e.g., Security/Infra dashboards) may peak but must keep P95 ≤ 250 ms. Track error-budget burn; do not exceed 10% of monthly budget during rollout.
+Data integrity: 100% schema validation pass on TTV/Security payloads; no PII in logs.
+Infra headroom: CPU <60% and memory >30% free at P95 load; DB P95 query latency <50 ms; no sustained queue backlog.
+Go/no-go gates
+
+Go:
+Synthetic canary: zero schema failures; no sustained non-200s in probes; thresholds above all satisfied for 2 hours.
+During traffic ramp: each stage meets thresholds for its full duration without manual intervention.
+No-go / rollback triggers (any one sustained >10 minutes or 3 consecutive probe failures):
+5xx ≥ 0.5% or non-auth 4xx ≥ 1.0%.
+API P95 > 250 ms or P99 > 600 ms.
+SLO error-budget burn >10% in rollout window.
+Security anomalies (WAF spikes, abnormal auth failures), data integrity failures, or PII exposure in logs.
+Accountabilities (today)
+
+SRE/Platform (owner of deploy/rollback): Execute canary, configure auto-rollback, and post dashboards to #ship-room with live links. Ensure synthetic traffic is excluded from product analytics.
+QA/Test: Integrate ?e2e=1 and VITE_E2E_MODE=1 into harness immediately and re-run smoke on the canary slice. Confirm React Query reset behavior and report pass/fail in #ship-room.
+Security/Compliance: Validate no-cache headers are restricted to API endpoints and test mode; verify evidence registry surfaces SOC2 control mappings and that logs are sanitized.
+Product Analytics: Validate end-to-end event capture for the B2C funnel (visit → search → shortlist → application start → credit purchase) and B2B provider flow. Ensure UTMs, ARPU, and free→paid conversion tracking are live; exclude synthetic and canary-only users from KPI rollups.
+Business readiness checks during ramp
+
+Revenue levers:
+B2C: Confirm pricing and credit purchase flows work on mobile/desktop; ARPU telemetry is firing; abandon/retry flows are instrumented.
+B2B: Confirm provider onboarding and 3% fee capture; check payout ledger integrity on canary.
+Growth model alignment:
+SEO/Auto Page Maker: Confirm no-cache headers are NOT applied to SEO pages; sitemap, canonical, robots, and prerendering intact. Validate page indexability on canary domain variant. Keep organic growth on; hold paid until full prod.
+Responsible AI guardrails:
+Confirm user-facing disclosures and “assist, don’t impersonate” guidance are prominent; no model outputs enable academic dishonesty. Run a quick red-team pass for biased recommendations on a small test set.
+Risk notes and follow-ups
+
+Test harness artifact: Good root cause and mitigation. QA to close the loop by EOD with a signed-off checklist showing e2e mode integrated and stale-state eliminated.
+Latency: Single observations of 200–400 ms on admin/security endpoints aren’t P95 by themselves. If canary shows persistent P95 >200 ms for these endpoints, open a perf ticket (DB indices, N+1, or caching strategy that preserves correctness).
+Runbooks: Ensure rollback, incident comms, and schema validation runbooks are up to date and linked in #ship-room.
+Communications
+
+Internal: Run the deployment via #ship-room with pinned checklist, live dashboards, and status updates at each ramp gate.
+External: Silent launch. If fully clean after 100% rollout + 2 hours stability, we’ll schedule a customer-facing note in the next release digest.
+Board/investors: Include a short note in the weekly CEO update post-success, highlighting uptime, latency, and early funnel conversion indicators.
+Decision
+
+Approved to proceed with the 2-hour synthetic canary now. Use the metrics and thresholds above. If clean, ramp to 100% today. If any rollback criteria hit, roll back immediately, open a P0, and we regroup with a tight, data-first plan.
+Ship it.
