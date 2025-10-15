@@ -369,13 +369,17 @@ app.use((req, res, next) => {
   // Create single HTTP server after all routes are registered
   const server = createServer(app);
 
-  // Setup monitoring dashboards for T+48 review - skip if not available
-  try {
-    const dashboards = await import('./monitoring/dashboards.js');
-    const monitoring = new dashboards.default();
-    monitoring.setupRoutes(app);
-  } catch (error) {
-    console.log('Monitoring dashboards not available, skipping...');
+  // Setup monitoring dashboards for T+48 review - optional feature, gracefully degrades
+  // Only enable if explicitly configured to prevent startup failures
+  if (process.env.ENABLE_MONITORING_DASHBOARDS === 'true') {
+    try {
+      const dashboards = await import('./monitoring/dashboards');
+      const monitoring = new dashboards.default();
+      monitoring.setupRoutes(app);
+      console.log('📊 Monitoring dashboards enabled');
+    } catch (error) {
+      console.warn('⚠️ Monitoring dashboards failed to initialize, continuing without them');
+    }
   }
 
   // Production-safe error handler

@@ -4,9 +4,27 @@
  */
 
 // Monitoring dashboard - simplified for immediate deployment
-import express from 'express';
+// NOTE: Database imports are lazy-loaded to prevent startup failures when DB unavailable
+import express, { type Express } from 'express';
+
+interface AuthMetrics {
+  blockedAttempts: number;
+  successfulLogins: number;
+  falsePositives: number;
+  lastUpdated: Date;
+}
+
+interface ErrorBudget {
+  target: number;
+  current: number;
+  incidents: any[];
+  lastCalculated: Date;
+}
 
 class MonitoringDashboards {
+  private authMetrics: AuthMetrics;
+  private errorBudget: ErrorBudget;
+
   constructor() {
     this.authMetrics = {
       blockedAttempts: 0,
@@ -134,6 +152,11 @@ class MonitoringDashboards {
   // Idempotency adherence tracking
   async getIdempotencyMetrics() {
     try {
+      // Lazy-load database modules to prevent startup failures
+      const { db } = await import('../db');
+      const { usageEvents } = await import('../../shared/schema');
+      const { count, sql } = await import('drizzle-orm');
+      
       // Check for duplicate operations that should be idempotent
       const duplicateCharges = await db
         .select({
@@ -153,17 +176,23 @@ class MonitoringDashboards {
         violationDetails: duplicateCharges,
         lastChecked: new Date()
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      // Gracefully degrade if database unavailable or import fails
+      const errorMessage = error instanceof Error ? error.message : 'Database unavailable';
+      console.warn('Monitoring dashboard degraded:', errorMessage);
       return {
-        status: 'ERROR',
-        error: error.message,
+        status: 'DEGRADED' as const,
+        error: 'Database temporarily unavailable',
+        totalOperations: 0,
+        duplicateOperations: 0,
+        idempotencyRate: 0,
         lastChecked: new Date()
       };
     }
   }
 
   // Dashboard routes
-  setupRoutes(app) {
+  setupRoutes(app: Express) {
     // Main dashboard endpoint
     app.get('/monitoring/dashboard', async (req, res) => {
       try {
@@ -198,10 +227,12 @@ class MonitoringDashboards {
             idempotency
           }
         });
-      } catch (error) {
-        res.status(500).json({
-          error: 'Dashboard metrics unavailable',
-          details: error.message,
+      } catch (error: unknown) {
+        // Gracefully degrade - don't crash the app
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        res.status(503).json({
+          error: 'Dashboard metrics temporarily unavailable',
+          status: 'degraded',
           timestamp: new Date()
         });
       }
