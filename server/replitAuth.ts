@@ -105,13 +105,22 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  // Register strategies for all configured domains
+  const domains = process.env.REPLIT_DOMAINS!.split(",");
+  
+  // Add localhost for development
+  if (env.NODE_ENV === 'development' && !domains.includes('localhost')) {
+    domains.push('localhost');
+  }
+  
+  for (const domain of domains) {
     const strategyConfig: any = {
       name: `replitauth:${domain}`,
       config,
       scope: "openid email profile offline_access",
-      callbackURL: `https://${domain}/api/callback`,
+      callbackURL: domain.includes('localhost') 
+        ? `http://${domain}:5000/api/callback`
+        : `https://${domain}/api/callback`,
     };
     
     // Add client authentication for Scholar Auth
