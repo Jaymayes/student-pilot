@@ -6,11 +6,17 @@ const EnvironmentSchema = z.object({
   DATABASE_URL: z.string().url(),
   PORT: z.coerce.number().int().min(1).max(65535).default(5000),
   
-  // Authentication
+  // Authentication - Legacy Replit OIDC (backwards compatible)
   SESSION_SECRET: z.string().min(32),
   REPLIT_DOMAINS: z.string().min(1),
   REPL_ID: z.string().min(1),
   ISSUER_URL: z.string().url().optional(),
+  
+  // Authentication - Scholar Auth OAuth (preferred)
+  FEATURE_AUTH_PROVIDER: z.enum(['replit', 'scholar-auth']).optional().default('replit'),
+  AUTH_CLIENT_ID: z.string().min(1).optional(),
+  AUTH_CLIENT_SECRET: z.string().min(1).optional(),
+  AUTH_ISSUER_URL: z.string().url().optional(),
   
   // Third-party services
   OPENAI_API_KEY: z.string().min(1),
@@ -49,7 +55,18 @@ let env: z.infer<typeof EnvironmentSchema>;
 
 try {
   env = EnvironmentSchema.parse(process.env);
-  console.log('✅ Environment validation passed');
+  
+  // Validate Scholar Auth configuration if enabled
+  if (env.FEATURE_AUTH_PROVIDER === 'scholar-auth') {
+    if (!env.AUTH_CLIENT_ID || !env.AUTH_CLIENT_SECRET || !env.AUTH_ISSUER_URL) {
+      throw new Error(
+        'Scholar Auth provider requires AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, and AUTH_ISSUER_URL environment variables'
+      );
+    }
+    console.log('✅ Environment validation passed (Scholar Auth enabled)');
+  } else {
+    console.log('✅ Environment validation passed (Replit OIDC enabled)');
+  }
 } catch (error) {
   if (error instanceof z.ZodError) {
     console.error('❌ Environment validation failed:');

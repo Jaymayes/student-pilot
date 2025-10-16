@@ -14,11 +14,28 @@ import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
 
 const getOidcConfig = memoize(
   async () => {
-    const issuerUrl = env.ISSUER_URL || "https://replit.com/oidc";
-    return await client.discovery(
-      new URL(issuerUrl),
-      env.REPL_ID
-    );
+    if (env.FEATURE_AUTH_PROVIDER === 'scholar-auth') {
+      // Scholar Auth configuration
+      const issuerUrl = env.AUTH_ISSUER_URL!;
+      const config = await client.discovery(
+        new URL(issuerUrl),
+        env.AUTH_CLIENT_ID!,
+        {
+          client_secret: env.AUTH_CLIENT_SECRET!,
+        }
+      );
+      console.log(`🔐 OAuth configured: Scholar Auth (${issuerUrl})`);
+      return config;
+    } else {
+      // Legacy Replit OIDC configuration
+      const issuerUrl = env.ISSUER_URL || "https://replit.com/oidc";
+      const config = await client.discovery(
+        new URL(issuerUrl),
+        env.REPL_ID
+      );
+      console.log(`🔐 OAuth configured: Replit OIDC (${issuerUrl})`);
+      return config;
+    }
   },
   { maxAge: 3600 * 1000 }
 );
@@ -90,15 +107,20 @@ export async function setupAuth(app: Express) {
 
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
-      },
-      verify,
-    );
+    const strategyConfig: any = {
+      name: `replitauth:${domain}`,
+      config,
+      scope: "openid email profile offline_access",
+      callbackURL: `https://${domain}/api/callback`,
+    };
+    
+    // Add client authentication for Scholar Auth
+    if (env.FEATURE_AUTH_PROVIDER === 'scholar-auth') {
+      strategyConfig.client_id = env.AUTH_CLIENT_ID;
+      strategyConfig.client_secret = env.AUTH_CLIENT_SECRET;
+    }
+    
+    const strategy = new Strategy(strategyConfig, verify);
     passport.use(strategy);
   }
 
