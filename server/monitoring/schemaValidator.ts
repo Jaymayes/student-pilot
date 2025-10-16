@@ -34,9 +34,9 @@ class SchemaValidator {
     'student_profiles',
     'scholarships',
     'applications',
-    'matches',
+    'scholarship_matches',  // Fixed: was 'matches'
     'usage_events',
-    'ledger_entries',
+    'credit_ledger',  // Fixed: was 'ledger_entries'
   ];
 
   /**
