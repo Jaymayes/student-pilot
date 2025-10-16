@@ -1,9 +1,4 @@
-node_modules
-dist
-.DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+
 # E2E Test Environment
 .env.test
 e2e-results/

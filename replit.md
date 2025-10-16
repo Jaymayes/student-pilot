@@ -1,6 +1,8 @@
 # Overview
 
-ScholarLink is a comprehensive scholarship management platform that helps students discover, apply for, and manage scholarships. The application provides personalized scholarship matching, application tracking, document management, and essay writing assistance. Built as a full-stack web application with a React frontend and Express backend, it integrates with Replit's authentication system and uses Google Cloud Storage for file management.
+ScholarLink is a comprehensive scholarship management platform that helps students discover, apply for, and manage scholarships. The application provides personalized scholarship matching, application tracking, document management, and essay writing assistance. Built as a full-stack web application with a React frontend and Express backend, it integrates with centralized OAuth authentication via Scholar Auth and uses Google Cloud Storage for file management.
+
+**E2E Authentication Testing (October 16, 2025)**: Production-ready Playwright test suite validates centralized SSO across Student and Provider apps. Scholar Auth pre-configured with stable `data-testid` selectors. Tests verify: Student auth redirect, Provider SSO pass-through, direct Provider authentication. Complete setup documentation in `OAUTH-SETUP.md` and `QUICK-START-E2E.md`.
 
 **✅ EXECUTIVE AUTHORIZATION FINAL - Production Canary (October 8, 2025)**: Development COMPLETE, SRE/Platform owns execution. CEO final directive issued: 24-hour deployment window, 4-phase rollout (5% 90min → 25% 60min → 50% 90min → 100% post-CEO gate), enhanced KPIs with 15-min reporting cadence. Pre-approved: 50%→100% if P95 ≤120ms + all GREEN, IC immediate rollback authority. Updated triggers: P95 >120ms (10min/2 checks), errors >0.5% (5min), payments <99.5% (5min), cache <85%/DB >80% (10min), cost >5% (15min). All 12 P0 bugs resolved, health endpoints live (/health, /ready, /metrics), synthetic monitor ready. Complete deployment package in `/canary`: CEO_FINAL_DIRECTIVE.md, ENHANCED_GATE_REPORT.md, 00_START_HERE.md, synthetic-monitor.ts. SRE immediate actions: T-30min acknowledge + propose window, T-60min security sign-off, T-0 execute with 15-min cadence. CEO joins 50% gate review. Schedule never overrides SLOs.
 
@@ -59,10 +61,22 @@ The schema includes core entities for:
 - **Essays**: Essay drafts, prompts, and feedback storage
 
 ## Authentication & Authorization
-- **Provider**: Replit's OIDC authentication system
+- **Provider**: Centralized OAuth via Scholar Auth (scholar-auth-jamarrlmayes.replit.app)
+- **OAuth Client**: Pre-configured with client_id `student-pilot` 
+- **Security**: PKCE S256 required, refresh token rotation enabled
 - **Session Storage**: PostgreSQL-backed sessions with configurable TTL
 - **Access Control**: Route-level authentication middleware protecting API endpoints
 - **User Management**: Automatic user creation and profile management
+- **SSO**: Single Sign-On enabled across Student and Provider applications
+
+### OAuth Configuration Required
+Add these secrets to Replit for centralized auth:
+- `FEATURE_AUTH_PROVIDER=scholar-auth`
+- `AUTH_CLIENT_ID=student-pilot`
+- `AUTH_CLIENT_SECRET=[see OAUTH-SETUP.md]`
+- `AUTH_ISSUER_URL=https://scholar-auth-jamarrlmayes.replit.app`
+
+See `OAUTH-SETUP.md` for complete setup instructions.
 
 ## File Upload System
 - **Storage**: Google Cloud Storage with Replit's sidecar integration

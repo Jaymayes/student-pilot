@@ -193,14 +193,22 @@ Running 3 tests using 1 worker
    - First run will discover actual auth page structure
    - Add `data-testid` attributes if needed for stability
 
-### Recommended Enhancements
+### Scholar Auth Selectors - Already Configured! ✅
 
-1. **Add data-testid to Centralized Auth** (if you control it):
-   ```html
-   <input type="email" data-testid="input-email" />
-   <input type="password" data-testid="input-password" />
-   <button type="submit" data-testid="button-login">Log in</button>
-   ```
+**Great news!** Scholar Auth already has all the stable `data-testid` attributes our tests need:
+
+```html
+<!-- Login Form Elements (Available Now) -->
+<input type="email" data-testid="input-email" />
+<input type="password" data-testid="input-password" />
+<button type="submit" data-testid="button-submit-login">Log in</button>
+<button data-testid="button-toggle-password">Show/Hide Password</button>
+<input type="checkbox" data-testid="checkbox-remember-me" />
+<button data-testid="button-forgot-password">Forgot Password</button>
+<button data-testid="button-replit-auth">Continue with Replit</button>
+```
+
+**Our E2E tests are already configured to use these selectors!** No changes needed.
 
 2. **Add data-testid to Client Apps**:
    ```html

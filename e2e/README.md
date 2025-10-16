@@ -145,14 +145,21 @@ Tests use resilient selectors with this priority:
 2. **Semantic selectors** - e.g., `input[type="email"]`
 3. **Role-based** - e.g., `getByRole('button', { name: /log in/i })`
 
-### Recommended data-testid Attributes
+### Available data-testid Attributes (Scholar Auth)
 
-#### Centralized Auth App
+#### Centralized Auth App - Already Configured! ✅
 ```html
+<!-- Login Form Elements (Available Now) -->
 <input type="email" data-testid="input-email" />
 <input type="password" data-testid="input-password" />
-<button type="submit" data-testid="button-login">Log in</button>
+<button type="submit" data-testid="button-submit-login">Log in</button>
+<button data-testid="button-toggle-password">Show/Hide Password</button>
+<input type="checkbox" data-testid="checkbox-remember-me" />
+<button data-testid="button-forgot-password">Forgot Password</button>
+<button data-testid="button-replit-auth">Continue with Replit</button>
 ```
+
+**Note**: Scholar Auth is already production-ready with stable test selectors! Our E2E tests use these attributes for maximum reliability.
 
 #### Student/Provider Apps
 ```html

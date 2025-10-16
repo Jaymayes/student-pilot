@@ -35,7 +35,7 @@ async function loginOnAuth(page: Page, email: string, password: string) {
   ];
   
   const submitSelectors = [
-    'button[data-testid="button-login"]',
+    'button[data-testid="button-submit-login"]', // Scholar Auth uses this testid
     'button[type="submit"]',
     'button:has-text("Log in")',
     'button:has-text("Sign in")',
