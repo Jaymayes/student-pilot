@@ -56,7 +56,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: env.NODE_ENV === 'production', // Only require HTTPS in production
       sameSite: 'lax', // RT-018: CSRF protection
       maxAge: sessionTtl,
       domain: undefined, // Explicit domain scoping
@@ -159,9 +159,14 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
+      // Use correct client_id based on auth provider
+      const clientId = env.FEATURE_AUTH_PROVIDER === 'scholar-auth' 
+        ? env.AUTH_CLIENT_ID!
+        : env.REPL_ID;
+      
       res.redirect(
         client.buildEndSessionUrl(config, {
-          client_id: env.REPL_ID,
+          client_id: clientId,
           post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
         }).href
       );
