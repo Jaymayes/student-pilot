@@ -87,7 +87,7 @@ export class OpenAIService {
       async () => {
         return await openai.chat.completions.create({
           model,
-          messages,
+          messages: messages as any, // Type assertion for message compatibility
           max_tokens: maxTokens,
           temperature,
         });
@@ -97,23 +97,29 @@ export class OpenAIService {
         console.warn('OpenAI service unavailable, returning free fallback response');
         return {
           id: `fallback-${Date.now()}`,
+          object: 'chat.completion' as const,
+          created: Math.floor(Date.now() / 1000),
+          model: model,
           isFallback: true, // Mark as fallback to prevent billing
           choices: [{
+            index: 0,
             message: { 
+              role: 'assistant' as const,
               content: "I apologize, but the AI service is temporarily unavailable. Please try again in a few minutes." 
-            }
+            },
+            finish_reason: 'stop' as const
           }],
           usage: {
             prompt_tokens: 0, // No billing for fallback
             completion_tokens: 0, // No billing for fallback
             total_tokens: 0
           }
-        };
+        } as any; // Type assertion for fallback compatibility
       }
     );
 
     // Check if this is a fallback response - NEVER charge for service failures
-    if (response.isFallback) {
+    if ((response as any).isFallback) {
       console.log('Fallback response detected - no billing applied');
       return {
         response,
