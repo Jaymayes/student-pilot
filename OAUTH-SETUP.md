@@ -18,7 +18,7 @@ FEATURE_AUTH_PROVIDER=scholar-auth
 
 # OAuth Client Credentials
 AUTH_CLIENT_ID=student-pilot
-AUTH_CLIENT_SECRET=b993703087aa4de217c579594746d225dc7ebde09951afa90a65189f9e487fac
+AUTH_CLIENT_SECRET=<OBTAIN_FROM_SCHOLAR_AUTH_ADMIN>
 
 # Auth Server URL
 AUTH_ISSUER_URL=https://scholar-auth-jamarrlmayes.replit.app
@@ -172,7 +172,7 @@ Running 3 tests using 1 worker
 ### Step 1: Add OAuth Secrets to Replit
 - [ ] `FEATURE_AUTH_PROVIDER=scholar-auth`
 - [ ] `AUTH_CLIENT_ID=student-pilot`
-- [ ] `AUTH_CLIENT_SECRET=b993703087aa4de217c579594746d225dc7ebde09951afa90a65189f9e487fac`
+- [ ] `AUTH_CLIENT_SECRET=<obtain-from-scholar-auth-admin>`
 - [ ] `AUTH_ISSUER_URL=https://scholar-auth-jamarrlmayes.replit.app`
 - [ ] Restart application workflow
 

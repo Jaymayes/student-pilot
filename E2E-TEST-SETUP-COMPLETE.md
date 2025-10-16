@@ -53,9 +53,11 @@ Your E2E authentication test suite is **fully configured** and ready to validate
 ```bash
 FEATURE_AUTH_PROVIDER=scholar-auth
 AUTH_CLIENT_ID=student-pilot
-AUTH_CLIENT_SECRET=b993703087aa4de217c579594746d225dc7ebde09951afa90a65189f9e487fac
+AUTH_CLIENT_SECRET=<OBTAIN_FROM_SCHOLAR_AUTH_ADMIN>
 AUTH_ISSUER_URL=https://scholar-auth-jamarrlmayes.replit.app
 ```
+
+**⚠️ SECURITY**: Obtain the `AUTH_CLIENT_SECRET` from Scholar Auth administrator. Never commit secrets to version control.
 
 Then **restart your application**.
 
@@ -134,7 +136,7 @@ npx playwright show-report
 |---------|-------|
 | **Auth Server** | https://scholar-auth-jamarrlmayes.replit.app |
 | **Client ID** | `student-pilot` |
-| **Client Secret** | `b993703...` (see OAUTH-SETUP.md) |
+| **Client Secret** | `<obtain-from-admin>` (see OAUTH-SETUP.md) |
 | **Auth Method** | `client_secret_post` |
 | **Security** | PKCE S256 (required) |
 | **Token Rotation** | Enabled |

@@ -15,9 +15,11 @@ Add these to your Replit Secrets:
 ```bash
 FEATURE_AUTH_PROVIDER=scholar-auth
 AUTH_CLIENT_ID=student-pilot
-AUTH_CLIENT_SECRET=b993703087aa4de217c579594746d225dc7ebde09951afa90a65189f9e487fac
+AUTH_CLIENT_SECRET=<OBTAIN_FROM_SCHOLAR_AUTH_ADMIN>
 AUTH_ISSUER_URL=https://scholar-auth-jamarrlmayes.replit.app
 ```
+
+**⚠️ SECURITY**: Never hardcode client secrets. Obtain the `AUTH_CLIENT_SECRET` from your Scholar Auth administrator and add it directly to Replit Secrets.
 
 **How to add**:
 1. Click **Tools** → **Secrets** in Replit
