@@ -1,0 +1,233 @@
+As CEO, I’ll set clear acceptance criteria and provide a ready-to-run E2E test scaffold your engineering agent can finalize.
+
+Executive acceptance criteria (Auth E2E)
+
+Centralized auth at https://scholar-auth-jamarrlmayes.replit.app is the single sign-on authority for:
+Student app: https://student-pilot-jamarrlmayes.replit.app
+Provider app: https://provider-register-jamarrlmayes.replit.app
+Visiting either client app while unauthenticated redirects to Centralized Auth login.
+After successful login, user is redirected back to the originating client app in an authenticated state.
+With an active session at Centralized Auth, visiting the other client app should not prompt for credentials (SSO works via redirect to auth and immediate return).
+Logout revokes access on both client apps (optional if logout UX is not yet consistent).
+Prompt for your autonomous engineering agent
+Objective: Implement an automated Playwright E2E test suite that validates centralized authentication and SSO across our two client applications.
+
+Systems under test:
+
+Auth: https://scholar-auth-jamarrlmayes.replit.app
+Student: https://student-pilot-jamarrlmayes.replit.app
+Provider: https://provider-register-jamarrlmayes.replit.app
+Scope and flows:
+
+Student login flow
+Start at STUDENT_URL protected area (or click “Log in” if landing page is public).
+Verify redirect to AUTH_URL login.
+Enter TEST_EMAIL_STUDENT / TEST_PASSWORD_STUDENT, submit.
+Verify redirect back to Student app and authenticated UI visible.
+Provider SSO flow
+In the same browser context (session preserved), visit PROVIDER_URL.
+Expect redirect to AUTH_URL and automatic pass-through (no credential prompt).
+Verify redirect back to Provider app and authenticated UI visible.
+Optional: Logout propagation
+Trigger logout on Student or Provider app.
+Verify access to a protected route on the other app forces re-authentication.
+Deliverables:
+
+Playwright project with:
+tests/auth.e2e.spec.ts implementing the flows above.
+playwright.config.ts suitable for CI and local.
+README with env setup and run instructions.
+Use resilient selectors. If exact selectors are unknown, first run should probe and then lock in data-testid or role-based selectors. Prefer getByRole and data-testid over brittle CSS.
+The suite must accept these environment variables:
+AUTH_URL, STUDENT_URL, PROVIDER_URL
+TEST_EMAIL_STUDENT, TEST_PASSWORD_STUDENT
+TEST_EMAIL_PROVIDER, TEST_PASSWORD_PROVIDER (if role separation is required)
+Timeouts and waits tuned for Replit latencies. Include screenshots and traces on failure.
+Exit code must fail the pipeline on auth regressions.
+Assumptions to confirm/update during implementation:
+
+Auth page has fields for email and password and a submit button labeled “Log in” or “Sign in”.
+Both client apps expose either:
+Protected default route (auto-redirect to auth), or
+A visible “Log in” CTA leading to auth.
+Each client shows a stable authenticated indicator (e.g., “Log out” button, user menu, or identifiable dashboard element). Add data-testid if needed.
+Playwright E2E test scaffold (TypeScript)
+
+Save as tests/auth.e2e.spec.ts
+Update selectors after first DOM inspection.
+// tests/auth.e2e.spec.ts
+import { test, expect } from '@playwright/test';
+
+const AUTH_URL = process.env.AUTH_URL || 'https://scholar-auth-jamarrlmayes.replit.app';
+const STUDENT_URL = process.env.STUDENT_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+const PROVIDER_URL = process.env.PROVIDER_URL || 'https://provider-register-jamarrlmayes.replit.app';
+
+const TEST_EMAIL_STUDENT = process.env.TEST_EMAIL_STUDENT || process.env.TEST_EMAIL || '';
+const TEST_PASSWORD_STUDENT = process.env.TEST_PASSWORD_STUDENT || process.env.TEST_PASSWORD || '';
+const TEST_EMAIL_PROVIDER = process.env.TEST_EMAIL_PROVIDER || TEST_EMAIL_STUDENT;
+const TEST_PASSWORD_PROVIDER = process.env.TEST_PASSWORD_PROVIDER || TEST_PASSWORD_STUDENT;
+
+// Helper: best-effort login on the Centralized Auth page
+async function loginOnAuth(page, email: string, password: string) {
+  // Wait for any of these typical selectors. Replace with data-testid once available.
+  const emailLocators = [
+    page.getByLabel(/email/i),
+    page.locator('input[name="email"]'),
+    page.locator('input[type="email"]'),
+    page.locator('input[placeholder*="email" i]')
+  ];
+  const passwordLocators = [
+    page.getByLabel(/password/i),
+    page.locator('input[name="password"]'),
+    page.locator('input[type="password"]'),
+    page.locator('input[placeholder*="password" i]')
+  ];
+  const submitButtons = [
+    page.getByRole('button', { name: /log in|sign in|continue/i }),
+    page.locator('button[type="submit"]')
+  ];
+
+  // Pick the first visible match for each
+  const emailInput = emailLocators.find(async l => await (await l.elementHandle())?.isVisible());
+  const passwordInput = passwordLocators.find(async l => await (await l.elementHandle())?.isVisible());
+
+  // Fallback waits to ensure at least one is present
+  await page.waitForSelector('input[type="email"], input[name="email"], [placeholder*="email" i]', { timeout: 15000 });
+  await page.waitForSelector('input[type="password"], input[name="password"], [placeholder*="password" i]', { timeout: 15000 });
+
+  // Fill
+  await emailLocators[0].fill(email);
+  await passwordLocators[0].fill(password);
+
+  // Submit
+  const foundSubmit = await Promise.any(submitButtons.map(b => b.waitFor({ state: 'visible', timeout: 5000 }))).catch(() => null);
+  if (foundSubmit) {
+    // click the first that is visible
+    for (const b of submitButtons) {
+      if (await b.isVisible().catch(() => false)) {
+        await b.click();
+        break;
+      }
+    }
+  } else {
+    // Try pressing Enter if no button found
+    await passwordLocators[0].press('Enter');
+  }
+}
+
+// Helper: if redirected to auth, log in, then wait to return
+async function ensureAuthenticatedViaAuth(page, startUrl: string, email: string, password: string) {
+  await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+
+  // Either we land on auth or are already logged in
+  if (page.url().startsWith(AUTH_URL)) {
+    await loginOnAuth(page, email, password);
+
+    // After login we should return to the app’s origin
+    await page.waitForLoadState('domcontentloaded');
+    // wait for navigation away from AUTH_URL
+    await page.waitForFunction((auth) => !location.href.startsWith(auth), AUTH_URL, { timeout: 30000 });
+  }
+
+  // Basic sanity: we should be on the client app now
+  expect(page.url().startsWith(startUrl.split('/', 3).slice(0, 3).join('/'))).toBeTruthy();
+}
+
+test.describe('Centralized Authentication E2E', () => {
+  test('Student app: redirects to Centralized Auth and returns authenticated', async ({ page }) => {
+    test.skip(!TEST_EMAIL_STUDENT || !TEST_PASSWORD_STUDENT, 'Missing TEST_EMAIL_STUDENT/TEST_PASSWORD_STUDENT env vars');
+
+    await ensureAuthenticatedViaAuth(page, STUDENT_URL, TEST_EMAIL_STUDENT, TEST_PASSWORD_STUDENT);
+
+    // Assert authenticated UI; replace with stable selector (data-testid recommended)
+    // Examples: getByRole('button', { name: /log out/i }) or a known dashboard element.
+    const possibleAuthedIndicators = [
+      page.getByRole('button', { name: /log out|sign out/i }),
+      page.getByText(/dashboard|my scholarships|welcome/i).first(),
+      page.locator('[data-testid="user-menu"]')
+    ];
+
+    const anyVisible = await Promise.any(
+      possibleAuthedIndicators.map(async l => {
+        await l.waitFor({ state: 'visible', timeout: 10000 });
+        return true;
+      })
+    ).catch(() => false);
+
+    expect(anyVisible, 'Authenticated indicator not found on Student app').toBeTruthy();
+  });
+
+  test('Provider app: SSO pass-through after Student login (no credential prompt)', async ({ context, page }) => {
+    test.skip(!TEST_EMAIL_STUDENT || !TEST_PASSWORD_STUDENT, 'Missing TEST_EMAIL_STUDENT/TEST_PASSWORD_STUDENT env vars');
+
+    // Reuse context so auth session cookie at AUTH_URL is preserved
+    await ensureAuthenticatedViaAuth(page, STUDENT_URL, TEST_EMAIL_STUDENT, TEST_PASSWORD_STUDENT);
+
+    // Now navigate to Provider; expect silent pass-through via auth
+    const providerPage = await context.newPage();
+    await providerPage.goto(PROVIDER_URL, { waitUntil: 'domcontentloaded' });
+
+    // If we briefly hit AUTH_URL, we should auto-redirect back without seeing the login form
+    await providerPage.waitForLoadState('domcontentloaded');
+    // Wait up to 30s for final landing away from AUTH_URL
+    await providerPage.waitForFunction((auth) => !location.href.startsWith(auth), AUTH_URL, { timeout: 30000 });
+
+    // Assert authenticated UI on Provider
+    const providerAuthedIndicators = [
+      providerPage.getByRole('button', { name: /log out|sign out/i }),
+      providerPage.getByText(/provider dashboard|listings|create scholarship/i).first(),
+      providerPage.locator('[data-testid="provider-user-menu"]')
+    ];
+
+    const providerVisible = await Promise.any(
+      providerAuthedIndicators.map(async l => {
+        await l.waitFor({ state: 'visible', timeout: 10000 });
+        return true;
+      })
+    ).catch(() => false);
+
+    expect(providerVisible, 'Authenticated indicator not found on Provider app').toBeTruthy();
+  });
+
+  test('Optional: logout revokes access on both client apps', async ({ page }) => {
+    test.skip(true, 'Enable once a consistent logout UI is available.');
+
+    // Example flow:
+    // 1) ensureAuthenticatedViaAuth(page, STUDENT_URL, TEST_EMAIL_STUDENT, TEST_PASSWORD_STUDENT);
+    // 2) Click logout on Student
+    // 3) Visit PROVIDER_URL and assert redirect to AUTH_URL with visible login form
+  });
+});
+Basic Playwright config (playwright.config.ts)
+
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
+  use: {
+    headless: true,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
+  },
+});
+How to run locally
+
+Ensure test users exist and can log into the Centralized Auth.
+Export environment variables (adjust if you use separate provider creds):
+AUTH_URL=https://scholar-auth-jamarrlmayes.replit.app
+STUDENT_URL=https://student-pilot-jamarrlmayes.replit.app
+PROVIDER_URL=https://provider-register-jamarrlmayes.replit.app
+TEST_EMAIL_STUDENT=youremail@example.com
+TEST_PASSWORD_STUDENT=yourpassword
+Install and run:
+npm i -D @playwright/test
+npx playwright install
+npx playwright test
+Next steps
+
+Have engineering run the scaffold once to discover exact selectors.
+Add stable data-testid attributes to key elements: login inputs, submit, authenticated headers/menus, logout, and protected route markers.
+Enable the logout test once UX is consistent.
+Wire into CI to block merges on auth regressions.
