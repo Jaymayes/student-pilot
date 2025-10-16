@@ -1,9 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 
-// Load test environment variables
-dotenv.config({ path: path.resolve(__dirname, '.env.test') });
+// Test environment variables can be passed via command line or .env file
+// Use: AUTH_URL=... STUDENT_URL=... npx playwright test
 
 export default defineConfig({
   testDir: './e2e',
