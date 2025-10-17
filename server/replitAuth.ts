@@ -17,14 +17,20 @@ const getOidcConfig = memoize(
     if (env.FEATURE_AUTH_PROVIDER === 'scholar-auth') {
       // Scholar Auth configuration
       const issuerUrl = env.AUTH_ISSUER_URL!;
+      const clientId = env.AUTH_CLIENT_ID!;
+      const clientSecret = env.AUTH_CLIENT_SECRET!;
+      
+      console.log(`🔐 OAuth configured: Scholar Auth (${issuerUrl})`);
+      console.log(`   Client ID: ${clientId}`);
+      console.log(`   Client Secret: ${clientSecret?.substring(0, 8)}...${clientSecret?.substring(clientSecret.length - 4)} (${clientSecret?.length} chars)`);
+      
       const config = await client.discovery(
         new URL(issuerUrl),
-        env.AUTH_CLIENT_ID!,
+        clientId,
         {
-          client_secret: env.AUTH_CLIENT_SECRET!,
+          client_secret: clientSecret,
         }
       );
-      console.log(`🔐 OAuth configured: Scholar Auth (${issuerUrl})`);
       return config;
     } else {
       // Legacy Replit OIDC configuration
