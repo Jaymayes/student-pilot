@@ -386,7 +386,7 @@ export default function Dashboard() {
                       </div>
                     ))}
                   </div>
-                ) : matches && matches.length > 0 ? (
+                ) : Array.isArray(matches) && matches.length > 0 ? (
                   <div className="space-y-4">
                     {matches.slice(0, 3).map((match) => (
                       <ScholarshipCard 
