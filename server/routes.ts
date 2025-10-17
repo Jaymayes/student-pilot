@@ -67,7 +67,7 @@ if (!stripeConfig.secretKey) {
 console.log(`🔒 Stripe initialized in ${stripeConfig.isTestMode ? 'TEST' : 'LIVE'} mode`);
 
 const stripe = new Stripe(stripeConfig.secretKey, {
-  apiVersion: "2025-07-30.basil",
+  apiVersion: "2023-10-16",
 });
 
 export async function registerRoutes(app: Express): Promise<void> {
