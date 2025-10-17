@@ -67,7 +67,7 @@ if (!stripeConfig.secretKey) {
 console.log(`🔒 Stripe initialized in ${stripeConfig.isTestMode ? 'TEST' : 'LIVE'} mode`);
 
 const stripe = new Stripe(stripeConfig.secretKey, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-07-30.basil",
 });
 
 export async function registerRoutes(app: Express): Promise<void> {
@@ -640,12 +640,9 @@ Allow: /apply/`;
   app.get('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      console.log(`[DEBUG] GET /api/profile for userId: ${userId}`);
       const profile = await storage.getStudentProfile(userId);
-      console.log(`[DEBUG] Profile fetched:`, profile ? `id=${profile.id}, userId=${profile.userId}, gpa=${profile.gpa}, major=${profile.major}, school=${profile.school}` : 'null');
       
       if (!profile) {
-        console.log(`[DEBUG] No profile found for userId: ${userId}, returning null`);
         return res.json(null);
       }
       
@@ -661,7 +658,7 @@ Allow: /apply/`;
         location: profile.location ? String(profile.location) : null,
         // Convert arrays to plain arrays (Drizzle proxy objects may have circular refs)
         interests: profile.interests ? Array.from(profile.interests).map(String) : [],
-        activities: profile.activities ? Array.from(profile.activities).map(String) : [],
+        extracurriculars: profile.extracurriculars ? Array.from(profile.extracurriculars).map(String) : [],
         achievements: profile.achievements ? Array.from(profile.achievements).map(String) : []
       };
       
@@ -686,13 +683,10 @@ Allow: /apply/`;
       if (existingProfile) {
         // Use strict update schema for existing profiles
         const validatedData = updateStudentProfileSchema.parse(req.body);
-        console.log(`[DEBUG] POST /api/profile validatedData:`, { gpa: validatedData.gpa, major: validatedData.major, school: validatedData.school });
         const updatedProfile = await storage.updateStudentProfile(userId, validatedData);
-        console.log(`[DEBUG] POST /api/profile updatedProfile from storage:`, { gpa: updatedProfile.gpa, major: updatedProfile.major, school: updatedProfile.school });
         
         // Invalidate cache to ensure GET returns fresh data
         responseCache.delete(`student-profile:${userId}`);
-        console.log(`[DEBUG] Cache invalidated for student-profile:${userId}`);
         
         // CEO Analytics: Track profile completion progress
         const completionPercent = updatedProfile.completionPercentage || 0;
