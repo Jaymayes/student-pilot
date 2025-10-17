@@ -178,6 +178,61 @@ Allow: /apply/`;
   // Auth middleware
   await setupAuth(app);
   
+  // ========== E2E TEST AUTHENTICATION ENDPOINT ==========
+  // Only enabled in development/test environments for Playwright E2E tests
+  // Always enable in non-deployment environments (development & testing)
+  if (!process.env.REPLIT_DEPLOYMENT) {
+    app.post('/api/test/login', express.json(), async (req, res) => {
+      try {
+        const { sub, email, first_name, last_name } = req.body;
+        
+        if (!sub || !email) {
+          return res.status(400).json({ error: 'Missing required fields: sub and email' });
+        }
+        
+        // Upsert user to database (same as real OAuth flow)
+        await storage.upsertUser({
+          id: sub,
+          email,
+          firstName: first_name,
+          lastName: last_name,
+        });
+        
+        // Create authenticated session (same structure as OAuth)
+        const sessionUser = {
+          claims: {
+            sub,
+            email,
+            first_name,
+            last_name,
+          },
+          access_token: 'test-access-token',
+          refresh_token: 'test-refresh-token',
+          expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour
+        };
+        
+        // Set up session
+        req.login(sessionUser, (err) => {
+          if (err) {
+            console.error('Test login session error:', err);
+            return res.status(500).json({ error: 'Failed to create session' });
+          }
+          
+          console.log(`✅ Test login successful for user: ${email}`);
+          res.status(200).json({ 
+            success: true, 
+            user: { sub, email, first_name, last_name } 
+          });
+        });
+      } catch (error) {
+        console.error('Test login error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+    
+    console.log('🧪 Test authentication endpoint enabled at /api/test/login');
+  }
+  
   // Cache prewarming for improved startup performance
   console.log('🔥 Prewarming critical caches...');
   responseCache.prewarm('ttv-dashboard', async () => {

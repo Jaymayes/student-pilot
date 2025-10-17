@@ -215,12 +215,12 @@ export default function Dashboard() {
     );
   }
 
-  const upcomingDeadlines = matches?.filter(match => {
+  const upcomingDeadlines = (Array.isArray(matches) ? matches : []).filter(match => {
     const deadline = new Date(match.scholarship.deadline);
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     return deadline <= thirtyDaysFromNow && deadline >= new Date();
-  }).slice(0, 3) || [];
+  }).slice(0, 3);
 
   const activeApplications = applications?.filter(app => 
     ['draft', 'in_progress'].includes(app.status)
