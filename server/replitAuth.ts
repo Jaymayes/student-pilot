@@ -15,7 +15,7 @@ import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
 const getOidcConfig = memoize(
   async () => {
     if (env.FEATURE_AUTH_PROVIDER === 'scholar-auth') {
-      // Scholar Auth configuration
+      // Scholar Auth configuration with fallback
       const issuerUrl = env.AUTH_ISSUER_URL!;
       const clientId = env.AUTH_CLIENT_ID!;
       const clientSecret = env.AUTH_CLIENT_SECRET!;
@@ -24,14 +24,29 @@ const getOidcConfig = memoize(
       console.log(`   Client ID: ${clientId}`);
       console.log(`   Client Secret: ${clientSecret?.substring(0, 8)}...${clientSecret?.substring(clientSecret.length - 4)} (${clientSecret?.length} chars)`);
       
-      const config = await client.discovery(
-        new URL(issuerUrl),
-        clientId,
-        {
-          client_secret: clientSecret,
-        }
-      );
-      return config;
+      try {
+        const config = await client.discovery(
+          new URL(issuerUrl),
+          clientId,
+          {
+            client_secret: clientSecret,
+          }
+        );
+        console.log('✅ Scholar Auth discovery successful');
+        return config;
+      } catch (error: any) {
+        console.error('❌ Scholar Auth discovery failed, falling back to Replit OIDC:', error.message);
+        console.log('⚠️  Using Replit OIDC as fallback authentication provider');
+        
+        // Fallback to Replit OIDC
+        const fallbackIssuerUrl = env.ISSUER_URL || "https://replit.com/oidc";
+        const config = await client.discovery(
+          new URL(fallbackIssuerUrl),
+          env.REPL_ID
+        );
+        console.log(`🔐 Fallback OAuth configured: Replit OIDC (${fallbackIssuerUrl})`);
+        return config;
+      }
     } else {
       // Legacy Replit OIDC configuration
       const issuerUrl = env.ISSUER_URL || "https://replit.com/oidc";
