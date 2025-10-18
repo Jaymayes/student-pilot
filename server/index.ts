@@ -427,6 +427,33 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  // Global error handlers for production safety
+  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    console.error('⚠️  Unhandled Promise Rejection:', {
+      reason: reason?.message || reason,
+      stack: reason?.stack,
+      promise: promise.toString(),
+      timestamp: new Date().toISOString()
+    });
+    
+    // In development, provide more details
+    if (!isProduction) {
+      console.error('Full reason:', reason);
+    }
+  });
+
+  process.on('uncaughtException', (error: Error) => {
+    console.error('🚨 Uncaught Exception:', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Graceful shutdown on uncaught exception
+    console.error('⚠️  Initiating graceful shutdown...');
+    process.exit(1);
+  });
+
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
