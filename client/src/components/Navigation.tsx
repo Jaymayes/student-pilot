@@ -120,7 +120,7 @@ export function Navigation() {
             <div className="flex justify-between items-center h-16">
               {/* Logo */}
               <Link href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary focus:rounded-md">
-                <img src={logoImage} alt="ScholarLink Logo" className="h-10 w-10" />
+                <img src={logoImage} alt="Scholar Ai Advisor owl logo with book and circuit board design" className="h-10 w-10" />
                 <span className="text-xl font-bold text-foreground dark:text-primary">ScholarLink</span>
               </Link>
 
@@ -270,7 +270,7 @@ export function Navigation() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary focus:rounded-md">
-              <img src={logoImage} alt="ScholarLink Logo" className="h-10 w-10" />
+              <img src={logoImage} alt="Scholar Ai Advisor owl logo with book and circuit board design" className="h-10 w-10" />
               <span className="text-xl font-bold text-foreground dark:text-primary">ScholarLink</span>
             </Link>
             
