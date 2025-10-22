@@ -13,11 +13,15 @@ import {
   Folder, 
   User as UserIcon,
   CreditCard,
-  X
+  X,
+  Moon,
+  Sun
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useResponsive } from "@/utils/responsive";
 import { FocusManager, AriaUtils } from "@/utils/accessibility";
+import { useTheme } from "@/components/ThemeProvider";
+import logoImage from "@assets/OpenAI Playground 2025-10-22 at 09.21.40_1761153606899.png";
 
 export function Navigation() {
   const { user } = useAuth();
@@ -26,6 +30,7 @@ export function Navigation() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const { theme, toggleTheme } = useTheme();
 
   const getInitials = (firstName?: string | null, lastName?: string | null) => {
     const first = firstName?.charAt(0) || '';
@@ -115,15 +120,25 @@ export function Navigation() {
             <div className="flex justify-between items-center h-16">
               {/* Logo */}
               <Link href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary focus:rounded-md">
-                <GraduationCap className="text-primary text-2xl" aria-hidden="true" />
-                <span className="text-xl font-bold text-primary">ScholarLink</span>
+                <img src={logoImage} alt="ScholarLink Logo" className="h-10 w-10" />
+                <span className="text-xl font-bold text-foreground dark:text-primary">ScholarLink</span>
               </Link>
 
               {/* Header Actions */}
               <div className="flex items-center space-x-2">
+                {/* Dark Mode Toggle */}
+                <button 
+                  onClick={toggleTheme}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  data-testid="button-theme-toggle"
+                >
+                  {theme === "dark" ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+                </button>
+
                 {/* Notifications */}
                 <button 
-                  className="relative p-2 text-gray-600 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="Notifications (3 unread)"
                   data-testid="button-notifications"
                 >
@@ -140,7 +155,7 @@ export function Navigation() {
                 <button 
                   ref={menuButtonRef}
                   onClick={toggleMobileMenu}
-                  className="p-2 text-gray-600 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label={showMobileMenu ? "Close menu" : "Open menu"}
                   aria-expanded={showMobileMenu}
                   aria-controls="mobile-menu"
@@ -255,8 +270,8 @@ export function Navigation() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-primary focus:rounded-md">
-              <GraduationCap className="text-primary text-2xl" aria-hidden="true" />
-              <span className="text-xl font-bold text-primary">ScholarLink</span>
+              <img src={logoImage} alt="ScholarLink Logo" className="h-10 w-10" />
+              <span className="text-xl font-bold text-foreground dark:text-primary">ScholarLink</span>
             </Link>
             
             {/* Desktop Navigation Links */}
@@ -269,7 +284,7 @@ export function Navigation() {
                       className={`text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:rounded-md px-2 py-1 cursor-pointer ${
                         isActive 
                           ? 'text-primary border-b-2 border-primary pb-4' 
-                          : 'text-gray-600 hover:text-primary'
+                          : 'text-gray-600 dark:text-gray-300 hover:text-primary'
                       }`}
                       role="link"
                       aria-current={isActive ? 'page' : undefined}
@@ -284,9 +299,19 @@ export function Navigation() {
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+              {/* Dark Mode Toggle */}
+              <button 
+                onClick={toggleTheme}
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                data-testid="button-theme-toggle"
+              >
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+
               {/* Notifications */}
               <button 
-                className="relative p-2 text-gray-600 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Notifications (3 unread)"
                 data-testid="button-notifications"
               >
@@ -316,7 +341,7 @@ export function Navigation() {
                     <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                       {getInitials(user.firstName, user.lastName)}
                     </div>
-                    <span className="text-sm font-medium text-gray-700">{user.firstName}</span>
+                    <span className="text-sm font-medium text-foreground dark:text-gray-200">{user.firstName}</span>
                   </div>
                 </div>
               )}
