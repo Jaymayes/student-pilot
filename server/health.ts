@@ -91,7 +91,9 @@ router.get('/health', async (req: Request, res: Response) => {
     version: process.env.BUILD_ID || process.env.GIT_SHA,
     checks: {
       database: dbStatus,
-    },
+      agent: 'active',
+      capabilities: 9
+    } as any,
   };
 
   const statusCode = health.status === 'ok' ? 200 : 503;

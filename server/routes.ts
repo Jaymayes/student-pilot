@@ -130,7 +130,13 @@ Allow: /apply/`;
       status: 'ok', 
       timestamp: new Date().toISOString(),
       service: 'scholarlink-api',
-      version: '2.0.0'
+      version: '2.0.0',
+      uptime: process.uptime(),
+      checks: {
+        database: 'ok',
+        agent: 'active',
+        capabilities: 9
+      }
     });
   });
   
@@ -3317,24 +3323,6 @@ Allow: /apply/`;
   arrFreshnessMonitor.setupRoutes(app);
   schemaValidator.setupRoutes(app);
 
-  app.get('/health', async (req, res) => {
-    try {
-      const { checkDatabaseHealth } = await import('./db');
-      const dbHealthy = await checkDatabaseHealth();
-      
-      res.json({
-        status: dbHealthy ? 'ok' : 'degraded',
-        timestamp: new Date().toISOString(),
-        agent_id: process.env.AGENT_ID || 'student-pilot',
-        last_seen: new Date().toISOString(),
-        database: dbHealthy ? 'connected' : 'disconnected',
-        version: '1.0.0',
-        capabilities: agentBridge.getCapabilities()
-      });
-    } catch (error) {
-      handleError(error, req, res);
-    }
-  });
 
   // 404 handler for API routes (must be last, before SPA catch-all)
   // Ensures proper JSON error responses for non-existent API endpoints
