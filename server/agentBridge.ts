@@ -66,11 +66,16 @@ export class AgentBridge {
 
     try {
       await this.register();
-      this.startHeartbeat();
-      console.log(`Agent Bridge started for ${AGENT_NAME} (${AGENT_ID})`);
+      console.log('✅ Agent Bridge registered with Command Center');
     } catch (error) {
-      console.error('Failed to start Agent Bridge:', error);
+      // Expected failures: 404 (Command Center not configured), network errors
+      console.log('⚠️  Agent Bridge running in local-only mode (Command Center unavailable)');
+      console.log(`   Reason: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+    
+    // Start heartbeat regardless of registration status
+    this.startHeartbeat();
+    console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID})`);
   }
 
   // Stop the agent bridge
