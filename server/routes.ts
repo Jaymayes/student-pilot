@@ -1946,12 +1946,17 @@ Allow: /apply/`;
           .where(eq(purchases.id, purchaseId));
 
         // Award credits to user
-        await billingService.awardPurchaseCredits(purchaseId);
+        const purchase = await billingService.awardPurchaseCredits(purchaseId);
         
-        // CEO Analytics: Track conversion event (credit purchase)
+        // Business Event: Track credit purchase
         const packageCode = session.metadata?.packageCode || 'unknown';
         const userId = session.metadata?.userId || 'unknown';
-        console.log(`[ANALYTICS] Conversion: user=${userId}, package=${packageCode}, purchase_id=${purchaseId}, amount=${session.amount_total / 100} USD`);
+        const paymentIntentId = session.payment_intent || purchaseId;
+        const revenueUsd = session.amount_total / 100; // Convert cents to dollars
+        await StudentEvents.creditPurchased(userId, paymentIntentId, purchase.totalCredits, revenueUsd, crypto.randomUUID());
+        
+        // CEO Analytics: Track conversion event (credit purchase)
+        console.log(`[ANALYTICS] Conversion: user=${userId}, package=${packageCode}, purchase_id=${purchaseId}, amount=${revenueUsd} USD`);
         
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }

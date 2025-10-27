@@ -153,6 +153,11 @@ export class OpenAIService {
       );
 
       const chargedCredits = millicreditsToCredits(billingResult.chargedMillicredits);
+      const chargedUsd = chargedCredits / 1000; // credits to USD
+      
+      // Business Event: Track credit spending
+      const { StudentEvents } = await import("./services/businessEvents");
+      await StudentEvents.creditSpent(userId, chargedCredits, chargedUsd, `ai_usage_${model}`, response.id);
 
       return {
         response,
@@ -160,7 +165,7 @@ export class OpenAIService {
           inputTokens,
           outputTokens,
           chargedCredits,
-          chargedUsd: chargedCredits / 1000, // credits to USD
+          chargedUsd,
         },
       };
     } catch (error) {

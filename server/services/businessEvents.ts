@@ -93,27 +93,29 @@ export const StudentEvents = {
       },
     }),
 
-  creditPurchased: (userId: string, amount: number, usdCents: number, requestId: string) =>
+  creditPurchased: (userId: string, paymentId: string, credits: number, revenueUsd: number, requestId: string) =>
     emitBusinessEvent({
       eventName: "credit_purchased",
       actorType: "student",
       actorId: userId,
       requestId,
       properties: {
-        creditsAmount: amount,
-        usdCents,
+        payment_id: paymentId,
+        credits,
+        revenue_usd: revenueUsd,
       },
     }),
 
-  creditSpent: (userId: string, amount: number, operation: string, requestId: string) =>
+  creditSpent: (userId: string, credits: number, revenueUsd: number, reason: string, requestId: string) =>
     emitBusinessEvent({
       eventName: "credit_spent",
       actorType: "student",
       actorId: userId,
       requestId,
       properties: {
-        creditsAmount: amount,
-        operation,
+        credits,
+        revenue_usd: revenueUsd,
+        reason,
       },
     }),
 
