@@ -38,6 +38,7 @@ import { responseCache } from "./cache/responseCache";
 import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
+import { StudentEvents } from "./services/businessEvents";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -726,6 +727,11 @@ Allow: /apply/`;
         const completedFields = Object.keys(validatedData).filter(k => (validatedData as any)[k] != null);
         await kpiTelemetry.trackProfileCompletion(userId, completionPercent, completedFields);
         
+        // Business Event: Track profile completion for executive dashboard
+        if (completionPercent >= 70) { // D0-D3 Beta KPI: ≥70% profile completion
+          await StudentEvents.profileCompleted(userId, existingProfile.id, completionPercent, crypto.randomUUID());
+        }
+        
         res.json(updatedProfile);
       } else {
         // Use full schema for new profiles
@@ -741,6 +747,11 @@ Allow: /apply/`;
         // KPI Telemetry: Track initial profile creation
         const completedFields = Object.keys(req.body).filter(k => req.body[k] != null);
         await kpiTelemetry.trackProfileCompletion(userId, newProfile.completionPercentage || 0, completedFields);
+        
+        // Business Event: Track profile completion for new profiles
+        if (newProfile.completionPercentage && newProfile.completionPercentage >= 70) {
+          await StudentEvents.profileCompleted(userId, newProfile.id, newProfile.completionPercentage, crypto.randomUUID());
+        }
         
         res.json(newProfile);
       }
@@ -796,6 +807,9 @@ Allow: /apply/`;
           if (match) {
             const rank = matches.findIndex(m => m.id === match.id) + 1;
             await kpiTelemetry.trackMatchClickThrough(userId, match.id, match.matchScore || 0, rank);
+            
+            // Business Event: Track match view for executive dashboard
+            await StudentEvents.matchViewed(userId, match.id, req.params.id, match.matchScore || 0, crypto.randomUUID());
           }
         }
       }
@@ -1005,6 +1019,11 @@ Allow: /apply/`;
       const match = matches.find(m => m.scholarshipId === applicationData.scholarshipId);
       await kpiTelemetry.trackApplicationStart(userId, applicationData.scholarshipId, match?.matchScore || undefined);
       
+      // Business Event: Track application submission if status is "submitted"
+      if (applicationData.status === "submitted") {
+        await StudentEvents.applicationSubmitted(userId, application.id, applicationData.scholarshipId, crypto.randomUUID());
+      }
+      
       res.json(application);
     } catch (error) {
       console.error("Error creating application:", error);
@@ -1012,9 +1031,16 @@ Allow: /apply/`;
     }
   });
 
-  app.put('/api/applications/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/applications/:id', isAuthenticated, async (req: any, res) => {
     try {
       const application = await storage.updateApplication(req.params.id, req.body);
+      
+      // Business Event: Track application submission if status changed to "submitted"
+      if (req.body.status === "submitted") {
+        const userId = req.user.claims.sub;
+        await StudentEvents.applicationSubmitted(userId, application.id, application.scholarshipId, crypto.randomUUID());
+      }
+      
       res.json(application);
     } catch (error) {
       console.error("Error updating application:", error);

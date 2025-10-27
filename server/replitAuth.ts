@@ -1,5 +1,6 @@
 import * as client from "openid-client";
 import { Strategy, type VerifyFunction } from "openid-client/passport";
+import crypto from "crypto";
 
 import passport from "passport";
 import session from "express-session";
@@ -9,6 +10,7 @@ import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { env } from "./environment";
 import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
+import { StudentEvents } from "./services/businessEvents";
 
 // Environment validation is already done in environment.ts
 
@@ -98,14 +100,37 @@ function updateUserSession(
 
 async function upsertUser(
   claims: any,
+  sessionId?: string,
+  requestId?: string,
 ) {
+  const userId = claims["sub"];
+  
+  // Check if user exists before upsert
+  const existingUser = await storage.getUser(userId);
+  const isNewUser = !existingUser;
+  
   await storage.upsertUser({
-    id: claims["sub"],
+    id: userId,
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+  
+  // Emit student_signup event for new users
+  if (isNewUser) {
+    await StudentEvents.signup(
+      userId,
+      sessionId || 'unknown',
+      requestId || crypto.randomUUID(),
+      {
+        email: claims["email"],
+        firstName: claims["first_name"],
+        lastName: claims["last_name"],
+      }
+    );
+    console.log(`📊 Business Event: student_signup emitted for user ${userId}`);
+  }
 }
 
 export async function setupAuth(app: Express) {
@@ -122,7 +147,8 @@ export async function setupAuth(app: Express) {
   ) => {
     const user = {};
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    const requestId = crypto.randomUUID();
+    await upsertUser(tokens.claims(), undefined, requestId);
     verified(null, user);
   };
 
