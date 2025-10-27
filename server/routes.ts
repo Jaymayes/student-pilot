@@ -5,7 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { scholarshipDetailSSR, scholarshipsListingSSR, generateSitemap } from "./routes/seo";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { insertStudentProfileSchema, updateStudentProfileSchema, insertApplicationSchema, insertEssaySchema } from "@shared/schema";
+import { insertStudentProfileSchema, updateStudentProfileSchema, insertApplicationSchema, insertEssaySchema, studentProfiles, scholarships as scholarshipsTable, scholarshipMatches, users, creditLedger } from "@shared/schema";
 import { z } from "zod";
 import { openaiService } from "./openai";
 import { agentBridge, type Task } from "./agentBridge";
@@ -1230,6 +1230,203 @@ Allow: /apply/`;
     } catch (error) {
       console.error("Error generating essay ideas:", error);
       res.status(500).json({ message: "Failed to generate essay ideas" });
+    }
+  });
+
+  // ==========================================
+  // ADMIN OPERATIONAL ENDPOINTS
+  // ==========================================
+
+  // Daily Ops: Cohort scoring analysis with CTR projection
+  app.post('/api/admin/scoring/cohort-analysis', isAuthenticated, async (req: any, res) => {
+    try {
+      const { cohortSize = 200, scholarshipLimit = 50 } = req.body;
+      
+      // Import scoring analytics
+      const { scoringAnalytics } = await import('./services/scoringAnalytics');
+      
+      // Fetch student cohort (limit to requested size)
+      const profiles = await db
+        .select()
+        .from(studentProfiles)
+        .limit(cohortSize);
+      
+      // Fetch scholarships (limit to reduce cost)
+      const scholarships = await db
+        .select()
+        .from(scholarshipsTable)
+        .limit(scholarshipLimit);
+      
+      if (profiles.length === 0) {
+        return res.status(400).json({ 
+          message: "No student profiles found for cohort analysis" 
+        });
+      }
+      
+      if (scholarships.length === 0) {
+        return res.status(400).json({ 
+          message: "No scholarships found for analysis" 
+        });
+      }
+      
+      // Run cohort analysis
+      const analysis = await scoringAnalytics.analyzeCohort(
+        profiles,
+        scholarships
+      );
+      
+      res.json({
+        ...analysis,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          requestedCohortSize: cohortSize,
+          actualCohortSize: profiles.length,
+          scholarshipCount: scholarships.length
+        }
+      });
+    } catch (error) {
+      console.error("Error running cohort analysis:", error);
+      res.status(500).json({ message: "Failed to run cohort analysis" });
+    }
+  });
+
+  // Release/Validation: Division-by-zero guard validation
+  app.post('/api/admin/scoring/validate', isAuthenticated, async (req, res) => {
+    try {
+      const { scoringAnalytics } = await import('./services/scoringAnalytics');
+      
+      // Get a sample student profile for testing
+      const sampleProfile = await db
+        .select()
+        .from(studentProfiles)
+        .limit(1);
+      
+      if (sampleProfile.length === 0) {
+        return res.status(400).json({ 
+          message: "No student profiles found for validation" 
+        });
+      }
+      
+      // Test scholarships with various GPA configurations
+      const testScholarships = [
+        { title: "Threshold-Only 3.0", minGpa: 3.0, recommendedGpa: 3.0 },
+        { title: "Threshold-Only 3.5", minGpa: 3.5, recommendedGpa: 3.5 },
+        { title: "Min-Only 2.5", minGpa: 2.5 },
+        { title: "Range 3.0-3.8", minGpa: 3.0, recommendedGpa: 3.8 },
+        { title: "No GPA Requirement" },
+      ];
+      
+      // Run validation
+      const validationResult = scoringAnalytics.validateThresholdScholarships(
+        sampleProfile[0],
+        testScholarships
+      );
+      
+      res.json({
+        ...validationResult,
+        timestamp: new Date().toISOString(),
+        testProfile: {
+          id: sampleProfile[0].id,
+          gpa: sampleProfile[0].gpa,
+          major: sampleProfile[0].major
+        }
+      });
+    } catch (error) {
+      console.error("Error running validation:", error);
+      res.status(500).json({ message: "Failed to run validation" });
+    }
+  });
+
+  // KPI/Reporting: D0-D3 match CTR metrics
+  app.get('/api/admin/reports/match-performance', isAuthenticated, async (req: any, res) => {
+    try {
+      const { period = 'D0-D3', daysAgo = 3 } = req.query;
+      const { scoringAnalytics } = await import('./services/scoringAnalytics');
+      
+      // Calculate cutoff date
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - Number(daysAgo));
+      
+      // Fetch matches from the period
+      const matches = await db
+        .select({
+          id: scholarshipMatches.id,
+          matchScore: scholarshipMatches.matchScore,
+          chanceLevel: scholarshipMatches.chanceLevel,
+          aiCostCents: scholarshipMatches.aiCostCents,
+          studentId: scholarshipMatches.studentId,
+          clicked: sql<boolean>`false`.as('clicked') // Placeholder - implement click tracking
+        })
+        .from(scholarshipMatches)
+        .where(sql`${scholarshipMatches.createdAt} >= ${cutoffDate}`);
+      
+      // Fetch students
+      const students = await db
+        .select({
+          id: users.id,
+          creditsPurchased: sql<number>`COALESCE(SUM(${creditLedger.amountMillicredits}), 0)`.as('creditsPurchased')
+        })
+        .from(users)
+        .leftJoin(creditLedger, eq(users.id, creditLedger.userId))
+        .groupBy(users.id);
+      
+      // Calculate performance
+      const performance = scoringAnalytics.calculateMatchPerformance(
+        matches as any,
+        students as any,
+        period
+      );
+      
+      res.json({
+        ...performance,
+        timestamp: new Date().toISOString(),
+        periodDays: daysAgo,
+        cutoffDate: cutoffDate.toISOString()
+      });
+    } catch (error) {
+      console.error("Error generating match performance report:", error);
+      res.status(500).json({ message: "Failed to generate match performance report" });
+    }
+  });
+
+  // Incident: Anomaly detection and diagnostics
+  app.get('/api/admin/scoring/diagnostics', isAuthenticated, async (req, res) => {
+    try {
+      const { limit = 1000 } = req.query;
+      const { scoringAnalytics } = await import('./services/scoringAnalytics');
+      
+      // Fetch recent matches
+      const matches = await db
+        .select({
+          id: scholarshipMatches.id,
+          studentId: scholarshipMatches.studentId,
+          scholarshipId: scholarshipMatches.scholarshipId,
+          matchScore: scholarshipMatches.matchScore,
+          chanceLevel: scholarshipMatches.chanceLevel,
+          explanationMetadata: scholarshipMatches.explanationMetadata
+        })
+        .from(scholarshipMatches)
+        .limit(Number(limit));
+      
+      // Fetch all student profiles
+      const profiles = await db.select().from(studentProfiles);
+      
+      // Run diagnostics
+      const diagnostics = await scoringAnalytics.scanForAnomalies(
+        matches as any,
+        profiles
+      );
+      
+      res.json({
+        ...diagnostics,
+        metadata: {
+          matchesScanned: matches.length,
+          profilesScanned: profiles.length
+        }
+      });
+    } catch (error) {
+      console.error("Error running diagnostics:", error);
+      res.status(500).json({ message: "Failed to run diagnostics" });
     }
   });
 
