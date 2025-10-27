@@ -14,6 +14,8 @@ import { reliabilityManager } from "./reliability";
 import { healthRouter } from "./health";
 // Import alerting system to register event listeners
 import "./monitoring/alerting";
+// Import Agent Bridge for Command Center orchestration
+import { agentBridge } from "./agentBridge";
 
 const app = express();
 
@@ -308,6 +310,14 @@ app.use((req, res, next) => {
 
   // Register all application routes
   await registerRoutes(app);
+  
+  // Start Agent Bridge for Command Center orchestration (after routes are registered)
+  if (env.SHARED_SECRET) {
+    console.log('🤖 Starting Agent Bridge...');
+    await agentBridge.start();
+  } else {
+    console.log('⚠️  Agent Bridge disabled - SHARED_SECRET not configured');
+  }
   
   // Add enterprise monitoring endpoints - Task perf-4
   app.get('/metrics', (req, res) => {
