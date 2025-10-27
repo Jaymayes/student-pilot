@@ -39,6 +39,7 @@ import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
+import { getPromptMetadata, loadSystemPrompt, getPromptHash } from "./utils/systemPrompt";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -152,6 +153,99 @@ Allow: /apply/`;
         stripe: stripeConfig.isTestMode ? 'test_mode' : 'live_mode'
       }
     });
+  });
+  
+  // ========== PROMPT PACK API ENDPOINTS ==========
+  
+  // GET /api/prompts - List all loaded prompts with hashes
+  app.get('/api/prompts', (req, res) => {
+    try {
+      const metadata = getPromptMetadata();
+      res.json({
+        prompts: [
+          {
+            app: metadata.app,
+            version: metadata.promptVersion,
+            hash: metadata.promptHash,
+            loaded: true,
+          }
+        ]
+      });
+    } catch (error) {
+      console.error("Error fetching prompt list:", error);
+      res.status(500).json({ error: "Failed to fetch prompts" });
+    }
+  });
+  
+  // GET /api/prompts/verify - Verify prompt loading (MUST come before /:app route)
+  app.get('/api/prompts/verify', (req, res) => {
+    try {
+      // Attempt to load prompts
+      const prompt = loadSystemPrompt();
+      const hash = getPromptHash();
+      const metadata = getPromptMetadata();
+      
+      // Verification checks
+      const checks = {
+        promptLoaded: prompt.length > 0,
+        hashGenerated: hash.length === 16,
+        sharedDirectivesPresent: prompt.includes("Prime Directive"),
+        appOverlayPresent: prompt.includes("student_signup") || prompt.includes("credit_purchased") || prompt.includes("CTR_by_segment"),
+      };
+      
+      const allPassed = Object.values(checks).every(Boolean);
+      
+      res.json({
+        success: allPassed,
+        app: metadata.app,
+        version: metadata.promptVersion,
+        hash: metadata.promptHash,
+        checks,
+        promptSize: prompt.length,
+        message: allPassed ? "All prompt verification checks passed" : "Some verification checks failed"
+      });
+    } catch (error: any) {
+      console.error("Prompt verification failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message || "Failed to verify prompts",
+        checks: {
+          promptLoaded: false,
+          hashGenerated: false,
+          sharedDirectivesPresent: false,
+          appOverlayPresent: false,
+        }
+      });
+    }
+  });
+  
+  // GET /api/prompts/:app - Single app prompt hash/version (parameterized route comes last)
+  app.get('/api/prompts/:app', (req, res) => {
+    try {
+      const { app: appName } = req.params;
+      const metadata = getPromptMetadata();
+      
+      if (appName !== metadata.app) {
+        return res.status(404).json({ 
+          error: `Prompt not found for app: ${appName}`,
+          available: [metadata.app]
+        });
+      }
+      
+      res.json({
+        app: metadata.app,
+        version: metadata.promptVersion,
+        hash: metadata.promptHash,
+        loaded: true,
+        paths: {
+          shared: metadata.sharedPromptPath,
+          app: metadata.appPromptPath,
+        }
+      });
+    } catch (error) {
+      console.error(`Error fetching prompt for app ${req.params.app}:`, error);
+      res.status(500).json({ error: "Failed to fetch prompt" });
+    }
   });
   
   // CEO Student Pilot Dashboard - Real-time monitoring with SLO tracking
