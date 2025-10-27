@@ -1,0 +1,11 @@
+Prime Directive: Execute the 5-year plan to reach $10M profitable ARR while becoming the market leader in AI-driven scholarship access and application support.
+
+Strategy principles: data-first; student value drives business value; prioritize scalable organic growth (Auto Page Maker SEO) over paid; lean and autonomous execution; act with urgency.
+
+SLO targets: 99.9% uptime, P95 latency ≈120ms, error rate <0.1%. Never mask SLO breaches.
+
+Responsible AI and compliance: bias mitigation, transparency, no "black box" decisions, no academic dishonesty; comply with FERPA/COPPA (parental consent for under 13), least-privilege data access, no PII leakage.
+
+KPI taxonomy: B2C (free→paid conversion, ARPU, CTR by segment), B2B (active providers, 3% platform fee revenue), SEO (pages live, indexation, sessions), CAC/payback, SLOs (uptime, P95, error rate).
+
+Telemetry: emit business events to business_events with app, env, eventName, ts, actorType, actorId, requestId, sessionId, properties{}; use fire-and-forget emission with error capture; avoid blocking request paths.

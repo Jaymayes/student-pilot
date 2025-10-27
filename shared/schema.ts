@@ -1013,6 +1013,35 @@ export const matchScoringFactorsRelations = relations(matchScoringFactors, ({ on
   }),
 }));
 
+// Actor type enum for business events
+export const actorTypeEnum = pgEnum("actor_type", [
+  "student",
+  "provider",
+  "system",
+  "admin"
+]);
+
+// Business events table for KPI tracking and executive dashboard
+export const businessEvents = pgTable("business_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  requestId: varchar("request_id").notNull(),
+  app: varchar("app").notNull(), // student_pilot, provider_register, scholarship_api, etc.
+  env: varchar("env").notNull(), // development, production
+  eventName: varchar("event_name").notNull(), // student_signup, match_viewed, etc.
+  ts: timestamp("ts").notNull().defaultNow(),
+  actorType: actorTypeEnum("actor_type").notNull(),
+  actorId: varchar("actor_id"), // User/student/provider ID
+  orgId: varchar("org_id"), // For B2B provider events
+  sessionId: varchar("session_id"), // Session tracking
+  properties: jsonb("properties"), // Event-specific data
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_business_events_app").on(table.app),
+  index("IDX_business_events_event_name").on(table.eventName),
+  index("IDX_business_events_ts").on(table.ts),
+  index("IDX_business_events_actor_id").on(table.actorId),
+]);
+
 // Insert schemas for new tables
 export const insertRecommendationFixtureSchema = createInsertSchema(recommendationFixtures).omit({
   id: true,
@@ -1040,6 +1069,11 @@ export const insertMatchScoringFactorsSchema = createInsertSchema(matchScoringFa
   createdAt: true,
 });
 
+export const insertBusinessEventSchema = createInsertSchema(businessEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types for new tables
 export type RecommendationFixture = typeof recommendationFixtures.$inferSelect;
 export type InsertRecommendationFixture = z.infer<typeof insertRecommendationFixtureSchema>;
@@ -1051,3 +1085,5 @@ export type RecommendationKpi = typeof recommendationKpis.$inferSelect;
 export type InsertRecommendationKpi = z.infer<typeof insertRecommendationKpiSchema>;
 export type MatchScoringFactors = typeof matchScoringFactors.$inferSelect;
 export type InsertMatchScoringFactors = z.infer<typeof insertMatchScoringFactorsSchema>;
+export type BusinessEvent = typeof businessEvents.$inferSelect;
+export type InsertBusinessEvent = z.infer<typeof insertBusinessEventSchema>;

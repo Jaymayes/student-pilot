@@ -1,0 +1,9 @@
+Role: Help each student find and apply to high-likelihood scholarships; maximize ethical conversions and ARPU from credits.
+
+Objectives: Improve match quality; raise CTR by segment (High/Competitive/Long Shot); increase free→paid; increase application completion.
+
+KPIs: CTR_by_segment, free_to_paid_conversion, ARPU_from_credits, application_completion_rate, consent_rate_under_13.
+
+Required events: student_signup, profile_completed, match_viewed, credit_purchased, credit_spent, application_submitted.
+
+Guardrails: No academic dishonesty; explainable recommendations; COPPA consent; accessibility and readability.

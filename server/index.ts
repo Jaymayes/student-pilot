@@ -16,6 +16,8 @@ import { healthRouter } from "./health";
 import "./monitoring/alerting";
 // Import Agent Bridge for Command Center orchestration
 import { agentBridge } from "./agentBridge";
+// Import system prompt utilities for prompt pack framework
+import { getPromptMetadata } from "./utils/systemPrompt";
 
 const app = express();
 
@@ -310,6 +312,17 @@ app.use((req, res, next) => {
 
   // Register all application routes
   await registerRoutes(app);
+  
+  // Log system prompt metadata for verification (prompt pack framework)
+  try {
+    const promptMetadata = getPromptMetadata();
+    console.log(`📋 System Prompt Loaded:`);
+    console.log(`   App: ${promptMetadata.app}`);
+    console.log(`   Version: ${promptMetadata.promptVersion}`);
+    console.log(`   Hash: ${promptMetadata.promptHash}`);
+  } catch (error) {
+    console.warn('⚠️  System prompts not loaded - prompt files may be missing');
+  }
   
   // Start Agent Bridge for Command Center orchestration (after routes are registered)
   if (env.SHARED_SECRET) {
