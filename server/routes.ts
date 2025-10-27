@@ -37,6 +37,7 @@ import { paymentKpiService } from "./services/paymentKpiService";
 import { responseCache } from "./cache/responseCache";
 import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
+import { kpiTelemetry } from "./services/kpiTelemetry";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -148,6 +149,29 @@ Allow: /apply/`;
   
   // CEO Student Pilot Dashboard - Real-time monitoring with SLO tracking
   app.get('/api/monitoring/pilot-dashboard', pilotDashboard.dashboardMiddleware());
+  
+  // KPI Telemetry endpoint for growth analytics
+  app.get('/api/monitoring/kpi-telemetry', isAuthenticated, (req, res) => {
+    const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();
+    res.setHeader('X-Correlation-ID', correlationId);
+    
+    const summary = kpiTelemetry.getSummaryMetrics();
+    const recentEvents = kpiTelemetry.getRecentEvents(50);
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      correlationId,
+      summary,
+      recent_events: recentEvents,
+      categories: {
+        onboarding: kpiTelemetry.getEventsByCategory('onboarding', 20),
+        discovery: kpiTelemetry.getEventsByCategory('discovery', 20),
+        conversion: kpiTelemetry.getEventsByCategory('conversion', 20),
+        monetization: kpiTelemetry.getEventsByCategory('monetization', 20),
+        ai_adoption: kpiTelemetry.getEventsByCategory('ai_adoption', 20)
+      }
+    });
+  });
   
   app.get('/status', (req, res) => {
     res.status(200).json({ 
@@ -692,6 +716,10 @@ Allow: /apply/`;
         const completionPercent = updatedProfile.completionPercentage || 0;
         console.log(`[ANALYTICS] Profile updated: user=${userId}, completion=${completionPercent}%`);
         
+        // KPI Telemetry: Track profile completion milestones
+        const completedFields = Object.keys(validatedData).filter(k => (validatedData as any)[k] != null);
+        await kpiTelemetry.trackProfileCompletion(userId, completionPercent, completedFields);
+        
         res.json(updatedProfile);
       } else {
         // Use full schema for new profiles
@@ -703,6 +731,10 @@ Allow: /apply/`;
         
         // CEO Analytics: Track new profile creation
         console.log(`[ANALYTICS] Profile created: user=${userId}, initial_completion=${newProfile.completionPercentage || 0}%`);
+        
+        // KPI Telemetry: Track initial profile creation
+        const completedFields = Object.keys(req.body).filter(k => req.body[k] != null);
+        await kpiTelemetry.trackProfileCompletion(userId, newProfile.completionPercentage || 0, completedFields);
         
         res.json(newProfile);
       }
@@ -746,6 +778,21 @@ Allow: /apply/`;
       
       // CEO Analytics: Track scholarship detail view (CTR tracking)
       console.log(`[ANALYTICS] Scholarship detail view: id=${req.params.id}, user=${req.user?.claims?.sub || 'anonymous'}`);
+      
+      // KPI Telemetry: Track match click-through if user is authenticated
+      const userId = (req as any).user?.claims?.sub;
+      if (userId) {
+        // Attempt to find match score if this came from matches
+        const profile = await storage.getStudentProfile(userId);
+        if (profile) {
+          const matches = await storage.getScholarshipMatches(profile.id);
+          const match = matches.find(m => m.scholarshipId === req.params.id);
+          if (match) {
+            const rank = matches.findIndex(m => m.id === match.id) + 1;
+            await kpiTelemetry.trackMatchClickThrough(userId, match.id, match.matchScore || 0, rank);
+          }
+        }
+      }
       
       res.json(scholarship);
     } catch (error) {
@@ -923,6 +970,12 @@ Allow: /apply/`;
       });
       
       const application = await storage.createApplication(applicationData);
+      
+      // KPI Telemetry: Track application start
+      const matches = await storage.getScholarshipMatches(profile.id);
+      const match = matches.find(m => m.scholarshipId === applicationData.scholarshipId);
+      await kpiTelemetry.trackApplicationStart(userId, applicationData.scholarshipId, match?.matchScore || undefined);
+      
       res.json(application);
     } catch (error) {
       console.error("Error creating application:", error);
@@ -1076,6 +1129,11 @@ Allow: /apply/`;
         essay.prompt || ""
       );
       
+      // KPI Telemetry: Track essay assistance usage
+      const userId = (req as any).user.claims.sub;
+      const wordCount = (essay.content || "").split(/\s+/).length;
+      await kpiTelemetry.trackEssayAssistance(userId, essay.id, 'analyze_essay', wordCount);
+      
       res.json(feedback);
     } catch (error) {
       console.error("Error analyzing essay:", error);
@@ -1091,6 +1149,11 @@ Allow: /apply/`;
       }
 
       const outline = await openaiService.generateEssayOutline(prompt, essayType);
+      
+      // KPI Telemetry: Track outline generation
+      const userId = (req as any).user.claims.sub;
+      await kpiTelemetry.trackEssayAssistance(userId, 'new', 'generate_outline', prompt.length);
+      
       res.json(outline);
     } catch (error) {
       console.error("Error generating outline:", error);
@@ -1106,6 +1169,12 @@ Allow: /apply/`;
       }
 
       const improvedContent = await openaiService.improveEssayContent(content, focusArea);
+      
+      // KPI Telemetry: Track content improvement
+      const userId = (req as any).user.claims.sub;
+      const wordCount = content.split(/\s+/).length;
+      await kpiTelemetry.trackEssayAssistance(userId, 'improvement', 'improve_content', wordCount);
+      
       res.json({ improvedContent });
     } catch (error) {
       console.error("Error improving content:", error);
@@ -1124,6 +1193,10 @@ Allow: /apply/`;
       }
 
       const ideas = await openaiService.generateEssayIdeas(profile, essayType || "general");
+      
+      // KPI Telemetry: Track idea generation
+      await kpiTelemetry.trackEssayAssistance(userId, 'ideas', 'generate_ideas', 0);
+      
       res.json({ ideas });
     } catch (error) {
       console.error("Error generating essay ideas:", error);
