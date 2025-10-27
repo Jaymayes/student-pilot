@@ -116,7 +116,8 @@ export class AgentBridge {
       );
 
       if (!response.ok) {
-        throw new Error(`Registration failed: ${response.status} ${response.statusText}`);
+        const statusText = 'statusText' in response ? response.statusText : 'Unknown error';
+        throw new Error(`Registration failed: ${response.status} ${statusText}`);
       }
 
       console.log('Successfully registered with Command Center');
