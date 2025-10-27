@@ -34,6 +34,10 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  birthdate: timestamp("birthdate"), // For COPPA compliance
+  ageVerified: boolean("age_verified").default(false), // Confirmed 13+
+  parentalConsent: boolean("parental_consent").default(false), // For users under 13
+  parentalConsentDate: timestamp("parental_consent_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -112,6 +116,8 @@ export const scholarshipMatches = pgTable("scholarship_matches", {
   matchScore: integer("match_score"), // 0-100
   matchReason: text("match_reason").array(),
   chanceLevel: varchar("chance_level"), // "High Chance", "Competitive", "Long Shot"
+  explanationMetadata: jsonb("explanation_metadata"), // Detailed scoring breakdown
+  aiCostCents: integer("ai_cost_cents"), // Cost in cents for AI analysis
   isBookmarked: boolean("is_bookmarked").default(false),
   isDismissed: boolean("is_dismissed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -130,10 +136,16 @@ export const documents = pgTable("documents", {
   fileName: varchar("file_name").notNull(),
   filePath: varchar("file_path").notNull(),
   fileSize: integer("file_size"),
+  mimeType: varchar("mime_type"),
+  category: varchar("category"), // academic, personal, financial, other
+  tags: text("tags").array(), // For search and organization
+  usageCount: integer("usage_count").default(0), // Track reuse
+  description: text("description"), // User-added notes
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 }, (table) => [
   index("IDX_documents_student_id").on(table.studentId),
   index("IDX_documents_type").on(table.type),
+  index("IDX_documents_category").on(table.category),
 ]);
 
 // Essay assistance

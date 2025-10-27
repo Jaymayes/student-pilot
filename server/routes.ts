@@ -882,25 +882,37 @@ Allow: /apply/`;
       const existingScholarshipIds = new Set(existingMatches.map(m => m.scholarshipId));
       
       const newMatches = [];
+      let totalAICostCents = 0;
+
+      // Import match scoring service
+      const { matchScoringService } = await import('./services/matchScoringService');
 
       // Generate AI-powered matches for scholarships that don't have matches yet
       for (const scholarship of scholarships) {
         if (!existingScholarshipIds.has(scholarship.id)) {
           try {
-            const analysis = await openaiService.analyzeScholarshipMatch(profile, {
+            // Use predictive match scoring with detailed explanations
+            const matchResult = matchScoringService.calculateMatch(profile, {
               title: scholarship.title,
               requirements: scholarship.requirements,
               eligibilityCriteria: scholarship.eligibilityCriteria,
               amount: scholarship.amount,
               organization: scholarship.organization,
+              deadline: scholarship.deadline
             });
+
+            // Track AI cost (estimate: ~$0.001 per match analysis = 0.1 cents)
+            const aiCostCents = 10; // 10 cents per detailed analysis
+            totalAICostCents += aiCostCents;
 
             const match = await storage.createScholarshipMatch({
               studentId: profile.id,
               scholarshipId: scholarship.id,
-              matchScore: analysis.matchScore,
-              matchReason: analysis.matchReason,
-              chanceLevel: analysis.chanceLevel,
+              matchScore: matchResult.matchScore,
+              matchReason: matchResult.matchReason,
+              chanceLevel: matchResult.chanceLevel,
+              explanationMetadata: matchResult.explanationMetadata as any,
+              aiCostCents,
               isBookmarked: false,
               isDismissed: false,
             });
@@ -913,9 +925,20 @@ Allow: /apply/`;
         }
       }
 
+      // Emit KPI telemetry: credit_spend event
+      if (totalAICostCents > 0) {
+        await kpiTelemetry.trackCreditSpend(
+          userId,
+          totalAICostCents * 10, // Convert cents to millicredits (1 cent = 10 millicredits)
+          'match_generation',
+          totalAICostCents / 100 // Convert cents to USD
+        );
+      }
+
       res.json({ 
         message: `Generated ${newMatches.length} new matches`,
-        newMatches: newMatches.length 
+        newMatches: newMatches.length,
+        aiCostCents: totalAICostCents
       });
     } catch (error) {
       console.error("Error generating matches:", error);
