@@ -101,18 +101,32 @@ function extractSharedSection(universalPrompt: string): string {
     return v1SharedMatch[1].trim();
   }
   
-  // Try v1.1 format: Include all sections except Section F (App Overlays)
-  // Sections A (routing), B-E (shared), G (procedure), H (DoD)
-  const sectionA = universalPrompt.match(/Section A —[^\n]*\n([\s\S]*?)(?=\nSection B —)/);
-  const sectionsB_E = universalPrompt.match(/(Section B —[\s\S]*?)(?=\nSection F —)/);
-  const sectionsG_H = universalPrompt.match(/(Section G —[\s\S]*?)$/);
+  // Try v1.1 compact format: A) ... B) ... (exclude F)
+  // Extract A, B-E, G-H (skip F which contains overlays)
+  const sectionA = universalPrompt.match(/A\) Routing and Isolation([\s\S]*?)(?=\nB\) )/);
+  const sectionsB_E = universalPrompt.match(/(B\) Company Core[\s\S]*?)(?=\nF\) App Overlays)/);
+  const sectionsG_H = universalPrompt.match(/(G\) Operating Procedure[\s\S]*?)$/);
   
   const parts = [];
-  if (sectionA) parts.push(`Section A — How Agent3 must use this prompt\n${sectionA[1].trim()}`);
+  if (sectionA) parts.push(`A) Routing and Isolation${sectionA[1].trim()}`);
   if (sectionsB_E) parts.push(sectionsB_E[1].trim());
   if (sectionsG_H) parts.push(sectionsG_H[1].trim());
   
-  return parts.join('\n\n');
+  if (parts.length > 0) {
+    return parts.join('\n\n');
+  }
+  
+  // Fallback: Try old "Section A —" format
+  const oldSectionA = universalPrompt.match(/Section A —[^\n]*\n([\s\S]*?)(?=\nSection B —)/);
+  const oldSectionsB_E = universalPrompt.match(/(Section B —[\s\S]*?)(?=\nSection F —)/);
+  const oldSectionsG_H = universalPrompt.match(/(Section G —[\s\S]*?)$/);
+  
+  const oldParts = [];
+  if (oldSectionA) oldParts.push(`Section A — How Agent3 must use this prompt\n${oldSectionA[1].trim()}`);
+  if (oldSectionsB_E) oldParts.push(oldSectionsB_E[1].trim());
+  if (oldSectionsG_H) oldParts.push(oldSectionsG_H[1].trim());
+  
+  return oldParts.join('\n\n');
 }
 
 /**
@@ -120,11 +134,18 @@ function extractSharedSection(universalPrompt: string): string {
  * OR Overlay: {app_key} section from v1.1
  */
 function extractAppOverlay(universalPrompt: string, appKey: string): string {
-  // Try v1.1 format: Overlay: {app_key}
-  const v1_1Pattern = new RegExp(`Overlay: ${appKey}\\s*([\\s\\S]*?)(?=Overlay:|Section G|$)`);
+  // Try v1.1 compact format: Overlay: {app_key} (ends at next Overlay: or G))
+  const v1_1Pattern = new RegExp(`Overlay: ${appKey}\\s*\\n\\n([\\s\\S]*?)(?=\\n\\nOverlay:|\\nG\\) Operating Procedure|$)`);
   const v1_1Match = universalPrompt.match(v1_1Pattern);
   if (v1_1Match) {
     return v1_1Match[1].trim();
+  }
+  
+  // Fallback: Try old format with "Section G" boundary
+  const oldPattern = new RegExp(`Overlay: ${appKey}\\s*([\\s\\S]*?)(?=Overlay:|Section G|$)`);
+  const oldMatch = universalPrompt.match(oldPattern);
+  if (oldMatch) {
+    return oldMatch[1].trim();
   }
   
   // Try v1.0 format: [APP: {app_key}]
