@@ -221,17 +221,10 @@ Allow: /apply/`;
   });
   
   // GET /api/prompts/universal - Get merged [SHARED] + [APP] for current app
+  // Works in both separate and universal modes for debugging
   app.get('/api/prompts/universal', (req, res) => {
     try {
       const metadata = getPromptMetadata();
-      
-      if (metadata.promptMode !== 'universal') {
-        return res.status(400).json({ 
-          error: 'Universal mode not enabled. Set PROMPT_MODE=universal to use this endpoint.',
-          currentMode: metadata.promptMode
-        });
-      }
-      
       const mergedPrompt = getMergedPrompt(metadata.app);
       
       if (!mergedPrompt) {
@@ -240,10 +233,10 @@ Allow: /apply/`;
       
       res.json({
         app: metadata.app,
-        version: metadata.promptVersion,
+        version: "v1.1",
         promptMode: metadata.promptMode,
         hash: getPromptHash(),
-        merged: mergedPrompt,
+        prompt: mergedPrompt,
         size: mergedPrompt.length
       });
     } catch (error) {

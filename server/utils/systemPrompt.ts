@@ -17,27 +17,98 @@ const APP_PROMPT_PATH = join(process.cwd(), "docs/system-prompts/student_pilot.p
 const UNIVERSAL_PROMPT_PATH = join(process.cwd(), "docs/system-prompts/universal.prompt");
 
 const PROMPT_MODE = process.env.PROMPT_MODE || "separate";
-const APP_NAME = process.env.APP_NAME || "student_pilot";
+
+/**
+ * Detect app key using v1.1 Section A rules:
+ * 1. APP_OVERLAY env var (if set)
+ * 2. Hostname detection (if matches pattern)
+ * 3. AUTH_CLIENT_ID (convert hyphens to underscores)
+ * 4. APP_NAME fallback
+ * 5. Default to executive_command_center
+ */
+function detectAppKey(): string {
+  // 1. Check APP_OVERLAY env var (v1.1 primary method)
+  if (process.env.APP_OVERLAY) {
+    return process.env.APP_OVERLAY;
+  }
+  
+  // 2. Check hostname detection (v1.1 fallback)
+  const hostname = process.env.REPLIT_DOMAINS || "";
+  if (hostname.includes("auto-com-center")) return "executive_command_center";
+  if (hostname.includes("scholarship-agent")) return "scholarship_agent";
+  if (hostname.includes("scholarship-api")) return "scholarship_api";
+  if (hostname.includes("auto-page-maker")) return "auto_page_maker";
+  if (hostname.includes("student-pilot")) return "student_pilot";
+  if (hostname.includes("provider-register")) return "provider_register";
+  if (hostname.includes("scholar-auth")) return "scholar_auth";
+  if (hostname.includes("scholarship-sage")) return "scholarship_sage";
+  
+  // 3. Check AUTH_CLIENT_ID (Scholar Auth integration)
+  if (process.env.AUTH_CLIENT_ID) {
+    const clientId = process.env.AUTH_CLIENT_ID.replace(/-/g, "_");
+    return clientId;
+  }
+  
+  // 4. Check APP_NAME (v1.0 compatibility)
+  if (process.env.APP_NAME) {
+    return process.env.APP_NAME;
+  }
+  
+  // 5. Default to executive_command_center per Section A
+  return "executive_command_center";
+}
+
+const APP_NAME = detectAppKey();
 
 let cachedPrompt: string | null = null;
 let cachedHash: string | null = null;
 let cachedUniversalPrompt: string | null = null;
 
 /**
- * Extract [SHARED] section from universal prompt
+ * Extract [SHARED] section from universal prompt (v1.0 format)
+ * OR Sections A-H (excluding F) from v1.1 format
  */
 function extractSharedSection(universalPrompt: string): string {
-  const sharedMatch = universalPrompt.match(/\[SHARED\]([\s\S]*?)(?=\[APP:|$)/);
-  return sharedMatch ? sharedMatch[1].trim() : "";
+  // Try v1.0 format: [SHARED]
+  const v1SharedMatch = universalPrompt.match(/\[SHARED\]([\s\S]*?)(?=\[APP:|$)/);
+  if (v1SharedMatch) {
+    return v1SharedMatch[1].trim();
+  }
+  
+  // Try v1.1 format: Include all sections except Section F (App Overlays)
+  // Sections A (routing), B-E (shared), G (procedure), H (DoD)
+  const sectionA = universalPrompt.match(/Section A —[^\n]*\n([\s\S]*?)(?=\nSection B —)/);
+  const sectionsB_E = universalPrompt.match(/(Section B —[\s\S]*?)(?=\nSection F —)/);
+  const sectionsG_H = universalPrompt.match(/(Section G —[\s\S]*?)$/);
+  
+  const parts = [];
+  if (sectionA) parts.push(`Section A — How Agent3 must use this prompt\n${sectionA[1].trim()}`);
+  if (sectionsB_E) parts.push(sectionsB_E[1].trim());
+  if (sectionsG_H) parts.push(sectionsG_H[1].trim());
+  
+  return parts.join('\n\n');
 }
 
 /**
- * Extract specific [APP: {app_key}] section from universal prompt
+ * Extract specific [APP: {app_key}] section from universal prompt (v1.0)
+ * OR Overlay: {app_key} section from v1.1
  */
 function extractAppOverlay(universalPrompt: string, appKey: string): string {
-  const appPattern = new RegExp(`\\[APP: ${appKey}\\]([\\s\\S]*?)(?=\\[APP:|\\[FAILSAFE\\]|$)`);
-  const appMatch = universalPrompt.match(appPattern);
-  return appMatch ? appMatch[1].trim() : "";
+  // Try v1.1 format: Overlay: {app_key}
+  const v1_1Pattern = new RegExp(`Overlay: ${appKey}\\s*([\\s\\S]*?)(?=Overlay:|Section G|$)`);
+  const v1_1Match = universalPrompt.match(v1_1Pattern);
+  if (v1_1Match) {
+    return v1_1Match[1].trim();
+  }
+  
+  // Try v1.0 format: [APP: {app_key}]
+  const v1Pattern = new RegExp(`\\[APP: ${appKey}\\]([\\s\\S]*?)(?=\\[APP:|\\[FAILSAFE\\]|$)`);
+  const v1Match = universalPrompt.match(v1Pattern);
+  if (v1Match) {
+    return v1Match[1].trim();
+  }
+  
+  return "";
 }
 
 /**
@@ -52,7 +123,7 @@ function loadUniversalPrompt(appKey: string): string {
     const appOverlay = extractAppOverlay(universalPrompt, appKey);
     
     if (!appOverlay) {
-      console.error(`⚠️  No [APP: ${appKey}] overlay found in universal.prompt`);
+      console.error(`⚠️  No overlay found for app: ${appKey} (tried both v1.0 [APP: ${appKey}] and v1.1 Overlay: ${appKey} formats)`);
       throw new Error(`App overlay not found for: ${appKey}`);
     }
     
