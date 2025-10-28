@@ -131,9 +131,17 @@ function extractSharedSection(universalPrompt: string): string {
 
 /**
  * Extract specific [APP: {app_key}] section from universal prompt (v1.0)
- * OR Overlay: {app_key} section from v1.1
+ * OR Overlay: {app_key} / numbered overlay section from v1.1
  */
 function extractAppOverlay(universalPrompt: string, appKey: string): string {
+  // Try v1.1 numbered format: "1. executive_command_center" or "3. student_pilot (B2C revenue)"
+  // Extract from the number+name line to the next numbered overlay or section G
+  const numberedPattern = new RegExp(`\\d+\\.\\s+${appKey}[^\\n]*\\n\\n([\\s\\S]*?)(?=\\n\\d+\\.|\\nG\\) Operating Procedure|$)`);
+  const numberedMatch = universalPrompt.match(numberedPattern);
+  if (numberedMatch) {
+    return numberedMatch[1].trim();
+  }
+  
   // Try v1.1 compact format: Overlay: {app_key} (ends at next Overlay: or G))
   const v1_1Pattern = new RegExp(`Overlay: ${appKey}\\s*\\n\\n([\\s\\S]*?)(?=\\n\\nOverlay:|\\nG\\) Operating Procedure|$)`);
   const v1_1Match = universalPrompt.match(v1_1Pattern);
