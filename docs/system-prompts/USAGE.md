@@ -19,9 +19,10 @@ The Universal Prompt system provides a single source of truth for Agent3 operati
 
 - **Universal Prompt**: `docs/system-prompts/universal.prompt`
 - **CEO Directive**: `docs/system-prompts/CEO_DIRECTIVE.md`
-- **Raw Size**: 5,383 bytes
-- **Merged Size**: 2,688 bytes (shared sections + app overlay)
-- **Purpose**: Single system prompt used across 8 Scholar AI Advisor apps
+- **Raw Size**: 4,590 bytes (ultra-compact CEO-approved version)
+- **Merged Size**: ~2,300 bytes (shared sections + app overlay)
+- **Purpose**: One system prompt for 8 Scholar AI Advisor apps
+- **Mission**: Reach $10M profitable ARR in 5 years
 
 ## Runtime Configuration
 

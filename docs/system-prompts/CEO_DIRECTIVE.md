@@ -6,6 +6,8 @@
 
 ## Executive Summary
 
+**Mission**: Become the market leader in AI-driven scholarship access and application support; reach **$10M profitable ARR in 5 years**.
+
 Adopt the Universal Prompt v1.1 (Agent3 Router) across all apps within 72 hours. Agent3 must detect the active overlay, operate only within that overlay's boundaries, emit required events, meet SLOs, and uphold our finance rules (4x AI services markup and 3% provider fee must cover costs and drive profit).
 
 ## Success Criteria
