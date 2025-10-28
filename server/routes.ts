@@ -39,7 +39,7 @@ import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
-import { getPromptMetadata, loadSystemPrompt, getPromptHash } from "./utils/systemPrompt";
+import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -199,6 +199,7 @@ Allow: /apply/`;
         success: allPassed,
         app: metadata.app,
         version: metadata.promptVersion,
+        promptMode: metadata.promptMode,
         hash: metadata.promptHash,
         checks,
         promptSize: prompt.length,
@@ -216,6 +217,63 @@ Allow: /apply/`;
           appOverlayPresent: false,
         }
       });
+    }
+  });
+  
+  // GET /api/prompts/universal - Get merged [SHARED] + [APP] for current app
+  app.get('/api/prompts/universal', (req, res) => {
+    try {
+      const metadata = getPromptMetadata();
+      
+      if (metadata.promptMode !== 'universal') {
+        return res.status(400).json({ 
+          error: 'Universal mode not enabled. Set PROMPT_MODE=universal to use this endpoint.',
+          currentMode: metadata.promptMode
+        });
+      }
+      
+      const mergedPrompt = getMergedPrompt(metadata.app);
+      
+      if (!mergedPrompt) {
+        return res.status(500).json({ error: 'Failed to load universal prompt' });
+      }
+      
+      res.json({
+        app: metadata.app,
+        version: metadata.promptVersion,
+        promptMode: metadata.promptMode,
+        hash: getPromptHash(),
+        merged: mergedPrompt,
+        size: mergedPrompt.length
+      });
+    } catch (error) {
+      console.error("Error fetching universal prompt:", error);
+      res.status(500).json({ error: "Failed to fetch universal prompt" });
+    }
+  });
+  
+  // GET /api/prompts/overlay/:app - Get just the overlay for a specific app (debugging)
+  app.get('/api/prompts/overlay/:app', (req, res) => {
+    try {
+      const { app: appKey } = req.params;
+      const overlay = getAppOverlay(appKey);
+      
+      if (!overlay) {
+        return res.status(404).json({ 
+          error: `No overlay found for app: ${appKey}`,
+          available: ['scholar_auth', 'student_pilot', 'provider_register', 'scholarship_api', 
+                     'executive_command_center', 'auto_page_maker', 'scholarship_agent', 'scholarship_sage']
+        });
+      }
+      
+      res.json({
+        app: appKey,
+        overlay,
+        size: overlay.length
+      });
+    } catch (error) {
+      console.error(`Error fetching overlay for app ${req.params.app}:`, error);
+      res.status(500).json({ error: "Failed to fetch app overlay" });
     }
   });
   
