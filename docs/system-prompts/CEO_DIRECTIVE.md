@@ -50,63 +50,63 @@ Adopt the Universal Prompt v1.1 (Agent3 Router) across all apps within 72 hours.
 - Full overlay isolation verified
 - SLO monitoring active
 
-## Per-App Quick Start
+## Per-App Quick Start (Copy-Paste)
 
 ### 1. executive_command_center
 ```bash
-APP_OVERLAY=executive_command_center
+export APP_OVERLAY=executive_command_center PROMPT_MODE=universal
 ```
 - Produce KPI brief
 - Emit: `kpi_brief_generated`
 
 ### 2. auto_page_maker
 ```bash
-APP_OVERLAY=auto_page_maker
+export APP_OVERLAY=auto_page_maker PROMPT_MODE=universal
 ```
-- Create page plans
-- Emit: `page_plan_created`, `page_published`
+- Generate SEO-safe scholarship pages
+- Emit: `overlay_selected`
 
 ### 3. student_pilot (B2C)
 ```bash
-APP_OVERLAY=student_pilot
+export APP_OVERLAY=student_pilot PROMPT_MODE=universal
 ```
-- Enforce no-essay rule
-- On purchase emit: `credit_purchase_succeeded`
+- Ensure pricing ≥ 4x AI cost
+- Emit: `credit_purchase_succeeded`
 
 ### 4. provider_register (B2B)
 ```bash
-APP_OVERLAY=provider_register
+export APP_OVERLAY=provider_register PROMPT_MODE=universal
 ```
-- Do NOT compute fee client-side
-- Backend emits: `fee_accrued` (server-calculated)
+- Route to server for fee calculation
+- Backend emits: `fee_accrued` (server-side only)
 
 ### 5. scholarship_api
 ```bash
-APP_OVERLAY=scholarship_api
+export APP_OVERLAY=scholarship_api PROMPT_MODE=universal
 ```
-- Serve safe docs
-- Emit: `api_doc_viewed`
+- Default/fallback overlay
+- Emit: `overlay_selected`
 
 ### 6. scholarship_agent
 ```bash
-APP_OVERLAY=scholarship_agent
+export APP_OVERLAY=scholarship_agent PROMPT_MODE=universal
 ```
-- Define experiments
-- Emit: `experiment_defined`, `campaign_plan_created`
+- Draft marketing briefs and campaigns
+- Emit: `overlay_selected`
 
 ### 7. scholar_auth
 ```bash
-APP_OVERLAY=scholar_auth
+export APP_OVERLAY=scholar_auth PROMPT_MODE=universal
 ```
-- Educate, never ask for secrets
-- Emit: `auth_doc_viewed`
+- Explain OAuth best practices
+- Emit: `overlay_selected`
 
 ### 8. scholarship_sage
 ```bash
-APP_OVERLAY=scholarship_sage
+export APP_OVERLAY=scholarship_sage PROMPT_MODE=universal
 ```
-- Provide safe policy guidance
-- Emit: `guidance_provided`
+- Policy/compliance Q&A
+- Emit: `overlay_selected`
 
 ## Validation Commands
 
