@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { createHash } from "crypto";
+import { emitBusinessEvent } from "../services/businessEvents";
 
 /**
  * System Prompt Loader (Hybrid Mode)
@@ -25,40 +26,65 @@ const PROMPT_MODE = process.env.PROMPT_MODE || "separate";
  * 3. AUTH_CLIENT_ID (convert hyphens to underscores)
  * 4. APP_NAME fallback
  * 5. Default to executive_command_center
+ * 
+ * Returns: { appKey, detectionMethod }
  */
-function detectAppKey(): string {
+function detectAppKey(): { appKey: string; detectionMethod: string } {
   // 1. Check APP_OVERLAY env var (v1.1 primary method)
   if (process.env.APP_OVERLAY) {
-    return process.env.APP_OVERLAY;
+    return { appKey: process.env.APP_OVERLAY, detectionMethod: "APP_OVERLAY" };
   }
   
   // 2. Check hostname detection (v1.1 fallback)
   const hostname = process.env.REPLIT_DOMAINS || "";
-  if (hostname.includes("auto-com-center")) return "executive_command_center";
-  if (hostname.includes("scholarship-agent")) return "scholarship_agent";
-  if (hostname.includes("scholarship-api")) return "scholarship_api";
-  if (hostname.includes("auto-page-maker")) return "auto_page_maker";
-  if (hostname.includes("student-pilot")) return "student_pilot";
-  if (hostname.includes("provider-register")) return "provider_register";
-  if (hostname.includes("scholar-auth")) return "scholar_auth";
-  if (hostname.includes("scholarship-sage")) return "scholarship_sage";
+  if (hostname.includes("executive-command-center")) return { appKey: "executive_command_center", detectionMethod: "hostname" };
+  if (hostname.includes("scholarship-agent")) return { appKey: "scholarship_agent", detectionMethod: "hostname" };
+  if (hostname.includes("scholarship-api")) return { appKey: "scholarship_api", detectionMethod: "hostname" };
+  if (hostname.includes("auto-page-maker")) return { appKey: "auto_page_maker", detectionMethod: "hostname" };
+  if (hostname.includes("student-pilot")) return { appKey: "student_pilot", detectionMethod: "hostname" };
+  if (hostname.includes("provider-register")) return { appKey: "provider_register", detectionMethod: "hostname" };
+  if (hostname.includes("scholar-auth")) return { appKey: "scholar_auth", detectionMethod: "hostname" };
+  if (hostname.includes("scholarship-sage")) return { appKey: "scholarship_sage", detectionMethod: "hostname" };
   
   // 3. Check AUTH_CLIENT_ID (Scholar Auth integration)
   if (process.env.AUTH_CLIENT_ID) {
     const clientId = process.env.AUTH_CLIENT_ID.replace(/-/g, "_");
-    return clientId;
+    return { appKey: clientId, detectionMethod: "AUTH_CLIENT_ID" };
   }
   
   // 4. Check APP_NAME (v1.0 compatibility)
   if (process.env.APP_NAME) {
-    return process.env.APP_NAME;
+    return { appKey: process.env.APP_NAME, detectionMethod: "APP_NAME" };
   }
   
   // 5. Default to executive_command_center per Section A
-  return "executive_command_center";
+  return { appKey: "executive_command_center", detectionMethod: "default" };
 }
 
-const APP_NAME = detectAppKey();
+const { appKey: APP_NAME, detectionMethod: DETECTION_METHOD } = detectAppKey();
+
+/**
+ * Emit overlay_selected event per Section A requirement
+ * Fire-and-forget to avoid blocking server startup
+ */
+function emitOverlaySelected() {
+  emitBusinessEvent({
+    eventName: "overlay_selected",
+    actorType: "system",
+    properties: {
+      app_key: APP_NAME,
+      detection_method: DETECTION_METHOD,
+      host: process.env.REPLIT_DOMAINS || "localhost",
+      mode: PROMPT_MODE,
+      prompt_version: "v1.1"
+    }
+  }).catch((error) => {
+    console.error("⚠️  Failed to emit overlay_selected event:", error);
+  });
+}
+
+// Emit on module load (server startup)
+emitOverlaySelected();
 
 let cachedPrompt: string | null = null;
 let cachedHash: string | null = null;
