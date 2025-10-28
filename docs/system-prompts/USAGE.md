@@ -1,14 +1,17 @@
 # Universal Prompt v1.1 - Usage Guide
 
+**Version**: v1.1 (Agent3 Router)  
+**Last Updated**: October 28, 2025
+
 ## Overview
 
-The Universal Prompt system provides a single source of truth for Agent3 operating instructions across all 8 ScholarLink microservice apps. It enforces overlay isolation, mandatory telemetry, and revenue-focused instrumentation.
+The Universal Prompt system provides a single source of truth for Agent3 operating instructions across all 8 ScholarLink microservice apps. It enforces overlay isolation, mandatory telemetry, SLO escalation, and revenue-focused instrumentation.
 
 ## File Location
 
 - **Universal Prompt**: `docs/system-prompts/universal.prompt`
-- **Raw Size**: 4,978 bytes
-- **Merged Size**: 2,241 bytes (shared sections + app overlay)
+- **Raw Size**: 4,885 bytes
+- **Merged Size**: 1,967 bytes (shared sections + app overlay)
 
 ## Runtime Configuration
 
@@ -38,13 +41,13 @@ The system uses a first-match-wins detection hierarchy:
 
 ### Shared Sections (A-E, G-H)
 
-- **A) Routing and Isolation** - App overlay selection, detection order, telemetry bootstrap
-- **B) Company Core** - $10M ARR mission, data-first strategy
-- **C) Global Guardrails** - Privacy, responsible AI, COPPA/FERPA compliance
-- **D) KPI and Telemetry** - Event schema, revenue-critical events
-- **E) SLOs and Escalation** - 99.9% uptime, P95 ≤120ms targets
-- **G) Operating Procedure** - Plan → Implement → Validate → Report
-- **H) Definition of Done** - E2E tests, events flowing, KPI moved
+- **A) Routing & Isolation** - First-match-wins detection (5-tier); strict overlay isolation
+- **B) Company Core** - $10M ARR mission; dual-engine growth; 4x AI markup, 3% provider fee
+- **C) Global Guardrails** - No essays/PII/secrets; server-side trust boundary
+- **D) KPI & Telemetry** - overlay_selected, slo_at_risk, error events; revenue tracking
+- **E) SLOs & Escalation** - 99.9% uptime, P95 ≤120ms; escalate if p95 > 150ms for 5+ min
+- **G) Operating Procedure** - Plan → Execute → Validate → Report → Escalate
+- **H) Definition of Done** - Events emitted, no violations, latency within SLOs, revenue present
 
 ### App Overlays (Section F)
 
@@ -59,7 +62,8 @@ Each overlay includes:
 **Must not**: Mutate production data; guess numbers
 
 #### 2. auto_page_maker
-**Purpose**: SEO content engine for organic growth  
+**Purpose**: Create SEO-ready scholarship/topic pages to drive organic traffic  
+**Required events**: page_plan_created, page_published  
 **Must not**: Include PII; promise scholarship acceptance
 
 #### 3. student_pilot (B2C revenue)
@@ -75,15 +79,18 @@ Each overlay includes:
 **Must not**: Expose secrets or tokens
 
 #### 6. scholarship_agent
-**Purpose**: Marketing automation for scholarship campaigns  
+**Purpose**: Plan and evaluate autonomous marketing and outreach campaigns  
+**Required events**: campaign_plan_created, experiment_defined  
 **Must not**: Send messages directly; store PII
 
 #### 7. scholar_auth
-**Purpose**: Safe authentication and account recovery guidance  
+**Purpose**: Explain auth flows and safety; assist with non-sensitive troubleshooting  
+**Required events**: auth_doc_viewed  
 **Must not**: Ask for passwords, codes, or secret answers
 
 #### 8. scholarship_sage
-**Purpose**: QA, issue triage, and remediation guidance across apps  
+**Purpose**: Answer safe, general scholarship questions and policy clarifications  
+**Required events**: guidance_provided  
 **Must not**: Run destructive actions; share stack secrets
 
 ## Mandatory Telemetry
