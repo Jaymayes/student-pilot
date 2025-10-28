@@ -1,7 +1,15 @@
 # Universal Prompt v1.1 - Usage Guide
 
 **Version**: v1.1 (Agent3 Router)  
-**Last Updated**: October 28, 2025
+**Last Updated**: October 28, 2025  
+**Status**: ✅ CEO Approved & Deployed
+
+## CEO Directive
+
+**Timeline**: 72-hour rollout  
+**Mandate**: Agent3 must detect the active overlay, operate only within that overlay's boundaries, emit required events, meet SLOs, and uphold finance rules (4x AI services markup and 3% provider fee must cover costs and drive profit).
+
+See [CEO_DIRECTIVE.md](./CEO_DIRECTIVE.md) for full success criteria and validation commands.
 
 ## Overview
 
@@ -10,8 +18,9 @@ The Universal Prompt system provides a single source of truth for Agent3 operati
 ## File Location
 
 - **Universal Prompt**: `docs/system-prompts/universal.prompt`
-- **Raw Size**: 4,885 bytes
-- **Merged Size**: 1,967 bytes (shared sections + app overlay)
+- **CEO Directive**: `docs/system-prompts/CEO_DIRECTIVE.md`
+- **Raw Size**: 4,343 bytes
+- **Merged Size**: 2,015 bytes (shared sections + app overlay)
 
 ## Runtime Configuration
 
