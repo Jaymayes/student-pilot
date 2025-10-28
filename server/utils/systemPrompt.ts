@@ -25,7 +25,7 @@ const PROMPT_MODE = process.env.PROMPT_MODE || "separate";
  * 2. Hostname detection (if matches pattern)
  * 3. AUTH_CLIENT_ID (convert hyphens to underscores)
  * 4. APP_NAME fallback
- * 5. Default to executive_command_center
+ * 5. Default to scholarship_api
  * 
  * Returns: { appKey, detectionMethod }
  */
@@ -57,8 +57,8 @@ function detectAppKey(): { appKey: string; detectionMethod: string } {
     return { appKey: process.env.APP_NAME, detectionMethod: "APP_NAME" };
   }
   
-  // 5. Default to executive_command_center per Section A
-  return { appKey: "executive_command_center", detectionMethod: "default" };
+  // 5. Default to scholarship_api per Section A
+  return { appKey: "scholarship_api", detectionMethod: "default" };
 }
 
 const { appKey: APP_NAME, detectionMethod: DETECTION_METHOD } = detectAppKey();

@@ -7,7 +7,8 @@ The Universal Prompt system provides a single source of truth for Agent3 operati
 ## File Location
 
 - **Universal Prompt**: `docs/system-prompts/universal.prompt`
-- **Current Size**: 3,091 bytes (shared sections + app overlay)
+- **Raw Size**: 4,978 bytes
+- **Merged Size**: 2,241 bytes (shared sections + app overlay)
 
 ## Runtime Configuration
 
@@ -31,7 +32,7 @@ The system uses a first-match-wins detection hierarchy:
 2. **Hostname pattern** (e.g., `student-pilot-*.replit.app` → `student_pilot`)
 3. **AUTH_CLIENT_ID** (Scholar Auth integration mapping)
 4. **APP_NAME** (legacy v1.0 compatibility)
-5. **Default fallback**: `executive_command_center`
+5. **Default fallback**: `scholarship_api`
 
 ## Prompt Structure
 
@@ -49,34 +50,41 @@ The system uses a first-match-wins detection hierarchy:
 
 Each overlay includes:
 - **Purpose**: Core mission
-- **Objectives**: Key goals
-- **Success metrics**: How to measure performance
-- **Required events**: Mandatory telemetry
 - **Allowed actions**: Explicit boundaries
+- **Required events**: Mandatory telemetry
+- **Must not**: Hard constraints to prevent policy violations
 
 #### 1. executive_command_center
-Read-only KPI dashboard, safe rollout coordination
+**Purpose**: Generate concise KPI briefs and insights for leadership  
+**Must not**: Mutate production data; guess numbers
 
 #### 2. auto_page_maker
-E-E-A-T SEO engine, no thin pages
+**Purpose**: SEO content engine for organic growth  
+**Must not**: Include PII; promise scholarship acceptance
 
 #### 3. student_pilot (B2C revenue)
-Guide students, monetize via credits, no essay writing
+**Purpose**: Guide students to scholarships; monetize via credit packs  
+**Must not**: Write essays or facilitate dishonest assistance
 
 #### 4. provider_register (B2B revenue)
-Onboard providers, track 3% server-side fee
+**Purpose**: Onboard providers; list scholarships; accrue platform fee  
+**Must not**: Compute fee_usd in prompt/agent; collect sensitive PII
 
 #### 5. scholarship_api
-Fast, explainable retrieval, P95<120ms SLO
+**Purpose**: Explain API usage, parameters, and quotas; guide developers  
+**Must not**: Expose secrets or tokens
 
 #### 6. scholarship_agent
-Autonomous marketing, brand protection
+**Purpose**: Marketing automation for scholarship campaigns  
+**Must not**: Send messages directly; store PII
 
 #### 7. scholar_auth
-MFA security, zero secret logging
+**Purpose**: Safe authentication and account recovery guidance  
+**Must not**: Ask for passwords, codes, or secret answers
 
 #### 8. scholarship_sage
-Internal quality reviews, no production writes
+**Purpose**: QA, issue triage, and remediation guidance across apps  
+**Must not**: Run destructive actions; share stack secrets
 
 ## Mandatory Telemetry
 
