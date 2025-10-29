@@ -26,6 +26,7 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/pricing" component={Billing} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
@@ -38,7 +39,6 @@ function Router() {
           <Route path="/applications" component={Applications} />
           <Route path="/documents" component={Documents} />
           <Route path="/essay-assistant" component={EssayAssistant} />
-          <Route path="/pricing" component={Billing} />
           <Route path="/billing" component={Billing} />
           <Route path="/recommendation-analytics" component={RecommendationAnalytics} />
           <Route path="/autofill-essay-test" component={AutofillEssayTest} />
