@@ -1,15 +1,117 @@
-# Agent3 E2E Testing - Operator Quick Start (v2.1 Compact)
+# Agent3 E2E Testing - Operator Quick Start (v2.1 Compact - CEO-Approved)
 
-## 🚀 How to Use
+## 🎯 **CEO Directive: Revenue-First, Student-Value-First Testing**
 
-### Step 1: Paste the Universal Prompt into Agent3
+This testing framework is ordered to **de-risk revenue first** and align with our **$10M ARR priority** and **student-value-first strategy** from the company playbook. The AI control pattern uses **isolated, per-app modules** to ensure Agent3 responds best to precise, scoped prompts without criteria bleeding across apps.
+
+---
+
+## 🚀 **3-Step Deployment**
+
+### **Step 1: Copy the System Prompt**
 1. Open `docs/testing/AGENT3_SYSTEM_PROMPT.txt`
 2. Copy the entire prompt (from "BEGIN" to "END")
 3. Paste into Agent3 as the **System message**
 
-### Step 2: Run Tests
+This ensures Agent3 runs **isolated, per-app modules only**, which is the right control pattern for an AI implementer that responds best to precise, scoped prompts.
 
-**Single App Tests:**
+### **Step 2: Run a Test**
+
+**Fastest path to full baseline:**
+```
+T+72h gate: Test all apps
+```
+
+**Revenue-first validation:**
+```
+T+48h gate: Test Student Pilot and Provider Register
+```
+
+**Single app spot-check:**
+```
+Test https://auto-page-maker-jamarrlmayes.replit.app
+```
+
+### **Step 3: Review YAML Reports**
+
+Confirm gate pass/fail and prioritize fixes for:
+- Any app < 4
+- Any revenue/security/SEO app that is not = 5 at its gate
+
+This ordering **protects revenue and student experience**, consistent with our growth thesis and roadmap priorities.
+
+---
+
+## 📊 **Understanding Scores**
+
+| Score | Status | Decision | Gate Impact |
+|-------|--------|----------|-------------|
+| **0** | Unreachable | 🛑 STOP - DNS/TLS/HTTP failure | Gate fails |
+| **1** | Barely reachable | 🛑 STOP - Severe gaps | Gate fails |
+| **2** | Loads but unstable | ⚠️ HOLD - Missing key headers | Gate fails |
+| **3** | Mostly OK | ✅ PROCEED with monitoring | Gate fails if <4 required |
+| **4** | Production-ready with minor gaps | ✅ PROCEED | Passes ≥4 gates |
+| **5** | Fully production-grade | ✅ PROCEED - Ship it! | Passes all gates |
+
+---
+
+## 🎯 **Gate Requirements (Revenue-First Ordering)**
+
+### **T+48h Gate (Revenue-Critical) 💰 - PROTECT REVENUE FIRST**
+**Apps**: student_pilot, provider_register  
+**Requirement**: Both must score **=5** (exactly 5)  
+**Command**: `T+48h gate: Test Student Pilot and Provider Register`  
+**Critical**: If either fails, **🛑 HOLD ENTIRE ROLLOUT**
+
+**Why First?** Revenue apps directly impact ARR. Testing them early de-risks the business model.
+
+### **T+24h Gate (Infrastructure)**
+**Apps**: scholarship_api, scholarship_agent  
+**Requirement**: Both must score **≥4**  
+**Command**: `T+24h gate: Test Scholarship API and Scholarship Agent`
+
+**Why Second?** Infrastructure must be stable before full rollout, but revenue validation comes first.
+
+### **T+72h Gate (Full Rollout) 🚀**
+**Apps**: All 8 apps  
+**Requirements**:
+- auto_page_maker must score **=5** (SEO growth-critical) 🔍
+- scholar_auth must score **=5** (security-critical) 🔒
+- All others must score **≥4**
+
+**Command**: `T+72h gate: Test all apps`
+
+**Why Last?** After revenue is protected, ensure SEO (student discovery) and security (student trust) are production-ready.
+
+---
+
+## 📋 **Ready-to-Use Commands**
+
+### **Recommended Testing Order**
+
+**1. Revenue-First Validation (Day 2):**
+```
+T+48h gate: Test Student Pilot and Provider Register
+```
+✅ De-risks checkout and registration funnels  
+✅ Validates revenue infrastructure early  
+✅ Aligns with student-value-first strategy  
+
+**2. Infrastructure Validation (Day 1):**
+```
+T+24h gate: Test Scholarship API and Scholarship Agent
+```
+✅ Ensures backend APIs are stable  
+✅ Validates agent services  
+
+**3. Full Baseline (Day 0 or Day 3):**
+```
+T+72h gate: Test all apps
+```
+✅ Validates all 8 apps for production readiness  
+✅ Ensures SEO and security are production-grade  
+
+### **Single App Spot Checks**
 ```
 Test https://scholarship-api-jamarrlmayes.replit.app
 Test https://scholarship-agent-jamarrlmayes.replit.app
@@ -21,56 +123,9 @@ Test https://auto-com-center-jamarrlmayes.replit.app
 Test https://scholarship-sage-jamarrlmayes.replit.app
 ```
 
-**Gate Tests:**
-```
-T+24h gate: Test Scholarship API and Scholarship Agent
-T+48h gate: Test Student Pilot and Provider Register
-T+72h gate: Test all apps
-```
-
-### Step 3: Review YAML Reports
-Agent3 returns YAML per app with readiness score, gate status, evidence, and recommended actions. Fix issues and re-run until gates pass.
-
 ---
 
-## 📊 Understanding Scores
-
-| Score | Status | Decision |
-|-------|--------|----------|
-| **0** | Unreachable | 🛑 STOP - DNS/TLS/HTTP failure |
-| **1** | Barely reachable | 🛑 STOP - Major issues |
-| **2** | Loads but unstable | ⚠️ HOLD - Missing key headers |
-| **3** | Mostly OK | ✅ PROCEED with monitoring |
-| **4** | Production-ready with minor gaps | ✅ PROCEED |
-| **5** | Fully production-grade | ✅ PROCEED - Ship it! |
-
----
-
-## 🎯 Gate Requirements
-
-### T+24h Gate (Infrastructure)
-**Apps**: scholarship_api, scholarship_agent  
-**Requirement**: Both must score **≥4**  
-**Command**: `T+24h gate: Test Scholarship API and Scholarship Agent`
-
-### T+48h Gate (Revenue-Critical) 💰
-**Apps**: student_pilot, provider_register  
-**Requirement**: Both must score **=5** (exactly 5)  
-**Command**: `T+48h gate: Test Student Pilot and Provider Register`  
-**Critical**: If either fails, HOLD ENTIRE ROLLOUT
-
-### T+72h Gate (Full Rollout) 🚀
-**Apps**: All 8 apps  
-**Requirements**:
-- auto_page_maker must score **=5** (SEO growth-critical) 🔍
-- scholar_auth must score **=5** (security-critical) 🔒
-- All others must score **≥4**
-
-**Command**: `T+72h gate: Test all apps`
-
----
-
-## 📄 Sample YAML Output (v2.1 Compact)
+## 📄 **Sample YAML Output**
 
 ```yaml
 app_name: Student Pilot
@@ -80,12 +135,12 @@ readiness_score_0_to_5: 5
 rollout_gate_status:
   gate: T+48h
   meets_gate: true
-  note: "Revenue-critical app production-ready"
+  note: "Revenue-critical checkout-readiness validated"
 evidence:
-  dns_tls: "Valid TLS, DNS resolves"
+  dns_tls: "resolved/TLS-valid"
   http:
     status_chain: [200]
-    ttfb_ms: 85
+    ttfb_ms: 97
     content_type: "text/html; charset=utf-8"
   security_headers_present:
     - HSTS
@@ -93,204 +148,183 @@ evidence:
     - X-Frame-Options
     - X-Content-Type-Options
     - Referrer-Policy
+    - Permissions-Policy
   robots_sitemap:
     robots_txt: present
     sitemap_xml: present
   console_errors_count: 0
   notes:
-    - "Clean load with no console errors"
-    - "Payment CSP configured for Stripe"
-    - "TTFB 85ms well under 120ms target"
-    - "All critical security headers present"
+    - "TTFB 97ms ✓"
+    - "Stripe in CSP ✓"
+    - "Zero console errors ✓"
+    - "All security headers present ✓"
+    - "Checkout-readiness posture validated"
 recommended_actions:
-  - "Consider adding Permissions-Policy header"
-  - "Monitor TTFB trends under load"
+  - "Monitor TTFB under load (target P95 ≤ 120ms)"
+  - "Consider adding Content-Security-Policy-Report-Only for monitoring"
 ```
 
 ---
 
-## ⚡ Performance Target
+## ⚡ **Performance Target**
 
-**TTFB Target**: ~120ms
+**TTFB Target**: ~120ms (global P95 SLO)
 
-All apps are evaluated against this performance baseline. The target is tracked in `evidence.http.ttfb_ms` and called out in recommendations if exceeded.
+All apps are evaluated against this performance baseline. The target is tracked in `evidence.http.ttfb_ms` and flagged if breached.
+
+**Scoring Impact:**
+- TTFB ≤ 120ms: Supports score of 5
+- TTFB 121-140ms: Supports score of 4
+- TTFB 141-200ms: Supports score of 3
+- TTFB > 200ms: Degrades to score of 2 or lower
 
 ---
 
-## 🗺️ URL-to-App Routing
+## 🗺️ **URL-to-App Routing**
 
 | URL Pattern | app_key | Gate Requirement |
 |-------------|---------|------------------|
+| `student-pilot-*.replit.app` | `student_pilot` | **T+48h: =5** 💰 Revenue |
+| `provider-register-*.replit.app` | `provider_register` | **T+48h: =5** 💰 Revenue |
 | `scholarship-api-*.replit.app` | `scholarship_api` | T+24h: ≥4 |
 | `scholarship-agent-*.replit.app` | `scholarship_agent` | T+24h: ≥4 |
-| `student-pilot-*.replit.app` | `student_pilot` | T+48h: =5 💰 |
-| `provider-register-*.replit.app` | `provider_register` | T+48h: =5 💰 |
-| `auto-page-maker-*.replit.app` | `auto_page_maker` | T+72h: =5 🔍 |
-| `scholar-auth-*.replit.app` | `scholar_auth` | T+72h: =5 🔒 |
+| `auto-page-maker-*.replit.app` | `auto_page_maker` | **T+72h: =5** 🔍 SEO |
+| `scholar-auth-*.replit.app` | `scholar_auth` | **T+72h: =5** 🔒 Security |
 | `auto-com-center-*.replit.app` | `auto_com_center` | T+72h: ≥4 |
 | `scholarship-sage-*.replit.app` | `scholarship_sage` | T+72h: ≥4 |
 | Unknown/other host | `unknown_host` | Graceful error report |
 
 ---
 
-## 🔒 Global Guardrails (Enforced)
+## 🎯 **Per-App Module Goals (Apply Only the Relevant One)**
 
-### ✅ Allowed
-- Only GET, HEAD, OPTIONS methods
-- Max 1 request/path/10 seconds
-- Max 20 requests total per app
-- Read-only operations only
+### **Revenue-Critical Apps (T+48h Gate =5)**
 
-### ❌ Forbidden
+#### **1. student_pilot (B2C revenue-critical)**
+- **Goal**: Checkout-readiness posture
+- **Evidence**: Stripe allowed in CSP; strong headers; zero console errors; TTFB ≤ 120ms
+
+#### **2. provider_register (B2B revenue-critical)**
+- **Goal**: Registration funnel posture
+- **Evidence**: Strong headers; CSP permits payment/AI services; zero console errors; TTFB ≤ 120ms
+
+### **Critical Apps (T+72h Gate =5)**
+
+#### **3. auto_page_maker (SEO growth-critical)**
+- **Goal**: SEO readiness
+- **Evidence**: robots.txt present; sitemap.xml present; canonical tags; strong headers; zero console errors; TTFB ≤ 120ms
+
+#### **4. scholar_auth (security-critical)**
+- **Goal**: Auth surface hardening
+- **Evidence**: HSTS long max-age; strict CSP; all modern headers; zero console errors; TTFB ≤ 120ms
+
+### **Infrastructure Apps (T+24h Gate ≥4)**
+
+#### **5. scholarship_api (infrastructure)**
+- **Goal**: API readiness
+- **Evidence**: health/docs reachable; strong headers; CORS sane; TTFB ≤ 140ms (target ≤ 120ms)
+
+#### **6. scholarship_agent (agent service)**
+- **Goal**: Service availability
+- **Evidence**: landing/docs reachable; CSP sane; zero console errors; TTFB ≤ 140ms (target ≤ 120ms)
+
+### **Supporting Apps (T+72h Gate ≥4)**
+
+#### **7. auto_com_center (internal admin)**
+- **Goal**: Dashboard availability
+- **Evidence**: Assets load; strong headers; zero console errors; TTFB ≤ 140ms
+
+#### **8. scholarship_sage (assistant app)**
+- **Goal**: Page/service availability
+- **Evidence**: Loads cleanly; key headers; zero console errors; TTFB ≤ 140ms
+
+---
+
+## 🔒 **Global Guardrails**
+
+### ✅ **Allowed**
+- GET, HEAD, OPTIONS methods only
+- Fetch and observe only
+- Read-only operations
+- Max 20 requests per app
+
+### ❌ **Forbidden**
 - POST/PUT/PATCH/DELETE
-- Form submissions
+- Write or mutate any server state
 - Authentication attempts
-- Cookie manipulation
-- Session creation
+- Cookie/session manipulation
+- Form submissions
 - File uploads
 - JS injection
 - PII collection
 
-### 🛡️ Compliance
+### 🛡️ **Compliance**
 - FERPA/COPPA-aligned testing
 - No sensitive data storage
-- Benign crawler behavior
+- Benign observer pattern
 
 ---
 
-## 🎯 Per-App Module Criteria
+## 📅 **Recommended 72-Hour Rollout (Revenue-First)**
 
-### 1. scholarship_api
-**Goal**: API availability/perf/security surface spot-check (read-only)  
-**Checks**: 200 on base/health endpoints, CORS and cache headers, TTFB  
-**Score 5**: Robust headers + clean docs + TTFB ≤120ms
-
-### 2. scholarship_agent
-**Goal**: Agent service availability and readiness  
-**Checks**: Successful landing/health, CSP and basic security headers, TTFB  
-**Score 5**: Strong headers + clean load + good TTFB
-
-### 3. student_pilot (B2C revenue-critical; must be =5 at T+48h)
-**Goal**: Checkout-readiness posture (read-only)  
-**Checks**: Stripe presence allowed in CSP, strong headers, clean console, fast TTFB  
-**Score 5**: Strong headers + clean load + payment CSP + good TTFB + zero severe console errors
-
-### 4. provider_register (B2B revenue-critical; must be =5 at T+48h)
-**Goal**: Registration funnel posture (read-only)  
-**Checks**: Strong headers, CSP supporting payment/AI services, no console errors, fast TTFB  
-**Score 5**: Strong headers + clean load + good TTFB + zero severe console errors
-
-### 5. auto_page_maker (SEO-critical; must be =5 at T+72h)
-**Goal**: SEO readiness (read-only)  
-**Checks**: robots.txt, sitemap.xml, canonical tags, fast TTFB, strong headers, zero console errors  
-**Score 5**: SEO artifacts present + strong headers + TTFB ~120ms + zero console errors
-
-### 6. scholar_auth (security-critical; must be =5 at T+72h)
-**Goal**: Auth surface hardening (read-only)  
-**Checks**: HSTS (long max-age), strong CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, fast TTFB, zero console errors  
-**Score 5**: All security headers + clean response + no console errors + good TTFB
-
-### 7. auto_com_center
-**Goal**: Command center availability and dashboard load (read-only)  
-**Checks**: 200 on root/health, core assets load, strong headers, TTFB tracked  
-**Score 5**: Strong headers + clean load + no severe console errors + good TTFB
-
-### 8. scholarship_sage
-**Goal**: Assistant surface availability (read-only)  
-**Checks**: Landing reachable, security headers present, no console errors, TTFB tracked  
-**Score 5**: Strong headers + clean load + no severe console errors + good TTFB
-
----
-
-## 📋 Evidence Collection
-
-For each app, Agent3 collects:
-
-1. **DNS/TLS**: Resolved, TLS-valid (or errors if any)
-2. **HTTP**: status_chain, ttfb_ms, content_type, basic cache headers
-3. **Security Headers**: HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, others
-4. **SEO** (if applicable): robots.txt present, sitemap.xml present
-5. **Console Errors**: Count (if feasible in read-only fetch+render mode)
-6. **Notes**: Concise bullet observations (max ~5)
-
----
-
-## 📅 72-Hour Rollout Workflow
-
-### Day 0 (Today) - Baseline
+### **Day 0 (Today) - Optional Baseline**
 ```
 T+72h gate: Test all apps
 ```
-1. Establish baseline scores for all 8 apps
-2. Fix any apps scoring 0-2 immediately
-3. Document current state
+- Establish baseline for all 8 apps
+- Identify critical issues early
+- Plan fixes before revenue gate
 
-### Day 1 (T+24h) - Infrastructure
+### **Day 1 (T+24h) - Infrastructure**
 ```
 T+24h gate: Test Scholarship API and Scholarship Agent
 ```
-1. Both must score ≥4
-2. If pass: Enable `PROMPT_MODE=universal` for these apps
-3. Monitor for issues
+- Both must score ≥4
+- Enable `PROMPT_MODE=universal` for these apps if pass
+- Monitor for stability
 
-### Day 2 (T+48h) - Revenue Gate
+### **Day 2 (T+48h) - Revenue Gate** 💰 **CRITICAL**
 ```
 T+48h gate: Test Student Pilot and Provider Register
 ```
-1. Both must score exactly 5
-2. **CRITICAL**: If either fails, HOLD ENTIRE ROLLOUT
-3. Validate revenue events (credit_purchase_succeeded, fee_accrued)
+- Both must score exactly 5
+- **🛑 HOLD ENTIRE ROLLOUT IF FAIL**
+- Validates checkout and registration funnels
+- Protects ARR growth trajectory
 
-### Day 3 (T+72h) - Full Rollout
+### **Day 3 (T+72h) - Full Rollout** 🚀
 ```
 T+72h gate: Test all apps
 ```
-1. Auto Page Maker =5 (SEO-critical)
-2. Scholar Auth =5 (Security-critical)
-3. All others ≥4
-4. Generate first `kpi_brief_generated` with non-zero ARR
+- auto_page_maker =5 (SEO-critical for student discovery)
+- scholar_auth =5 (security-critical for student trust)
+- All others ≥4
+- Generate first `kpi_brief_generated` with non-zero ARR
 
 ---
 
-## 🎯 v2.1 Compact Key Features
+## 🎊 **Why This Ordering Works**
 
-✅ **Auto-routing by host** - Infers app_key from URL pattern  
-✅ **Modular design** - Applies only the relevant app module  
-✅ **120ms TTFB target** - Global performance benchmark  
-✅ **Gate auto-expansion** - Built-in gate mapping  
-✅ **Hard guardrails** - FERPA/COPPA-aligned, read-only  
-✅ **Structured YAML output** - Programmatic processing ready  
-✅ **Per-app scoring criteria** - Clear success metrics  
-✅ **Unknown host handling** - Graceful error reports  
+### **Revenue-First Strategy** 💰
+- Tests revenue apps (student_pilot, provider_register) at T+48h
+- De-risks business model before full rollout
+- Aligns with $10M ARR priority
 
----
+### **Student-Value-First** 🎓
+- Ensures checkout and registration experiences are flawless
+- Validates SEO for student discovery
+- Confirms security for student trust
 
-## 🔧 Testing Procedure (Agent3 Follows)
-
-1. **Determine scope**
-   - If input is "Test <url>": infer app_key from host and test only that app
-   - If input is a gate command: expand to the correct set of apps and test each
-
-2. **For each app**
-   - Resolve DNS/TLS
-   - Perform minimal fetches under guardrails
-   - Capture evidence
-   - Assign score using rubric and app module criteria
-   - Evaluate gate
-
-3. **Emit YAML**
-   - Exactly per the schema
-   - Separate multiple apps with '---'
-
-4. **Handle errors gracefully**
-   - If host unknown or unreachable: set readiness_score_0_to_5 to 0 or 1
-   - Include clear error note in evidence
+### **AI Control Pattern** 🤖
+- Isolated per-app modules prevent criteria bleed
+- Agent3 applies only relevant module per test
+- Precise, scoped prompts ensure accurate scoring
 
 ---
 
-## 📚 Full Documentation
+## 📚 **Full Documentation**
 
-- **System Prompt**: `docs/testing/AGENT3_SYSTEM_PROMPT.txt` (v2.1 compact - copy-paste ready)
+- **System Prompt**: `docs/testing/AGENT3_SYSTEM_PROMPT.txt` (CEO-approved, copy-paste ready)
 - **Quick Start**: This file
 - **Detailed Runbook**: `docs/testing/E2E_TESTING_RUNBOOK.md`
 - **Framework Overview**: `docs/testing/universal_readonly_e2e_prompt.md`
@@ -298,3 +332,9 @@ T+72h gate: Test all apps
 ---
 
 **Ready to test!** Copy the system prompt from `docs/testing/AGENT3_SYSTEM_PROMPT.txt` and paste it into Agent3. 🚀
+
+**Recommended First Test:**
+```
+T+48h gate: Test Student Pilot and Provider Register
+```
+This validates your revenue-critical apps first, consistent with the CEO's growth thesis and student-value-first strategy.
