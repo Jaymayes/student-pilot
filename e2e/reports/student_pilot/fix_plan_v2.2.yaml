@@ -1,0 +1,562 @@
+---
+# Fix Plan: student_pilot (v2.2 Protocol Compliance)
+# Protocol: AGENT3 UNIVERSAL QA AUTOMATION v2.2 — COMBINED APPS
+# Current Score: 2/5 → Target Score: 5/5
+# Generated: 2025-10-29
+# Critical Blocker: Missing /pricing route (caps score at 2/5 per protocol)
+
+metadata:
+  app: student_pilot
+  base_url: https://student-pilot-jamarrlmayes.replit.app
+  protocol_version: "2.2"
+  current_score: 2/5
+  target_score: 5/5
+  total_eta_hours: 0.08  # 5 minutes for critical fix
+  critical_blocker: "Missing /pricing route"
+  gate_impact:
+    - T+48h Revenue Gate (BLOCKED - requires 5/5)
+    - T+72h Ecosystem Gate (BLOCKED - requires ≥4/5)
+
+# ============================================================================
+# PRIORITY P0 - CRITICAL (Blocks T+48h Revenue Gate)
+# ============================================================================
+
+items:
+  - id: P0-001
+    severity: P0
+    description: "Add /pricing route to unblock T+48h Revenue Gate"
+    
+    hypothesis: |
+      The v2.2 protocol requires 9 specific routes, including /pricing.
+      The app currently has /billing which serves all pricing functionality
+      (credit packages, purchase options, pricing display, checkout).
+      Adding a route alias /pricing → /billing will achieve protocol
+      compliance without duplicating functionality.
+    
+    evidence:
+      - "GET /pricing → 404 Not Found"
+      - "GET /billing → 200 OK with all pricing content"
+      - "v2.2 APP BLOCK states: 'Missing /pricing is a T+48h revenue blocker and caps score at 2/5'"
+      - "Current score: 2/5 (capped)"
+      - "T+48h gate requires: 5/5 for revenue apps"
+    
+    steps:
+      - step: 1
+        action: "Open client/src/App.tsx in editor"
+        validation: "File contents visible"
+        
+      - step: 2
+        action: "Locate the authenticated routes section (around line 41)"
+        current_code: |
+          <Route path="/billing" component={Billing} />
+        
+      - step: 3
+        action: "Add /pricing route alias immediately above /billing"
+        new_code: |
+          <Route path="/pricing" component={Billing} />
+          <Route path="/billing" component={Billing} />
+        rationale: "Both routes point to same component; /pricing for protocol compliance, /billing for backwards compatibility"
+        
+      - step: 4
+        action: "Save file (no build required - Vite HMR will apply)"
+        validation: "File saved successfully"
+        
+      - step: 5
+        action: "Wait 2-3 seconds for Vite HMR to reload"
+        validation: "Browser console shows '[vite] hot updated: /src/App.tsx'"
+        
+      - step: 6
+        action: "Test route: curl -I http://localhost:5000/pricing"
+        expected: "HTTP/1.1 200 OK"
+        
+      - step: 7
+        action: "Test route in browser: http://localhost:5000/pricing"
+        expected: "Billing page loads with credit packages visible"
+        
+      - step: 8
+        action: "Re-run v2.2 validation: verify /pricing in route inventory"
+        expected: "/pricing → 200 OK, HTML title 'Billing & Credits'"
+    
+    owner_role: "Frontend Developer"
+    
+    eta_hours: 0.08  # 5 minutes
+    
+    success_criteria:
+      - "GET /pricing returns 200 OK"
+      - "Page displays credit packages ($9.99, $49.99, $99.99)"
+      - "HTML title or marker present"
+      - "TTFB measured (3 samples, P95 calculated)"
+      - "Route compliance increases from 5/9 to 6/9"
+      - "Score increases from 2/5 to at least 4/5"
+      - "T+48h Revenue Gate status: UNBLOCKED"
+    
+    rollback:
+      steps:
+        - "Remove the added <Route path='/pricing' component={Billing} /> line"
+        - "Save file; Vite HMR applies change immediately"
+        - "Or: git checkout client/src/App.tsx"
+      risk: "NONE - simple routing change, no data impact"
+      
+    notes: |
+      This is a 5-minute fix that resolves the critical protocol blocker.
+      The /billing route remains functional for backwards compatibility.
+      Both routes serve identical content.
+      
+      Alternative approaches considered:
+      1. Rename /billing to /pricing (breaks backwards compat)
+      2. Create separate /pricing page (unnecessary duplication)
+      3. Request protocol exception (delays gate clearance)
+      
+      Route alias is the optimal solution: fast, safe, protocol-compliant.
+
+  - id: P0-002
+    severity: P0
+    description: "Update navigation to include /pricing link (optional but recommended)"
+    
+    hypothesis: |
+      While not strictly required for protocol compliance, adding a
+      "Pricing" link to navigation improves user discoverability and
+      aligns UX with protocol expectations.
+    
+    steps:
+      - step: 1
+        action: "Locate main navigation component (likely in client/src/components)"
+        
+      - step: 2
+        action: "Add 'Pricing' navigation item alongside 'Billing'"
+        code_guidance: |
+          <NavItem href="/pricing" icon={DollarSign}>
+            Pricing
+          </NavItem>
+        
+      - step: 3
+        action: "OR: Rename 'Billing' nav item to 'Pricing & Billing'"
+        
+      - step: 4
+        action: "Test navigation flow"
+    
+    owner_role: "Frontend Developer"
+    
+    eta_hours: 0.17  # 10 minutes
+    
+    success_criteria:
+      - "Navigation includes pricing link or label"
+      - "User can discover pricing from nav menu"
+    
+    rollback:
+      steps:
+        - "Revert navigation changes"
+      risk: "NONE"
+      
+    notes: |
+      This is optional for protocol compliance but improves UX.
+      Can be deferred to P1 if time-constrained.
+
+# ============================================================================
+# PRIORITY P1 - HIGH (Recommended for 5/5 Score)
+# ============================================================================
+
+  - id: P1-001
+    severity: P1
+    description: "Optimize P95 TTFB to meet ≤120ms target"
+    
+    hypothesis: |
+      Current P95 TTFB ranges from 121ms-205ms across routes, with most
+      routes 150-205ms. Production deployment with CDN, compression, and
+      caching is expected to reduce TTFB by 40-60ms. Additional optimizations
+      (code splitting, response caching) can close the remaining gap.
+    
+    evidence:
+      - "Frontend P95 TTFB: 205ms (max across all pages)"
+      - "API Core P95 TTFB: 149ms"
+      - "Target: ≤120ms"
+      - "Gap: +85ms frontend, +29ms API"
+      - "Development environment (no CDN, no production compression)"
+    
+    steps:
+      - step: 1
+        action: "Enable production build optimizations"
+        details: "See fix_plan.yaml P1-002 from previous report for detailed implementation"
+        
+      - step: 2
+        action: "Deploy to production environment with CDN"
+        expected_improvement: "~40-60ms reduction"
+        
+      - step: 3
+        action: "Enable Gzip/Brotli compression"
+        expected_improvement: "~20-30ms reduction"
+        
+      - step: 4
+        action: "Implement code splitting for vendor bundles"
+        expected_improvement: "~10-20ms reduction"
+        
+      - step: 5
+        action: "Add response caching for scholarship listings"
+        expected_improvement: "~15-25ms reduction"
+        
+      - step: 6
+        action: "Re-measure P95 TTFB in production"
+        target: "≤120ms across all routes"
+    
+    owner_role: "DevOps + Frontend Developer"
+    
+    eta_hours: 4.0
+    
+    success_criteria:
+      - "Frontend P95 TTFB ≤ 120ms (all routes)"
+      - "API Core P95 TTFB ≤ 120ms (all endpoints)"
+      - "Lighthouse Performance score > 90"
+      - "Score increases to 5/5"
+    
+    rollback:
+      steps:
+        - "Disable optimizations via feature flags"
+        - "Revert vite.config.ts changes"
+      risk: "LOW"
+      
+    notes: |
+      This is required for 5/5 score per v2.2 rubric.
+      Expected timeline: 4 hours for implementation + testing.
+      Most improvements come from production environment (CDN, compression).
+
+  - id: P1-002
+    severity: P1
+    description: "Add SEO meta tags (title, description)"
+    
+    hypothesis: |
+      Missing <title> and <meta description> tags reduce SEO visibility.
+      Adding these improves search engine indexing and social sharing.
+    
+    evidence:
+      - "document.title = '' (empty)"
+      - "No <meta name='description'> tag"
+      - "SEO score impact: reduced visibility"
+    
+    steps:
+      - step: 1
+        action: "Add meta tags to client/index.html <head>"
+        code: |
+          <title>ScholarLink - Find Your Perfect Scholarship Match</title>
+          <meta name="description" content="Discover personalized scholarship opportunities with AI-powered matching. Track applications, manage documents, and get expert essay assistance.">
+      
+      - step: 2
+        action: "Test meta tags visibility"
+        validation: "console.log(document.title) returns 'ScholarLink...'"
+    
+    owner_role: "Frontend Developer"
+    
+    eta_hours: 0.25
+    
+    success_criteria:
+      - "document.title !== ''"
+      - "<meta description> present"
+      - "Lighthouse SEO score improvement"
+    
+    rollback:
+      steps:
+        - "Remove added meta tags"
+      risk: "NONE"
+
+  - id: P1-003
+    severity: P1
+    description: "Optimize /api/monitoring/schema endpoint (671ms → <120ms)"
+    
+    hypothesis: |
+      Complex multi-table validation query (8 tables, sequential checks)
+      causes 671ms response time. Parallelization + caching can reduce
+      to <120ms.
+    
+    evidence:
+      - "Current P95 TTFB: 671ms"
+      - "Target: ≤120ms"
+      - "Gap: +551ms (459% over target)"
+      - "Non-critical monitoring endpoint"
+    
+    steps:
+      - step: 1
+        action: "Implement Promise.all() for parallel table checks"
+        
+      - step: 2
+        action: "Add 5-minute response cache (memoizee)"
+        
+      - step: 3
+        action: "Add database indexes on frequently queried columns"
+        
+      - step: 4
+        action: "Re-measure P95 TTFB"
+        target: "<120ms sustained"
+    
+    owner_role: "Backend Developer"
+    
+    eta_hours: 2.0
+    
+    success_criteria:
+      - "P95 TTFB ≤ 120ms"
+      - "Cache hit rate > 80%"
+      - "No database connection pool exhaustion"
+    
+    rollback:
+      steps:
+        - "Disable cache (maxAge: 0)"
+        - "Revert to sequential validation"
+        - "Drop added indexes if causing issues"
+      risk: "LOW"
+
+# ============================================================================
+# PRIORITY P2 - ARCHITECTURAL (Not Required for Gates)
+# ============================================================================
+
+  - id: P2-001
+    severity: P2
+    description: "Document OIDC architecture exception in protocol"
+    
+    hypothesis: |
+      The v2.2 protocol expects /login and /signup pages, but OIDC
+      architecture eliminates these as standalone pages. Protocol should
+      document this exception to avoid false negatives for OIDC-based apps.
+    
+    steps:
+      - step: 1
+        action: "Create protocol enhancement proposal"
+        
+      - step: 2
+        action: "Document OIDC exception criteria"
+        criteria:
+          - "OIDC discovery endpoint accessible (/.well-known/openid-configuration)"
+          - "Authorization endpoint returns proper redirect"
+          - "No standalone /login or /signup pages (by design)"
+          - "Session creation via OIDC callback successful"
+        
+      - step: 3
+        action: "Submit to protocol maintainers"
+    
+    owner_role: "QA Lead / Protocol Architect"
+    
+    eta_hours: 1.0
+    
+    success_criteria:
+      - "Protocol updated with OIDC exception"
+      - "Future validations account for OIDC architecture"
+    
+    notes: |
+      This is a protocol enhancement, not a code fix.
+      Does not block gates but improves future validation accuracy.
+
+  - id: P2-002
+    severity: P2
+    description: "Create standalone /matches page (optional UX enhancement)"
+    
+    hypothesis: |
+      Currently matches are integrated into /scholarships page.
+      A dedicated /matches page improves UX and protocol compliance.
+    
+    steps:
+      - step: 1
+        action: "Extract matches UI from Scholarships component"
+        
+      - step: 2
+        action: "Create new Matches page component"
+        
+      - step: 3
+        action: "Add route: <Route path='/matches' component={Matches} />"
+        
+      - step: 4
+        action: "Update navigation to include Matches link"
+    
+    owner_role: "Frontend Developer"
+    
+    eta_hours: 3.0
+    
+    success_criteria:
+      - "GET /matches returns 200 OK"
+      - "Page displays AI-generated scholarship matches"
+      - "Match scores, chances, and actions visible"
+      - "Route compliance increases to 7/9"
+    
+    rollback:
+      steps:
+        - "Remove route and component"
+        - "Revert navigation changes"
+      risk: "LOW"
+      
+    notes: |
+      Nice-to-have for full protocol compliance (7/9 routes vs. 6/9).
+      Not required for gates; can be deferred.
+
+# ============================================================================
+# EXECUTION PLAN
+# ============================================================================
+
+execution:
+  phase_1_immediate:
+    title: "Critical Blocker Resolution (5 minutes)"
+    items:
+      - P0-001
+    success_gate: "Score reaches 4/5, T+48h gate unblocked"
+    timeline: "Execute immediately"
+    
+  phase_2_optimization:
+    title: "Performance & SEO (6.25 hours)"
+    items:
+      - P1-001  # TTFB optimization (4h)
+      - P1-002  # SEO meta tags (0.25h)
+      - P1-003  # Schema endpoint optimization (2h)
+    success_gate: "Score reaches 5/5, all SLOs met"
+    timeline: "Complete before production deployment"
+    
+  phase_3_enhancements:
+    title: "UX & Protocol Improvements (4 hours)"
+    items:
+      - P2-001  # OIDC protocol documentation (1h)
+      - P2-002  # Standalone /matches page (3h)
+    success_gate: "Full protocol compliance (7/9 routes)"
+    timeline: "Post-launch, non-blocking"
+
+# ============================================================================
+# GATE CLEARANCE CRITERIA
+# ============================================================================
+
+gate_clearance:
+  t_plus_48h_revenue:
+    requirement: "5/5 score"
+    current_blocker: "Missing /pricing route (score capped at 2/5)"
+    resolution: "Apply P0-001 (5 minutes)"
+    post_fix_score: "4/5 or 5/5 (depending on TTFB)"
+    status_after_p0: "UNBLOCKED (minimum 4/5 achieved)"
+    status_after_p1: "FULLY CLEARED (5/5 achieved)"
+    
+  t_plus_72h_ecosystem:
+    requirement: "≥4/5 score"
+    current_blocker: "Same as T+48h (missing /pricing)"
+    resolution: "Apply P0-001 (5 minutes)"
+    post_fix_score: "4/5"
+    status_after_p0: "FULLY CLEARED (≥4/5 achieved)"
+
+# ============================================================================
+# RISK ASSESSMENT
+# ============================================================================
+
+risk_matrix:
+  overall_risk: VERY_LOW
+  
+  risks:
+    - id: RISK-001
+      description: "Route alias breaks existing /billing functionality"
+      probability: VERY_LOW
+      impact: LOW
+      mitigation: "Both routes point to same component; no functional change"
+      
+    - id: RISK-002
+      description: "Users bookmark /pricing and lose access after rollback"
+      probability: LOW
+      impact: LOW
+      mitigation: "Keep both routes; redirect /pricing to /billing if needed"
+      
+    - id: RISK-003
+      description: "Performance optimizations introduce regressions"
+      probability: LOW
+      impact: MEDIUM
+      mitigation: "Staged rollout; feature flags; comprehensive testing"
+
+# ============================================================================
+# SUCCESS METRICS
+# ============================================================================
+
+success_metrics:
+  immediate_p0:
+    - metric: "/pricing route exists"
+      target: "200 OK"
+      measurement: "curl -I http://localhost:5000/pricing"
+      
+    - metric: "Route compliance"
+      target: "6/9 (67%)"
+      current: "5/9 (55%)"
+      
+    - metric: "Protocol score"
+      target: "≥4/5"
+      current: "2/5"
+      
+  post_p1_optimization:
+    - metric: "Frontend P95 TTFB"
+      target: "≤120ms"
+      current: "205ms"
+      
+    - metric: "API P95 TTFB"
+      target: "≤120ms"
+      current: "149ms"
+      
+    - metric: "Protocol score"
+      target: "5/5"
+      current: "2/5"
+      
+  gate_status:
+    - metric: "T+48h Revenue Gate"
+      target: "CLEAR (5/5)"
+      current: "BLOCKED (2/5)"
+      post_p0: "UNBLOCKED (4/5)"
+      post_p1: "FULLY CLEARED (5/5)"
+      
+    - metric: "T+72h Ecosystem Gate"
+      target: "CLEAR (≥4/5)"
+      current: "BLOCKED (2/5)"
+      post_p0: "FULLY CLEARED (4/5)"
+
+# ============================================================================
+# APPENDIX
+# ============================================================================
+
+appendix:
+  related_artifacts:
+    - e2e/reports/student_pilot/readiness_report_v2.2.md
+    - e2e/reports/ecosystem_readiness_matrix.csv
+    - e2e/reports/student_pilot/readiness_report.md (previous version)
+    - e2e/reports/student_pilot/fix_plan.yaml (previous version)
+  
+  protocol_references:
+    - "AGENT3 UNIVERSAL QA AUTOMATION v2.2 — COMBINED APPS"
+    - "APP BLOCK — student_pilot (lines 67-86)"
+    - "Scoring rubric (lines 42-48)"
+    - "Gate mapping (lines 49-52)"
+  
+  evidence_summary:
+    route_testing:
+      - "GET /pricing → 404 (CRITICAL BLOCKER)"
+      - "GET /billing → 200 OK (functional equivalent)"
+      - "GET /login → 404 (OIDC architecture - no standalone page)"
+      - "GET /signup → 404 (OIDC architecture - no standalone page)"
+      - "GET /matches → 404 (integrated into /scholarships)"
+      - "GET /dashboard → 200 OK"
+      - "GET /onboarding → 200 OK"
+      - "GET /profile → 200 OK"
+      - "GET /scholarships → 200 OK"
+    
+    performance_evidence:
+      - "Frontend P95 TTFB: 205ms (85ms above target)"
+      - "API Core P95 TTFB: 149ms (29ms above target)"
+      - "Schema endpoint P95: 671ms (551ms above target)"
+      - "Health endpoints P95: <100ms (meets target)"
+    
+    security_evidence:
+      - "Security headers: 6/6 (100% pass)"
+      - "HSTS: present"
+      - "CSP: enforced (Stripe, OpenAI allowlisted)"
+      - "X-Content-Type-Options: nosniff"
+      - "X-Frame-Options: DENY"
+      - "Referrer-Policy: strict-origin-when-cross-origin"
+      - "Permissions-Policy: restrictive defaults"
+
+# ============================================================================
+# APPROVAL & SIGNOFF
+# ============================================================================
+
+approval:
+  generated_by: "Agent3 QA Automation Lead"
+  generated_date: "2025-10-29"
+  protocol_version: "2.2"
+  app_block: "student_pilot"
+  status: "READY FOR IMMEDIATE EXECUTION (P0)"
+  recommended_action: "Execute P0-001 immediately (5 min) to unblock gates"
+  estimated_gate_clearance: "T+48h: 5 min (P0), T+72h: 5 min (P0)"
+
+---
+# END OF FIX PLAN (v2.2)
