@@ -1,41 +1,40 @@
-# Agent3 E2E Testing - Operator Quick Start
+# Agent3 E2E Testing - Operator Quick Start (v2.1)
 
 ## 🚀 Setup (One-Time)
 
-**Step 1: Paste the Universal Prompt into Agent3**
+**Step 1: Copy the Universal Prompt into Agent3**
 - Open `docs/testing/AGENT3_SYSTEM_PROMPT.txt`
-- Copy the entire contents
+- Copy the entire "UNIVERSAL READ-ONLY E2E TEST PROMPT (Agent3) — v2.1 Compact"
 - Paste into Agent3 as the system message
 
 **Step 2: Ready to Test**
 - Agent3 auto-detects the app type from the URL
 - Only the relevant test module executes
 - All tests are strictly read-only (no mutations)
+- Outputs structured YAML reports
 
 ---
 
-## 📋 Usage Examples
+## 📋 Ready-to-Use Commands
 
-### Single App Test
+### Single App Tests
 
 ```
+Test https://scholarship-api-jamarrlmayes.replit.app
+Test https://scholarship-agent-jamarrlmayes.replit.app
 Test https://student-pilot-jamarrlmayes.replit.app
+Test https://provider-register-jamarrlmayes.replit.app
+Test https://auto-page-maker-jamarrlmayes.replit.app
+Test https://scholar-auth-jamarrlmayes.replit.app
+Test https://auto-com-center-jamarrlmayes.replit.app
+Test https://scholarship-sage-jamarrlmayes.replit.app
 ```
 
-### Gate Validation Tests
+### Gate Tests
 
-**T+24h Gate (Infrastructure)**
 ```
 T+24h gate: Test Scholarship API and Scholarship Agent
-```
-
-**T+48h Gate (Revenue-Critical)**
-```
 T+48h gate: Test Student Pilot and Provider Register
-```
-
-**T+72h Gate (Full Rollout)**
-```
 T+72h gate: Test all apps
 ```
 
@@ -54,10 +53,11 @@ T+72h gate: Test all apps
 
 ---
 
-## 📄 Sample YAML Report
+## 📄 Sample YAML Report (v2.1)
 
 ```yaml
 app_name: Student Pilot
+app_key: student_pilot
 url_tested: https://student-pilot-jamarrlmayes.replit.app
 readiness_score_0_to_5: 5
 rollout_gate_status:
@@ -67,9 +67,14 @@ rollout_gate_status:
 evidence:
   dns_tls: "Valid TLS, DNS resolves"
   http:
-    status_chain: [{code: 200}]
+    status_chain: [200]
     ttfb_ms: 85
-  security_headers_present: [HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy]
+  security_headers_present: 
+    - HSTS
+    - CSP
+    - X-Frame-Options
+    - X-Content-Type-Options
+    - Referrer-Policy
   console_errors_count: 0
   seo:
     title: "Student Pilot - Scholar AI Advisor"
@@ -89,26 +94,26 @@ recommended_actions:
 
 ## 🎯 Rollout Gate Requirements
 
-| App | Type | T+24h | T+48h | T+72h | Critical For |
-|-----|------|-------|-------|-------|--------------|
-| Auto Com Center | Admin | - | - | ≥4 | Dashboard |
-| Scholarship Agent | Public | ≥4 | - | ≥4 | Infrastructure |
-| Scholarship Sage | Public | - | - | ≥4 | Content |
-| Scholarship API | API | ≥4 | - | ≥4 | Infrastructure |
-| **Student Pilot** | Auth/B2C | - | **=5** | **=5** | **Revenue** 💰 |
-| **Provider Register** | Public/B2B | - | **=5** | **=5** | **Revenue** 💰 |
-| **Auto Page Maker** | SEO | - | - | **=5** | **SEO** 🔍 |
-| **Scholar Auth** | Auth | - | - | **=5** | **Security** 🔒 |
+| App | app_key | T+24h | T+48h | T+72h | Critical For |
+|-----|---------|-------|-------|-------|--------------|
+| Auto Com Center | `auto_com_center` | - | - | ≥4 | Dashboard |
+| Scholarship Agent | `scholarship_agent` | ≥4 | - | ≥4 | Infrastructure |
+| Scholarship Sage | `scholarship_sage` | - | - | ≥4 | Content |
+| Scholarship API | `scholarship_api` | ≥4 | - | ≥4 | Infrastructure |
+| **Student Pilot** | `student_pilot` | - | **=5** | **=5** | **Revenue** 💰 |
+| **Provider Register** | `provider_register` | - | **=5** | **=5** | **Revenue** 💰 |
+| **Auto Page Maker** | `auto_page_maker` | - | - | **=5** | **SEO** 🔍 |
+| **Scholar Auth** | `scholar_auth` | - | - | **=5** | **Security** 🔒 |
 
 ---
 
-## 🔒 Safety Guarantees
+## 🔒 Hard Guardrails (Enforced)
 
-### ✅ Enforced
+### ✅ Allowed
 - Only GET, HEAD, OPTIONS methods
 - Max 1 request/path/10 seconds
 - Max 20 requests total per app
-- User-Agent: `ScholarAI-ReadOnlyProbe/1.0`
+- Benign crawler identification
 - No PII collection
 - No state mutations
 
@@ -118,57 +123,76 @@ recommended_actions:
 - Authentication attempts
 - Cookie/session manipulation
 - File uploads
+- Bypassing security controls
 
 ---
 
-## 📱 Quick Commands Reference
+## 🗺️ URL-to-App Routing
 
-### Single App Tests
-```
-Test https://auto-com-center-jamarrlmayes.replit.app
-Test https://scholarship-agent-jamarrlmayes.replit.app
-Test https://scholarship-sage-jamarrlmayes.replit.app
-Test https://scholarship-api-jamarrlmayes.replit.app
-Test https://student-pilot-jamarrlmayes.replit.app
-Test https://provider-register-jamarrlmayes.replit.app
-Test https://auto-page-maker-jamarrlmayes.replit.app
-Test https://scholar-auth-jamarrlmayes.replit.app
-```
+Agent3 automatically routes based on the URL host:
 
-### Gate Tests
-```
-T+24h gate: Test Scholarship API and Scholarship Agent
-T+48h gate: Test Student Pilot and Provider Register
-T+72h gate: Test all apps
-```
+| URL Host | app_key | App Name |
+|----------|---------|----------|
+| `scholarship-api-jamarrlmayes.replit.app` | `scholarship_api` | Scholarship API |
+| `scholarship-agent-jamarrlmayes.replit.app` | `scholarship_agent` | Scholarship Agent |
+| `student-pilot-jamarrlmayes.replit.app` | `student_pilot` | Student Pilot |
+| `provider-register-jamarrlmayes.replit.app` | `provider_register` | Provider Register |
+| `auto-page-maker-jamarrlmayes.replit.app` | `auto_page_maker` | Auto Page Maker |
+| `scholar-auth-jamarrlmayes.replit.app` | `scholar_auth` | Scholar Auth |
+| `auto-com-center-jamarrlmayes.replit.app` | `auto_com_center` | Auto Com Center |
+| `scholarship-sage-jamarrlmayes.replit.app` | `scholarship_sage` | Scholarship Sage |
 
 ---
 
-## ⚡ App-Specific Notes
+## ⚡ Per-App Testing Notes
 
-### Auto Com Center (Admin Dashboard)
-- 200 on login page OR 302/307 to login = acceptable
-- 404 on root = blocker
-- Do NOT attempt authentication
-- Focus: availability, security headers, no critical errors
+### scholarship_api (API/Backend)
+- **Gate**: T+24h (score ≥4)
+- **Checks**: /, /health, /docs (OpenAPI)
+- **Emphasis**: Availability, TLS, headers, TTFB <120ms
+- **Score 5**: Robust headers + clean docs + fast
 
-### Student Pilot & Provider Register (Revenue-Critical)
-- **MUST score 5 for T+48h gate**
-- Check CSP supports payment providers (Stripe)
-- Verify cookie security flags
-- Zero critical console errors required
+### scholarship_agent (Public Frontend)
+- **Gate**: T+24h (score ≥4)
+- **Checks**: Page loads, SEO metadata, robots.txt
+- **Emphasis**: UX integrity, SEO basics
+- **Score 5**: Strong headers + zero errors + SEO complete
 
-### Auto Page Maker (SEO-Critical)
-- **MUST score 5 for T+72h gate**
-- robots.txt and sitemap.xml required
-- Canonical tags required
-- Fast TTFB required
+### student_pilot (Auth Frontend, B2C)
+- **Gate**: T+48h (score **=5**, revenue-critical)
+- **Checks**: Public/login views, security headers, payment CSP
+- **Emphasis**: Zero severe console errors
+- **Score 5**: Clean load + strong headers + no errors
 
-### Scholar Auth (Security-Critical)
-- **MUST score 5 for T+72h gate**
-- Ironclad security headers
-- Cookie flags: Secure, HttpOnly, SameSite
-- CSRF token presence verified
+### provider_register (Public Frontend, B2B)
+- **Gate**: T+48h (score **=5**, revenue-critical)
+- **Checks**: Public entry, security headers
+- **Emphasis**: Zero severe console errors
+- **Score 5**: Strong headers + clean console
+
+### auto_page_maker (SEO Frontend)
+- **Gate**: T+72h (score **=5**, SEO-critical)
+- **Checks**: robots.txt, sitemap.xml, canonical, TTFB
+- **Emphasis**: SEO artifacts, fast response
+- **Score 5**: SEO complete + TTFB <120ms
+
+### scholar_auth (Auth Service)
+- **Gate**: T+72h (score **=5**, security-critical)
+- **Checks**: Public surface, security headers, cookie flags
+- **Emphasis**: Ironclad security posture
+- **Score 5**: Strong headers + clean public response
+
+### auto_com_center (Admin Dashboard)
+- **Gate**: T+72h (score ≥4)
+- **Checks**: 200 on login OR 302/307 redirect acceptable
+- **Emphasis**: 404 on root = blocker
+- **Score 5**: Strong headers + clean console
+
+### scholarship_sage (Public Frontend)
+- **Gate**: T+72h (score ≥4)
+- **Checks**: Availability, SEO basics, minimal errors
+- **Emphasis**: Content integrity
+- **Score 5**: Strong headers + clean console + SEO complete
 
 ---
 
@@ -181,7 +205,7 @@ T+72h gate: Test all apps
 4. Check deployment status in Replit
 
 ### Score 1-2 (Blockers/Critical)
-1. Review console errors in evidence
+1. Review console errors in evidence.notes
 2. Check missing security headers
 3. Verify JavaScript loads correctly
 4. Check for broken assets
@@ -193,46 +217,55 @@ T+72h gate: Test all apps
 
 ---
 
-## 📚 Full Documentation
+## 📅 72-Hour Rollout Integration
 
-- **System Prompt**: `docs/testing/AGENT3_SYSTEM_PROMPT.txt` (copy-paste ready)
-- **Detailed Runbook**: `docs/testing/E2E_TESTING_RUNBOOK.md`
-- **Framework Overview**: `docs/testing/universal_readonly_e2e_prompt.md`
-- **Comprehensive Reference**: `docs/testing/AGENT3_UNIVERSAL_E2E_PROMPT.txt`
-
----
-
-## 🎯 72-Hour Rollout Integration
-
-### Day 0 (Today)
+### Day 0 (Today) - Baseline
 ```
 T+72h gate: Test all apps
 ```
 - Establish baseline scores
 - Fix any score 0-2 apps immediately
 
-### Day 1 (T+24h)
+### Day 1 (T+24h) - Infrastructure Gate
 ```
 T+24h gate: Test Scholarship API and Scholarship Agent
 ```
 - Both must score ≥4
 - If pass: Enable universal mode for these apps
 
-### Day 2 (T+48h)
+### Day 2 (T+48h) - Revenue Gate
 ```
 T+48h gate: Test Student Pilot and Provider Register
 ```
 - Both must score exactly 5
-- If pass: Enable universal mode for revenue apps
 - **CRITICAL GATE**: Hold entire rollout if failed
 
-### Day 3 (T+72h)
+### Day 3 (T+72h) - Full Rollout
 ```
 T+72h gate: Test all apps
 ```
 - Auto Page Maker and Scholar Auth must score 5
 - All others must score ≥4
 - If pass: Full universal mode rollout complete
+
+---
+
+## 📚 Full Documentation
+
+- **System Prompt**: `docs/testing/AGENT3_SYSTEM_PROMPT.txt` (v2.1 compact)
+- **Detailed Runbook**: `docs/testing/E2E_TESTING_RUNBOOK.md`
+- **Framework Overview**: `docs/testing/universal_readonly_e2e_prompt.md`
+- **Comprehensive Reference**: `docs/testing/AGENT3_UNIVERSAL_E2E_PROMPT.txt`
+
+---
+
+## 🎯 v2.1 Improvements
+
+✅ **app_key field** added to YAML output for precise app identification  
+✅ **Explicit URL-to-app routing** with full host mappings  
+✅ **Hard Guardrails** section for clearer safety rules  
+✅ **Scoring rubric** with actionable thresholds  
+✅ **Ready-to-use commands** for copy-paste convenience  
 
 ---
 
