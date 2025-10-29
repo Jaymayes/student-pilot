@@ -1,23 +1,23 @@
-# Agent3 E2E Testing - Operator Quick Start (v2.1)
+# Agent3 E2E Testing - Operator Quick Start (v2.1 Compact)
 
 ## 🚀 How to Use
 
 ### Step 1: Paste the Universal Prompt into Agent3
-- Open `docs/testing/AGENT3_SYSTEM_PROMPT.txt`
-- Copy the entire prompt (from "BEGIN" to "END")
-- Paste into Agent3 as the system message
+1. Open `docs/testing/AGENT3_SYSTEM_PROMPT.txt`
+2. Copy the entire prompt (from "BEGIN" to "END")
+3. Paste into Agent3 as the **System message**
 
 ### Step 2: Run Tests
 
 **Single App Tests:**
 ```
-Test https://auto-com-center-jamarrlmayes.replit.app
 Test https://scholarship-api-jamarrlmayes.replit.app
 Test https://scholarship-agent-jamarrlmayes.replit.app
 Test https://student-pilot-jamarrlmayes.replit.app
 Test https://provider-register-jamarrlmayes.replit.app
 Test https://auto-page-maker-jamarrlmayes.replit.app
 Test https://scholar-auth-jamarrlmayes.replit.app
+Test https://auto-com-center-jamarrlmayes.replit.app
 Test https://scholarship-sage-jamarrlmayes.replit.app
 ```
 
@@ -28,18 +28,21 @@ T+48h gate: Test Student Pilot and Provider Register
 T+72h gate: Test all apps
 ```
 
+### Step 3: Review YAML Reports
+Agent3 returns YAML per app with readiness score, gate status, evidence, and recommended actions. Fix issues and re-run until gates pass.
+
 ---
 
 ## 📊 Understanding Scores
 
 | Score | Status | Decision |
 |-------|--------|----------|
-| **0** | Not reachable | 🛑 STOP - Fix deployment |
-| **1** | Major blockers | 🛑 STOP - Critical fixes needed |
-| **2** | Critical issues | ⚠️ HOLD - Address before rollout |
-| **3** | Usable with issues | ✅ PROCEED with monitoring |
-| **4** | Near-ready | ✅ PROCEED - Minor fixes |
-| **5** | Production-ready | ✅ PROCEED - Ship it! |
+| **0** | Unreachable | 🛑 STOP - DNS/TLS/HTTP failure |
+| **1** | Barely reachable | 🛑 STOP - Major issues |
+| **2** | Loads but unstable | ⚠️ HOLD - Missing key headers |
+| **3** | Mostly OK | ✅ PROCEED with monitoring |
+| **4** | Production-ready with minor gaps | ✅ PROCEED |
+| **5** | Fully production-grade | ✅ PROCEED - Ship it! |
 
 ---
 
@@ -67,7 +70,7 @@ T+72h gate: Test all apps
 
 ---
 
-## 📄 Sample YAML Output (v2.1)
+## 📄 Sample YAML Output (v2.1 Compact)
 
 ```yaml
 app_name: Student Pilot
@@ -83,25 +86,25 @@ evidence:
   http:
     status_chain: [200]
     ttfb_ms: 85
+    content_type: "text/html; charset=utf-8"
   security_headers_present:
     - HSTS
     - CSP
     - X-Frame-Options
     - X-Content-Type-Options
     - Referrer-Policy
+  robots_sitemap:
+    robots_txt: present
+    sitemap_xml: present
   console_errors_count: 0
-  seo:
-    title: "Student Pilot - Scholar AI Advisor"
-    description_present: true
-    canonical_present: true
-    robots_txt_accessible: true
-    sitemap_xml_accessible: true
   notes:
     - "Clean load with no console errors"
     - "Payment CSP configured for Stripe"
     - "TTFB 85ms well under 120ms target"
+    - "All critical security headers present"
 recommended_actions:
   - "Consider adding Permissions-Policy header"
+  - "Monitor TTFB trends under load"
 ```
 
 ---
@@ -116,20 +119,21 @@ All apps are evaluated against this performance baseline. The target is tracked 
 
 ## 🗺️ URL-to-App Routing
 
-| URL Host | app_key | Gate |
-|----------|---------|------|
-| `scholarship-api-jamarrlmayes.replit.app` | `scholarship_api` | T+24h: ≥4 |
-| `scholarship-agent-jamarrlmayes.replit.app` | `scholarship_agent` | T+24h: ≥4 |
-| `student-pilot-jamarrlmayes.replit.app` | `student_pilot` | T+48h: =5 💰 |
-| `provider-register-jamarrlmayes.replit.app` | `provider_register` | T+48h: =5 💰 |
-| `auto-page-maker-jamarrlmayes.replit.app` | `auto_page_maker` | T+72h: =5 🔍 |
-| `scholar-auth-jamarrlmayes.replit.app` | `scholar_auth` | T+72h: =5 🔒 |
-| `auto-com-center-jamarrlmayes.replit.app` | `auto_com_center` | T+72h: ≥4 |
-| `scholarship-sage-jamarrlmayes.replit.app` | `scholarship_sage` | T+72h: ≥4 |
+| URL Pattern | app_key | Gate Requirement |
+|-------------|---------|------------------|
+| `scholarship-api-*.replit.app` | `scholarship_api` | T+24h: ≥4 |
+| `scholarship-agent-*.replit.app` | `scholarship_agent` | T+24h: ≥4 |
+| `student-pilot-*.replit.app` | `student_pilot` | T+48h: =5 💰 |
+| `provider-register-*.replit.app` | `provider_register` | T+48h: =5 💰 |
+| `auto-page-maker-*.replit.app` | `auto_page_maker` | T+72h: =5 🔍 |
+| `scholar-auth-*.replit.app` | `scholar_auth` | T+72h: =5 🔒 |
+| `auto-com-center-*.replit.app` | `auto_com_center` | T+72h: ≥4 |
+| `scholarship-sage-*.replit.app` | `scholarship_sage` | T+72h: ≥4 |
+| Unknown/other host | `unknown_host` | Graceful error report |
 
 ---
 
-## 🔒 Hard Guardrails (Enforced)
+## 🔒 Global Guardrails (Enforced)
 
 ### ✅ Allowed
 - Only GET, HEAD, OPTIONS methods
@@ -142,9 +146,72 @@ All apps are evaluated against this performance baseline. The target is tracked 
 - Form submissions
 - Authentication attempts
 - Cookie manipulation
+- Session creation
 - File uploads
 - JS injection
 - PII collection
+
+### 🛡️ Compliance
+- FERPA/COPPA-aligned testing
+- No sensitive data storage
+- Benign crawler behavior
+
+---
+
+## 🎯 Per-App Module Criteria
+
+### 1. scholarship_api
+**Goal**: API availability/perf/security surface spot-check (read-only)  
+**Checks**: 200 on base/health endpoints, CORS and cache headers, TTFB  
+**Score 5**: Robust headers + clean docs + TTFB ≤120ms
+
+### 2. scholarship_agent
+**Goal**: Agent service availability and readiness  
+**Checks**: Successful landing/health, CSP and basic security headers, TTFB  
+**Score 5**: Strong headers + clean load + good TTFB
+
+### 3. student_pilot (B2C revenue-critical; must be =5 at T+48h)
+**Goal**: Checkout-readiness posture (read-only)  
+**Checks**: Stripe presence allowed in CSP, strong headers, clean console, fast TTFB  
+**Score 5**: Strong headers + clean load + payment CSP + good TTFB + zero severe console errors
+
+### 4. provider_register (B2B revenue-critical; must be =5 at T+48h)
+**Goal**: Registration funnel posture (read-only)  
+**Checks**: Strong headers, CSP supporting payment/AI services, no console errors, fast TTFB  
+**Score 5**: Strong headers + clean load + good TTFB + zero severe console errors
+
+### 5. auto_page_maker (SEO-critical; must be =5 at T+72h)
+**Goal**: SEO readiness (read-only)  
+**Checks**: robots.txt, sitemap.xml, canonical tags, fast TTFB, strong headers, zero console errors  
+**Score 5**: SEO artifacts present + strong headers + TTFB ~120ms + zero console errors
+
+### 6. scholar_auth (security-critical; must be =5 at T+72h)
+**Goal**: Auth surface hardening (read-only)  
+**Checks**: HSTS (long max-age), strong CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, fast TTFB, zero console errors  
+**Score 5**: All security headers + clean response + no console errors + good TTFB
+
+### 7. auto_com_center
+**Goal**: Command center availability and dashboard load (read-only)  
+**Checks**: 200 on root/health, core assets load, strong headers, TTFB tracked  
+**Score 5**: Strong headers + clean load + no severe console errors + good TTFB
+
+### 8. scholarship_sage
+**Goal**: Assistant surface availability (read-only)  
+**Checks**: Landing reachable, security headers present, no console errors, TTFB tracked  
+**Score 5**: Strong headers + clean load + no severe console errors + good TTFB
+
+---
+
+## 📋 Evidence Collection
+
+For each app, Agent3 collects:
+
+1. **DNS/TLS**: Resolved, TLS-valid (or errors if any)
+2. **HTTP**: status_chain, ttfb_ms, content_type, basic cache headers
+3. **Security Headers**: HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, others
+4. **SEO** (if applicable): robots.txt present, sitemap.xml present
+5. **Console Errors**: Count (if feasible in read-only fetch+render mode)
+6. **Notes**: Concise bullet observations (max ~5)
 
 ---
 
@@ -185,51 +252,45 @@ T+72h gate: Test all apps
 
 ---
 
-## 🔧 Per-App Scoring Criteria
+## 🎯 v2.1 Compact Key Features
 
-### scholarship_api
-- **Score 4**: Available, basic security headers, TTFB ~120ms
-- **Score 5**: Robust headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy) + clean docs + TTFB ≤120ms
-
-### scholarship_agent
-- **Score 5**: Strong headers + clean load + good TTFB
-
-### student_pilot (T+48h must =5)
-- **Score 5**: Strong headers + clean load + payment CSP + good TTFB + zero severe console errors
-
-### provider_register (T+48h must =5)
-- **Score 5**: Strong headers + clean load + good TTFB + zero severe console errors
-
-### auto_page_maker (T+72h must =5)
-- **Score 5**: SEO artifacts present (robots.txt, title, canonical, sitemap.xml) + strong headers + TTFB ~120ms
-
-### scholar_auth (T+72h must =5)
-- **Score 5**: Strong headers + clean response + no console errors on public pages + good TTFB
-
-### auto_com_center
-- **Available**: 200 on login page OR 302/307 redirect to login
-- **Blocker**: 404 on root (score ≤2)
-- **Score 5**: Strong headers + clean load + no severe console errors + good TTFB
-
-### scholarship_sage
-- **Score 5**: Strong headers + clean load + no severe console errors + good TTFB
+✅ **Auto-routing by host** - Infers app_key from URL pattern  
+✅ **Modular design** - Applies only the relevant app module  
+✅ **120ms TTFB target** - Global performance benchmark  
+✅ **Gate auto-expansion** - Built-in gate mapping  
+✅ **Hard guardrails** - FERPA/COPPA-aligned, read-only  
+✅ **Structured YAML output** - Programmatic processing ready  
+✅ **Per-app scoring criteria** - Clear success metrics  
+✅ **Unknown host handling** - Graceful error reports  
 
 ---
 
-## 🎯 v2.1 Key Features
+## 🔧 Testing Procedure (Agent3 Follows)
 
-✅ **app_key field** in YAML output for programmatic processing  
-✅ **120ms TTFB target** emphasized as global performance baseline  
-✅ **Gate expansion logic** built-in (auto-expands to app sets)  
-✅ **Hard guardrails** section for strict safety enforcement  
-✅ **Testing procedure** that Agent3 must follow  
-✅ **Ready-to-use commands** for operators  
+1. **Determine scope**
+   - If input is "Test <url>": infer app_key from host and test only that app
+   - If input is a gate command: expand to the correct set of apps and test each
+
+2. **For each app**
+   - Resolve DNS/TLS
+   - Perform minimal fetches under guardrails
+   - Capture evidence
+   - Assign score using rubric and app module criteria
+   - Evaluate gate
+
+3. **Emit YAML**
+   - Exactly per the schema
+   - Separate multiple apps with '---'
+
+4. **Handle errors gracefully**
+   - If host unknown or unreachable: set readiness_score_0_to_5 to 0 or 1
+   - Include clear error note in evidence
 
 ---
 
 ## 📚 Full Documentation
 
-- **System Prompt**: `docs/testing/AGENT3_SYSTEM_PROMPT.txt` (v2.1 compact)
+- **System Prompt**: `docs/testing/AGENT3_SYSTEM_PROMPT.txt` (v2.1 compact - copy-paste ready)
 - **Quick Start**: This file
 - **Detailed Runbook**: `docs/testing/E2E_TESTING_RUNBOOK.md`
 - **Framework Overview**: `docs/testing/universal_readonly_e2e_prompt.md`
