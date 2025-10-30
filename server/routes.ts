@@ -126,8 +126,8 @@ Allow: /apply/`;
 
   // ========== CANARY ENDPOINT (AGENT3 v2.2 REQUIREMENT) ==========
   
-  // Universal canary endpoint - MUST return JSON before any SPA catch-all
-  app.get('/canary', (req, res) => {
+  // Helper function for canary response with cache-busting headers
+  const sendCanaryResponse = (req: express.Request, res: express.Response) => {
     const canaryResponse = {
       ok: true,
       service: "student_pilot",
@@ -136,12 +136,21 @@ Allow: /apply/`;
       timestamp: new Date().toISOString()
     };
     
+    // Phase 0 cache-busting headers (exact spec)
     res.set('Content-Type', 'application/json; charset=utf-8');
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.status(200).json(canaryResponse);
-  });
+  };
   
-  console.log('✅ /canary endpoint registered (AGENT3 v2.2 compliance)');
+  // Primary canary endpoint - MUST return JSON before any SPA catch-all
+  app.get('/canary', sendCanaryResponse);
+  
+  // Fallback canary endpoint for CDN cache bypass
+  app.get('/_canary_no_cache', sendCanaryResponse);
+  
+  console.log('✅ /canary and /_canary_no_cache endpoints registered (AGENT3 v2.2 Phase 0)');
 
   // ========== HEALTH & MONITORING ENDPOINTS ==========
   

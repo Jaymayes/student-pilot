@@ -87,16 +87,16 @@ app.use(cors({
   maxAge: 86400 // 24 hours
 }));
 
-// Security middleware - helmet with initial configuration
+// Security middleware - helmet with AGENT3 v2.2 exact specifications
 app.use(helmet({
-  contentSecurityPolicy: false, // Will enable as report-only first
+  contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true
   },
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  referrerPolicy: { policy: 'no-referrer' } // AGENT3 v2.2 spec: no-referrer
 }));
 
 // Add Permissions-Policy header (AGENT3 v2.2 requirement for 6/6 headers)
@@ -105,13 +105,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// CSP with environment-specific policies for security and performance
+// CSP with AGENT3 v2.2 base directives + app-specific extensions
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 app.use(helmet.contentSecurityPolicy({
-  useDefaults: true,
+  useDefaults: false, // Build from scratch to match exact spec
   directives: {
+    // AGENT3 v2.2 Phase 0 base directives (exact spec)
     defaultSrc: ["'self'"],
+    frameAncestors: ["'none'"],
+    objectSrc: ["'none'"],
+    baseUri: ["'self'"],
+    formAction: ["'self'"],
+    // App-specific extensions for student_pilot functionality
     scriptSrc: isDevelopment 
       ? ["'self'", "https://js.stripe.com", "'unsafe-inline'", "https://replit.com"] // Dev: allow inline for Vite HMR
       : ["'self'", "https://js.stripe.com"], // Prod: strict, no unsafe-inline
@@ -123,10 +129,9 @@ app.use(helmet.contentSecurityPolicy({
       ? ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"] // Dev: allow inline for Vite
       : ["'self'", "https://fonts.googleapis.com"], // Prod: no unsafe-inline
     fontSrc: ["'self'", "https://fonts.gstatic.com"],
-    imgSrc: ["'self'", "data:", "https:"],
-    objectSrc: ["'none'"]
+    imgSrc: ["'self'", "data:", "https:"]
   },
-  reportOnly: false // Enforce CSP for security and performance
+  reportOnly: false // Enforce CSP
 }));
 
 // Rate limiting
