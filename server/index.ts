@@ -74,7 +74,7 @@ app.use(compression({
   }
 }));
 
-// CORS configuration - AGENT3 v2.2 CEO final: exact 8 origins, no wildcards
+// CORS configuration - AGENT3 v2.2: exact 8 origins, no wildcards
 app.use(cors({
   origin: [
     'https://scholar-auth-jamarrlmayes.replit.app',
@@ -86,59 +86,60 @@ app.use(cors({
     'https://auto-page-maker-jamarrlmayes.replit.app',
     'https://auto-com-center-jamarrlmayes.replit.app'
   ],
-  credentials: false, // CEO final spec: credentials false
+  credentials: false,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
-  maxAge: 600 // CEO final spec: 600 seconds (10 minutes)
+  allowedHeaders: ['Accept', 'Content-Type', 'Authorization', 'Origin', 'Referer', 'User-Agent'],
+  exposedHeaders: ['ETag'],
+  maxAge: 600
 }));
 
-// Security middleware - helmet with AGENT3 v2.2 CEO final specifications
+// Security middleware - helmet with AGENT3 v2.2 specifications
 app.use(helmet({
   contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
-    maxAge: 63072000, // AGENT3 v2.2 CEO final: 63072000 (2 years)
+    maxAge: 63072000, // AGENT3 v2.2: 63072000 (2 years)
     includeSubDomains: true,
-    preload: true // CEO final spec: preload enabled
+    preload: true // AGENT3 v2.2: preload enabled
   },
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'no-referrer' }
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
-// Add Permissions-Policy header (AGENT3 v2.2 CEO final: 17 features)
+// Add Permissions-Policy header (AGENT3 v2.2: 17 features)
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'accelerometer=(), ambient-light-sensor=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()');
+  res.setHeader('Permissions-Policy', 'accelerometer=(), ambient-light-sensor=(), autoplay=(), bluetooth=(), camera=(), clipboard-read=(), clipboard-write=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()');
   next();
 });
 
-// CSP with AGENT3 v2.2 CEO final: UI app profile
+// CSP with AGENT3 v2.2: UI app profile
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 app.use(helmet.contentSecurityPolicy({
   useDefaults: false,
   directives: {
-    // CEO final spec: UI app CSP profile
+    // AGENT3 v2.2: UI app CSP profile
     defaultSrc: ["'self'"],
+    baseUri: ["'self'"],
+    objectSrc: ["'none'"],
+    frameAncestors: ["'none'"],
+    imgSrc: ["'self'", "data:", "https:"],
     scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "https://js.stripe.com"],
     styleSrc: ["'self'", "'unsafe-inline'"],
-    imgSrc: ["'self'", "data:", "blob:"],
     fontSrc: ["'self'", "data:"],
     connectSrc: [
       "'self'",
-      "https://scholarship-api-jamarrlmayes.replit.app",
-      "https://auto-com-center-jamarrlmayes.replit.app",
       "https://scholar-auth-jamarrlmayes.replit.app",
+      "https://scholarship-api-jamarrlmayes.replit.app",
       "https://scholarship-agent-jamarrlmayes.replit.app",
       "https://scholarship-sage-jamarrlmayes.replit.app",
       "https://student-pilot-jamarrlmayes.replit.app",
       "https://provider-register-jamarrlmayes.replit.app",
       "https://auto-page-maker-jamarrlmayes.replit.app",
+      "https://auto-com-center-jamarrlmayes.replit.app",
       "https://api.stripe.com"
     ],
     frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],
-    frameAncestors: ["'none'"],
-    baseUri: ["'self'"],
-    formAction: ["'self'", "https://hooks.stripe.com"],
-    objectSrc: ["'none'"]
+    formAction: ["'self'", "https://hooks.stripe.com"]
   },
   reportOnly: false
 }));
