@@ -87,16 +87,16 @@ app.use(cors({
   maxAge: 86400 // 24 hours
 }));
 
-// Security middleware - helmet with AGENT3 v2.2 exact specifications
+// Security middleware - helmet with AGENT3 v2.2 unified specifications
 app.use(helmet({
   contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
-    maxAge: 31536000,
+    maxAge: 63072000, // AGENT3 v2.2 unified: 63072000 (2 years)
     includeSubDomains: true,
-    preload: true
+    preload: false // preload removed per unified spec
   },
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'no-referrer' } // AGENT3 v2.2 spec: no-referrer
+  referrerPolicy: { policy: 'no-referrer' }
 }));
 
 // Add Permissions-Policy header (AGENT3 v2.2 requirement for 6/6 headers)

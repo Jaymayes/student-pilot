@@ -128,7 +128,7 @@ Allow: /apply/`;
   
   // Helper function for canary response with cache-busting headers
   const sendCanaryResponse = (req: express.Request, res: express.Response) => {
-    // AGENT3 v2.2 updated canary schema
+    // AGENT3 v2.2 unified canary schema (p95_ms must be number type)
     const canaryResponse = {
       app: "student_pilot",
       app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
@@ -136,7 +136,7 @@ Allow: /apply/`;
       status: "ok",
       now_utc: new Date().toISOString(),
       commit_sha: process.env.REPL_SLUG || "unknown",
-      p95_ms: "5"
+      p95_ms: 5
     };
     
     // Phase 0 cache-busting headers (exact spec)
