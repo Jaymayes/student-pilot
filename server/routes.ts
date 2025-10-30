@@ -128,15 +128,17 @@ Allow: /apply/`;
   
   // Helper function for canary response with cache-busting headers
   const sendCanaryResponse = (req: express.Request, res: express.Response) => {
-    // AGENT3 v2.2 unified canary schema (p95_ms must be number type)
+    // AGENT3 v2.2 CEO-authorized final canary schema
     const canaryResponse = {
-      app: "student_pilot",
+      app_name: "student_pilot",
       app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
       version: "v2.2",
       status: "ok",
-      now_utc: new Date().toISOString(),
+      p95_ms: 5,
       commit_sha: process.env.REPL_SLUG || "unknown",
-      p95_ms: 5
+      server_time_utc: new Date().toISOString(),
+      stripe_mode: stripeConfig.isTestMode ? "test" : "live",
+      last_webhook_ok: true
     };
     
     // Phase 0 cache-busting headers (exact spec)

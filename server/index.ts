@@ -74,64 +74,73 @@ app.use(compression({
   }
 }));
 
-// CORS configuration - permissive in development, strict in production
+// CORS configuration - AGENT3 v2.2 CEO final: exact 8 origins, no wildcards
 app.use(cors({
-  origin: process.env.NODE_ENV === 'development' ? true : [
-    'http://localhost:5000',
+  origin: [
+    'https://scholar-auth-jamarrlmayes.replit.app',
+    'https://scholarship-api-jamarrlmayes.replit.app',
+    'https://scholarship-agent-jamarrlmayes.replit.app',
+    'https://scholarship-sage-jamarrlmayes.replit.app',
     'https://student-pilot-jamarrlmayes.replit.app',
-    process.env.VITE_BASE_URL || ''
-  ].filter(Boolean),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    'https://provider-register-jamarrlmayes.replit.app',
+    'https://auto-page-maker-jamarrlmayes.replit.app',
+    'https://auto-com-center-jamarrlmayes.replit.app'
+  ],
+  credentials: false, // CEO final spec: credentials false
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
-  maxAge: 86400 // 24 hours
+  maxAge: 600 // CEO final spec: 600 seconds (10 minutes)
 }));
 
-// Security middleware - helmet with AGENT3 v2.2 unified specifications
+// Security middleware - helmet with AGENT3 v2.2 CEO final specifications
 app.use(helmet({
   contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
-    maxAge: 63072000, // AGENT3 v2.2 unified: 63072000 (2 years)
+    maxAge: 63072000, // AGENT3 v2.2 CEO final: 63072000 (2 years)
     includeSubDomains: true,
-    preload: false // preload removed per unified spec
+    preload: true // CEO final spec: preload enabled
   },
   frameguard: { action: 'deny' },
   referrerPolicy: { policy: 'no-referrer' }
 }));
 
-// Add Permissions-Policy header (AGENT3 v2.2 requirement for 6/6 headers)
+// Add Permissions-Policy header (AGENT3 v2.2 CEO final: 17 features)
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'accelerometer=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
+  res.setHeader('Permissions-Policy', 'accelerometer=(), ambient-light-sensor=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()');
   next();
 });
 
-// CSP with AGENT3 v2.2 base directives + app-specific extensions
+// CSP with AGENT3 v2.2 CEO final: UI app profile
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 app.use(helmet.contentSecurityPolicy({
-  useDefaults: false, // Build from scratch to match exact spec
+  useDefaults: false,
   directives: {
-    // AGENT3 v2.2 Phase 0 base directives (exact spec)
+    // CEO final spec: UI app CSP profile
     defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "https://js.stripe.com"],
+    styleSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", "data:", "blob:"],
+    fontSrc: ["'self'", "data:"],
+    connectSrc: [
+      "'self'",
+      "https://scholarship-api-jamarrlmayes.replit.app",
+      "https://auto-com-center-jamarrlmayes.replit.app",
+      "https://scholar-auth-jamarrlmayes.replit.app",
+      "https://scholarship-agent-jamarrlmayes.replit.app",
+      "https://scholarship-sage-jamarrlmayes.replit.app",
+      "https://student-pilot-jamarrlmayes.replit.app",
+      "https://provider-register-jamarrlmayes.replit.app",
+      "https://auto-page-maker-jamarrlmayes.replit.app",
+      "https://api.stripe.com"
+    ],
+    frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],
     frameAncestors: ["'none'"],
-    objectSrc: ["'none'"],
     baseUri: ["'self'"],
-    formAction: ["'self'"],
-    // App-specific extensions for student_pilot functionality
-    scriptSrc: isDevelopment 
-      ? ["'self'", "https://js.stripe.com", "'unsafe-inline'", "https://replit.com"] // Dev: allow inline for Vite HMR
-      : ["'self'", "https://js.stripe.com"], // Prod: strict, no unsafe-inline
-    frameSrc: ["'self'", "https://js.stripe.com"],
-    connectSrc: isDevelopment
-      ? ["'self'", "https://api.stripe.com", "https://api.openai.com", "https://storage.googleapis.com", "wss://localhost:*", "ws://localhost:*"] // Dev: allow HMR
-      : ["'self'", "https://api.stripe.com", "https://api.openai.com", "https://storage.googleapis.com"], // Prod: no dev origins
-    styleSrc: isDevelopment
-      ? ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"] // Dev: allow inline for Vite
-      : ["'self'", "https://fonts.googleapis.com"], // Prod: no unsafe-inline
-    fontSrc: ["'self'", "https://fonts.gstatic.com"],
-    imgSrc: ["'self'", "data:", "https:"]
+    formAction: ["'self'", "https://hooks.stripe.com"],
+    objectSrc: ["'none'"]
   },
-  reportOnly: false // Enforce CSP
+  reportOnly: false
 }));
 
 // Rate limiting
