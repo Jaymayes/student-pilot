@@ -124,6 +124,25 @@ Allow: /apply/`;
 
   console.log('🚀 Static file guard registered in registerRoutes (correct app instance)');
 
+  // ========== CANARY ENDPOINT (AGENT3 v2.2 REQUIREMENT) ==========
+  
+  // Universal canary endpoint - MUST return JSON before any SPA catch-all
+  app.get('/canary', (req, res) => {
+    const canaryResponse = {
+      ok: true,
+      service: "student_pilot",
+      base_url: "https://student-pilot-jamarrlmayes.replit.app",
+      version: "v2.2",
+      timestamp: new Date().toISOString()
+    };
+    
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.status(200).json(canaryResponse);
+  });
+  
+  console.log('✅ /canary endpoint registered (AGENT3 v2.2 compliance)');
+
   // ========== HEALTH & MONITORING ENDPOINTS ==========
   
   // Standardized health endpoints for uptime monitoring

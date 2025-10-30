@@ -99,6 +99,12 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
+// Add Permissions-Policy header (AGENT3 v2.2 requirement for 6/6 headers)
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 // CSP with environment-specific policies for security and performance
 const isDevelopment = process.env.NODE_ENV === 'development';
 
