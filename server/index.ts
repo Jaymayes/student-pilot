@@ -93,38 +93,38 @@ app.use(cors({
   maxAge: 600
 }));
 
-// Security middleware - helmet with AGENT3 v2.2 specifications
+// Security middleware - helmet with AGENT3 v2.3 specifications
 app.use(helmet({
   contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
-    maxAge: 63072000, // AGENT3 v2.2: 63072000 (2 years)
+    maxAge: 63072000, // AGENT3 v2.3: 63072000 (2 years)
     includeSubDomains: true,
-    preload: true // AGENT3 v2.2: preload enabled
+    preload: true // AGENT3 v2.3: preload enabled
   },
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  referrerPolicy: { policy: 'no-referrer' } // AGENT3 v2.3: no-referrer
 }));
 
-// Add Permissions-Policy header (AGENT3 v2.2: 17 features)
+// Add Permissions-Policy header (AGENT3 v2.3: camera, microphone, geolocation disabled)
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'accelerometer=(), ambient-light-sensor=(), autoplay=(), bluetooth=(), camera=(), clipboard-read=(), clipboard-write=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   next();
 });
 
-// CSP with AGENT3 v2.2: UI app profile
+// CSP with AGENT3 v2.3: UI profile per Section 0 Phase 0
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 app.use(helmet.contentSecurityPolicy({
   useDefaults: false,
   directives: {
-    // AGENT3 v2.3: UI app CSP profile (more restrictive, default-src 'none')
-    defaultSrc: ["'none'"],
+    // AGENT3 v2.3: UI app CSP profile (default-src 'self') + Stripe integration (Section 3.5)
+    defaultSrc: ["'self'"],
     baseUri: ["'none'"],
     objectSrc: ["'none'"],
     frameAncestors: ["'none'"],
     imgSrc: ["'self'", "data:"],
-    scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "https://js.stripe.com"],
-    styleSrc: ["'self'", "'unsafe-inline'"],
+    scriptSrc: ["'self'", "https://js.stripe.com"],  // Stripe integration required
+    styleSrc: ["'self'"],
     fontSrc: ["'self'", "data:"],
     connectSrc: [
       "'self'",
@@ -136,21 +136,18 @@ app.use(helmet.contentSecurityPolicy({
       "https://provider-register-jamarrlmayes.replit.app",
       "https://auto-page-maker-jamarrlmayes.replit.app",
       "https://auto-com-center-jamarrlmayes.replit.app",
-      "https://js.stripe.com",
-      "https://api.stripe.com",
-      "wss:",
-      "ws:"
+      "https://api.stripe.com"  // Stripe API calls
     ],
-    frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],
-    formAction: ["'self'", "https://hooks.stripe.com"]
+    frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],  // Stripe checkout/elements
+    formAction: ["'self'", "https://hooks.stripe.com"]  // Stripe webhook submissions
   },
   reportOnly: false
 }));
 
-// Rate limiting
+// Rate limiting - AGENT3 v2.3: ≥300 rpm baseline per Section 0 Phase 0
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 300, // AGENT3 v2.3: ≥300 rpm baseline
   message: {
     error: 'Too many requests from this IP, please try again later'
   },
