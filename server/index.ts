@@ -136,7 +136,9 @@ app.use(helmet.contentSecurityPolicy({
       "https://provider-register-jamarrlmayes.replit.app",
       "https://auto-page-maker-jamarrlmayes.replit.app",
       "https://auto-com-center-jamarrlmayes.replit.app",
-      "https://api.stripe.com"
+      "https://api.stripe.com",
+      "wss:",
+      "ws:"
     ],
     frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],
     formAction: ["'self'", "https://hooks.stripe.com"]
