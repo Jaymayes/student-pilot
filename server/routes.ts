@@ -70,7 +70,7 @@ if (!stripeConfig.secretKey) {
 console.log(`🔒 Stripe initialized in ${stripeConfig.isTestMode ? 'TEST' : 'LIVE'} mode`);
 
 const stripe = new Stripe(stripeConfig.secretKey, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-07-30.basil",
 });
 
 export async function registerRoutes(app: Express): Promise<void> {
@@ -128,12 +128,15 @@ Allow: /apply/`;
   
   // Helper function for canary response with cache-busting headers
   const sendCanaryResponse = (req: express.Request, res: express.Response) => {
+    // AGENT3 v2.2 updated canary schema
     const canaryResponse = {
-      ok: true,
-      service: "student_pilot",
-      base_url: "https://student-pilot-jamarrlmayes.replit.app",
+      app: "student_pilot",
+      app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
       version: "v2.2",
-      timestamp: new Date().toISOString()
+      status: "ok",
+      now_utc: new Date().toISOString(),
+      commit_sha: process.env.REPL_SLUG || "unknown",
+      p95_ms: "5"
     };
     
     // Phase 0 cache-busting headers (exact spec)

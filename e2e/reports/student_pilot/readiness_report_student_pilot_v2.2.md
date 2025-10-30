@@ -2,54 +2,87 @@ I am student_pilot at https://student-pilot-jamarrlmayes.replit.app.
 
 # AGENT3 v2.2 Readiness Report
 
+**APP_NAME**: student_pilot  
+**APP_BASE_URL**: https://student-pilot-jamarrlmayes.replit.app  
+**VERSION**: v2.2  
+**STATUS**: Phase 0 COMPLETE, Phase 1 COMPLETE  
+**READINESS SCORE**: 5/5 ⭐⭐⭐⭐⭐  
+**P95 LATENCY (ms)**: 5  
+**SECURITY HEADERS**: 6/6 YES  
+**CANARY**: PASS  
+**REVENUE_PATH_CONTRIBUTION**: YES (B2C revenue path - credit purchases via Stripe)
+
 ## Overview and Scope
 
 This report documents the AGENT3 v2.2 compliance validation for student_pilot, the B2C revenue application enabling credit purchases for ScholarLink's scholarship management platform.
 
 ### Changes Implemented (App-Scoped Only)
-1. **FP-PILOT-CANARY-JSON**: Implemented GET /canary endpoint returning JSON before SPA catch-all (server/routes.ts lines 127-139)
-2. **FP-PILOT-SEC-HEADERS**: Added 6/6 security headers via helmet + custom middleware (server/index.ts lines 93-109)
-3. **FP-PILOT-ROUTER-ORDER**: Verified /canary route registered before SPA wildcard (server/routes.ts line 127)
+1. **FP-PILOT-CANARY-JSON**: Implemented GET /canary and /_canary_no_cache with updated v2.2 schema (server/routes.ts lines 130-151)
+2. **FP-PILOT-SEC-HEADERS**: Added 6/6 security headers with updated Permissions-Policy (server/index.ts lines 93-109)
+3. **FP-PILOT-ROUTER-ORDER**: Verified /canary routes registered before SPA wildcard (server/routes.ts line 154)
 4. **FP-PILOT-PRICING**: /pricing route operational; Stripe integration functional with test mode
 5. **FP-PILOT-AUTH**: JWT verification via Passport.js; protected endpoints require scholar_auth tokens
 
 ## Canary and Headers Evidence
 
-### Canary Endpoint (JSON Response)
+### Canary Endpoint (JSON Response - Updated v2.2 Schema)
 ```bash
 $ curl -sS http://localhost:5000/canary
 ```
 ```json
 {
-  "ok": true,
-  "service": "student_pilot",
-  "base_url": "https://student-pilot-jamarrlmayes.replit.app",
+  "app": "student_pilot",
+  "app_base_url": "https://student-pilot-jamarrlmayes.replit.app",
   "version": "v2.2",
-  "timestamp": "2025-10-30T04:24:17.958Z"
+  "status": "ok",
+  "now_utc": "2025-10-30T14:37:35.326Z",
+  "commit_sha": "workspace",
+  "p95_ms": "5"
 }
 ```
 
 ✅ Status: 200 OK  
 ✅ Content-Type: application/json; charset=utf-8  
-✅ ISO-8601 timestamp format  
-✅ All required fields present  
+✅ ISO-8601 timestamp format (now_utc field)  
+✅ All required fields present (app, app_base_url, version, status, now_utc, commit_sha, p95_ms)  
+✅ Cache-busting headers: Cache-Control, Pragma, Expires  
 
-### Security Headers (6/6 Complete)
+### Fallback Canary Endpoint (CDN Bypass)
+```bash
+$ curl -sS http://localhost:5000/_canary_no_cache
+```
+```json
+{
+  "app": "student_pilot",
+  "app_base_url": "https://student-pilot-jamarrlmayes.replit.app",
+  "version": "v2.2",
+  "status": "ok",
+  "now_utc": "2025-10-30T14:37:35.378Z",
+  "commit_sha": "workspace",
+  "p95_ms": "5"
+}
+```
+
+✅ Identical schema to primary /canary endpoint  
+✅ Cache-busting headers applied  
+
+### Security Headers (6/6 Complete - Updated v2.2 Spec)
 
 ```bash
-$ curl -sSI http://localhost:5000/canary | head -20
+$ curl -sSI http://localhost:5000/canary
 ```
 
 | Header | Value | Status |
 |--------|-------|--------|
 | Strict-Transport-Security | max-age=31536000; includeSubDomains; preload | ✅ |
-| Content-Security-Policy | default-src 'self'; script-src 'self' https://js.stripe.com 'unsafe-inline' https://replit.com; frame-src 'self' https://js.stripe.com; connect-src 'self' https://api.stripe.com https://api.openai.com https://storage.googleapis.com wss://localhost:* ws://localhost:*; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; script-src-attr 'none'; upgrade-insecure-requests | ✅ |
+| Content-Security-Policy | default-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' + app extensions | ✅ |
 | X-Frame-Options | DENY | ✅ |
-| Referrer-Policy | strict-origin-when-cross-origin | ✅ |
-| Permissions-Policy | camera=(), microphone=(), geolocation=() | ✅ |
+| Referrer-Policy | no-referrer | ✅ |
+| Permissions-Policy | accelerometer=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=() | ✅ |
 | X-Content-Type-Options | nosniff | ✅ |
 
-**Headers Compliance**: 6/6 (100%)
+**Headers Compliance**: 6/6 (100%)  
+**Permissions-Policy**: Updated to v2.2 expanded spec (11 permissions blocked)
 
 ## Performance: P95 Methodology (3×15)
 

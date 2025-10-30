@@ -101,7 +101,7 @@ app.use(helmet({
 
 // Add Permissions-Policy header (AGENT3 v2.2 requirement for 6/6 headers)
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Permissions-Policy', 'accelerometer=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
   next();
 });
 
