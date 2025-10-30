@@ -117,12 +117,12 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 app.use(helmet.contentSecurityPolicy({
   useDefaults: false,
   directives: {
-    // AGENT3 v2.2: UI app CSP profile
-    defaultSrc: ["'self'"],
-    baseUri: ["'self'"],
+    // AGENT3 v2.3: UI app CSP profile (more restrictive, default-src 'none')
+    defaultSrc: ["'none'"],
+    baseUri: ["'none'"],
     objectSrc: ["'none'"],
     frameAncestors: ["'none'"],
-    imgSrc: ["'self'", "data:", "https:"],
+    imgSrc: ["'self'", "data:"],
     scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "https://js.stripe.com"],
     styleSrc: ["'self'", "'unsafe-inline'"],
     fontSrc: ["'self'", "data:"],
@@ -136,6 +136,7 @@ app.use(helmet.contentSecurityPolicy({
       "https://provider-register-jamarrlmayes.replit.app",
       "https://auto-page-maker-jamarrlmayes.replit.app",
       "https://auto-com-center-jamarrlmayes.replit.app",
+      "https://js.stripe.com",
       "https://api.stripe.com",
       "wss:",
       "ws:"
