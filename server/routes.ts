@@ -59,6 +59,19 @@ declare module 'express-serve-static-core' {
   }
 }
 
+// AGENT3 v2.5 U4: Standard error response helper
+function createErrorResponse(code: string, message: string, requestId?: string) {
+  return {
+    error: {
+      code,
+      message,
+      request_id: requestId || crypto.randomUUID()
+    }
+  };
+}
+
+import * as crypto from 'crypto';
+
 // Initialize Stripe with environment-appropriate keys
 import { getStripeKeys } from "./environment";
 
@@ -394,9 +407,14 @@ Allow: /apply/`;
     app.post('/api/test/login', express.json(), async (req, res) => {
       try {
         const { sub, email, first_name, last_name } = req.body;
+        const requestId = req.headers['x-request-id'] as string;
         
         if (!sub || !email) {
-          return res.status(400).json({ error: 'Missing required fields: sub and email' });
+          return res.status(400).json(createErrorResponse(
+            'MISSING_REQUIRED_FIELDS',
+            'Missing required fields: sub and email',
+            requestId
+          ));
         }
         
         // Upsert user to database (same as real OAuth flow)
@@ -424,7 +442,11 @@ Allow: /apply/`;
         req.login(sessionUser, (err) => {
           if (err) {
             console.error('Test login session error:', err);
-            return res.status(500).json({ error: 'Failed to create session' });
+            return res.status(500).json(createErrorResponse(
+              'SESSION_CREATION_FAILED',
+              'Failed to create session',
+              requestId
+            ));
           }
           
           console.log(`✅ Test login successful for user: ${email}`);
@@ -435,7 +457,12 @@ Allow: /apply/`;
         });
       } catch (error) {
         console.error('Test login error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        const requestId = req.headers['x-request-id'] as string;
+        res.status(500).json(createErrorResponse(
+          'INTERNAL_SERVER_ERROR',
+          'Internal server error',
+          requestId
+        ));
       }
     });
     
@@ -769,11 +796,19 @@ Allow: /apply/`;
   // Global correlation ID middleware for all routes
   app.use(correlationIdMiddleware);
 
-  // Rate limiter for ALL agent endpoints (fixes QA-008)  
+  // Rate limiter for ALL agent endpoints (fixes QA-008)
+  // AGENT3 v2.5 U4 compliant error responses
   const agentRateLimit = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 5, // 5 requests per minute
-    message: { error: 'Too many agent requests' },
+    handler: (req, res) => {
+      const requestId = req.headers['x-request-id'] as string;
+      res.status(429).json(createErrorResponse(
+        'AGENT_RATE_LIMIT_EXCEEDED',
+        'Too many agent requests, please try again later',
+        requestId
+      ));
+    },
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => {
@@ -3755,13 +3790,14 @@ Allow: /apply/`;
 
   // 404 handler for API routes (must be last, before SPA catch-all)
   // Ensures proper JSON error responses for non-existent API endpoints
+  // AGENT3 v2.5 U4: Standard error format
   app.use('/api/*', (req, res) => {
-    res.status(404).json({ 
-      error: 'API endpoint not found',
-      path: req.path,
-      method: req.method,
-      timestamp: new Date().toISOString()
-    });
+    const requestId = req.headers['x-request-id'] as string;
+    res.status(404).json(createErrorResponse(
+      'ENDPOINT_NOT_FOUND',
+      `API endpoint not found: ${req.method} ${req.path}`,
+      requestId
+    ));
   });
 
   // Note: Server creation moved to server/index.ts for single app instance

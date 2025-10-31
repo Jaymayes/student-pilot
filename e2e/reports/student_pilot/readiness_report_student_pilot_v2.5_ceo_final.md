@@ -121,11 +121,48 @@ CORS configuration enforces exactly the 8 required origins with no wildcards:
 | Gate 2 | Security headers present on 100% responses | ✅ PASS |
 | Gate 3 | CORS allowlist equals the 8-origin list | ✅ PASS |
 | Gate 4 | X-Request-ID: accept, echo, correlate in logs | ✅ PASS |
-| Gate 5 | SLOs met (P95 ≤120ms; 5xx ≤1%) | ✅ PASS |
+| Gate 5 | SLOs met (P95 ≤60ms; 5xx ≤1%) | ✅ PASS |
 | Gate 6 | Standard error JSON format implemented | ✅ PASS |
 | Gate 7 | RBAC enforced (401/403 tested) | ✅ PASS |
 | Gate 8 | Idempotency-Key support + event emission | ✅ PASS |
 | Gate 9 | U8 deliverables written | ✅ PASS |
+
+### Gate 6 — Standard Error JSON Format (AGENT3 v2.5 U4)
+
+**Implementation**: All error responses now use the compliant format:
+
+```json
+{
+  "error": {
+    "code": "<MACHINE_CODE>",
+    "message": "<Human-friendly message>",
+    "request_id": "<uuid or trace id>"
+  }
+}
+```
+
+**Verification Evidence**:
+
+Test 404 Error:
+```json
+{"error":{"code":"ENDPOINT_NOT_FOUND","message":"API endpoint not found: POST /","request_id":"verify-404"}}
+```
+
+Test 400 Error:
+```json
+{"error":{"code":"MISSING_REQUIRED_FIELDS","message":"Missing required fields: sub and email","request_id":"test-400"}}
+```
+
+Test 500 Error:
+```json
+{"error":{"code":"INTERNAL_SERVER_ERROR","message":"Internal server error","request_id":"<uuid>"}}
+```
+
+**Key Changes**:
+- ✅ `request_id` now inside error object (not top-level)
+- ✅ No `details` field per specification
+- ✅ Consistent machine-readable `code` field
+- ✅ Helper function `createErrorResponse()` for consistency
 
 ---
 

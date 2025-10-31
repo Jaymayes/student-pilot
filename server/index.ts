@@ -144,12 +144,20 @@ app.use(helmet.contentSecurityPolicy({
   reportOnly: false
 }));
 
-// Rate limiting - AGENT3 v2.3: ≥300 rpm baseline per Section 0 Phase 0
+// Rate limiting - AGENT3 v2.5: ≥300 rpm baseline
+// U4 compliant error responses with nested structure
 const generalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 300, // AGENT3 v2.3: ≥300 rpm baseline
-  message: {
-    error: 'Too many requests from this IP, please try again later'
+  max: 300, // AGENT3 v2.5: ≥300 rpm baseline
+  handler: (req, res) => {
+    const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
+    res.status(429).json({
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many requests from this IP, please try again later',
+        request_id: requestId
+      }
+    });
   },
   standardHeaders: true,
   legacyHeaders: false
@@ -158,12 +166,32 @@ const generalLimiter = rateLimit({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5, // stricter limit for auth endpoints
-  skipSuccessfulRequests: true
+  skipSuccessfulRequests: true,
+  handler: (req, res) => {
+    const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
+    res.status(429).json({
+      error: {
+        code: 'AUTH_RATE_LIMIT_EXCEEDED',
+        message: 'Too many authentication attempts, please try again later',
+        request_id: requestId
+      }
+    });
+  }
 });
 
 const billingLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30 // 30 billing requests per minute
+  max: 30, // 30 billing requests per minute
+  handler: (req, res) => {
+    const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
+    res.status(429).json({
+      error: {
+        code: 'BILLING_RATE_LIMIT_EXCEEDED',
+        message: 'Too many billing requests, please try again later',
+        request_id: requestId
+      }
+    });
+  }
 });
 
 app.use('/api', generalLimiter);
@@ -426,15 +454,15 @@ app.use((req, res, next) => {
     }
   }
 
-  // Production-safe error handler
+  // Production-safe error handler - AGENT3 v2.5 compliant format
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
-    const correlationId = req.headers['x-correlation-id'] as string || crypto.randomUUID();
+    const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
     
     // Log full error details server-side
     console.error('API Error:', {
       error: err.message,
       stack: err.stack,
-      correlationId,
+      requestId,
       method: req.method,
       path: req.path,
       userId: (req as any).user?.id,
@@ -443,16 +471,23 @@ app.use((req, res, next) => {
     
     const status = (err.statusCode && Number.isInteger(err.statusCode)) ? err.statusCode : 500;
     
-    res.setHeader('X-Correlation-ID', correlationId);
+    res.setHeader('X-Request-ID', requestId);
+    
+    // Generate error code based on status
+    const errorCode = err.code || `HTTP_${status}`;
     
     // Never expose sensitive error details in production
     const message = status >= 500 && isProduction 
       ? 'Internal server error'
       : err.message || 'An error occurred';
     
+    // AGENT3 v2.5 U4: Standard error format
     res.status(status).json({ 
-      error: message,
-      correlationId: isProduction ? correlationId : undefined
+      error: {
+        code: errorCode,
+        message: message,
+        request_id: requestId
+      }
     });
   });
 
