@@ -105,9 +105,9 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' } // AGENT3 v2.5
 }));
 
-// Add Permissions-Policy header (AGENT3 v2.5: restrict to minimum)
+// Add Permissions-Policy header (AGENT3 v2.5 CEO Edition: U1 requirements)
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   next();
 });
 

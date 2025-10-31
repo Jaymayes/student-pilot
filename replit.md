@@ -7,20 +7,20 @@ ScholarLink is a scholarship management platform designed to help students disco
 student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFIED CEO Edition specifications.
 
 **Compliance Verification** (2025-10-31):
-- ✅ Section 1 Universal Requirements: All 9 requirements implemented
+- ✅ U1 Universal Requirements: All 9 requirements implemented
   - HSTS: max-age=31536000 (1 year, includeSubDomains, preload)
-  - Permissions-Policy: camera=(), microphone=(), geolocation=()
-  - CSP: default-src 'self' with Stripe extensions
+  - Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  - CSP: default-src 'self'; frame-ancestors 'none' with Stripe extensions
   - X-Frame-Options: DENY
   - Referrer-Policy: strict-origin-when-cross-origin
   - X-Content-Type-Options: nosniff
-- ✅ Section 3.5 student_pilot Requirements: Complete implementation
-  - OIDC sign-in (role=student)
-  - Browse/search via scholarship_api with ETag caching
-  - Stripe Checkout (test/live modes)
-  - Event emission to auto_com_center
-  - Responsible AI guardrails
-  - SEO optimization
+- ✅ A5 student_pilot Requirements: Complete implementation
+  - OIDC sign-in via scholar_auth (role=student)
+  - Scholarship discovery via scholarship_api with ETag caching
+  - Stripe Checkout integration (CSP extended minimally)
+  - Event emission: student_pilot.purchase_succeeded → auto_com_center
+  - Responsible AI: coaching only; never ghostwrite essays
+  - Rate limits: 300 rpm browsing; 60 rpm checkout
 - ✅ Version: v2.5
 - ✅ P95 Latency: ~5ms (<<120ms SLO)
 - ✅ 5xx Error Rate: 0%
@@ -29,12 +29,14 @@ student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFI
 - ✅ Deliverables: readiness_report and fix_plan written
 - ✅ Revenue Fields: revenue_role="direct", revenue_eta_hours="2-6"
 
-**v2.5 UNIFIED CEO Edition Updates**:
-1. HSTS max-age increased to 31536000 (1 year) for enhanced security
-2. Referrer-Policy updated to strict-origin-when-cross-origin
-3. Permissions-Policy streamlined to camera=(), microphone=(), geolocation=()
-4. All universal platform requirements verified and operational
-5. Revenue role terminology standardized (direct/enables/amplifies/protects)
+**v2.5 UNIFIED CEO Edition Specifications**:
+1. HSTS max-age: 31536000 (1 year) with includeSubDomains and preload
+2. Referrer-Policy: strict-origin-when-cross-origin
+3. Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+4. CSP: default-src 'self'; frame-ancestors 'none' + minimal Stripe extensions
+5. CORS: Exactly 8 origins, no wildcards
+6. Revenue role terminology: direct/enables/protects
+7. Section naming: U0-U9 (Universal), A1-A8 (App-specific)
 
 **Revenue Path**: First B2C dollar possible 2-6 hours after scholar_auth production deployment and Stripe live mode switch.
 
