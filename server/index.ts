@@ -93,21 +93,21 @@ app.use(cors({
   maxAge: 600
 }));
 
-// Security middleware - helmet with AGENT3 v2.3 specifications
+// Security middleware - helmet with AGENT3 v2.4 specifications
 app.use(helmet({
   contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
-    maxAge: 63072000, // AGENT3 v2.3: 63072000 (2 years)
+    maxAge: 15552000, // AGENT3 v2.4: 15552000 (180 days)
     includeSubDomains: true,
-    preload: true // AGENT3 v2.3: preload enabled
+    preload: true // AGENT3 v2.4: preload enabled
   },
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'no-referrer' } // AGENT3 v2.3: no-referrer
+  referrerPolicy: { policy: 'no-referrer' } // AGENT3 v2.4: no-referrer
 }));
 
-// Add Permissions-Policy header (AGENT3 v2.3: camera, microphone, geolocation disabled)
+// Add Permissions-Policy header (AGENT3 v2.4: camera, microphone, geolocation, payment disabled)
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   next();
 });
 

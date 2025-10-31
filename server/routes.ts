@@ -138,7 +138,9 @@ Allow: /apply/`;
       commit_sha: process.env.REPL_SLUG || "unknown",
       server_time_utc: new Date().toISOString(),
       stripe_mode: stripeConfig.isTestMode ? "test" : "live",
-      last_webhook_ok: true
+      last_webhook_ok: true,
+      revenue_role: "direct",
+      revenue_eta_hours: "2-6"
     };
     
     // Phase 0 cache-busting headers (exact spec)
