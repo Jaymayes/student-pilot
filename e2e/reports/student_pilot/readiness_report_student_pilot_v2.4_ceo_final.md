@@ -61,7 +61,7 @@ $ curl -sS http://localhost:5000/canary
 **Field Validation**:
 - ✅ `app_name`: "student_pilot"
 - ✅ `app_base_url`: "https://student-pilot-jamarrlmayes.replit.app"
-- ✅ `version`: "v2.3"
+- ✅ `version`: "v2.4"
 - ✅ `status`: "ok"
 - ✅ `p95_ms`: 5 (number type)
 - ✅ `commit_sha`: "workspace"
@@ -70,6 +70,8 @@ $ curl -sS http://localhost:5000/canary
 **Optional Fields** (app-specific):
 - ✅ `stripe_mode`: "test" (student_pilot extension)
 - ✅ `last_webhook_ok`: true (student_pilot extension)
+- ✅ `revenue_role`: "direct" (B2C revenue stream)
+- ✅ `revenue_eta_hours`: "2-6" (time to first dollar after deployment)
 
 **Cache Bypass Verification**:
 ```bash
@@ -93,7 +95,7 @@ $ curl -sSI http://localhost:5000/canary
 | 5 | Referrer-Policy | no-referrer | ✅ |
 | 6 | X-Content-Type-Options | nosniff | ✅ |
 
-**Content-Security-Policy** (AGENT3 v2.3 UI Profile + Stripe):
+**Content-Security-Policy** (AGENT3 v2.4 UI Profile + Stripe):
 ```
 default-src 'self'
 base-uri 'none'
@@ -118,7 +120,7 @@ form-action 'self' https://hooks.stripe.com
 ```
 
 **Key CSP Features**:
-- ✅ `default-src 'self'` (v2.3 UI profile base)
+- ✅ `default-src 'self'` (v2.4 UI profile base)
 - ✅ `base-uri 'none'`
 - ✅ All 8 sibling app origins in connect-src
 - ✅ Stripe domains for payment integration (Section 3.5 requirement)
@@ -126,7 +128,7 @@ form-action 'self' https://hooks.stripe.com
 
 **Permissions-Policy**:
 ```
-camera=(), microphone=(), geolocation=()
+camera=(), microphone=(), geolocation=(), payment=()
 ```
 
 **Referrer-Policy**:
