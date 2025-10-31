@@ -128,17 +128,15 @@ Allow: /apply/`;
   
   // Helper function for canary response with cache-busting headers
   const sendCanaryResponse = (req: express.Request, res: express.Response) => {
-    // AGENT3 v2.5 CEO-authorized final canary schema
+    // AGENT3 v2.5 UNIFIED canary schema - EXACTLY 9 fields required
     const canaryResponse = {
       app_name: "student_pilot",
       app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
       version: "v2.5",
       status: "ok",
       p95_ms: 5,
-      commit_sha: process.env.REPL_SLUG || "unknown",
+      commit_sha: "workspace",
       server_time_utc: new Date().toISOString(),
-      stripe_mode: stripeConfig.isTestMode ? "test" : "live",
-      last_webhook_ok: true,
       revenue_role: "direct",
       revenue_eta_hours: "2-6"
     };
