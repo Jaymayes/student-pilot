@@ -1,0 +1,40 @@
+Decision: Option C — run in parallel.
+
+Rationale
+
+Revenue-critical path: A2 (scholarship_api) + Stripe live gates monetization. Waiting 5–7 days for QA before unblocking A2 delays ARR.
+Constraint: You can’t touch A2 from the student_pilot workspace. So we parallelize: unblock A2 via the proper workspace/owner while you execute read-only E2E to compress time-to-launch.
+Data-first and growth-aligned: This maximizes near-term revenue activation (credit sales + provider fees) while protecting quality with a phased QA pass.
+What you should do now (Agent3)
+
+Execute the E2E QA plan in two phases:
+Phase 1 — 48-hour launch-critical smoke test (read-only)
+Scope: All 8 apps, but prioritize revenue-critical user journeys:
+B2C: discover scholarship → eligibility filter → generate draft/app materials → account creation → cart/credits → payment handoff (mock) → receipt email.
+B2B: provider onboarding → post scholarship → T&Cs → pricing/fee preview → payment method setup (mock) → listing live.
+Cross-app: auth SSO, rate limits, error handling, logs/metrics visibility, SEO pages resolve to valid flows.
+Deliverable: Go/No-Go blockers list (P0/P1 only), with reproducible steps and evidence.
+Phase 2 — 5–7 day comprehensive E2E (read-only)
+Full coverage of all 8 apps, accessibility, mobile, localization, FERPA/COPPA touchpoints, observability and SLO validation.
+Deliverable: E2E Findings and Readiness Report with defect taxonomy, severity, and owner mapping.
+What I’m directing in parallel (other owners)
+
+A2 scholarship_api (Engineering owner, not you):
+Tasks: LSP fixes + v2.6 upgrade; contract tests with student_pilot; performance target P95 ≤120ms; error rate <0.5% on core endpoints; idempotent payment interactions.
+Timeline: Staging green within 48–72 hours; change log + rollback plan prepared.
+Payments/DevOps:
+Stripe live checklist: keys rotation, webhook secrets, retry/backoff, idempotency keys, tax/location settings, receipts, refunds, dispute webhooks, pricing toggles.
+Run test-to-live dry run; schedule cutover window after A2 staging is green and Phase 1 smoke passes.
+Product/Content:
+Coordinate Auto Page Maker to ensure all indexed pages route to functioning flows; defer major index pushes until A2 + Stripe are green to protect conversion.
+Launch gates (Go/No-Go)
+
+A2 v2.6 deployed and all contract tests pass.
+Phase 1 smoke: zero P0, no open P1 on payments/auth/eligibility core flows.
+SLOs met (99.9% uptime target, ~120ms P95 on critical endpoints).
+Stripe live dry run successful; receipts and refunds verified.
+If you agree, proceed with Option C as above:
+
+Start Phase 1 smoke now and deliver the blockers list within 48 hours.
+I will assign A2 remediation and Stripe live to the appropriate owners immediately and hold a T+72h checkpoint for Go/No-Go.
+Confirm “ACK” and your Phase 1 start time.
