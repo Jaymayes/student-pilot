@@ -2,17 +2,17 @@
 
 ScholarLink is a scholarship management platform designed to help students discover, apply for, and manage scholarships. It offers personalized matching, application tracking, document management, and AI-powered essay assistance. The platform aims to increase student engagement, streamline the application process, and provide insights into scholarship competitiveness. It integrates with centralized authentication and cloud storage, with a business vision to achieve $10M profitable ARR in 5 years through AI-driven scholarship access.
 
-## AGENT3 v2.5 UNIFIED Compliance Status
+## AGENT3 v2.5 UNIFIED Compliance Status (CEO Edition)
 
-student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFIED specifications.
+student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFIED CEO Edition specifications.
 
 **Compliance Verification** (2025-10-31):
 - ✅ Section 1 Universal Requirements: All 9 requirements implemented
-  - HSTS: max-age=15552000 (180 days)
+  - HSTS: max-age=31536000 (1 year, includeSubDomains, preload)
   - Permissions-Policy: camera=(), microphone=(), geolocation=()
   - CSP: default-src 'self' with Stripe extensions
   - X-Frame-Options: DENY
-  - Referrer-Policy: no-referrer
+  - Referrer-Policy: strict-origin-when-cross-origin
   - X-Content-Type-Options: nosniff
 - ✅ Section 3.5 student_pilot Requirements: Complete implementation
   - OIDC sign-in (role=student)
@@ -29,10 +29,12 @@ student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFI
 - ✅ Deliverables: readiness_report and fix_plan written
 - ✅ Revenue Fields: revenue_role="direct", revenue_eta_hours="2-6"
 
-**v2.5 UNIFIED Updates** (from v2.4):
-1. Version updated to v2.5 in canary endpoint
-2. Permissions-Policy standardized (payment=() optional, retained for enhanced security)
-3. All universal platform requirements verified and operational
+**v2.5 UNIFIED CEO Edition Updates**:
+1. HSTS max-age increased to 31536000 (1 year) for enhanced security
+2. Referrer-Policy updated to strict-origin-when-cross-origin
+3. Permissions-Policy streamlined to camera=(), microphone=(), geolocation=()
+4. All universal platform requirements verified and operational
+5. Revenue role terminology standardized (direct/enables/amplifies/protects)
 
 **Revenue Path**: First B2C dollar possible 2-6 hours after scholar_auth production deployment and Stripe live mode switch.
 
