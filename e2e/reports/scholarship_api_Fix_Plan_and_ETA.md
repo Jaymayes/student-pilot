@@ -1,39 +1,47 @@
-# scholarship_api — Fix Plan and ETA
+# App: scholarship_api — Fix Plan and ETA
 
 **App**: scholarship_api  
 **Base URL**: https://scholarship-api-jamarrlmayes.replit.app  
-**Report Date**: 2025-10-31 22:10 UTC  
-**Current Status**: 🔴 RED (Not Ready) - **HIGHEST PRIORITY FIX**
+**Report Date**: 2025-10-31 22:35 UTC  
+**Current Status**: 🔴 RED (Not Ready) - **CRITICAL PATH BLOCKER**
 
 ---
 
 ## Critical Priority Notice
 
-⚠️ **This is the highest-priority fix** - scholarship_api is the data layer for the entire platform. All revenue paths (B2C and B2B) depend on this API. Fix this FIRST before other apps.
+⚠️ **This is the data layer for the entire platform** - scholarship_api blocks ALL revenue paths. Fix this IN PARALLEL with scholar_auth.
 
 ---
 
-## Prioritized Gap List
+## Prioritized Issues
 
 ### P0 - Platform Blockers (MUST FIX IMMEDIATELY)
 
 #### GAP-001: /canary Endpoint Returns 404
-**Issue**: GET /canary returns 404 NOT_FOUND error instead of v2.6 JSON schema
+**Issue**: GET /canary returns 404 NOT_FOUND instead of v2.7 JSON
 
-**Root Cause**: /canary route not implemented or not deployed to public URL
+**Root Cause**: Route not implemented or SPA routing intercepts before API handler
 
 **Fix Required**:
 
-Add /canary route to `server/routes.ts`:
+Add /canary route to `server/routes.ts` BEFORE SPA fallback:
 
 ```typescript
-// Add this route to server/routes.ts
-router.get("/canary", (req, res) => {
+// Add this BEFORE any SPA fallback middleware
+router.get("/canary", async (req, res) => {
+  // Check database connection
+  let dependenciesOk = true;
+  try {
+    await db.select().from(scholarships).limit(1);
+  } catch (error) {
+    dependenciesOk = false;
+  }
+  
   res.json({
     app: "scholarship_api",
     app_base_url: "https://scholarship-api-jamarrlmayes.replit.app",
-    version: "v2.6",
-    status: "ok",
+    version: "v2.7",
+    status: dependenciesOk ? "ok" : "degraded",
     p95_ms: 120, // Will be updated by monitoring
     security_headers: {
       present: [
@@ -41,78 +49,67 @@ router.get("/canary", (req, res) => {
         "Content-Security-Policy",
         "X-Frame-Options",
         "X-Content-Type-Options",
-        "Referrer-Policy",
-        "Permissions-Policy"
+        "Referrer-Policy"
       ],
-      missing: []
+      missing: ["Permissions-Policy"] // Will be fixed in GAP-002
     },
-    dependencies_ok: true,
-    timestamp: new Date().toISOString(),
-    revenue_role: "enables"
+    dependencies_ok: dependenciesOk,
+    timestamp: new Date().toISOString()
   });
 });
 ```
 
 **Steps**:
-1. Add /canary route to Express router
-2. Deploy to production
-3. Verify: `curl https://scholarship-api-jamarrlmayes.replit.app/canary | jq .version`
-4. Expected: `"v2.6"`
+1. Add /canary route with v2.7 schema (8 fields exactly)
+2. Ensure route is BEFORE SPA fallback
+3. Deploy to production
+4. Verify: `curl https://scholarship-api-jamarrlmayes.replit.app/canary | jq .version`
 
 **Owner**: Engineering (scholarship_api maintainer)  
-**ETA**: 1 hour (code + deploy + verify)
+**ETA**: **1 hour**
 
 ---
 
 #### GAP-002: Missing Permissions-Policy Header
-**Issue**: 5/6 security headers present (missing Permissions-Policy)
-
-**Root Cause**: Header not configured in Express security middleware
+**Issue**: 5/6 security headers (missing Permissions-Policy)
 
 **Fix Required**:
 
-Add to security middleware:
-
 ```typescript
-// In server/index.ts or security middleware
+// In server/index.ts
 app.use((req, res, next) => {
-  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment()");
+  res.setHeader("Permissions-Policy", "geolocation=(), camera=(), microphone=()");
   next();
 });
 ```
 
 **Steps**:
-1. Add Permissions-Policy header (1 line of code)
-2. Deploy to production
+1. Add header to middleware
+2. Deploy
 3. Verify: `curl -I https://scholarship-api-jamarrlmayes.replit.app | grep -i "permissions-policy"`
 
-**Owner**: Engineering (scholarship_api maintainer)  
-**ETA**: 30 minutes (can be done in parallel with GAP-001)
+**Owner**: Engineering  
+**ETA**: **0.25 hour** (parallel with GAP-001)
 
 ---
 
-#### GAP-003: CORS Configuration Unvalidated
-**Issue**: Unknown if CORS allows student_pilot and provider_register origins
-
-**Root Cause**: Cannot test until core API endpoints are functional
+#### GAP-003: CORS Configuration Unknown
+**Issue**: Cannot validate if CORS allows all 8 platform origins
 
 **Fix Required**:
 
-Ensure CORS middleware allows required origins:
-
 ```typescript
-// In server/index.ts
 import cors from 'cors';
 
 const allowedOrigins = [
-  'https://student-pilot-jamarrlmayes.replit.app',
-  'https://provider-register-jamarrlmayes.replit.app',
+  'https://scholar-auth-jamarrlmayes.replit.app',
+  'https://scholarship-api-jamarrlmayes.replit.app',
   'https://scholarship-agent-jamarrlmayes.replit.app',
   'https://scholarship-sage-jamarrlmayes.replit.app',
-  'https://scholar-auth-jamarrlmayes.replit.app',
+  'https://student-pilot-jamarrlmayes.replit.app',
+  'https://provider-register-jamarrlmayes.replit.app',
   'https://auto-page-maker-jamarrlmayes.replit.app',
-  'https://auto-com-center-jamarrlmayes.replit.app',
-  'http://localhost:5000' // Development only
+  'https://auto-com-center-jamarrlmayes.replit.app'
 ];
 
 app.use(cors({
@@ -127,84 +124,49 @@ app.use(cors({
 }));
 ```
 
-**Steps**:
-1. Add/update CORS middleware with all 8 app origins
-2. Deploy to production
-3. Test from student_pilot: `fetch('https://scholarship-api.../scholarships')`
-4. Verify no CORS errors in browser console
-
-**Owner**: Engineering (scholarship_api maintainer)  
-**ETA**: 30 minutes
+**Owner**: Engineering  
+**ETA**: **0.25 hour** (parallel)
 
 ---
 
 #### GAP-004: Core API Endpoints Unvalidated
-**Issue**: Cannot verify /scholarships, /search, or other core endpoints work
+**Issue**: Cannot verify /scholarships, /search work properly
 
-**Root Cause**: Validation deferred until /canary is fixed
+**Fix Required** (validation only):
 
-**Fix Required** (validation only, may reveal additional gaps):
-
-After GAP-001 fixed, test core endpoints:
-
+After GAP-001 fixed, test:
 ```bash
-# Test scholarship listing
-curl "https://scholarship-api-jamarrlmayes.replit.app/scholarships?limit=10&sort=deadline"
-# Expected: 200 + JSON array of scholarships
-
-# Test individual scholarship
-curl "https://scholarship-api-jamarrlmayes.replit.app/scholarships/{known-id}"
-# Expected: 200 + JSON object
-
-# Test search
-curl "https://scholarship-api-jamarrlmayes.replit.app/search?q=STEM&limit=10"
-# Expected: 200 + JSON search results
+curl "https://scholarship-api-jamarrlmayes.replit.app/scholarships?limit=10"
+curl "https://scholarship-api-jamarrlmayes.replit.app/scholarships/{id}"
+curl "https://scholarship-api-jamarrlmayes.replit.app/search?q=STEM"
 ```
 
-**Steps**:
-1. Wait for GAP-001 fix
-2. Execute API endpoint validation suite
-3. Document any endpoints returning errors
-4. Fix endpoint-specific issues if found
-
-**Owner**: QA (Agent3) + Engineering if issues found  
-**ETA**: 1 hour validation + 1-2 hours fixes if needed
+**Owner**: QA + Engineering if issues found  
+**ETA**: **1 hour validation** + fixes if needed
 
 ---
 
 ### P1 - Pre-GO Polish
 
 #### GAP-005: P95 Latency Exceeds SLO
-**Issue**: P95 = 264ms (target ≤120ms), 2.2x over SLO
-
-**Root Cause**: Unknown until profiling performed
-
-**Potential Causes**:
-- Database queries without indexes
-- N+1 query pattern
-- Missing caching layer
-- Inefficient serialization
+**Issue**: P95 = 264ms (target ≤120ms)
 
 **Fix Required** (TBD after profiling):
 
-Likely optimizations:
 ```typescript
-// Add database indexes for common queries
+// Add database indexes
 CREATE INDEX idx_scholarships_deadline ON scholarships(deadline);
 CREATE INDEX idx_scholarships_amount ON scholarships(amount);
-CREATE INDEX idx_scholarships_tags ON scholarships USING GIN(tags);
 
 // Add response caching
-import memoizee from 'memoizee';
+import { LRUCache } from 'lru-cache';
 
-const getCachedScholarships = memoizee(
-  async (filters) => {
-    return await db.select().from(scholarships).where(...);
-  },
-  { maxAge: 300000, promise: true } // 5-minute cache
-);
+const scholarshipCache = new LRUCache({
+  max: 1000,
+  ttl: 1000 * 60 * 5 // 5 minutes
+});
 
-// Add ETag support for conditional requests
+// Add ETags
 app.get('/scholarships', (req, res) => {
   const etag = generateETag(data);
   if (req.headers['if-none-match'] === etag) {
@@ -216,167 +178,67 @@ app.get('/scholarships', (req, res) => {
 });
 ```
 
-**Steps**:
-1. Profile API under load
-2. Identify slow queries
-3. Add database indexes
-4. Implement caching strategy
-5. Re-measure P95
-
-**Owner**: Engineering (scholarship_api + performance team)  
-**ETA**: 2-4 hours
-
-**Note**: Can proceed to Conditional Go with elevated latency if P0 fixes complete. Optimize in parallel with limited revenue ramp.
-
----
-
-### P2 - Post-GO Improvements
-
-#### GAP-006: Rate Limiting Not Verified
-**Issue**: Unknown if rate limits are appropriate for UI operations (target ≥60 rpm)
-
-**Fix Required** (validation + adjustment if needed):
-
-```typescript
-// Ensure rate limiting is configured appropriately
-import rateLimit from 'express-rate-limit';
-
-const scholarshipLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 60, // 60 requests per minute minimum
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: {
-      code: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many requests, please try again later'
-    }
-  }
-});
-
-app.use('/scholarships', scholarshipLimiter);
-app.use('/search', scholarshipLimiter);
-```
-
 **Owner**: Engineering  
-**ETA**: 1 hour
+**ETA**: **2-4 hours**
 
 ---
 
 ## Remediation Timeline
 
-### Phase 1: Critical Path to API Functional (T+0 to T+2 hours)
+### Phase 1: Critical Path (T+0 to T+2 hours) - RUN IN PARALLEL
 
-| Time | Task | Owner | Blocker Level |
-|------|------|-------|---------------|
-| T+0 to T+1h | Add /canary route + deploy (GAP-001) | Engineering | P0 |
-| T+0 to T+0.5h | Add Permissions-Policy header (GAP-002) | Engineering | P0 (parallel) |
-| T+0.5h to T+1h | Configure CORS for 8 origins (GAP-003) | Engineering | P0 (parallel) |
-| T+1h to T+2h | Validate core API endpoints (GAP-004) | QA + Engineering | P0 |
+| Time | Task | Blocker | Parallel? |
+|------|------|---------|-----------|
+| T+0-1h | Add /canary v2.7 (GAP-001) | P0 | **YES** |
+| T+0-0.25h | Add Permissions-Policy (GAP-002) | P0 | **YES** |
+| T+0-0.25h | Configure CORS (GAP-003) | P0 | **YES** |
+| T+1-2h | Validate endpoints (GAP-004) | P0 | After GAP-001 |
 
-**Outcome**: If all validations pass → **API FUNCTIONAL** - Unblocks B2C and B2B revenue paths
-
----
-
-### Phase 2: Performance Optimization (T+2 to T+6 hours)
-
-| Time | Task | Owner | Blocker Level |
-|------|------|-------|---------------|
-| T+2h to T+3h | Profile API under load (GAP-005) | Engineering | P1 |
-| T+3h to T+5h | Implement optimizations | Engineering | P1 |
-| T+5h to T+6h | Re-measure P95 latency | QA | - |
-
-**Outcome**: If P95 ≤120ms → **FULL GO** for scaled operations
+**Outcome**: scholarship_api functional, unblocks B2C and B2B
 
 ---
 
-### Phase 3: Polish (T+6 to T+12 hours)
+### Phase 2: Performance (T+2 to T+6 hours)
 
-| Time | Task | Owner | Blocker Level |
-|------|------|-------|---------------|
-| T+6h to T+8h | Validate and tune rate limits (GAP-006) | Engineering | P2 |
-| T+8h to T+12h | Add observability and alerting | DevOps | P2 |
+| Time | Task |
+|------|------|
+| T+2-3h | Profile under load |
+| T+3-5h | Implement optimizations |
+| T+5-6h | Re-measure P95 |
 
 ---
 
 ## Revenue-Start ETA
 
-**Earliest Safe Revenue Start**: **T+2 hours** (AFTER scholarship_api fixes complete)
+**Earliest Safe Revenue Start**: **T+2-3 hours** (AFTER scholarship_api + scholar_auth fixes)
 
-**This is the critical path blocker**. No revenue can be generated (B2C or B2B) until this API is functional.
-
-**Requirements for Unblocking Revenue**:
-1. ✅ /canary endpoint returns v2.6 JSON
-2. ✅ Security headers 6/6 compliant
-3. ✅ CORS configured for student_pilot and provider_register
-4. ✅ /scholarships endpoint returns valid data
-5. ✅ /search endpoint returns valid results
-6. ⚠️ Performance optimization can be deferred (AMBER acceptable)
-
-**Cascade Effect**:
-- Once scholarship_api is functional → student_pilot can be validated
-- Once student_pilot validated → B2C revenue can start
-- Once provider_register validated → B2B revenue can start
-
-**Recommended Approach**:
-1. **T+0-1h**: Fix GAP-001, GAP-002, GAP-003 in parallel
-2. **T+1-2h**: Validate core API endpoints (GAP-004)
-3. **Decision Point T+2h**: If PASS → Unblock B2C/B2B testing
-4. **T+2-6h**: Performance optimization in parallel with revenue validation
+**Requirements**:
+1. ✅ /canary returns v2.7 JSON
+2. ✅ Security headers 6/6
+3. ✅ CORS configured
+4. ✅ /scholarships and /search return data
+5. ⚠️ Performance can be AMBER (optimize later)
 
 ---
 
 ## Success Criteria for Conditional Go
 
-| Criterion | Required | Current | Target |
-|-----------|----------|---------|--------|
-| /canary v2.6 JSON | ✅ | ❌ 404 | ✅ 200 + JSON |
-| Security Headers 6/6 | ✅ | ❌ 5/6 | ✅ 6/6 |
-| CORS Configured | ✅ | ⏸️ Unknown | ✅ 8 origins |
-| /scholarships Works | ✅ | ⏸️ Untested | ✅ Returns data |
-| /search Works | ✅ | ⏸️ Untested | ✅ Returns results |
-| P95 ≤120ms | ⚠️ Preferred | ❌ 264ms | ⚠️ Can defer |
-
-**Minimum for Conditional Go**: First 5 criteria must be ✅ PASS
-
----
-
-## Risk Assessment
-
-### Low Risk
-- CORS configuration is straightforward ✅
-- /canary route is simple to implement ✅
-- Security header is 1-line fix ✅
-
-### Medium Risk
-- Core API endpoints may reveal additional issues
-- Performance optimization timeline uncertain
-- Database queries may need indexing
-
-### High Risk
-- None identified if fixes execute as planned
-
----
-
-## Dependency Chain
-
-**Blocks These Apps**:
-- student_pilot (B2C) - Cannot search scholarships
-- provider_register (B2B) - Cannot validate submissions
-- auto_page_maker (SEO) - May need scholarship data for pages
-- scholarship_agent (Marketing) - Reads scholarship data
-- scholarship_sage (Analytics) - Reads scholarship data
-
-**This is the single point of failure for the entire platform.**
+| Criterion | Current | Target |
+|-----------|---------|--------|
+| /canary v2.7 | ❌ 404 | ✅ JSON |
+| Headers 6/6 | ❌ 5/6 | ✅ 6/6 |
+| CORS | ⏸️ Unknown | ✅ 8 origins |
+| /scholarships works | ⏸️ Untested | ✅ Returns data |
+| /search works | ⏸️ Untested | ✅ Returns results |
 
 ---
 
 ## Summary Line
 
-**Summary**: scholarship_api → https://scholarship-api-jamarrlmayes.replit.app | Status: **RED** | Revenue-Start ETA: **T+2 hours** (critical path)
+**Summary**: scholarship_api → https://scholarship-api-jamarrlmayes.replit.app | Status: **RED** | Revenue-Start ETA: **T+2-3 hours**
 
 ---
 
-**Prepared By**: Agent3, QA Automation Lead  
-**Priority**: **URGENT - FIX FIRST**  
-**Next Action**: Engineering implements GAP-001, GAP-002, GAP-003 immediately in parallel
+**Prepared By**: Agent3  
+**Priority**: **URGENT - FIX IN PARALLEL WITH scholar_auth**  
+**Next Action**: Implement GAP-001, GAP-002, GAP-003 immediately
