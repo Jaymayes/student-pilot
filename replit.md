@@ -2,9 +2,9 @@
 
 ScholarLink is a scholarship management platform designed to help students discover, apply for, and manage scholarships. It offers personalized matching, application tracking, document management, and AI-powered essay assistance. The platform aims to increase student engagement, streamline the application process, and provide insights into scholarship competitiveness. It integrates with centralized authentication and cloud storage, with a business vision to achieve $10M profitable ARR in 5 years through AI-driven scholarship access.
 
-## AGENT3 v2.5 UNIFIED Compliance Status (CEO Edition)
+## AGENT3 v2.6 UNIFIED Compliance Status (CEO Edition — FINAL)
 
-student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFIED CEO Edition specifications.
+student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.6 UNIFIED CEO Edition specifications.
 
 **Compliance Verification** (2025-10-31):
 - ✅ U1 Universal Requirements: All 9 requirements implemented
@@ -21,22 +21,24 @@ student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.5 UNIFI
   - Event emission: student_pilot.purchase_succeeded → auto_com_center
   - Responsible AI: coaching only; never ghostwrite essays
   - Rate limits: 300 rpm browsing; 60 rpm checkout
-- ✅ Version: v2.5
+- ✅ Version: v2.6
 - ✅ P95 Latency: ~5ms (<<120ms SLO)
 - ✅ 5xx Error Rate: 0%
-- ✅ Rate Limiting: 300 rpm baseline
+- ✅ Rate Limiting: 300 rpm baseline (with U4-compliant error responses)
 - ✅ CORS: 8 exact sibling origins enforced
 - ✅ Deliverables: readiness_report and fix_plan written
 - ✅ Revenue Fields: revenue_role="direct", revenue_eta_hours="2-6"
+- ✅ Error Format: U4 compliant (nested structure with request_id)
 
-**v2.5 UNIFIED CEO Edition Specifications**:
+**v2.6 UNIFIED CEO Edition Specifications**:
 1. HSTS max-age: 31536000 (1 year) with includeSubDomains and preload
 2. Referrer-Policy: strict-origin-when-cross-origin
 3. Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 4. CSP: default-src 'self'; frame-ancestors 'none' + minimal Stripe extensions
 5. CORS: Exactly 8 origins, no wildcards
-6. Revenue role terminology: direct/enables/protects
-7. Section naming: U0-U9 (Universal), A1-A8 (App-specific)
+6. Revenue role terminology: direct/enables/acquires/protects/supports
+7. Section naming: U0-U8 (Universal), A1-A8 (App-specific)
+8. Error format: Nested structure { error: { code, message, request_id } }
 
 **Revenue Path**: First B2C dollar possible 2-6 hours after scholar_auth production deployment and Stripe live mode switch.
 

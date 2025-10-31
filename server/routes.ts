@@ -59,7 +59,7 @@ declare module 'express-serve-static-core' {
   }
 }
 
-// AGENT3 v2.5 U4: Standard error response helper
+// AGENT3 v2.6 U4: Standard error response helper
 function createErrorResponse(code: string, message: string, requestId?: string) {
   return {
     error: {
@@ -141,11 +141,11 @@ Allow: /apply/`;
   
   // Helper function for canary response with cache-busting headers
   const sendCanaryResponse = (req: express.Request, res: express.Response) => {
-    // AGENT3 v2.5 UNIFIED canary schema - EXACTLY 9 fields required
+    // AGENT3 v2.6 UNIFIED canary schema - EXACTLY 9 fields required
     const canaryResponse = {
       app_name: "student_pilot",
       app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
-      version: "v2.5",
+      version: "v2.6",
       status: "ok",
       p95_ms: 5,
       commit_sha: "workspace",

@@ -74,7 +74,7 @@ app.use(compression({
   }
 }));
 
-// CORS configuration - AGENT3 v2.5: exact 8 origins, no wildcards
+// CORS configuration - AGENT3 v2.6: exact 8 origins, no wildcards
 app.use(cors({
   origin: [
     'https://scholar-auth-jamarrlmayes.replit.app',
@@ -93,31 +93,31 @@ app.use(cors({
   maxAge: 600
 }));
 
-// Security middleware - helmet with AGENT3 v2.5 specifications
+// Security middleware - helmet with AGENT3 v2.6 specifications
 app.use(helmet({
   contentSecurityPolicy: false, // Custom CSP applied separately
   hsts: {
-    maxAge: 31536000, // AGENT3 v2.5: 31536000 (1 year)
+    maxAge: 31536000, // AGENT3 v2.6: 31536000 (1 year)
     includeSubDomains: true,
     preload: true
   },
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' } // AGENT3 v2.5
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' } // AGENT3 v2.6
 }));
 
-// Add Permissions-Policy header (AGENT3 v2.5 CEO Edition: U1 requirements)
+// Add Permissions-Policy header (AGENT3 v2.6 CEO Edition: U1 requirements)
 app.use((req, res, next) => {
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   next();
 });
 
-// CSP with AGENT3 v2.5: UI profile with Stripe integration
+// CSP with AGENT3 v2.6: UI profile with Stripe integration
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 app.use(helmet.contentSecurityPolicy({
   useDefaults: false,
   directives: {
-    // AGENT3 v2.5: default-src 'self' + Stripe integration (Section 3.5)
+    // AGENT3 v2.6: default-src 'self' + Stripe integration
     defaultSrc: ["'self'"],
     baseUri: ["'none'"],
     objectSrc: ["'none'"],
@@ -144,11 +144,11 @@ app.use(helmet.contentSecurityPolicy({
   reportOnly: false
 }));
 
-// Rate limiting - AGENT3 v2.5: ≥300 rpm baseline
+// Rate limiting - AGENT3 v2.6: ≥300 rpm baseline
 // U4 compliant error responses with nested structure
 const generalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 300, // AGENT3 v2.5: ≥300 rpm baseline
+  max: 300, // AGENT3 v2.6: ≥300 rpm baseline
   handler: (req, res) => {
     const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
     res.status(429).json({
@@ -454,7 +454,7 @@ app.use((req, res, next) => {
     }
   }
 
-  // Production-safe error handler - AGENT3 v2.5 compliant format
+  // Production-safe error handler - AGENT3 v2.6 compliant format
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
     
@@ -481,7 +481,7 @@ app.use((req, res, next) => {
       ? 'Internal server error'
       : err.message || 'An error occurred';
     
-    // AGENT3 v2.5 U4: Standard error format
+    // AGENT3 v2.6 U4: Standard error format
     res.status(status).json({ 
       error: {
         code: errorCode,
