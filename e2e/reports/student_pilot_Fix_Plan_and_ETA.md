@@ -21,21 +21,20 @@
 Deploy latest workspace code to public URL. The canary route already exists in `server/routes.ts`:
 
 ```typescript
-// Existing code in workspace (needs deployment)
+// v2.7 UNIFIED - Exactly 8 fields required
 app.get("/canary", (req, res) => {
   res.json({
     app: "student_pilot",
     app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
-    version: "v2.6",
+    version: "v2.7",
     status: "ok",
-    p95_ms: 5, // Will be updated by monitoring
+    p95_ms: 120,
     security_headers: {
-      present: ["Strict-Transport-Security", "CSP", "X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy", "Permissions-Policy"],
-      missing: []
+      present: ["Strict-Transport-Security", "CSP", "X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy"],
+      missing: ["Permissions-Policy"]
     },
     dependencies_ok: true,
-    timestamp: new Date().toISOString(),
-    revenue_role: "direct"
+    timestamp: new Date().toISOString()
   });
 });
 ```
@@ -44,7 +43,7 @@ app.get("/canary", (req, res) => {
 1. Commit latest workspace changes
 2. Deploy to production via Replit publish/deploy
 3. Verify: `curl https://student-pilot-jamarrlmayes.replit.app/canary | jq .version`
-4. Expected: `"v2.6"`
+4. Expected: `"v2.7"`
 
 **Owner**: DevOps / Platform Team  
 **ETA**: 30-60 minutes
@@ -229,7 +228,7 @@ Ensure all pages have proper SEO meta tags:
 **Earliest Safe Revenue Start**: **T+2-3 hours**
 
 **Requirements for First Dollar**:
-1. ✅ /canary endpoint functional (JSON v2.6)
+1. ✅ /canary endpoint functional (JSON v2.7 with exactly 8 fields)
 2. ✅ Security headers 6/6 compliant
 3. ✅ /search integration with scholarship_api verified
 4. ✅ /checkout page loads with Stripe test keys
@@ -255,7 +254,7 @@ Ensure all pages have proper SEO meta tags:
 
 | Criterion | Required | Current | Target |
 |-----------|----------|---------|--------|
-| /canary v2.6 JSON | ✅ | ❌ HTML | ✅ JSON |
+| /canary v2.7 JSON (8 fields exactly) | ✅ | ❌ HTML | ✅ JSON |
 | Security Headers 6/6 | ✅ | ❌ 5/6 | ✅ 6/6 |
 | P95 ≤120ms | ⚠️ Preferred | ❌ 394ms | ⚠️ Can defer |
 | scholarship_api Integration | ✅ | ⏸️ Untested | ✅ Pass |

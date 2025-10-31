@@ -32,7 +32,7 @@
 | **scholarship_api** | 🔴 RED | ENABLES | /canary 404, endpoints untested | **T+2-3h** | ✅ **YES** (data layer) |
 | **student_pilot** | 🔴 RED | DIRECT | /canary HTML, auth blocked, search blocked | **T+1-2h** | ✅ **YES** (B2C) |
 | **provider_register** | 🟡 AMBER | DIRECT | 3% fee disclosure unverified | **T+0.5-1h** | ✅ **YES** (B2B) |
-| **auto_com_center** | 🔴 RED | SUPPORTS | /send endpoint missing | **T+1.5-2.5h** | ❌ No (manual fallback) |
+| **auto_com_center** | 🟡 AMBER | SUPPORTS | /send missing (manual fallback viable) | **T+1.5-2.5h** | ❌ No (manual fallback) |
 | **scholarship_sage** | 🟢 GREEN* | SUPPORTS | None (per prompt, pending re-validation) | **T+0** | ❌ No |
 | **scholarship_agent** | 🟡 AMBER | ACQUIRES | /canary v2.7 upgrade | **T+0.5-1h** | ❌ No |
 | **auto_page_maker** | 🟡 AMBER | ACQUIRES | /canary v2.7, Permissions-Policy | **T+0.5-1h** | ❌ No |
@@ -171,15 +171,17 @@ Revenue Start (T+4-5h)
 
 ---
 
-### 🔴 auto_com_center (NON-BLOCKING BUT RECOMMENDED)
+### 🟡 auto_com_center (AMBER - NON-BLOCKING WITH MANUAL FALLBACK)
 
-**Blocker 1**: POST /send endpoint missing  
+**Issue 1**: POST /send endpoint missing  
 **Impact**: No automated receipts or confirmations  
-**Workaround**: Manual email fallback for first customers  
+**Workaround**: Manual email fallback for first 10-20 customers (viable for pilot)  
 **Fix**: Implement /send endpoint with message queue  
 **ETA**: 1.5-2 hours
 
-**Recommendation**: Fix before revenue launch (worth 2-3 hour delay for professional UX)
+**Status Rationale**: While /send is missing, manual email receipts are viable for pilot phase. This allows revenue to start immediately while auto_com_center is fixed in parallel.
+
+**Recommendation**: Can proceed with manual fallback, OR fix before launch for professional UX (worth 2-3 hour delay)
 
 ---
 
