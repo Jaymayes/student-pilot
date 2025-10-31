@@ -128,11 +128,11 @@ Allow: /apply/`;
   
   // Helper function for canary response with cache-busting headers
   const sendCanaryResponse = (req: express.Request, res: express.Response) => {
-    // AGENT3 v2.4 CEO-authorized final canary schema
+    // AGENT3 v2.5 CEO-authorized final canary schema
     const canaryResponse = {
       app_name: "student_pilot",
       app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
-      version: "v2.4",
+      version: "v2.5",
       status: "ok",
       p95_ms: 5,
       commit_sha: process.env.REPL_SLUG || "unknown",
