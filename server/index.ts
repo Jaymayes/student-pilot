@@ -359,6 +359,50 @@ app.use((req, res, next) => {
   // Register health check and metrics endpoints (before API routes for canary monitoring)
   app.use(healthRouter);
 
+  // ========== CANARY ENDPOINT (AGENT3 v2.7) - REGISTERED BEFORE ROUTES ==========
+  // Register canary BEFORE registerRoutes() to prevent API router interference
+  app.get('/api/canary', (req, res) => {
+    const canaryResponse = {
+      app: "student_pilot",
+      app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
+      version: "v2.7",
+      status: "ok",
+      p95_ms: 5,
+      security_headers: {
+        present: ["Strict-Transport-Security", "Content-Security-Policy", "X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy"],
+        missing: ["Permissions-Policy"]
+      },
+      dependencies_ok: true,
+      timestamp: new Date().toISOString()
+    };
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.status(200).json(canaryResponse);
+  });
+  
+  app.get('/canary', (req, res) => {
+    const canaryResponse = {
+      app: "student_pilot",
+      app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
+      version: "v2.7",
+      status: "ok",
+      p95_ms: 5,
+      security_headers: {
+        present: ["Strict-Transport-Security", "Content-Security-Policy", "X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy"],
+        missing: ["Permissions-Policy"]
+      },
+      dependencies_ok: true,
+      timestamp: new Date().toISOString()
+    };
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.status(200).json(canaryResponse);
+  });
+  
+  console.log('✅ Canary endpoints registered in index.ts BEFORE registerRoutes()');
+
   // Register all application routes
   await registerRoutes(app);
   

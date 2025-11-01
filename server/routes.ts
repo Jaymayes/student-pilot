@@ -135,40 +135,13 @@ Allow: /apply/`;
     res.end();
   });
 
+  // ========== CANARY ENDPOINT (AGENT3 v2.7 REQUIREMENT) ==========
+  // NOTE: Canary endpoints are now registered in server/index.ts BEFORE registerRoutes()
+  // to prevent API router interference. DO NOT register them here as it causes duplicate
+  // route registration which breaks the endpoints.
+  
   console.log('🚀 Static file guard registered in registerRoutes (correct app instance)');
-
-  // ========== CANARY ENDPOINT (AGENT3 v2.2 REQUIREMENT) ==========
-  
-  // Helper function for canary response with cache-busting headers
-  const sendCanaryResponse = (req: express.Request, res: express.Response) => {
-    // AGENT3 v2.6 UNIFIED canary schema - EXACTLY 9 fields required
-    const canaryResponse = {
-      app_name: "student_pilot",
-      app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
-      version: "v2.6",
-      status: "ok",
-      p95_ms: 5,
-      commit_sha: "workspace",
-      server_time_utc: new Date().toISOString(),
-      revenue_role: "direct",
-      revenue_eta_hours: "2-6"
-    };
-    
-    // Phase 0 cache-busting headers (exact spec)
-    res.set('Content-Type', 'application/json; charset=utf-8');
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    res.status(200).json(canaryResponse);
-  };
-  
-  // Primary canary endpoint - MUST return JSON before any SPA catch-all
-  app.get('/canary', sendCanaryResponse);
-  
-  // Fallback canary endpoint for CDN cache bypass
-  app.get('/_canary_no_cache', sendCanaryResponse);
-  
-  console.log('✅ /canary and /_canary_no_cache endpoints registered (AGENT3 v2.2 Phase 0)');
+  console.log('⏩ Canary endpoints registered in index.ts (skipping duplicate registration in routes.ts)');
 
   // ========== HEALTH & MONITORING ENDPOINTS ==========
   
