@@ -24,7 +24,6 @@ const getOidcConfig = memoize(
       
       console.log(`🔐 OAuth configured: Scholar Auth (${issuerUrl})`);
       console.log(`   Client ID: ${clientId}`);
-      console.log(`   Client Secret: ${clientSecret?.substring(0, 8)}...${clientSecret?.substring(clientSecret.length - 4)} (${clientSecret?.length} chars)`);
       
       try {
         const config = await client.discovery(
