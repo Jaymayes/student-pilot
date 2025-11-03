@@ -1,0 +1,95 @@
+{
+  "application": "student_pilot",
+  "app_base_url": "https://student-pilot-jamarrlmayes.replit.app",
+  "report_type": "Section 7 FOC Report",
+  "submission_timestamp": "2025-11-03T16:00:00Z",
+  "section_7_report": {
+    "filename": "student_pilot_Section_7_FOC_Report_Final.md",
+    "path": "e2e/reports/student_pilot_Section_7_FOC_Report_Final.md",
+    "sha256": "bacd452813d2fda9b997af38a4e63b34ca8dfe8f36dce9b50c90208da8f27746",
+    "size_bytes": 51898,
+    "created": "2025-11-03T16:00:00Z"
+  },
+  "status": {
+    "report_submitted": true,
+    "e2e_execution": "pending_auth_green",
+    "evidence_bundle": "pending_e2e_completion",
+    "blocker": "Auth DRI client registration",
+    "blocker_owner": "Auth DRI",
+    "blocker_eta": "T+15 (CEO deadline)",
+    "fallback_available": "Temp client at T+45"
+  },
+  "next_deliverable": {
+    "type": "Evidence Bundle with SHA256 Manifest",
+    "location": "evidence_bundle/",
+    "deadline": "T+150 (120 minutes from Auth GREEN)",
+    "contents": [
+      "HAR files (auth, scholarships, recommendations, applications, documents)",
+      "Screenshots (9 key flows)",
+      "Metrics (P50/P95/P99 latency, auth success rate, 5xx count)",
+      "Lighthouse reports (5 pages, accessibility ≥90 target)",
+      "Security verification (6/6 headers, RBAC 401/403 samples)",
+      "Error samples (standardized format with request_id)",
+      "SHA256 manifest for all evidence files"
+    ]
+  },
+  "ceo_acceptance_gates": {
+    "auth_success_rate": {
+      "target": "≥98%",
+      "status": "ready_to_measure"
+    },
+    "p95_latency": {
+      "target": "≤120ms (top 5 endpoints)",
+      "status": "ready_to_measure"
+    },
+    "critical_5xx": {
+      "target": "0",
+      "status": "ready_to_verify"
+    },
+    "lighthouse_accessibility": {
+      "target": "≥90",
+      "status": "test_configured"
+    },
+    "rbac_enforcement": {
+      "target": "401/403 negative tests pass",
+      "status": "test_plan_ready"
+    },
+    "standardized_errors": {
+      "target": "All errors include request_id",
+      "status": "implemented"
+    }
+  },
+  "lifecycle_analysis": {
+    "cessation_date": "Q3 2028",
+    "horizon_months": "36-42",
+    "horizon_type": "User-Facing (3-4 year)",
+    "drivers": [
+      "Gen Z UX evolution",
+      "Framework migrations (React RSC)",
+      "WCAG 3.0 requirements",
+      "Competitive pressure",
+      "AI-native interface expectations"
+    ],
+    "contingencies": {
+      "accelerators": [
+        "Competitor AI chatbot-first platform (Q2 2027)",
+        "WCAG 3.0 legal mandate",
+        "React Server Components industry standard (2027)",
+        "Gen Alpha rejection of form-based interfaces",
+        "Privacy regulation changes"
+      ],
+      "extenders": [
+        "Component-based architecture",
+        "TypeScript + Zod validation",
+        "Modular design",
+        "Strong accessibility foundation",
+        "React Query data layer abstraction"
+      ]
+    },
+    "capital_allocation": {
+      "major_refresh_q1_2028": "$40-60k",
+      "quarterly_improvements": "$10-15k",
+      "total_3_year": "$160-240k"
+    }
+  }
+}
