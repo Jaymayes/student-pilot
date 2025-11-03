@@ -77,8 +77,11 @@ export class RecommendationEngine {
         .from(studentProfiles)
         .where(eq(studentProfiles.id, studentId));
 
+      // Return empty recommendations if student profile doesn't exist
+      // This allows new users to see empty state gracefully
       if (!student) {
-        throw new Error(`Student profile not found: ${studentId}`);
+        console.log(`No student profile found for ${studentId}, returning empty recommendations`);
+        return [];
       }
 
       // Get available scholarships
@@ -104,6 +107,8 @@ export class RecommendationEngine {
             matchScore: Math.round(detailedScore.totalScore),
             matchReason: detailedScore.reasoning,
             chanceLevel: detailedScore.chanceLevel,
+            explanationMetadata: detailedScore.factors,
+            aiCostCents: null,
             isBookmarked: false,
             isDismissed: false,
             createdAt: new Date(),
