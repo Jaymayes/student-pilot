@@ -63,8 +63,11 @@ export default function Scholarships() {
   // Browse mode doesn't support bookmark/dismiss (these are match-specific operations)
   // Users can bookmark from the personalized matches page instead
 
+  // Ensure scholarships is always an array before filtering
+  const scholarshipsList = Array.isArray(scholarships) ? scholarships : [];
+
   // Filter scholarships based on search and filters
-  const filteredScholarships = scholarships?.filter(scholarship => {
+  const filteredScholarships = scholarshipsList.filter(scholarship => {
     const matchesSearch = scholarship.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          scholarship.organization?.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -74,7 +77,7 @@ export default function Scholarships() {
                          (amountFilter === "over10k" && scholarship.amount >= 10000);
 
     return matchesSearch && matchesAmount;
-  }) || [];
+  });
 
   // Sort scholarships by amount (highest first) and then by deadline
   const sortedScholarships = filteredScholarships.sort((a, b) => {

@@ -123,8 +123,14 @@ app.use(helmet.contentSecurityPolicy({
     objectSrc: ["'none'"],
     frameAncestors: ["'none'"],
     imgSrc: ["'self'", "data:"],
-    scriptSrc: ["'self'", "https://js.stripe.com"],  // Stripe integration required
-    styleSrc: ["'self'"],
+    // Development: Allow unsafe-inline and unsafe-eval for Vite HMR
+    // Production: Strict CSP with only Stripe integration
+    scriptSrc: isDevelopment 
+      ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com"]
+      : ["'self'", "https://js.stripe.com"],
+    styleSrc: isDevelopment
+      ? ["'self'", "'unsafe-inline'"]
+      : ["'self'"],
     fontSrc: ["'self'", "data:"],
     connectSrc: [
       "'self'",
