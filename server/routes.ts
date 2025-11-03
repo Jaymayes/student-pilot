@@ -2993,7 +2993,80 @@ Allow: /apply/`;
 
   // ========== RECOMMENDATION RELEVANCE & VALIDATION ENDPOINTS ==========
 
-  // Generate personalized scholarship recommendations
+  // Generate recommendations for current authenticated user
+  app.get("/api/recommendations", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    // Get authenticated user's ID from session (outside try for catch block access)
+    const userId = req.user?.claims?.sub;
+    if (!userId) {
+      const requestId = (req as any).id || crypto.randomUUID();
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHENTICATED",
+          message: "Authentication required",
+          request_id: requestId
+        }
+      });
+    }
+    
+    try {
+      const { 
+        topN = "10", 
+        minScore = "30", 
+        sessionId 
+      } = req.query as { topN?: string; minScore?: string; sessionId?: string };
+      
+      const recommendations = await recommendationEngine.generateRecommendations(
+        userId,
+        {
+          topN: parseInt(topN as string),
+          minScore: parseInt(minScore as string),
+          trackInteraction: true,
+          sessionId: sessionId
+        }
+      );
+
+      res.json({
+        studentId: userId,
+        recommendations,
+        metadata: {
+          totalRecommendations: recommendations.length,
+          algorithmVersion: '2.0.0-hybrid',
+          generatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error("Recommendation generation error:", error);
+      const requestId = (req as any).id || crypto.randomUUID();
+      
+      // Handle student profile not found gracefully
+      if (error instanceof Error && error.message.includes('Student profile not found')) {
+        return res.status(200).json({
+          studentId: userId,
+          recommendations: [],
+          metadata: {
+            totalRecommendations: 0,
+            algorithmVersion: '2.0.0-hybrid',
+            generatedAt: new Date().toISOString(),
+            message: "Complete your profile to get personalized scholarship recommendations"
+          }
+        });
+      }
+      
+      // Other errors are true 500s
+      res.status(500).json({
+        error: {
+          code: "INTERNAL_ERROR",
+          message: "Failed to generate recommendations",
+          request_id: requestId
+        }
+      });
+    }
+  });
+
+  // Generate personalized scholarship recommendations (with explicit studentId)
   app.get("/api/recommendations/:studentId", isAuthenticated, async (req, res) => {
     const correlationId = (req as any).correlationId;
     res.set('X-Correlation-ID', correlationId);
