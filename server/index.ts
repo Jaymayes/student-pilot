@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import express, { type Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -18,6 +20,38 @@ import "./monitoring/alerting";
 import { agentBridge } from "./agentBridge";
 // Import system prompt utilities for prompt pack framework
 import { getPromptMetadata } from "./utils/systemPrompt";
+
+// Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    integrations: [
+      nodeProfilingIntegration(),
+    ],
+    tracesSampleRate: 0.1, // 10% performance sampling per CEO directive
+    profilesSampleRate: 0.1, // 10% profiling sampling
+    beforeSend(event) {
+      // PII redaction: Remove sensitive data before sending to Sentry
+      if (event.request) {
+        delete event.request.cookies;
+        if (event.request.headers) {
+          delete event.request.headers.cookie;
+          delete event.request.headers.authorization;
+        }
+      }
+      // Redact user data
+      if (event.user) {
+        delete event.user.email;
+        delete event.user.ip_address;
+      }
+      return event;
+    },
+  });
+  console.log('✅ Sentry initialized for student_pilot (error + performance monitoring)');
+} else {
+  console.warn('⚠️  SENTRY_DSN not configured - error monitoring disabled');
+}
 
 const app = express();
 
@@ -508,6 +542,11 @@ app.use((req, res, next) => {
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
     
+    // Capture error in Sentry if not already captured
+    if (process.env.SENTRY_DSN && err) {
+      Sentry.captureException(err);
+    }
+    
     // Log full error details server-side
     console.error('API Error:', {
       error: err.message,
@@ -565,6 +604,11 @@ app.use((req, res, next) => {
       timestamp: new Date().toISOString()
     });
     
+    // Send to Sentry
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(reason);
+    }
+    
     // In development, provide more details
     if (!isProduction) {
       console.error('Full reason:', reason);
@@ -578,9 +622,18 @@ app.use((req, res, next) => {
       timestamp: new Date().toISOString()
     });
     
-    // Graceful shutdown on uncaught exception
-    console.error('⚠️  Initiating graceful shutdown...');
-    process.exit(1);
+    // Send to Sentry before shutdown
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+      // Flush events before exit
+      Sentry.close(2000).then(() => {
+        console.error('⚠️  Initiating graceful shutdown...');
+        process.exit(1);
+      });
+    } else {
+      console.error('⚠️  Initiating graceful shutdown...');
+      process.exit(1);
+    }
   });
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
