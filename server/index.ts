@@ -538,14 +538,14 @@ app.use((req, res, next) => {
     }
   }
 
+  // Sentry error handler - Sentry v10 API (MUST be after routes, before custom error handlers)
+  if (process.env.SENTRY_DSN) {
+    Sentry.setupExpressErrorHandler(app);
+  }
+
   // Production-safe error handler - AGENT3 v2.6 compliant format
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const requestId = req.headers['x-request-id'] as string || crypto.randomUUID();
-    
-    // Capture error in Sentry if not already captured
-    if (process.env.SENTRY_DSN && err) {
-      Sentry.captureException(err);
-    }
     
     // Log full error details server-side
     console.error('API Error:', {

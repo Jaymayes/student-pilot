@@ -28,6 +28,9 @@ const EnvironmentSchema = z.object({
   TESTING_STRIPE_SECRET_KEY: z.string().regex(/^(sk_test_|rk_test_)/),
   TESTING_VITE_STRIPE_PUBLIC_KEY: z.string().regex(/^pk_test_/),
   
+  // Phased rollout control (0-100, represents percentage of traffic using LIVE Stripe keys)
+  BILLING_ROLLOUT_PERCENTAGE: z.coerce.number().int().min(0).max(100).optional().default(0),
+  
   // Object storage
   DEFAULT_OBJECT_STORAGE_BUCKET_ID: z.string().optional(),
   PRIVATE_OBJECT_DIR: z.string().optional(),
@@ -106,6 +109,41 @@ export function getStripeKeys() {
     publicKey: env.VITE_STRIPE_PUBLIC_KEY,
     isTestMode: false
   };
+}
+
+// Helper to determine if user should use LIVE Stripe (phased rollout)
+// Uses deterministic hash-based assignment for stable user experience
+export function shouldUseLiveStripe(userId: string): boolean {
+  // If in development or USE_STRIPE_TEST_KEYS=true, always use test mode
+  if (isDevelopment || env.USE_STRIPE_TEST_KEYS === 'true') {
+    return false;
+  }
+  
+  const rolloutPercentage = env.BILLING_ROLLOUT_PERCENTAGE || 0;
+  
+  // 0% rollout = all test mode
+  if (rolloutPercentage === 0) {
+    return false;
+  }
+  
+  // 100% rollout = all live mode
+  if (rolloutPercentage >= 100) {
+    return true;
+  }
+  
+  // Hash-based deterministic assignment for stable user experience
+  // Same user always gets same assignment (no flipping between test/live)
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = ((hash << 5) - hash) + userId.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Convert to 0-99 range
+  const bucket = Math.abs(hash) % 100;
+  
+  // User is in live cohort if their bucket is < rolloutPercentage
+  return bucket < rolloutPercentage;
 }
 
 // Safe environment variable access

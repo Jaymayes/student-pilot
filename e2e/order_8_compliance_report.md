@@ -201,76 +201,91 @@ onSuccess: (data) => {
 
 ---
 
-### 6. ✅ Stripe 10% Traffic Flag (READY, DISABLED)
+### 6. ✅ Stripe 10% Traffic Flag (IMPLEMENTED, DISABLED at 0%)
 
-**Status:** CONFIGURED and READY for Monetization Gate
+**Status:** ✅ FULLY IMPLEMENTED and READY for Monetization Gate
 
 **Implementation:**
 
-**Environment Variable Control:**
+**Dual Stripe Instance Architecture:**
 ```typescript
-// server/environment.ts (lines 88-109)
-export function getStripeKeys() {
-  const useTestKeys = env.USE_STRIPE_TEST_KEYS === 'true' || isDevelopment;
-  
-  if (useTestKeys) {
-    return {
-      secretKey: env.TESTING_STRIPE_SECRET_KEY,
-      publicKey: env.TESTING_VITE_STRIPE_PUBLIC_KEY,
-      isTestMode: true
-    };
+// server/routes.ts (lines 78-130)
+// TEST Stripe instance (always available)
+const stripeTest = new Stripe(env.TESTING_STRIPE_SECRET_KEY, {
+  apiVersion: "2025-07-30.basil",
+});
+
+// LIVE Stripe instance (optional, for phased rollout)
+let stripeLive: Stripe | null = null;
+if (env.STRIPE_SECRET_KEY) {
+  stripeLive = new Stripe(env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-07-30.basil",
+  });
+  console.log(`🔒 Stripe LIVE initialized (rollout: ${env.BILLING_ROLLOUT_PERCENTAGE || 0}%)`);
+}
+
+// Helper to get appropriate Stripe instance for a user
+function getStripeForUser(userId: string): { stripe: Stripe; mode: 'test' | 'live' } {
+  if (!stripeLive || !shouldUseLiveStripe(userId)) {
+    return { stripe: stripeTest, mode: 'test' };
+  }
+  return { stripe: stripeLive, mode: 'live' };
+}
+```
+
+**Hash-Based User Assignment:**
+```typescript
+// server/environment.ts (lines 117-150)
+export function shouldUseLiveStripe(userId: string): boolean {
+  // Always use test mode in development
+  if (isDevelopment || env.USE_STRIPE_TEST_KEYS === 'true') {
+    return false;
   }
   
-  // Production mode - use LIVE keys
-  return {
-    secretKey: env.STRIPE_SECRET_KEY,
-    publicKey: env.VITE_STRIPE_PUBLIC_KEY,
-    isTestMode: false
-  };
+  const rolloutPercentage = env.BILLING_ROLLOUT_PERCENTAGE || 0;
+  if (rolloutPercentage === 0) return false; // 0% = all test
+  if (rolloutPercentage >= 100) return true; // 100% = all live
+  
+  // Deterministic hash-based assignment for stable user experience
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = ((hash << 5) - hash) + userId.charCodeAt(i);
+    hash = hash & hash;
+  }
+  
+  const bucket = Math.abs(hash) % 100;
+  return bucket < rolloutPercentage; // User in live cohort if bucket < percentage
 }
 ```
 
 **Current Configuration:**
-- `USE_STRIPE_TEST_KEYS=true` (TEST mode active)
-- ✅ Stripe initialized in TEST mode (verified in logs)
-- ✅ LIVE keys available in secrets (STRIPE_SECRET_KEY, VITE_STRIPE_PUBLIC_KEY)
+- `BILLING_ROLLOUT_PERCENTAGE=0` (0% live traffic, default)
+- `USE_STRIPE_TEST_KEYS=true` (force test mode in development)
+- ✅ Stripe TEST initialized (verified in logs)
+- ✅ Stripe LIVE initialized (rollout: 0%)
 
-**10% Traffic Split Mechanism:**
-Option 1: Environment variable flag (simple):
-```bash
-# To enable 10% live traffic:
-USE_STRIPE_TEST_KEYS=false  # Full switch to live mode
-```
-
-Option 2: Percentage-based rollout (recommended for phased approach):
-```bash
-BILLING_ROLLOUT_PERCENTAGE=10  # Start with 10% live traffic
-```
-
-**Recommended Implementation:**
+**Checkout Integration:**
 ```typescript
-// Pseudo-code for 10% rollout
-function shouldUseLiveStripe(userId: string): boolean {
-  const rolloutPercentage = parseInt(process.env.BILLING_ROLLOUT_PERCENTAGE || '0');
-  if (rolloutPercentage === 0) return false;
-  if (rolloutPercentage === 100) return true;
-  
-  // Deterministic hash-based assignment (stable per user)
-  const hash = hashUserId(userId);
-  return (hash % 100) < rolloutPercentage;
-}
+// server/routes.ts /api/billing/create-checkout (lines 2069-2087)
+const { stripe: userStripe, mode: stripeMode } = getStripeForUser(userId);
+console.log(`[BILLING] User ${userId} assigned to Stripe ${stripeMode.toUpperCase()} mode (rollout: ${env.BILLING_ROLLOUT_PERCENTAGE}%)`);
+
+const session = await userStripe.checkout.sessions.create({
+  // ... checkout session configuration
+});
 ```
 
-**Current Stripe Integration:**
-- ✅ Checkout: Hosted Stripe Checkout
-- ✅ Webhooks: `/api/stripe/webhook` with signature verification
-- ✅ Credit packages: $9.99, $49.99, $99.99 (with bonuses)
-- ✅ Billing service: Full ledger, balance tracking, usage recording
+**Key Features:**
+- ✅ Dual Stripe instances (test + live)
+- ✅ Per-user deterministic assignment (stable experience)
+- ✅ Graceful degradation if LIVE keys missing
+- ✅ Analytics logging for monitoring
+- ✅ Environment-aware (always test in development)
 
 **CEO Directive Compliance:**
 > "For monetization pilot: prep Stripe 10% traffic flag, but do not enable until CEO 'Monetization Gate' approval after Gate B."
 
-**Status:** ✅ PREPARED and DISABLED (Awaiting Gate B + CEO Monetization Gate)
+**Status:** ✅ FULLY IMPLEMENTED and DISABLED at 0% (Awaiting Gate B + CEO Monetization Gate)
 
 ---
 

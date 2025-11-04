@@ -58,12 +58,13 @@
     },
     "sentry_integration": {
       "provider": "Sentry",
+      "version": "10.22.0",
       "service_name": "student_pilot",
       "environment": "development",
       "dsn_configured": true,
       "features": {
-        "error_tracking": "enabled",
-        "performance_monitoring": "enabled (10% sampling)",
+        "error_tracking": "enabled (automatic via setupExpressErrorHandler)",
+        "performance_monitoring": "enabled (10% sampling, automatic via OpenTelemetry)",
         "profiling": "enabled (10% sampling)",
         "pii_redaction": "enforced (cookies, auth headers, emails, IPs)"
       },
@@ -73,12 +74,20 @@
       },
       "integrations": [
         "nodeProfilingIntegration",
+        "Sentry.setupExpressErrorHandler (v10 API)",
+        "OpenTelemetry automatic tracing",
         "captureException on unhandledRejection",
         "captureException on uncaughtException"
       ],
+      "middleware": {
+        "error_handler": "Sentry.setupExpressErrorHandler(app)",
+        "placement": "After routes, before custom error middleware",
+        "api_version": "v10 (Handlers deprecated)"
+      },
       "production_ready": true,
       "ceo_directive_compliance": "REQUIRED NOW - Freeze exception granted",
-      "activation_date": "2025-11-04T22:26:00Z"
+      "activation_date": "2025-11-04T22:26:00Z",
+      "fix_date": "2025-11-04T23:10:00Z"
     },
     "apm_integration": {
       "provider": "Sentry",
@@ -122,12 +131,25 @@
     "provider": "Stripe",
     "api_version": "2025-07-30.basil",
     "mode": {
-      "current": "test",
-      "live_keys_available": true,
+      "current": "dual (test + live)",
+      "test_instance": "Always initialized",
+      "live_instance": "Initialized if STRIPE_SECRET_KEY present",
+      "rollout_percentage": "0% (BILLING_ROLLOUT_PERCENTAGE env var)",
       "phase1_ready": true
+    },
+    "rollout_mechanism": {
+      "type": "Hash-based deterministic assignment",
+      "function": "shouldUseLiveStripe(userId)",
+      "stability": "Same user always gets same mode",
+      "implementation": "server/environment.ts + server/routes.ts",
+      "logging": "[BILLING] User {userId} assigned to Stripe {mode} mode",
+      "environment_aware": "Always test in development",
+      "graceful_degradation": "Falls back to test if LIVE keys missing"
     },
     "integration": {
       "checkout": "Stripe Checkout (hosted)",
+      "dual_instances": "stripeTest (always) + stripeLive (conditional)",
+      "user_assignment": "getStripeForUser(userId) returns appropriate instance",
       "webhooks": {
         "endpoint": "https://student-pilot-jamarrlmayes.replit.app/api/stripe/webhook",
         "events": ["checkout.session.completed", "payment_intent.succeeded"],
@@ -138,9 +160,11 @@
     },
     "production_ready": true,
     "phased_rollout_plan": {
-      "phase1": "10% traffic to live mode",
-      "phase2": "50% traffic (pending DRY-RUN PASS + 24h stability)",
-      "phase3": "100% traffic (pending DRY-RUN PASS + 48h stability)"
+      "mechanism": "BILLING_ROLLOUT_PERCENTAGE (0-100)",
+      "phase1": "Set to 10 for 10% live traffic",
+      "phase2": "Set to 50 for 50% traffic (pending DRY-RUN PASS + 24h stability)",
+      "phase3": "Set to 100 for 100% traffic (pending DRY-RUN PASS + 48h stability)",
+      "activation_trigger": "CEO Monetization Gate approval post-Gate B"
     }
   },
   

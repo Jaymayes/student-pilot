@@ -72,19 +72,59 @@ function createErrorResponse(code: string, message: string, requestId?: string) 
 
 import * as crypto from 'crypto';
 
-// Initialize Stripe with environment-appropriate keys
-import { getStripeKeys } from "./environment";
+// Initialize Stripe - dual instances for phased rollout
+import { getStripeKeys, shouldUseLiveStripe, env } from "./environment";
 
-const stripeConfig = getStripeKeys();
-if (!stripeConfig.secretKey) {
-  throw new Error('Missing required Stripe secret key for current environment');
+// TEST Stripe instance (always available)
+const testStripeConfig = {
+  secretKey: env.TESTING_STRIPE_SECRET_KEY,
+  publicKey: env.TESTING_VITE_STRIPE_PUBLIC_KEY,
+  isTestMode: true
+};
+
+if (!testStripeConfig.secretKey) {
+  throw new Error('Missing required Stripe TEST secret key');
 }
 
-console.log(`🔒 Stripe initialized in ${stripeConfig.isTestMode ? 'TEST' : 'LIVE'} mode`);
-
-const stripe = new Stripe(stripeConfig.secretKey, {
+const stripeTest = new Stripe(testStripeConfig.secretKey, {
   apiVersion: "2025-07-30.basil",
 });
+
+// LIVE Stripe instance (optional, for phased rollout)
+let stripeLive: Stripe | null = null;
+try {
+  const liveConfig = {
+    secretKey: env.STRIPE_SECRET_KEY,
+    publicKey: env.VITE_STRIPE_PUBLIC_KEY
+  };
+  
+  if (liveConfig.secretKey) {
+    stripeLive = new Stripe(liveConfig.secretKey, {
+      apiVersion: "2025-07-30.basil",
+    });
+    console.log(`🔒 Stripe LIVE initialized (rollout: ${env.BILLING_ROLLOUT_PERCENTAGE || 0}%)`);
+  } else {
+    console.log('⚠️  Stripe LIVE keys not configured - using TEST mode only');
+  }
+} catch (error) {
+  console.warn('⚠️  Failed to initialize Stripe LIVE - using TEST mode only', error);
+}
+
+console.log(`🔒 Stripe TEST initialized (default mode)`);
+
+// Helper to get appropriate Stripe instance for a user
+function getStripeForUser(userId: string): { stripe: Stripe; mode: 'test' | 'live' } {
+  // If no LIVE keys or rollout is 0%, always use test
+  if (!stripeLive || !shouldUseLiveStripe(userId)) {
+    return { stripe: stripeTest, mode: 'test' };
+  }
+  
+  // User is in live cohort
+  return { stripe: stripeLive, mode: 'live' };
+}
+
+// Legacy stripe export for backwards compatibility (defaults to test)
+const stripe = stripeTest;
 
 export async function registerRoutes(app: Express): Promise<void> {
   // CRITICAL: Static file guard FIRST to prevent SPA interception
@@ -169,7 +209,7 @@ Allow: /apply/`;
       checks: {
         database: 'healthy',
         cache: 'healthy',
-        stripe: stripeConfig.isTestMode ? 'test_mode' : 'live_mode'
+        stripe: 'test_mode' // Note: Actual mode per-user determined by getStripeForUser()
       }
     });
   });
@@ -359,7 +399,7 @@ Allow: /apply/`;
       services: {
         api: 'healthy',
         database: 'connected',
-        stripe: stripeConfig.isTestMode ? 'test_mode' : 'live_mode',
+        stripe: 'test_mode', // Note: Actual mode per-user determined by getStripeForUser()
         monitoring: 'active'
       },
       timestamp: new Date().toISOString()
@@ -2023,6 +2063,12 @@ Allow: /apply/`;
 
       const packageData = CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES];
 
+      // Determine which Stripe instance to use (phased rollout)
+      const { stripe: userStripe, mode: stripeMode } = getStripeForUser(userId);
+      
+      // Log rollout assignment for analytics
+      console.log(`[BILLING] User ${userId} assigned to Stripe ${stripeMode.toUpperCase()} mode (rollout: ${env.BILLING_ROLLOUT_PERCENTAGE || 0}%)`);
+
       // Create purchase record
       const [purchase] = await db.insert(purchases).values({
         userId,
@@ -2034,8 +2080,8 @@ Allow: /apply/`;
         status: "created",
       }).returning();
 
-      // Create Stripe checkout session
-      const session = await stripe.checkout.sessions.create({
+      // Create Stripe checkout session with assigned Stripe instance
+      const session = await userStripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{
           price_data: {
