@@ -21,6 +21,7 @@ import { correlationIdMiddleware, correlationErrorHandler, billingCorrelationMid
 import { validateInput, BillingPaginationSchema, escapeHtml } from "./validation";
 import { ttvTracker } from "./analytics/ttvTracker";
 import { cohortManager } from "./analytics/cohortManager";
+import { cohortReportingService } from "./analytics/cohortReporting";
 import { backupRestoreManager } from "./backupRestore";
 import { soc2EvidenceCollector } from "./compliance/soc2Evidence";
 import { piiLineageTracker } from "./compliance/piiLineage";
@@ -2443,6 +2444,40 @@ Allow: /apply/`;
     } catch (error) {
       console.error('TTV Dashboard error:', error);
       res.status(500).json({ error: 'Failed to get TTV analytics' });
+    }
+  });
+
+  // Weekly Cohort Activation Report - First Document Upload (CEO directive: north-star activation metric)
+  app.get('/api/analytics/cohort-activation', isAuthenticated, async (req, res) => {
+    const cacheKey = 'cohort-activation-report';
+    
+    try {
+      const cachedData = await responseCache.getCached(cacheKey, 3600000, async () => {
+        const report = await cohortReportingService.generateWeeklyReport(8);
+        return report;
+      });
+      
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      res.json(cachedData);
+    } catch (error) {
+      console.error('Cohort activation report error:', error);
+      res.status(500).json({ error: 'Failed to generate cohort activation report' });
+    }
+  });
+
+  // Weekly Cohort Activation Report - Markdown Format (for CEO distribution)
+  app.get('/api/analytics/cohort-activation/markdown', isAuthenticated, async (req, res) => {
+    try {
+      const markdown = await cohortReportingService.generateMarkdownReport();
+      
+      res.set('Content-Type', 'text/markdown; charset=utf-8');
+      res.set('Content-Disposition', 'inline; filename="cohort_activation_report.md"');
+      res.send(markdown);
+    } catch (error) {
+      console.error('Cohort activation markdown report error:', error);
+      res.status(500).send('Failed to generate cohort activation report');
     }
   });
 
