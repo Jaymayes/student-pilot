@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
+import { useFeatureFlags } from "@/lib/featureFlags";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
@@ -23,6 +24,7 @@ import { AccessibilityTestPanel } from "@/components/AccessibilityTestPanel";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  const featureFlags = useFeatureFlags();
 
   return (
     <Switch>
@@ -40,10 +42,16 @@ function Router() {
           <Route path="/documents" component={Documents} />
           <Route path="/essay-assistant" component={EssayAssistant} />
           <Route path="/billing" component={Billing} />
-          <Route path="/recommendation-analytics" component={RecommendationAnalytics} />
+          {featureFlags.enableRecommendations && (
+            <Route path="/recommendation-analytics" component={RecommendationAnalytics} />
+          )}
           <Route path="/autofill-essay-test" component={AutofillEssayTest} />
-          <Route path="/payment-dashboard" component={PaymentDashboard} />
-          <Route path="/accessibility-test" component={AccessibilityTestPanel} />
+          {featureFlags.enablePayments && (
+            <Route path="/payment-dashboard" component={PaymentDashboard} />
+          )}
+          {featureFlags.enableAccessibilityTest && (
+            <Route path="/accessibility-test" component={AccessibilityTestPanel} />
+          )}
         </>
       )}
       <Route component={NotFound} />
