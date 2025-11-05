@@ -130,6 +130,30 @@ export const StudentEvents = {
         scholarshipId,
       },
     }),
+
+  firstDocumentUpload: (userId: string, documentType: string, requestId: string) =>
+    emitBusinessEvent({
+      eventName: "first_document_upload",
+      actorType: "student",
+      actorId: userId,
+      requestId,
+      properties: {
+        documentType,
+        activationMilestone: "first_document_upload",
+      },
+    }),
+
+  documentUploaded: (userId: string, documentId: string, documentType: string, requestId: string) =>
+    emitBusinessEvent({
+      eventName: "document_uploaded",
+      actorType: "student",
+      actorId: userId,
+      requestId,
+      properties: {
+        documentId,
+        documentType,
+      },
+    }),
 };
 
 /**

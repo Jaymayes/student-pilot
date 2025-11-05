@@ -5,7 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { scholarshipDetailSSR, scholarshipsListingSSR, generateSitemap } from "./routes/seo";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { insertStudentProfileSchema, updateStudentProfileSchema, insertApplicationSchema, insertEssaySchema, studentProfiles, scholarships as scholarshipsTable, scholarshipMatches, users, creditLedger } from "@shared/schema";
+import { insertStudentProfileSchema, updateStudentProfileSchema, insertApplicationSchema, insertEssaySchema, studentProfiles, scholarships as scholarshipsTable, scholarshipMatches, documents, users, creditLedger } from "@shared/schema";
 import { z } from "zod";
 import { openaiService } from "./openai";
 import { agentBridge, type Task } from "./agentBridge";
@@ -1718,6 +1718,7 @@ Allow: /apply/`;
     }
 
     const userId = req.user?.claims?.sub;
+    const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
 
     try {
       const objectStorageService = new ObjectStorageService();
@@ -1728,6 +1729,22 @@ Allow: /apply/`;
           visibility: "private",
         },
       );
+
+      // Check if this is user's first document upload (north-star activation metric)
+      const existingDocuments = await db
+        .select({ id: documents.id })
+        .from(documents)
+        .where(eq(documents.studentId, userId))
+        .limit(1);
+
+      const isFirstUpload = existingDocuments.length === 0;
+
+      // Track First Document Upload activation event (CEO directive: north-star activation driver)
+      if (isFirstUpload) {
+        const documentType = req.body.documentType || 'unknown';
+        StudentEvents.firstDocumentUpload(userId, documentType, requestId);
+        console.log(`[ACTIVATION] First document upload for user ${userId} (type: ${documentType}) - North-star activation milestone reached`);
+      }
 
       res.status(200).json({
         objectPath: objectPath,
