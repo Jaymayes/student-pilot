@@ -49,22 +49,24 @@
 
 **Status:** ⏳ **PENDING - Awaiting confirmation**
 
+**CRITICAL UPDATE:** Postmark is official provider (NOT SendGrid)
+
 **Required Deliverables:**
-- ☐ "SendGrid verified" confirmation (DKIM/SPF/DMARC status)
-- ☐ SMS decision (A2P 10DLC approved OR disabled for tonight)
+- ☐ "Postmark verified" confirmation (DKIM/SPF/DMARC status)
+- ☐ SMS disabled attestation (no action required, just confirm in evidence)
 
-**SendGrid Verification Requirements:**
-- DKIM: "verified" status
-- SPF: "verified" status  
-- DMARC: "verified" status
-- Production sender configured and verified
-- Test deliverability results (seed list)
+**Postmark Verification Requirements:**
+- DKIM: "Verified" status for mail.scholaraiadvisor.com
+- SPF: "Verified" status for mail.scholaraiadvisor.com
+- DMARC: "Verified" status for mail.scholaraiadvisor.com
+- Deliverability snapshot and bounce/complaint thresholds
+- Email-only UI copy and templates confirmed
 
-**Twilio SMS Requirements:**
-- If A2P 10DLC registration and campaign approved → Confirm ready
-- If NOT approved → Disable SMS for tonight and note in snapshot
+**SMS Requirements:**
+- SMS disabled (confirmed by CEO directive)
+- Attestation in evidence that SMS is off
 
-**Confirmation Expected By:** 20:30 UTC (SendGrid), 19:15 UTC (SMS decision)
+**Confirmation Expected By:** 20:30 UTC (Postmark verification)
 
 ---
 
