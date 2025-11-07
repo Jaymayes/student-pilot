@@ -10,17 +10,33 @@
 
 | Time (UTC) | Checkpoint | Owner | Status |
 |------------|------------|-------|--------|
+| 19:00 | Client registration complete (P0) | Auth DRI | ☐ |
+| 19:00 | P50/P95 metrics snapshot #1 | Auth DRI | ☐ |
+| 19:15 | scholarship_sage M2M 3-grant test | Sage DRI | ☐ |
+| 19:20 | P50/P95 metrics snapshot #2 | Auth DRI | ☐ |
+| 19:30 | Pre-war-room smoke (OAuth flows) | Student/Provider DRIs | ☐ |
+| 19:40 | P50/P95 metrics snapshot #3 | Auth DRI | ☐ |
 | 20:00 | War-room opens; initial status | All DRIs | ☐ |
-| 20:30 | Auth Track 1 (bypass) checkpoint | Auth DRI | ☐ |
-| 21:00 | Auth Track 2 (root fix) checkpoint | Auth DRI | ☐ |
-| 21:30 | SME pair-debug status | Auth DRI + Agent3 | ☐ |
-| 22:00 | scholarship_sage M2M validation | Sage DRI | ☐ |
-| 22:30 | PKCE testing (student/provider) | Auth DRI | ☐ |
-| 23:00 | Final evidence compilation | Auth DRI | ☐ |
-| 23:30 | GREEN TAG pre-review | All DRIs | ☐ |
-| 00:00 | **AUTH GREEN TAG GATE** | Auth DRI | ☐ PASS ☐ FAIL |
-| 00:00+ | E2E launch (if GREEN) | Student/Provider DRIs | ☐ |
-| 01:00 | Evidence delivery deadline | Student/Provider DRIs | ☐ |
+| 20:00 | P50/P95 metrics snapshot #4 | Auth DRI | ☐ |
+| 20:20 | P50/P95 metrics snapshot #5 | Auth DRI | ☐ |
+| 20:30 | Auth optimization status | Auth DRI | ☐ |
+| 20:40 | P50/P95 metrics snapshot #6 | Auth DRI | ☐ |
+| 21:00 | Auth Track 2 (discovery fix) checkpoint | Auth DRI | ☐ |
+| 21:00 | P50/P95 metrics snapshot #7 | Auth DRI | ☐ |
+| 21:30 | SME pair-debug status (if engaged) | Auth DRI + Agent3 | ☐ |
+| 22:00 | P50/P95 trending review | All DRIs | ☐ |
+| 22:30 | PKCE validation checkpoint | Auth DRI | ☐ |
+| 23:00 | Final evidence compilation start | Auth DRI | ☐ |
+| 23:30 | **JWKS ROTATION REHEARSAL START** | Auth DRI + API DRI | ☐ |
+| 23:45 | **JWKS ROTATION REHEARSAL END** | Auth DRI + API DRI | ☐ |
+| 23:45 | **P95 GATE CHECKPOINT (≤120ms required)** | Auth DRI | ☐ PASS ☐ FAIL (slip to 00:15) |
+| 00:00 | **AUTH GREEN TAG GATE (TARGET)** | Auth DRI | ☐ PASS ☐ FAIL |
+| 00:00 | auto_com_center deliverability snapshot | Comms DRI | ☐ |
+| 00:00+ | E2E launch (if GREEN at 00:00) | Student/Provider DRIs | ☐ |
+| 00:15 | **AUTH GREEN TAG GATE (MAX SLIP)** | Auth DRI | ☐ PASS ☐ NO-GO |
+| 00:30 | E2E_JOURNEY_EVIDENCE delivery | Student DRI | ☐ |
+| 01:00 | ORDER_B_EVIDENCE delivery | Provider DRI | ☐ |
+| 01:30 | ORDER_4_EVIDENCE addendum delivery | API DRI | ☐ |
 
 ---
 
@@ -369,19 +385,27 @@ If FAIL:
 
 ---
 
-## Success Criteria (00:00 UTC Gate)
+## Success Criteria (00:00 UTC Gate - OPTION A APPROVED)
 
 **GREEN TAG Requirements:**
+- ☐ Client registration complete (student-pilot, provider-register, scholarship_sage)
+- ☐ invalid_client errors eliminated
+- ☐ P95 ≤120ms across authorize, token, jwks, discovery (CRITICAL - currently YELLOW at ~200ms)
+- ☐ Error rate ≤1% for 10 consecutive minutes
 - ☐ OIDC discovery advertises client_credentials
 - ☐ PKCE S256 works for student_pilot and provider_register
 - ☐ M2M tokens work for scholarship_sage (scholarship_agent de-scoped to Nov 10)
 - ☐ Token lifecycle complete (mint, refresh, revoke)
-- ☐ JWKS rotation proven
+- ☐ JWKS rotation proven (23:30-23:45 UTC rehearsal)
 - ☐ Protected route redirects functional (student_pilot, provider_register)
 - ☐ Evidence package complete with request_id traces
-- ☐ Security review sign-off
+- ☐ Security review sign-off (zero hardcoded secrets)
 
 **If All GREEN → Launch E2E Immediately**
+
+**Slip Allowance (CEO Approved - Option A):**
+- If P95 >120ms at 23:45 UTC → slip allowed to 00:15 UTC
+- If P95 >120ms at 00:15 UTC → **NO-GO** (reschedule +24h, postmortem by 02:00 UTC)
 
 **Simplified Scope:** scholarship_agent M2M deferred to Nov 10, 16:00 UTC per CEO decision
 
