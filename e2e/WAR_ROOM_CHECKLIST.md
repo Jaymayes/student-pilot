@@ -14,7 +14,7 @@
 | 20:30 | Auth Track 1 (bypass) checkpoint | Auth DRI | ☐ |
 | 21:00 | Auth Track 2 (root fix) checkpoint | Auth DRI | ☐ |
 | 21:30 | SME pair-debug status | Auth DRI + Agent3 | ☐ |
-| 22:00 | Integration testing (Sage/Agent M2M) | Sage/Agent DRIs | ☐ |
+| 22:00 | scholarship_sage M2M validation | Sage DRI | ☐ |
 | 22:30 | PKCE testing (student/provider) | Auth DRI | ☐ |
 | 23:00 | Final evidence compilation | Auth DRI | ☐ |
 | 23:30 | GREEN TAG pre-review | All DRIs | ☐ |
