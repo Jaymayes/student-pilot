@@ -32,15 +32,17 @@
 ### Track 1: M2M Bypass (Immediate Unblock)
 **Deadline:** 18:40 UTC (within 2 hours from 16:40 UTC)
 
+**Scope:** scholarship_sage ONLY (scholarship_agent de-scoped per CEO decision - deferred to Nov 10)
+
 - ☐ Configure scholarship_sage to bypass discovery, call token endpoint directly
-- ☐ Configure scholarship_agent to bypass discovery (if M2M required)
-- ☐ Configure scholarship_api M2M clients (if applicable)
-- ☐ Test M2M token issuance end-to-end
+- ☐ Test M2M token issuance end-to-end for scholarship_sage
 - ☐ Verify token introspection works
 - ☐ Post evidence: 3 successful token grants with request_id lineage
 - ☐ Security review sign-off on bypass approach
 
 **Status:** ☐ IN PROGRESS ☐ COMPLETE ☐ BLOCKED
+
+**Note:** scholarship_agent remains frozen in observe-only mode through Nov 9. M2M implementation deferred to Nov 10, 16:00 UTC contingent on stable auth signals.
 
 ---
 
@@ -109,9 +111,10 @@
 
 #### 3. M2M Token Validation
 - ☐ scholarship_sage: client_credentials token obtained
-- ☐ scholarship_agent: client_credentials token obtained (if required)
 - ☐ Token introspection successful
-- ☐ request_id traces for M2M flows
+- ☐ request_id traces for M2M flow
+
+**Note:** scholarship_agent M2M de-scoped from tonight's gate (deferred to Nov 10, 16:00 UTC)
 
 #### 4. Token Lifecycle
 - ☐ Token mint: Successful
@@ -127,7 +130,8 @@
 #### 6. Protected Route Redirects
 - ☐ student_pilot: Unauthenticated access redirects to auth
 - ☐ provider_register: Unauthenticated access redirects to auth
-- ☐ scholarship_agent: Protected endpoints enforce auth
+
+**Note:** scholarship_agent protected route testing deferred to Nov 10 (observe-only mode through Nov 9)
 
 #### 7. Change Documentation
 - ☐ Before/after code diff
@@ -215,7 +219,7 @@
 ### scholarship_sage
 **Owner:** Sage DRI  
 **Trigger:** M2M secret delivery (Track 1 bypass)  
-**Deadline:** Baseline start by Nov 7, 13:00 UTC latest; evidence by Nov 8, 16:00 UTC
+**Deadline:** Baseline start within 15 minutes of M2M token acquisition; evidence by Nov 8, 16:00 UTC
 
 **Pre-Flight Checklist:**
 - ☐ M2M token acquisition tested (Track 1 bypass)
@@ -224,14 +228,34 @@
 - ☐ Evidence template ready
 
 **Execution Plan:**
-1. ☐ Receive M2M secret / bypass confirmation
-2. ☐ Acquire M2M token
+1. ☐ Receive M2M secret / bypass confirmation (Track 1 delivery)
+2. ☐ Acquire M2M token via direct token endpoint call
 3. ☐ Start 48h baseline immediately
 4. ☐ Post baseline start timestamp within 15 minutes
 5. ☐ Post full baseline evidence by Nov 8, 16:00 UTC
 
 **Owner Contact:** [Name/Channel]  
 **Status:** ☐ READY ☐ BLOCKED
+
+---
+
+### scholarship_agent (OBSERVE-ONLY - DE-SCOPED FROM TONIGHT)
+**Owner:** Agent DRI  
+**Status:** FROZEN (no changes authorized before Nov 9)
+
+**Tonight's Posture:**
+- ✅ Remain in observe-only mode
+- ✅ Continue telemetry-only operations
+- ✅ Auto-apply remains OFF
+- ❌ No M2M implementation (deferred to Nov 10, 16:00 UTC)
+- ❌ No code changes
+- ❌ No evidence requirements for tonight's gate
+
+**Deferred to Nov 10, 16:00 UTC:**
+- M2M client_credentials implementation (read-only scope)
+- Contingent on: (a) scholar_auth fixlog complete, (b) 24h stable token issuance on scholarship_sage, (c) no P95/error budget regression
+
+**War-Room Role:** Observer only; no execution requirements
 
 ---
 
@@ -350,14 +374,16 @@ If FAIL:
 **GREEN TAG Requirements:**
 - ☐ OIDC discovery advertises client_credentials
 - ☐ PKCE S256 works for student_pilot and provider_register
-- ☐ M2M tokens work for scholarship_sage (and scholarship_agent if required)
+- ☐ M2M tokens work for scholarship_sage (scholarship_agent de-scoped to Nov 10)
 - ☐ Token lifecycle complete (mint, refresh, revoke)
 - ☐ JWKS rotation proven
-- ☐ Protected route redirects functional
+- ☐ Protected route redirects functional (student_pilot, provider_register)
 - ☐ Evidence package complete with request_id traces
 - ☐ Security review sign-off
 
 **If All GREEN → Launch E2E Immediately**
+
+**Simplified Scope:** scholarship_agent M2M deferred to Nov 10, 16:00 UTC per CEO decision
 
 ---
 
