@@ -1,8 +1,8 @@
 # Master Evidence Index - Nov 9, 2025 Go-Live
 
-**Last Updated:** 2025-11-09 18:32 UTC  
+**Last Updated:** 2025-11-09 18:45 UTC  
 **Maintained By:** Agent3  
-**Prime Objective:** Protect brand trust and SEO flywheel while unblocking B2C/B2B funnels to accelerate ARR
+**Prime Objective:** Protect brand trust and SEO flywheel while unblocking B2C/B2B funnels to accelerate $10M ARR
 
 ---
 
@@ -124,9 +124,9 @@
 
 | Gate | Target | Status | Owner | ETA |
 |------|--------|--------|-------|-----|
-| **Pre-Soak PASS** | 20:00-21:00 UTC | ⏳ Scheduled | Agent3 + All DRIs | ~2h from now |
+| **Pre-Soak PASS** | 20:00-21:00 UTC | ⏳ Scheduled | Agent3 + All DRIs | Approaching |
 | **Deliverability GREEN** | T+90 from T0 | ⏳ Awaiting T0 | Agent3 (executor) | T0 + 90 min |
-| **Stripe PASS** | TBD | ⏳ Pending | Finance | TBD |
+| **Stripe PASS** | Nov 10, 18:00 UTC | ⏳ Pending | Finance | Hard deadline |
 
 ---
 
@@ -216,30 +216,157 @@ v=DMARC1; p=quarantine; rua=mailto:dmarc@scholaraiadvisor.com; aspf=s; adkim=s; 
 
 ---
 
-## Observe-Only Applications (For Completeness)
+---
 
-**auto_page_maker** - https://auto-page-maker-jamarrlmayes.replit.app
-- Status: GO-LIVE READY (GREEN; frozen)
-- Continue daily KPI rollups; protect SEO flywheel
-- No changes through Nov 12
+### APPLICATION NAME: provider_register
+**APP_BASE_URL:** https://provider-register-jamarrlmayes.replit.app  
+**Status:** DELAYED (Waitlist Mode ON)
 
-**scholarship_api** - https://scholarship-api-jamarrlmayes.replit.app
-- Status: PRE-SOAK PARTICIPANT
-- Evidence to be included in student_pilot bundle (latency, lineage, no-PII)
+**Blockers:**
+- Same email + Stripe gates as student_pilot
+- **Security/Compliance:** PKCE, token revocation, no-PII logs evidence
+- Lineage across scholar_auth → scholarship_api → provider_register
 
-**scholar_auth** - https://scholar-auth-jamarrlmayes.replit.app
-- Status: HEALTHY; watch item on token cleanup (non-blocking)
-- Participate in lineage and PKCE/revocation proof
+**Estimated Go-Live Date:**
+- Earliest: Nov 12, 16:00 UTC contingent on deliverability GREEN + Stripe PASS + CEO GREEN
 
-**provider_register** - https://provider-register-jamarrlmayes.replit.app
-- Status: Waitlist mode ON; participates in pre-soak with guardrails
-- Conversion frozen until gates pass
+**ARR Ignition:**
+- B2B onboarding; 3% platform fee upon activation
 
-**scholarship_sage** - https://scholarship-sage-jamarrlmayes.replit.app
-- Status: GREEN; frozen; observe-only
+**Third-Party Dependencies:**
+- scholar_auth, scholarship_api, Stripe, auto_com_center
 
-**scholarship_agent** - https://scholarship-agent-jamarrlmayes.replit.app
-- Status: GREEN; frozen; fairness telemetry active; observe-only
+---
+
+### APPLICATION NAME: auto_page_maker
+**APP_BASE_URL:** https://auto-page-maker-jamarrlmayes.replit.app  
+**Status:** GO-LIVE READY (GREEN; FROZEN)
+
+**Confirmation:**
+- Observe-only posture to protect SEO-driven, low-CAC growth
+- Daily KPI rollups continue
+- No code/infrastructure/template changes through Nov 12
+
+**Evidence/Docs:**
+- Daily rollup cadence maintained
+- CWV p75 GREEN and indexation targets monitored
+
+---
+
+### APPLICATION NAME: scholarship_api
+**APP_BASE_URL:** https://scholarship-api-jamarrlmayes.replit.app  
+**Status:** DELAYED (Pre-soak participant; pending sign-off)
+
+**Blockers:**
+- Must produce SLO metrics (uptime, P95, error rate)
+- 10+ request_id lineage samples
+- No-PII log validation for T+30 bundle
+
+**Estimated Sign-Off:**
+- Included in student_pilot T+30 evidence review tonight
+- Final sign-off on CEO GREEN
+
+---
+
+### APPLICATION NAME: scholar_auth
+**APP_BASE_URL:** https://scholar-auth-jamarrlmayes.replit.app  
+**Status:** DELAYED (Security evidence pending)
+
+**Blockers:**
+- MFA/SSO verification summary
+- RBAC policy review
+- PKCE S256 enforcement proof
+- Immediate token revocation test
+- Audit logging scope
+- No-PII logging confirmation
+
+**Estimated Sign-Off:**
+- With T+30 evidence bundle, subject to CEO review
+
+---
+
+### APPLICATION NAME: scholarship_sage
+**APP_BASE_URL:** https://scholarship-sage-jamarrlmayes.replit.app  
+**Status:** GO-LIVE READY (GREEN; FROZEN—Observer)
+
+**Confirmation:**
+- Observer role; fairness/analytics routines maintained
+- HOTL gates enforced
+- No changes during freeze
+
+---
+
+### APPLICATION NAME: scholarship_agent
+**APP_BASE_URL:** https://scholarship-agent-jamarrlmayes.replit.app  
+**Status:** GO-LIVE READY (GREEN; FROZEN—Observer)
+
+**Confirmation:**
+- Fairness telemetry active
+- Ethical governance routines on schedule
+- HOTL gates enforced
+- No changes during freeze
+
+---
+
+## Tonight's Mandatory Evidence Windows
+
+**Pre-soak execution:** 20:00–21:00 UTC
+- **Participants:** student_pilot, provider_register, scholarship_api, scholar_auth
+- **Guardrails (ALL must PASS):**
+  - Uptime ≥99.9%
+  - P95 ≤120ms service-side (≤200ms E2E)
+  - Error rate ≤0.1%
+  - Full request_id lineage
+  - No PII in logs
+  - PKCE + token revocation proof
+  - TLS 1.3 in-transit evidence
+
+**T+30 evidence posting:** 21:30–22:00 UTC (hard window)
+- **Contents:**
+  - P50/P95 histograms (service + E2E)
+  - Uptime, error rate
+  - 10+ request_id traces across scholar_auth → scholarship_api → student_pilot/provider_register
+  - PKCE + revocation proof
+  - No-PII validation
+  - TLS 1.3 proof
+  - Executive PASS/FAIL summary
+
+**Deliverability certification (auto_com_center):** On T0 signal, execute T+90
+- **Timeline:**
+  - T+0–T+45: Propagation monitoring
+  - T+45–T+75: Seed inbox tests (7 providers)
+  - T+75–T+90: Evidence assembly
+  - T+90–T+105: Post GREEN/RED call
+- **Contents:**
+  - DNS screenshots (SPF/DMARC/DKIM)
+  - ESP verification (Postmark)
+  - Header alignment proof
+  - Placement matrix (≥90% inbox, ≤10% Promotions)
+  - Bounce and blocklist checks (<0.3% bounce, zero blocklists)
+
+---
+
+## CEO Notes (Strategic Alignment)
+
+**Student value drives revenue:**
+- Preserve frictionless experience on go-live
+- Ensure no black-box decisioning
+- Transparent, explainable AI controls
+
+**Organic growth is the engine:**
+- auto_page_maker remains frozen and monitored to protect SEO flywheel
+- No paid acquisition until Deliverability GREEN + Stripe PASS + CEO GREEN
+- Low-CAC, SEO-led growth prioritized
+
+**Act with urgency, ship with proof:**
+- Evidence windows are non-negotiable
+- Immutable, reconstructable audit trails for every milestone
+- CEO GREEN is contingent on posted evidence
+
+**Return to CEO:**
+1. T+30 evidence bundle link by 22:00 UTC
+2. Deliverability GREEN/RED call link within 15 minutes of T+90
+3. Stripe PASS evidence by Finance deadline (Nov 10, 18:00 UTC)
 
 ---
 
