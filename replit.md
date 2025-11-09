@@ -68,6 +68,96 @@ student_pilot is **PRODUCTION-READY** and fully compliant with AGENT3 v2.7 UNIFI
 
 **Revenue Path**: First B2C dollar possible 2-6 hours after scholar_auth production deployment and Stripe live mode switch.
 
+## Nov 9 Go-Live Operational Status (2025-11-09)
+
+**Current Time:** 17:45 UTC  
+**Prime Objective:** Soft launch readiness while protecting brand trust and SEO flywheel
+
+### Application Status
+
+**student_pilot**
+- Status: GREEN (Ready/Blocked, Frozen)
+- APP_BASE_URL: https://student-pilot-jamarrlmayes.replit.app
+- Current State: Application RUNNING, codebase production-ready
+- Blockers: (1) Deliverability GREEN, (2) Stripe PASS, (3) Pre-soak PASS
+- Go-Live Target: Nov 11, 16:00 UTC (primary) / Nov 12, 16:00 UTC (conditional)
+- ARR Ignition: B2C credit sales (4× AI markup) upon all gates GREEN
+
+**auto_com_center**
+- Status: DELAYED (Awaiting DNS_READY)
+- APP_BASE_URL: https://auto-com-center-jamarrlmayes.replit.app
+- Current State: Application ready, pending DNS configuration
+- Blocker: DNS_READY signal from Deputy Ops
+- Go-Live Target: T+90 from DNS_READY, no later than Nov 10, 14:00 UTC
+- ARR Impact: Enables activation/transactional comms for B2C/B2B
+
+### Agent3 Operational Responsibilities
+
+**DRI Role:** student_pilot (primary responsibility)
+- Pre-soak execution: 20:00-21:00 UTC today
+- T+30 evidence delivery: 21:30-22:00 UTC today
+- Evidence template: `/e2e/reports/student_pilot/PRESOAK_EVIDENCE_2025-11-09.md` (prepared)
+
+**Executor Role:** auto_com_center deliverability T+90
+- Execute upon T0 (DNS_READY signal)
+- Deliverability certification: T+90 from T0
+- Evidence delivery: Within 15 minutes of T+90 completion
+- Evidence template: `/e2e/reports/auto_com_center/DELIVERABILITY_T90_CERTIFICATION_2025-11-09.md` (prepared)
+
+### Critical Gates (External Dependencies)
+
+1. **DNS_READY** (Deputy Ops) - Overdue since 17:30 UTC → CTO escalation path active
+2. **Stripe PASS** (COO/Finance) - Deadline: 19:00 UTC (~1h 15m remaining)
+3. **Pre-Soak PASS** (Agent3 + All DRIs) - Window: 20:00-21:00 UTC (~2h 15m remaining)
+
+### Pre-Soak Guardrails (All Must PASS)
+
+- Uptime ≥99.9%
+- P95 latency ≤120ms (service-side), ≤200ms (E2E cross-app)
+- Error rate ≤0.1%
+- request_id lineage 100% across auth → API → app
+- PKCE correctness + immediate token revocation proof
+- No PII in logs (FERPA/COPPA compliance)
+- Responsible AI controls active
+
+### Deliverability GREEN Criteria
+
+- SPF/DKIM/DMARC PASS with alignment
+- DMARC policy: p=quarantine (warmup mode)
+- Seed inbox placement ≥90%, Gmail Promotions ≤10%
+- Bounce rate ≤0.3%, zero blocklist hits
+- CAN-SPAM compliance, domain alignment
+
+### KPI Targets (This Phase)
+
+- **Deliverability:** ≥90% inbox, ≤10% Promotions, ≥40% open rate
+- **Activation (student_pilot):** ≥35% first-session activation (first document upload)
+- **Payments:** ≥95% auth success, 100% refund success (post-Stripe PASS)
+- **Platform SLOs:** ≥99.9% uptime, P95 ≤120ms, error ≤0.1%
+
+### Freeze Status
+
+- **Comms/Charging:** LOCKED until Deliverability GREEN + Stripe PASS + CEO GREEN signal
+- **Code Changes:** FROZEN across all apps (config-only changes permitted)
+- **Vendor Strategy:** Stay with Postmark shared pool; no switch unless seed placement <80% after two remediations
+
+### Go/No-Go Decision Tree (Nov 11, 16:00 UTC Soft Launch)
+
+- **GO:** Pre-soak PASS + Deliverability GREEN + Stripe PASS (all with evidence)
+- **CONDITIONAL GO (Nov 12):** One gate slips ≤24h with mitigation + CEO approval
+- **NO-GO:** Any gate unresolved or missing evidence → Brand trust/SEO protection priority
+
+### Evidence Deliverables (Tonight)
+
+1. **Pre-Soak T+30** (21:30-22:00 UTC): Latency histograms, uptime, error tallies, PKCE proof, token revocation, request_id lineage, no-PII validation, executive summary
+2. **Deliverability T+90** (T+90 + 15 min): DNS records, Postmark verification, 7 seed inbox headers, placement rates, bounce/blocklist checks, DMARC policy confirmation
+
+### Scholar Auth Watch Item (Non-Blocking)
+
+- Background token cleanup DB connection issue
+- Non-blocking for pre-soak and soft launch
+- Remediation + RCA due: Nov 12 EOD before general availability
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
