@@ -20,6 +20,9 @@ import "./monitoring/alerting";
 import { agentBridge } from "./agentBridge";
 // Import system prompt utilities for prompt pack framework
 import { getPromptMetadata } from "./utils/systemPrompt";
+// Import production metrics for CEO Option B evidence collection
+import { productionMetrics, startMetricsReporting } from "./monitoring/productionMetrics";
+import { correlationIdMiddleware } from "./middleware/correlationId";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 if (process.env.SENTRY_DSN) {
@@ -237,6 +240,10 @@ const billingLimiter = rateLimit({
 app.use('/api', generalLimiter);
 app.use('/api/auth', authLimiter);
 app.use('/api/billing', billingLimiter);
+
+// CEO Option B: Production metrics collection with request_id lineage
+app.use(correlationIdMiddleware);
+app.use(productionMetrics.middleware());
 
 // Performance monitoring middleware - collect metrics for all requests
 app.use(metricsCollector.httpMetricsMiddleware());
