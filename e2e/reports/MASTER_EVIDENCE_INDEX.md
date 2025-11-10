@@ -1,8 +1,8 @@
-# Master Evidence Index - Nov 9, 2025 Go-Live
+# Master Evidence Index - Nov 10, 2025 Go-Live
 
-**Last Updated:** 2025-11-09 18:45 UTC  
+**Last Updated:** 2025-11-10 00:59 UTC  
 **Maintained By:** Agent3  
-**Prime Objective:** Protect brand trust and SEO flywheel while unblocking B2C/B2B funnels to accelerate $10M ARR
+**Prime Objective:** Protect SEO flywheel, ship with evidence, unlock both funnels with lowest CAC. No paid acquisition until deliverability GREEN and payments PASS.
 
 ---
 
@@ -270,9 +270,25 @@ v=DMARC1; p=quarantine; rua=mailto:dmarc@scholaraiadvisor.com; aspf=s; adkim=s; 
 
 ### APPLICATION NAME: scholar_auth
 **APP_BASE_URL:** https://scholar-auth-jamarrlmayes.replit.app  
-**Status:** DELAYED (Security evidence pending)
+**Status:** 🚨 **P1 INCIDENT - JWKS 404** (BLOCKING ENTIRE ECOSYSTEM)
 
-**Blockers:**
+**P1 Incident Details:**
+- Issue: JWKS endpoint 404 error
+- Impact: Blocks pre-soak/launch for entire ecosystem
+- SLA: 2 hours to resolve
+- Assigned: Agent3 (execution owner per CEO directive)
+
+**Fix Steps (CEO Directive):**
+1. Immediate rollback to last known-good artifact serving /.well-known/openid-configuration and jwks_uri
+2. If rollback fails: Publish current public JWK set from KMS to static /oidc/jwks endpoint behind CDN; rotate signing keys; invalidate caches; retest OIDC end-to-end
+3. Reinstate PKCE S256 enforcement and immediate token revocation tests
+
+**Current Status (from student_pilot logs):**
+- ✅ Scholar Auth discovery successful from student_pilot
+- ✅ OAuth configured correctly
+- ⚠️ SCOPE ISSUE: scholar_auth is separate Replit application - Agent3 has no access to codebase
+
+**Additional Security Evidence Required (Post-Fix):**
 - MFA/SSO verification summary
 - RBAC policy review
 - PKCE S256 enforcement proof
@@ -281,7 +297,7 @@ v=DMARC1; p=quarantine; rua=mailto:dmarc@scholaraiadvisor.com; aspf=s; adkim=s; 
 - No-PII logging confirmation
 
 **Estimated Sign-Off:**
-- With T+30 evidence bundle, subject to CEO review
+- With T+30 evidence bundle after P1 resolution, subject to CEO review
 
 ---
 
