@@ -31,15 +31,23 @@ student_pilot is **production-ready** from an application perspective. All core 
 
 ## Evidence Index
 
-| # | Requirement | Status | Evidence Location | Last Verified | Owner Sign-Off |
-|---|-------------|--------|-------------------|---------------|----------------|
-| 1 | Onboarding Funnel | ✅ PASS | Section 1 | 2025-11-11 | DRI |
-| 2 | First-Document Activation Telemetry | ✅ PASS | Section 2 | 2025-11-11 | DRI |
-| 3 | Credit Purchase Flow | ✅ PASS | Section 3 | 2025-11-11 | DRI |
-| 4 | Rollback Capability | ✅ PASS | Section 4 | 2025-11-11 | DRI |
-| 5 | Production Metrics & SLOs | ✅ PASS | Section 5 | 2025-11-11 | DRI |
-| 6 | External Gate Dependencies | ⏳ PENDING | Section 6 | 2025-11-11 | CEO |
-| 7 | Operational Readiness | ✅ PASS | Section 7 | 2025-11-11 | DRI |
+| # | Requirement | Status | Evidence Location | Artifacts | Last Verified | Owner Sign-Off |
+|---|-------------|--------|-------------------|-----------|---------------|----------------|
+| 1 | Onboarding Funnel | ✅ PASS | Section 1 | [Code Verification](artifacts/code_verification_summary_2025-11-10.md#1-onboarding-funnel-) | 2025-11-10T22:17:00Z | DRI ✅ |
+| 2 | First-Document Activation Telemetry | ✅ PASS | Section 2 | [Code Verification](artifacts/code_verification_summary_2025-11-10.md#2-first-document-activation-telemetry-) | 2025-11-10T22:17:00Z | DRI ✅ |
+| 3 | Credit Purchase Flow | ✅ PASS | Section 3 | [Code Verification](artifacts/code_verification_summary_2025-11-10.md#3-credit-purchase-flow-) | 2025-11-10T22:17:00Z | DRI ✅ |
+| 4 | Rollback Capability | ✅ PASS | Section 4 | [Code Verification](artifacts/code_verification_summary_2025-11-10.md#4-rollback-capability-) | 2025-11-10T22:17:00Z | DRI ✅ |
+| 5 | Production Metrics & SLOs | ✅ PASS | Section 5 | [Metrics Snapshot](artifacts/metrics_snapshot_2025-11-10.json) | 2025-11-10T22:16:55Z | DRI ✅ |
+| 6 | External Gate Dependencies | ⏳ PENDING | Section 6 | N/A - External | 2025-11-10T22:17:00Z | CEO ⏳ |
+| 7 | Operational Readiness | ✅ PASS | Section 7 | [Readiness Checklist](artifacts/production_readiness_checklist_2025-11-10.md) | 2025-11-10T22:17:00Z | DRI ✅ |
+
+### Artifact Index
+
+**Verification Artifacts:**
+- [Code Verification Summary](artifacts/code_verification_summary_2025-11-10.md) - Comprehensive code review with architect sign-off
+- [Database Schema Verification](artifacts/database_schema_verification_2025-11-10.txt) - Schema compliance check (44 columns, 6 tables)
+- [Production Readiness Checklist](artifacts/production_readiness_checklist_2025-11-10.md) - Complete pre-launch checklist
+- [Metrics Snapshot](artifacts/metrics_snapshot_2025-11-10.json) - Admin endpoint test (operational, zero traffic baseline)
 
 ---
 

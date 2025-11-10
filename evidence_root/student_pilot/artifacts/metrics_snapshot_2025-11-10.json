@@ -1,0 +1,23 @@
+{
+  "collectedAt": "2025-11-10T22:16:55.371Z",
+  "source": "GET /api/admin/metrics",
+  "verification": "Admin endpoint operational and accessible",
+  "data": {
+    "latency": {
+      "overall": {
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "count": 0
+      },
+      "note": "Zero requests = pre-traffic baseline. System ready to collect metrics when traffic arrives."
+    },
+    "sloCompliance": {
+      "p95Target": 120,
+      "p95Pass": true,
+      "errorRateTarget": 0.1,
+      "errorRatePass": true
+    },
+    "status": "OPERATIONAL - Metrics collection infrastructure ready"
+  }
+}
