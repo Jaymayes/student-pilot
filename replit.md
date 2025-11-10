@@ -2,6 +2,24 @@
 
 ScholarLink is a scholarship management platform designed to help students discover, apply for, and manage scholarships. It offers personalized matching, application tracking, document management, and AI-powered essay assistance. The platform aims to increase student engagement, streamline the application process, and provide insights into scholarship competitiveness. It integrates with centralized authentication and cloud storage, with a business vision to achieve $10M profitable ARR in 5 years through AI-driven scholarship access.
 
+## CEO Directive Nov 10, 2025 - Option B Approved
+
+**Status:** DELAYED → Production Pre-Soak Mode  
+**Decision:** Option B - Deploy production build + 48h monitoring before GO  
+**Go-Live Target:** Nov 13, 16:00 UTC (subject to SLO pass)  
+**Key Requirement:** Meet ≤120ms P95 latency target  
+**Confirmation:** ✅ SSO solid, ✅ Email not a dependency, ⚠️ In-app notifications non-blocking for GA
+
+**Implementation Actions (Nov 10):**
+1. ✅ Production build created (Vite + esbuild)
+2. ✅ Production metrics collection enabled (P50/P95/P99 tracking)
+3. ✅ Request_id lineage logging integrated (correlationId middleware)
+4. ✅ T+24 and T+48 evidence scripts created
+5. ⏳ 48-hour monitoring period begins (Nov 11-12)
+6. ⏳ T+24 evidence report due Nov 11 evening
+7. ⏳ T+48 evidence report due Nov 12 evening
+8. ⏳ GO/NO-GO decision Nov 13, 16:00 UTC based on SLO pass
+
 ## Operation Synergy - FOC Status (2025-11-03)
 
 **student_pilot: ✅ GO** (Effective 2025-11-03T19:20:00Z)
