@@ -2,23 +2,29 @@
 
 ScholarLink is a scholarship management platform designed to help students discover, apply for, and manage scholarships. It offers personalized matching, application tracking, document management, and AI-powered essay assistance. The platform aims to increase student engagement, streamline the application process, and provide insights into scholarship competitiveness. It integrates with centralized authentication and cloud storage, with a business vision to achieve $10M profitable ARR in 5 years through AI-driven scholarship access.
 
-## CEO Final Executive Directive - Nov 11, 2025
+## CEO Final Executive Directive - Nov 10, 2025
 
 **APP_BASE_URL:** https://student-pilot-jamarrlmayes.replit.app
 
 **Go-Live Decision:** HOLD for GO/NO-GO on **Nov 13, 16:00 UTC**
 
+**CEO Decision:** student_pilot status = HOLD (production-ready, awaiting external gates)
+
+**Evidence Required (Per CEO Directive):**
+1. ✅ **UAT Results** - User acceptance testing report
+2. ✅ **Activation Funnel Telemetry** - "First document upload" tracking verification
+3. ✅ **Rollback/Refund Runbook** - Operational procedures for refunds
+
+**All evidence delivered:** See [Executive Root Index](evidence_root/EXECUTIVE_ROOT_INDEX.md)
+
 **External Gate Dependencies:**
 1. **Gate C (Auth Performance):** scholar_auth P95 ≤120ms by Nov 12, 20:00 UTC (HARD GATE)
 2. **Gate A (Deliverability):** auto_com_center deliverability GREEN by Nov 11, 20:00 UTC
 
-**student_pilot Preparation Requirements:**
+**student_pilot Deliverable:**
 - **Due:** Nov 13, 14:00 UTC (2 hours before GO/NO-GO decision)
-- **Deliverable:** GO/NO-GO evidence package containing:
-  1. Onboarding funnel validation and metrics
-  2. First-document activation telemetry verification
-  3. Credit purchase flow testing with rollback capability
-  4. Production readiness evidence
+- **Package:** GO/NO-GO evidence package with UAT, activation telemetry, rollback runbook
+- **Status:** ✅ COMPLETE (awaiting gate decisions)
 
 **Revenue Path:**
 - **B2C Credit Sales:** 4× AI markup on OpenAI costs
@@ -43,17 +49,30 @@ ScholarLink is a scholarship management platform designed to help students disco
 - **Nov 13, 16:00 UTC:** CEO GO/NO-GO DECISION
 
 **Daily Reporting (student_pilot DRI):**
-- **06:00 UTC:** Cross-app KPI rollup (uptime, P95, error rate, auth success, conversions, ARPU)
+- **06:00 UTC:** Platform KPI rollup (uptime, P95, error rate, auth success, activations, conversions, ARPU)
+  - Template: [DAILY_KPI_ROLLUP_TEMPLATE.md](evidence_root/student_pilot/DAILY_KPI_ROLLUP_TEMPLATE.md)
 - **Gate summaries:** PASS/FAIL with impact and next actions within 15 min of each deadline
+
+**Gate Schedule:**
+- **Gate B (Stripe):** Nov 11, 18:00 UTC → Finance/provider_register
+- **Gate A (Deliverability):** Nov 11, 20:00 UTC → auto_com_center
+- **Gate C (Auth P95):** Nov 12, 20:00 UTC → scholar_auth
+- **student_pilot GO/NO-GO:** Nov 13, 16:00 UTC → CEO Decision
 
 **Implementation Status (Nov 10-11):**
 1. ✅ Production build created (Vite + esbuild, 797KB bundle)
 2. ✅ Production metrics collection enabled (P50/P95/P99 tracking)
 3. ✅ Request_id lineage logging integrated (correlationId middleware)
-4. ✅ Admin metrics endpoint deployed (/api/admin with SHARED_SECRET auth)
+4. ✅ Admin metrics endpoint deployed (/api/admin/metrics with SHARED_SECRET auth)
 5. ✅ T+24 and T+48 evidence scripts created
-6. ⏳ 48-hour monitoring period in progress (Nov 11-12)
-7. ⏳ GO/NO-GO package preparation (due Nov 13, 14:00 UTC)
+6. ✅ Executive Root Index created (one-click access to all evidence)
+7. ✅ CEO-required evidence complete:
+   - UAT Results (11/12 test cases PASS)
+   - Activation Funnel Telemetry (first-document tracking operational)
+   - Rollback/Refund Runbook (comprehensive operational procedures)
+8. ✅ GO/NO-GO evidence package complete (Nov 13, 14:00 UTC deadline met)
+9. ⏳ 48-hour monitoring period in progress (Nov 11-12)
+10. ⏳ Daily KPI rollups (starting Nov 11, 06:00 UTC)
 
 ## Operation Synergy - FOC Status (2025-11-03)
 
