@@ -5,11 +5,14 @@
  * per CEO directive: "Present quantified pre/post metrics in T+24 and T+48 rollups"
  * 
  * Target SLO: P95 ≤ 120ms, Error Rate ≤ 0.1%, Uptime ≥ 99.9%
+ * 
+ * NOTE: Fetches metrics from live server via admin endpoint to ensure
+ * we get the actual production data, not an empty in-memory instance.
  */
 
-import { productionMetrics } from '../monitoring/productionMetrics';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+// Node 18+ has native fetch, no import needed
 
 interface EvidenceReport {
   reportType: 'T+24' | 'T+48';
@@ -76,12 +79,87 @@ interface EvidenceReport {
 }
 
 /**
+ * Fetch production metrics from live server
+ */
+async function fetchProductionMetrics(): Promise<any> {
+  const baseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
+  const sharedSecret = process.env.SHARED_SECRET;
+  
+  if (!sharedSecret) {
+    throw new Error('SHARED_SECRET not configured - cannot authenticate to admin endpoint');
+  }
+  
+  const response = await fetch(`${baseUrl}/api/admin/metrics`, {
+    headers: {
+      'Authorization': `Bearer ${sharedSecret}`
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch metrics: ${response.status} ${response.statusText}`);
+  }
+  
+  const result = await response.json() as any;
+  return result.data;
+}
+
+/**
+ * Fetch histogram from live server
+ */
+async function fetchHistogram(bucketSize: number = 10): Promise<any[]> {
+  const baseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
+  const sharedSecret = process.env.SHARED_SECRET;
+  
+  if (!sharedSecret) {
+    throw new Error('SHARED_SECRET not configured - cannot authenticate to admin endpoint');
+  }
+  
+  const response = await fetch(`${baseUrl}/api/admin/metrics/histogram?bucketSize=${bucketSize}`, {
+    headers: {
+      'Authorization': `Bearer ${sharedSecret}`
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch histogram: ${response.status} ${response.statusText}`);
+  }
+  
+  const result = await response.json() as any;
+  return result.data.histogram;
+}
+
+/**
+ * Fetch slow endpoints from live server
+ */
+async function fetchSlowEndpoints(limit: number = 10): Promise<any[]> {
+  const baseUrl = process.env.APP_BASE_URL || 'http://localhost:5000';
+  const sharedSecret = process.env.SHARED_SECRET;
+  
+  if (!sharedSecret) {
+    throw new Error('SHARED_SECRET not configured - cannot authenticate to admin endpoint');
+  }
+  
+  const response = await fetch(`${baseUrl}/api/admin/metrics/slow-endpoints?limit=${limit}`, {
+    headers: {
+      'Authorization': `Bearer ${sharedSecret}`
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch slow endpoints: ${response.status} ${response.statusText}`);
+  }
+  
+  const result = await response.json() as any;
+  return result.data;
+}
+
+/**
  * Generate T+24 or T+48 evidence report
  */
-export function generateEvidenceReport(reportType: 'T+24' | 'T+48'): EvidenceReport {
-  const snapshot = productionMetrics.getMetricsSnapshot();
-  const histogram = productionMetrics.getLatencyHistogram(10);
-  const slowEndpoints = productionMetrics.getSlowEndpoints(10);
+export async function generateEvidenceReport(reportType: 'T+24' | 'T+48'): Promise<EvidenceReport> {
+  const snapshot = await fetchProductionMetrics();
+  const histogram = await fetchHistogram(10);
+  const slowEndpoints = await fetchSlowEndpoints(10);
   
   // Calculate uptime percentage (99.9% target)
   const uptimeHours = parseFloat(snapshot.uptime.hours);
@@ -289,12 +367,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   
   console.log(`📊 Generating ${reportType} evidence report for student_pilot...`);
   
-  const report = generateEvidenceReport(reportType);
-  const filepath = saveEvidenceReport(report);
-  
-  console.log(`\n📋 SLO Compliance Summary:`);
-  console.log(`   P95 Latency: ${report.sloCompliance.p95Latency.pass ? '✅ PASS' : '❌ FAIL'} (${report.sloCompliance.p95Latency.actual}ms / 120ms target)`);
-  console.log(`   Error Rate:  ${report.sloCompliance.errorRate.pass ? '✅ PASS' : '❌ FAIL'} (${report.sloCompliance.errorRate.actual.toFixed(3)}% / 0.1% target)`);
-  console.log(`   Uptime:      ${report.sloCompliance.uptime.pass ? '✅ PASS' : '❌ FAIL'} (${report.sloCompliance.uptime.actual.toFixed(2)}% / 99.9% target)`);
-  console.log(`\n📁 Full report: ${filepath}`);
+  generateEvidenceReport(reportType)
+    .then(report => {
+      const filepath = saveEvidenceReport(report);
+      
+      console.log(`\n📋 SLO Compliance Summary:`);
+      console.log(`   P95 Latency: ${report.sloCompliance.p95Latency.pass ? '✅ PASS' : '❌ FAIL'} (${report.sloCompliance.p95Latency.actual}ms / 120ms target)`);
+      console.log(`   Error Rate:  ${report.sloCompliance.errorRate.pass ? '✅ PASS' : '❌ FAIL'} (${report.sloCompliance.errorRate.actual.toFixed(3)}% / 0.1% target)`);
+      console.log(`   Uptime:      ${report.sloCompliance.uptime.pass ? '✅ PASS' : '❌ FAIL'} (${report.sloCompliance.uptime.actual.toFixed(2)}% / 99.9% target)`);
+      console.log(`\n📁 Full report: ${filepath}`);
+    })
+    .catch(error => {
+      console.error(`\n❌ Failed to generate evidence report:`, error.message);
+      process.exit(1);
+    });
 }

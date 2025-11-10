@@ -41,6 +41,7 @@ import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
+import { adminMetricsRouter } from "./routes/adminMetrics";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -185,6 +186,9 @@ Allow: /apply/`;
   console.log('⏩ Canary endpoints registered in index.ts (skipping duplicate registration in routes.ts)');
 
   // ========== HEALTH & MONITORING ENDPOINTS ==========
+  
+  // CEO Option B: Admin metrics endpoints for T+24/T+48 evidence collection
+  app.use('/api/admin', adminMetricsRouter);
   
   // Standardized health endpoints for uptime monitoring
   app.get('/health', (req, res) => {
