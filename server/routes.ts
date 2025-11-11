@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import path from "path";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { scholarshipDetailSSR, scholarshipsListingSSR, generateSitemap } from "./routes/seo";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
@@ -189,6 +190,203 @@ Allow: /apply/`;
   
   // CEO Option B: Admin metrics endpoints for T+24/T+48 evidence collection
   app.use('/api/admin', adminMetricsRouter);
+
+  // CEO Evidence API - HTTPS-accessible evidence with SHA-256 verification (NO AUTH REQUIRED)
+  // Registered EARLY to prevent 404 handler from catching these routes
+  console.log('📋 Registering CEO evidence endpoints...');
+  
+  // GET /api/evidence - JSON index of all evidence artifacts
+  app.get('/api/evidence', async (req, res) => {
+    console.log('✅ /api/evidence endpoint hit!', req.method, req.path);
+    try {
+      const fs = await import('fs/promises');
+      const pathModule = await import('path');
+      const crypto = await import('crypto');
+      
+      const evidenceRoot = pathModule.join(process.cwd(), 'evidence_root', 'student_pilot');
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      
+      async function scanDirectory(dir: string, prefix: string = ''): Promise<any[]> {
+        const items: any[] = [];
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        
+        for (const entry of entries) {
+          const fullPath = pathModule.join(dir, entry.name);
+          const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+          
+          if (entry.isDirectory()) {
+            const subItems = await scanDirectory(fullPath, relativePath);
+            items.push(...subItems);
+          } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.json') || entry.name.endsWith('.txt'))) {
+            const content = await fs.readFile(fullPath);
+            const hash = crypto.createHash('sha256').update(content).digest('hex');
+            const stats = await fs.stat(fullPath);
+            
+            items.push({
+              title: entry.name,
+              path: relativePath,
+              purpose: getEvidencePurpose(entry.name),
+              timestamp: stats.mtime.toISOString(),
+              size: stats.size,
+              sha256: hash,
+              url: `${baseUrl}/evidence/${relativePath}`
+            });
+          }
+        }
+        return items;
+      }
+      
+      function getEvidencePurpose(filename: string): string {
+        const purposes: Record<string, string> = {
+          'RBAC_MATRIX': 'Role-Based Access Control matrix with 5 roles, 127 permissions',
+          'E2E_INTEGRATION_TESTING': 'End-to-end integration testing results',
+          'ENCRYPTION_CONFIGURATION': 'At-rest and in-transit encryption standards',
+          'API_CATALOG': 'OpenAPI 3.1 specification with 47 endpoints',
+          'PRIVACY_REGULATIONS': 'FERPA/GDPR/CCPA/COPPA compliance assessment',
+          'MONITORING_ALERTING': 'SLOs, health checks, alert policies, incident response',
+          'BUSINESS_EVENTS': 'Canonical business events with request_id lineage',
+          'UAT_RESULTS': 'User Acceptance Testing results',
+          'ROLLBACK_REFUND': 'Rollback procedures and refund workflows',
+          'production_readiness': 'Production deployment readiness checklist',
+          'metrics_snapshot': 'Performance metrics snapshot (P50/P95/P99)',
+          'SECTION_V_STATUS': 'Section V status report for CEO review'
+        };
+        
+        for (const [key, purpose] of Object.entries(purposes)) {
+          if (filename.includes(key)) return purpose;
+        }
+        return 'Evidence artifact';
+      }
+      
+      const evidence = await scanDirectory(evidenceRoot);
+      
+      res.json({
+        application: 'student_pilot',
+        app_base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        timestamp: new Date().toISOString(),
+        total_items: evidence.length,
+        evidence
+      });
+    } catch (error) {
+      console.error('Evidence API error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate evidence index',
+        details: (error as Error).message 
+      });
+    }
+  });
+  
+  // GET /evidence/{path} - Serve static evidence files
+  const evidencePath = path.join(process.cwd(), 'evidence_root', 'student_pilot');
+  app.use('/evidence', express.static(evidencePath, {
+    fallthrough: false,
+    etag: true,
+    setHeaders: (res, filepath) => {
+      res.set('Content-Type', 
+        filepath.endsWith('.json') ? 'application/json' : 
+        filepath.endsWith('.md') ? 'text/markdown' : 
+        'text/plain'
+      );
+      res.set('Cache-Control', 'public, max-age=3600');
+    }
+  }));
+  
+  // GET /openapi.json - OpenAPI 3.1 specification
+  app.get('/openapi.json', (req, res) => {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    
+    const openApiSpec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'student_pilot API',
+        version: '1.0.0',
+        description: 'ScholarLink student scholarship management platform - Evidence API',
+        contact: {
+          name: 'Agent3 Engineering',
+          url: baseUrl
+        }
+      },
+      servers: [
+        { url: baseUrl, description: 'Production' }
+      ],
+      paths: {
+        '/api/evidence': {
+          get: {
+            summary: 'Get evidence index',
+            description: 'Returns JSON index of all evidence artifacts with SHA-256 checksums',
+            responses: {
+              '200': {
+                description: 'Evidence index with SHA-256 checksums',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      required: ['application', 'app_base_url', 'timestamp', 'total_items', 'evidence'],
+                      properties: {
+                        application: { type: 'string', example: 'student_pilot' },
+                        app_base_url: { type: 'string', format: 'uri', example: 'https://student-pilot-jamarrlmayes.replit.app' },
+                        timestamp: { type: 'string', format: 'date-time' },
+                        total_items: { type: 'integer', minimum: 0 },
+                        evidence: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            required: ['title', 'path', 'purpose', 'timestamp', 'size', 'sha256', 'url'],
+                            properties: {
+                              title: { type: 'string', description: 'Filename' },
+                              path: { type: 'string', description: 'Relative path from evidence root' },
+                              purpose: { type: 'string', description: 'Evidence purpose/description' },
+                              timestamp: { type: 'string', format: 'date-time', description: 'Last modified timestamp' },
+                              size: { type: 'integer', minimum: 0, description: 'File size in bytes' },
+                              sha256: { type: 'string', pattern: '^[a-f0-9]{64}$', description: 'SHA-256 checksum' },
+                              url: { type: 'string', format: 'uri', description: 'HTTPS URL to download file' }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        '/evidence/{path}': {
+          get: {
+            summary: 'Download evidence file',
+            description: 'Serves static evidence files (markdown, JSON, text)',
+            parameters: [
+              {
+                name: 'path',
+                in: 'path',
+                required: true,
+                schema: { type: 'string' },
+                description: 'Relative path to evidence file',
+                example: 'RBAC_MATRIX_2025-11-11.md'
+              }
+            ],
+            responses: {
+              '200': {
+                description: 'Evidence file content',
+                content: {
+                  'text/markdown': {},
+                  'application/json': {},
+                  'text/plain': {}
+                }
+              },
+              '404': {
+                description: 'File not found'
+              }
+            }
+          }
+        }
+      }
+    };
+    
+    res.json(openApiSpec);
+  });
+  
+  console.log('✅ CEO evidence endpoints registered');
   
   // Standardized health endpoints for uptime monitoring
   app.get('/health', (req, res) => {
@@ -3941,7 +4139,6 @@ Allow: /apply/`;
   alertManager.setupRoutes(app);
   arrFreshnessMonitor.setupRoutes(app);
   schemaValidator.setupRoutes(app);
-
 
   // 404 handler for API routes (must be last, before SPA catch-all)
   // Ensures proper JSON error responses for non-existent API endpoints
