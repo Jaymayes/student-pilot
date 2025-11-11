@@ -1089,11 +1089,18 @@ Allow: /apply/`;
     }
   });
 
-  app.post('/api/matches/:id/bookmark', isAuthenticated, async (req, res) => {
+  app.post('/api/matches/:id/bookmark', isAuthenticated, async (req: any, res) => {
     try {
       const updatedMatch = await storage.updateScholarshipMatch(req.params.id, {
         isBookmarked: req.body.bookmarked
       });
+      
+      // Track first scholarship saved milestone if bookmarking (not unbookmarking)
+      if (req.body.bookmarked === true && req.user?.claims?.sub) {
+        const userId = req.user.claims.sub;
+        await ttvTracker.checkAndTrackFirstScholarshipSaved(userId);
+      }
+      
       res.json(updatedMatch);
     } catch (error) {
       console.error("Error updating bookmark:", error);

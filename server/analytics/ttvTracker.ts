@@ -22,6 +22,7 @@ export type TtvEventType =
   | "profile_complete" 
   | "first_match_generated"
   | "first_match_viewed"
+  | "first_scholarship_saved"
   | "first_application_started"
   | "first_essay_assistance"
   | "first_ai_usage"
@@ -103,6 +104,7 @@ export class TtvTracker {
         profileCompleteAt: eventType === 'profile_complete' ? now : null,
         firstMatchAt: eventType === 'first_match_generated' ? now : null,
         firstMatchViewAt: eventType === 'first_match_viewed' ? now : null,
+        firstScholarshipSavedAt: eventType === 'first_scholarship_saved' ? now : null,
         firstApplicationAt: eventType === 'first_application_started' ? now : null,
         firstEssayAt: eventType === 'first_essay_assistance' ? now : null,
         firstAiUsageAt: eventType === 'first_ai_usage' ? now : null,
@@ -138,6 +140,9 @@ export class TtvTracker {
       }
       if (eventType === 'first_match_viewed' && !existing.firstMatchViewAt) {
         updates.firstMatchViewAt = now;
+      }
+      if (eventType === 'first_scholarship_saved' && !existing.firstScholarshipSavedAt) {
+        updates.firstScholarshipSavedAt = now;
       }
       if (eventType === 'first_application_started' && !existing.firstApplicationAt) {
         updates.firstApplicationAt = now;
@@ -247,6 +252,38 @@ export class TtvTracker {
       }
     } catch (error) {
       console.error(`Failed to check first match for user ${userId}:`, error);
+    }
+  }
+
+  /**
+   * Auto-detect and track first scholarship saved
+   */
+  async checkAndTrackFirstScholarshipSaved(userId: string): Promise<void> {
+    try {
+      // Check if user has any bookmarked scholarships
+      const bookmarked = await db
+        .select({ id: scholarshipMatches.id })
+        .from(scholarshipMatches)
+        .innerJoin(studentProfiles, eq(scholarshipMatches.studentId, studentProfiles.id))
+        .where(and(
+          eq(studentProfiles.userId, userId),
+          eq(scholarshipMatches.isBookmarked, true)
+        ))
+        .limit(1);
+
+      if (bookmarked.length > 0) {
+        const existingMilestone = await db
+          .select({ firstScholarshipSavedAt: ttvMilestones.firstScholarshipSavedAt })
+          .from(ttvMilestones)
+          .where(eq(ttvMilestones.userId, userId))
+          .limit(1);
+
+        if (!existingMilestone[0]?.firstScholarshipSavedAt) {
+          await this.trackEvent(userId, "first_scholarship_saved");
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to check first scholarship saved for user ${userId}:`, error);
     }
   }
 
