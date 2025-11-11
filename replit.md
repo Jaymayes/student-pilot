@@ -27,12 +27,24 @@ ScholarLink is a scholarship management platform designed to help students disco
 - ✅ Onboarding must NOT pause if Gate A fails
 - ✅ No dependency on email for critical flows
 
-### CEO Directives for student_pilot
+### CEO Directives for student_pilot (Nov 11 Consolidated)
 
-1. **Maintain readiness** - No dependency on email for critical flows
-2. **Confirm activation telemetry inclusion** in 06:00 UTC rollups
-   - "First document upload" telemetry already tracked
-   - Must appear in Nov 11 06:00 UTC rollup and onward
+1. **Gate Dependencies** - Gates A (deliverability) + C (auth P95)
+   - Adhere to in-app notification fallback on deliverability failure
+   - Do not block onboarding
+
+2. **Activation Telemetry** (Extended)
+   - ✅ "First document upload" flowing into 06:00 UTC rollups
+   - ⏳ Add funnel points:
+     - Profile completion
+     - First scholarship saved
+     - First submission draft
+     - First submission sent
+
+3. **Accessibility/Readiness**
+   - UI guided walkthroughs
+   - Accessibility checks (contrast, keyboard nav, ARIA labels)
+   - If mobile use-cases apply: offline-mode plan by Nov 15, 20:00 UTC
 
 ### Estimated Go-Live Date
 
