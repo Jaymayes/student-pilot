@@ -3357,96 +3357,6 @@ Allow: /apply/`;
     }
   });
 
-  // ========== COPPA AGE VERIFICATION MIDDLEWARE ==========
-  
-  // Middleware to enforce age verification for all authenticated routes
-  const requireAgeVerification: RequestHandler = async (req, res, next) => {
-    // Skip if feature flag is off
-    if (env.FEATURE_COPPA_AGE_GATE !== 'true') {
-      return next();
-    }
-
-    // Skip for public routes and age verification endpoints
-    const publicPaths = [
-      '/api/login',
-      '/api/callback',
-      '/api/logout',
-      '/api/age-verification',
-      '/api/feature-flags',
-      '/api/health',
-      '/health',
-      '/evidence',
-      '/openapi.json'
-    ];
-
-    if (publicPaths.some(path => req.path.startsWith(path))) {
-      return next();
-    }
-
-    // Get user from session
-    const userId = req.user?.claims?.sub;
-    if (!userId) {
-      return next(); // Not authenticated, let isAuthenticated middleware handle it
-    }
-
-    try {
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        return next(); // User not found, let other middleware handle it
-      }
-
-      // Check if user is age verified
-      if (!user.ageVerified) {
-        const requestId = (req as any).id || crypto.randomUUID();
-        return res.status(403).json({
-          error: {
-            code: "AGE_VERIFICATION_REQUIRED",
-            message: "Age verification is required to access this resource. Please complete age verification at /age-gate",
-            request_id: requestId
-          }
-        });
-      }
-
-      // Check if user is blocked (under 13)
-      if (user.birthdate) {
-        const age = calculateAge(user.birthdate);
-        if (age < 13) {
-          const requestId = (req as any).id || crypto.randomUUID();
-          return res.status(403).json({
-            error: {
-              code: "COPPA_AGE_RESTRICTION",
-              message: "You must be 13 or older to use ScholarLink. This requirement is mandated by COPPA.",
-              request_id: requestId
-            }
-          });
-        }
-      }
-
-      // Age verified, continue
-      next();
-    } catch (error) {
-      console.error("Age verification middleware error:", error);
-      next(); // Don't block on errors, let the request through
-    }
-  };
-
-  // Helper const to calculate age from birthdate  
-  const calculateAge = (birthdate: Date): number => {
-    const today = new Date();
-    let age = today.getFullYear() - birthdate.getFullYear();
-    const monthDiff = today.getMonth() - birthdate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  };
-
-  // Apply age verification middleware to all authenticated API routes
-  app.use('/api', isAuthenticated, requireAgeVerification);
-
   // ========== COPPA AGE VERIFICATION ENDPOINTS ==========
 
   // Get user's age verification status
@@ -3560,19 +3470,6 @@ Allow: /apply/`;
       res.status(500).json({ error: "Failed to verify age" });
     }
   });
-
-  // Helper const to calculate age from birthdate  
-  const calculateAge = (birthdate: Date): number => {
-    const today = new Date();
-    let age = today.getFullYear() - birthdate.getFullYear();
-    const monthDiff = today.getMonth() - birthdate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  };
 
   // Get consent audit trail
   app.get("/api/consent/audit", isAuthenticated, async (req, res) => {
