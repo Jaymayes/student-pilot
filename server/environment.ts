@@ -51,6 +51,9 @@ const EnvironmentSchema = z.object({
   PGPASSWORD: z.string().optional(),
   PGPORT: z.coerce.number().optional(),
   PGUSER: z.string().optional(),
+  
+  // Feature Flags
+  FEATURE_COPPA_AGE_GATE: z.string().optional().default('false'),
 });
 
 // Validate and export environment variables

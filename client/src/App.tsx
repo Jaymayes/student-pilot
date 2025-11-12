@@ -12,6 +12,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Profile from "@/pages/profile";
 import Onboarding from "@/pages/onboarding";
+import AgeGate from "@/pages/AgeGate";
 import Scholarships from "@/pages/scholarships";
 import Applications from "@/pages/applications";
 import Documents from "@/pages/documents";
@@ -35,6 +36,7 @@ function Router() {
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/age-gate" component={AgeGate} />
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/profile" component={Profile} />
           <Route path="/scholarships" component={Scholarships} />

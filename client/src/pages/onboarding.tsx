@@ -78,6 +78,12 @@ const getConsentIcon = (category: string) => {
   }
 };
 
+interface AgeVerificationStatus {
+  ageVerified: boolean;
+  hasBirthdate: boolean;
+  isBlocked: boolean;
+}
+
 export default function Onboarding() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
@@ -85,6 +91,21 @@ export default function Onboarding() {
 
   const [consentDecisions, setConsentDecisions] = useState<Record<string, 'granted' | 'denied'>>({});
   const [showDisclosures, setShowDisclosures] = useState(false);
+
+  // Check age verification status (only if COPPA age gate is enabled)
+  const { data: ageStatus } = useQuery<AgeVerificationStatus>({
+    queryKey: ["/api/age-verification"],
+    retry: false,
+    enabled: isAuthenticated,
+  });
+
+  // Redirect to age gate if not verified OR if blocked (COPPA enforcement)
+  useEffect(() => {
+    if (ageStatus && !ageStatus.ageVerified) {
+      // Send both unverified AND blocked users to age gate
+      setLocation("/age-gate");
+    }
+  }, [ageStatus, setLocation]);
 
   // Redirect if not authenticated
   useEffect(() => {
