@@ -74,7 +74,7 @@
 - **Timestamp:** 2025-11-11T18:19:00Z
 
 #### 8. Data Retention Schedule (Cross-App)
-- **URL:** https://student-pilot-jamarrlmayes.replit.app/evidence/../DATA_RETENTION_SCHEDULE_2025-11-14.md
+- **URL:** https://student-pilot-jamarrlmayes.replit.app/evidence/DATA_RETENTION_SCHEDULE_2025-11-14.md
 - **SHA-256:** `1eacfa87cd810f1dd885e57e07a246b76516d1a245e0491c5e340ab5b21a2b23`
 - **Purpose:** Cross-app retention policies, DSAR workflows, crypto-shredding
 - **Size:** 55,060 bytes
@@ -253,6 +253,75 @@ curl -s https://student-pilot-jamarrlmayes.replit.app/evidence/RBAC_MATRIX_2025-
 **Current:** Development workspace  
 **Planned:** Autoscale deployment (bursty public traffic)  
 **Cost Controls:** Automatic scaling with min/max instances
+
+---
+
+## Mobile & Offline Readiness Assessment
+
+### Primary Use-Case
+**Status:** ✅ **MOBILE-FIRST APPLICATION**
+
+**Target Users:** Gen Z/Alpha students (ages 16-22, 2026-2028 cohorts)  
+**Expected Usage:** Mobile-dominant (anticipate 70-80% mobile traffic)  
+**Device Priority:**
+1. iPhone 12/13/14 (390×844) - Safari Mobile
+2. Samsung Galaxy S21 (360×800) - Chrome Mobile
+3. iPad (768×1024) - Safari
+
+### Current Mobile Implementation
+
+**✅ Implemented:**
+- Responsive design (320px → 1536px breakpoints)
+- Touch-friendly UI (44px minimum touch targets, WCAG 2.5.5)
+- Mobile testing infrastructure (`/accessibility-test`)
+- Performance optimization (797KB production build, code splitting)
+
+**⚠️ Not Yet Implemented:**
+- Progressive Web App (PWA) capabilities
+- Service worker for offline caching
+- App manifest for install prompts
+- Native app-like experience
+
+### Offline Mode Feasibility
+
+**Assessment:** 🟡 **FEASIBLE WITH CONSTRAINTS**
+
+**Offline-Capable Features:**
+- View saved scholarships (cached)
+- Review application drafts (local storage)
+- Browse profile data (cached)
+- Read essay feedback (cached)
+
+**Online-Required Features:**
+- AI essay assistance (OpenAI API dependency)
+- Scholarship search & matching (scholarship_api)
+- Document upload (GCS)
+- Real-time application updates
+
+**Implementation Plan (Q1 2026):**
+1. **Phase 1:** PWA manifest + service worker (cache static assets)
+2. **Phase 2:** Offline scholarship browsing (IndexedDB caching)
+3. **Phase 3:** Draft mode for applications (sync when online)
+4. **Phase 4:** Background sync for document uploads
+
+**Evidence:** https://student-pilot-jamarrlmayes.replit.app/evidence/MOBILE_OFFLINE_FEASIBILITY_2025-11-11.md
+
+### CWV (Core Web Vitals) Targets
+
+**Targets (Mobile-First):**
+- **LCP (Largest Contentful Paint):** ≤2.5s (target: ≤2.0s)
+- **FID (First Input Delay):** ≤100ms (target: ≤50ms)
+- **CLS (Cumulative Layout Shift):** ≤0.1 (target: ≤0.05)
+
+**Current Status:** Monitoring infrastructure ready, baseline metrics TBD (zero traffic pre-launch)
+
+**Optimization Strategy:**
+- Vite code splitting for faster initial load
+- Image optimization (WebP, lazy loading)
+- Critical CSS inlining
+- Font optimization (variable fonts, display swap)
+
+**Evidence:** Performance monitoring operational at `/api/admin/metrics`
 
 ---
 
