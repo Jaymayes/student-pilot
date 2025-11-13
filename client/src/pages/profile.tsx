@@ -12,9 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { ErrorState } from "@/components/ErrorState";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
-import { User, Save, Plus, X } from "lucide-react";
+import { User, Save, Plus, X, AlertCircle } from "lucide-react";
 import { useTtvTracking } from "@/hooks/useTtvTracking";
 
 interface StudentProfile {
@@ -77,7 +79,7 @@ export default function Profile() {
   }, [isAuthenticated, authLoading, toast]);
 
   // Fetch profile data
-  const { data: profile, isLoading } = useQuery<StudentProfile>({
+  const { data: profile, isLoading, error: profileError, refetch: refetchProfile } = useQuery<StudentProfile>({
     queryKey: ["/api/profile"],
     retry: false,
   });
@@ -125,15 +127,14 @@ export default function Profile() {
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
-        // No cleanup needed for redirect timeout in error handler
         setTimeout(() => {
           window.location.href = "/api/login";
         }, 500);
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to save profile",
+        title: "Profile Save Failed",
+        description: "We couldn't save your profile. Please check your connection and try again.",
         variant: "destructive",
       });
     },
@@ -212,6 +213,23 @@ export default function Profile() {
     );
   }
 
+  if (profileError) {
+    return (
+      <div className="min-h-screen bg-background-gray">
+        <Navigation />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <ErrorState
+            type="server"
+            title="Unable to Load Profile"
+            message="We couldn't load your profile information. This might be a temporary issue with our servers."
+            onRetry={() => refetchProfile()}
+            variant="card"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background-gray">
       <Navigation />
@@ -225,6 +243,16 @@ export default function Profile() {
             Keep your information current to get the best scholarship matches.
           </p>
         </div>
+
+        {saveMutation.isError && !isUnauthorizedError(saveMutation.error as Error) && (
+          <Alert variant="destructive" className="mb-6" data-testid="alert-save-error">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <p className="font-medium">Failed to save your profile</p>
+              <p className="text-sm mt-1">Please check your connection and try submitting again.</p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Academic Information */}

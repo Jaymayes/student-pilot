@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ErrorState";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -123,17 +124,17 @@ export default function Dashboard() {
   }, [isAuthenticated, authLoading, toast]);
 
   // Fetch dashboard data
-  const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useQuery<DashboardStats>({
     queryKey: ["/api/dashboard/stats"],
     retry: false,
   });
 
-  const { data: matches, isLoading: matchesLoading } = useQuery<DashboardScholarshipMatch[]>({
+  const { data: matches, isLoading: matchesLoading, error: matchesError, refetch: refetchMatches } = useQuery<DashboardScholarshipMatch[]>({
     queryKey: ["/api/matches"],
     retry: false,
   });
 
-  const { data: applications, isLoading: applicationsLoading } = useQuery<any[]>({
+  const { data: applications, isLoading: applicationsLoading, error: applicationsError, refetch: refetchApplications } = useQuery<any[]>({
     queryKey: ["/api/applications"],
     retry: false,
   });
@@ -376,7 +377,15 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                {matchesLoading ? (
+                {matchesError ? (
+                  <ErrorState
+                    type="server"
+                    title="Unable to Load Matches"
+                    message="We couldn't load your scholarship matches. This might be a temporary issue."
+                    onRetry={() => refetchMatches()}
+                    variant="inline"
+                  />
+                ) : matchesLoading ? (
                   <div className="space-y-4">
                     {[1, 2, 3].map(i => (
                       <div key={i} className="p-4 border border-gray-200 rounded-lg">

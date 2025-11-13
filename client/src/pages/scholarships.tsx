@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ErrorState";
 import { Search, Filter, Calendar, DollarSign } from "lucide-react";
 
 interface ScholarshipMatch {
@@ -55,7 +56,7 @@ export default function Scholarships() {
   }, [isAuthenticated, authLoading, toast]);
 
   // Fetch all scholarships (browse mode)
-  const { data: scholarships, isLoading } = useQuery<any[]>({
+  const { data: scholarships, isLoading, error: scholarshipsError, refetch: refetchScholarships } = useQuery<any[]>({
     queryKey: ["/api/scholarships"],
     retry: false,
   });
@@ -226,7 +227,15 @@ export default function Scholarships() {
             </div>
 
             {/* Scholarships List */}
-            {isLoading ? (
+            {scholarshipsError ? (
+              <ErrorState
+                type="server"
+                title="Unable to Load Scholarships"
+                message="We couldn't load the scholarship database. This might be a temporary issue with our servers."
+                onRetry={() => refetchScholarships()}
+                variant="inline"
+              />
+            ) : isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map(i => (
                   <Card key={i} className="p-6">
