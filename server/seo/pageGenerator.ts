@@ -2,6 +2,7 @@ import { db } from '../db';
 import { scholarships } from '@shared/schema';
 import { eq, desc, asc, and, or, like, sql } from 'drizzle-orm';
 import { generateScholarshipSlug } from './urlGenerator';
+import { serviceConfig } from '../serviceConfig';
 
 /**
  * Page generation service for programmatic SEO
@@ -47,8 +48,8 @@ interface StateBasedPage {
 export class PageGenerationService {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'https://student-pilot-jamarrlmayes.replit.app') {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl?: string) {
+    this.baseUrl = baseUrl || serviceConfig.frontends.student;
   }
 
   /**

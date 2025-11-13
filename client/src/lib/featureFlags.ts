@@ -2,7 +2,7 @@
  * Feature Flags Configuration for student_pilot
  * 
  * APP_NAME: student_pilot
- * APP_BASE_URL: https://student-pilot-jamarrlmayes.replit.app
+ * APP_BASE_URL: Configured via STUDENT_PILOT_BASE_URL env var
  * 
  * Purpose: Control feature visibility and rollout based on CEO directives
  */

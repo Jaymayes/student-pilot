@@ -1,4 +1,5 @@
 import type { Scholarship } from '@shared/schema';
+import { serviceConfig } from '../serviceConfig';
 
 interface MetaTags {
   title: string;
@@ -192,10 +193,10 @@ export function generateHomeMeta(): MetaTags {
       '@type': 'WebSite',
       name: 'ScholarLink',
       description,
-      url: 'https://student-pilot-jamarrlmayes.replit.app',
+      url: serviceConfig.frontends.student,
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://student-pilot-jamarrlmayes.replit.app/scholarships?q={search_term_string}',
+        target: `${serviceConfig.frontends.student}/scholarships?q={search_term_string}`,
         'query-input': 'required name=search_term_string'
       },
       provider: {

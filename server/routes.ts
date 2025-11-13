@@ -43,6 +43,7 @@ import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 import { adminMetricsRouter } from "./routes/adminMetrics";
+import { serviceConfig } from "./serviceConfig";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -141,7 +142,7 @@ Preferred-Languages: en`;
 Allow: /
 
 # Sitemap location
-Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+Sitemap: ${serviceConfig.frontends.student}/sitemap.xml
 
 # Block admin areas
 Disallow: /admin/
@@ -355,7 +356,7 @@ Allow: /apply/`;
       
       res.json({
         application: 'student_pilot',
-        app_base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        app_base_url: serviceConfig.frontends.student,
         timestamp: new Date().toISOString(),
         total_items: evidence.length,
         evidence
@@ -417,7 +418,7 @@ Allow: /apply/`;
                       required: ['application', 'app_base_url', 'timestamp', 'total_items', 'evidence'],
                       properties: {
                         application: { type: 'string', example: 'student_pilot' },
-                        app_base_url: { type: 'string', format: 'uri', example: 'https://student-pilot-jamarrlmayes.replit.app' },
+                        app_base_url: { type: 'string', format: 'uri', example: serviceConfig.frontends.student },
                         timestamp: { type: 'string', format: 'date-time' },
                         total_items: { type: 'integer', minimum: 0 },
                         evidence: {

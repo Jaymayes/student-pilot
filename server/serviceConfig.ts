@@ -31,4 +31,12 @@ export const serviceConfig = {
       ...Object.values(this.frontends)
     ];
   },
+  
+  getConnectSrcAllowlist(): string[] {
+    return [
+      "'self'",
+      ...this.getAllServiceUrls(),
+      "https://api.stripe.com"
+    ];
+  },
 } as const;

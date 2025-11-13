@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { users, studentProfiles, documents, businessEvents } from "@shared/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
+import { serviceConfig } from "../serviceConfig";
 
 export interface CohortMetrics {
   cohortWeek: string;
@@ -262,7 +263,7 @@ class CohortReportingService {
     let markdown = `# Weekly Cohort Report - First Document Upload Activation\n\n`;
     markdown += `**Report Date:** ${report.reportDate}  \n`;
     markdown += `**Report Week:** ${report.reportWeek}  \n`;
-    markdown += `**APP_NAME:** student_pilot | **APP_BASE_URL:** https://student-pilot-jamarrlmayes.replit.app\n\n`;
+    markdown += `**APP_NAME:** student_pilot | **APP_BASE_URL:** ${serviceConfig.frontends.student}\n\n`;
     
     markdown += `---\n\n`;
     markdown += `## Executive Summary\n\n`;

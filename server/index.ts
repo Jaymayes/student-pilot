@@ -67,11 +67,11 @@ Policy: https://scholarshipai.com/security-policy
 Expires: 2025-12-31T23:59:59.000Z
 Preferred-Languages: en`;
 
-const robotsTxt = `User-agent: *
+const getRobotsTxt = () => `User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
+Sitemap: ${serviceConfig.frontends.student}/sitemap.xml
 
 # Block admin areas
 Disallow: /admin/
@@ -88,7 +88,7 @@ app.use((req, res, next) => {
     res.set('Cache-Control', 'public, max-age=3600, immutable');
     res.type('text/plain; charset=utf-8');
     res.set('X-WellKnown-Served', '1');
-    return res.send(req.path === '/.well-known/security.txt' ? securityTxt : robotsTxt);
+    return res.send(req.path === '/.well-known/security.txt' ? securityTxt : getRobotsTxt());
   }
   next();
 });
@@ -162,18 +162,7 @@ app.use(helmet.contentSecurityPolicy({
       ? ["'self'", "'unsafe-inline'"]
       : ["'self'"],
     fontSrc: ["'self'", "data:"],
-    connectSrc: [
-      "'self'",
-      "https://scholar-auth-jamarrlmayes.replit.app",
-      "https://scholarship-api-jamarrlmayes.replit.app",
-      "https://scholarship-agent-jamarrlmayes.replit.app",
-      "https://scholarship-sage-jamarrlmayes.replit.app",
-      "https://student-pilot-jamarrlmayes.replit.app",
-      "https://provider-register-jamarrlmayes.replit.app",
-      "https://auto-page-maker-jamarrlmayes.replit.app",
-      "https://auto-com-center-jamarrlmayes.replit.app",
-      "https://api.stripe.com"  // Stripe API calls
-    ],
+    connectSrc: serviceConfig.getConnectSrcAllowlist(),
     frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],  // Stripe checkout/elements
     formAction: ["'self'", "https://hooks.stripe.com"]  // Stripe webhook submissions
   },
@@ -265,19 +254,7 @@ app.get('/robots.txt', (req, res) => {
   console.log('✅ Serving robots.txt via explicit top-level route');
   res.type('text/plain; charset=utf-8');
   res.set('Cache-Control', 'public, max-age=3600, immutable');
-  res.send(`User-agent: *
-Allow: /
-
-# Sitemap location
-Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
-
-# Block admin areas
-Disallow: /admin/
-Disallow: /api/
-
-# Allow scholarship pages
-Allow: /scholarships/
-Allow: /apply/`);
+  res.send(getRobotsTxt());
 });
 
 app.head('/robots.txt', (req, res) => {
@@ -300,19 +277,7 @@ Preferred-Languages: en`
   }],
   ['/robots.txt', { 
     type: 'text/plain; charset=utf-8', 
-    body: `User-agent: *
-Allow: /
-
-# Sitemap location
-Sitemap: https://student-pilot-jamarrlmayes.replit.app/sitemap.xml
-
-# Block admin areas
-Disallow: /admin/
-Disallow: /api/
-
-# Allow scholarship pages
-Allow: /scholarships/
-Allow: /apply/` 
+    body: getRobotsTxt()
   }]
 ]);
 
@@ -404,7 +369,7 @@ app.use((req, res, next) => {
   app.get('/api/canary', (req, res) => {
     const canaryResponse = {
       app: "student_pilot",
-      app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
+      app_base_url: serviceConfig.frontends.student,
       version: "v2.7",
       status: "ok",
       p95_ms: 5,
@@ -425,7 +390,7 @@ app.use((req, res, next) => {
   app.get('/canary', (req, res) => {
     const canaryResponse = {
       app: "student_pilot",
-      app_base_url: "https://student-pilot-jamarrlmayes.replit.app",
+      app_base_url: serviceConfig.frontends.student,
       version: "v2.7",
       status: "ok",
       p95_ms: 5,
