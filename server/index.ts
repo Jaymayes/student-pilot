@@ -18,6 +18,8 @@ import { healthRouter } from "./health";
 import "./monitoring/alerting";
 // Import Agent Bridge for Command Center orchestration
 import { agentBridge } from "./agentBridge";
+// Import centralized service configuration (Gate 0: zero hardcoded URLs)
+import { serviceConfig } from "./serviceConfig";
 // Import system prompt utilities for prompt pack framework
 import { getPromptMetadata } from "./utils/systemPrompt";
 // Import production metrics for CEO Option B evidence collection
@@ -111,18 +113,9 @@ app.use(compression({
   }
 }));
 
-// CORS configuration - AGENT3 v2.6: exact 8 origins, no wildcards
+// CORS configuration - Gate 0: using centralized serviceConfig (env-based)
 app.use(cors({
-  origin: [
-    'https://scholar-auth-jamarrlmayes.replit.app',
-    'https://scholarship-api-jamarrlmayes.replit.app',
-    'https://scholarship-agent-jamarrlmayes.replit.app',
-    'https://scholarship-sage-jamarrlmayes.replit.app',
-    'https://student-pilot-jamarrlmayes.replit.app',
-    'https://provider-register-jamarrlmayes.replit.app',
-    'https://auto-page-maker-jamarrlmayes.replit.app',
-    'https://auto-com-center-jamarrlmayes.replit.app'
-  ],
+  origin: serviceConfig.getCorsOrigins(),
   credentials: false,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Accept', 'Content-Type', 'Authorization', 'Origin', 'Referer', 'User-Agent'],

@@ -6,7 +6,7 @@ import { env } from './environment';
 import { reliabilityManager } from './reliability';
 
 // Environment variables for agent bridge - using validated environment
-const COMMAND_CENTER_URL = env.COMMAND_CENTER_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
+const COMMAND_CENTER_URL = env.AUTO_COM_CENTER_BASE_URL || env.COMMAND_CENTER_URL;
 const SHARED_SECRET = env.SHARED_SECRET;
 const AGENT_NAME = env.AGENT_NAME || 'student_pilot';
 const AGENT_ID = env.AGENT_ID || 'student-pilot';
