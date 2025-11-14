@@ -65,8 +65,19 @@ export class AgentBridge {
     }
 
     if (!COMMAND_CENTER_URL) {
-      console.log('⚠️  Agent Bridge running in local-only mode (Command Center URL not configured)');
-      console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID})`);
+      // Operator-visible alert for production monitoring
+      console.warn(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'WARN',
+        component: 'agent-bridge',
+        message: 'Agent Bridge running in local-only mode - Command Center orchestration disabled',
+        reason: 'AUTO_COM_CENTER_BASE_URL not configured',
+        agent_id: AGENT_ID,
+        agent_name: AGENT_NAME,
+        impact: 'No cross-service orchestration; agent operates independently',
+        action_required: 'Configure AUTO_COM_CENTER_BASE_URL if orchestration needed'
+      }));
+      console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID}) in local-only mode`);
       return;
     }
 

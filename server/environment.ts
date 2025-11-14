@@ -56,14 +56,16 @@ const EnvironmentSchema = z.object({
   FEATURE_COPPA_AGE_GATE: z.string().optional().default('false'),
   
   // Microservice URLs (Gate 0 requirement - zero hardcoded URLs)
+  // TODO: Make REQUIRED in production once environment is properly configured
+  // Current status: OPTIONAL (transition period - legacy env vars still in use)
   AUTH_API_BASE_URL: z.string().url().optional(),
   SCHOLARSHIP_API_BASE_URL: z.string().url().optional(),
   SAGE_API_BASE_URL: z.string().url().optional(),
   AGENT_API_BASE_URL: z.string().url().optional(),
-  AUTO_COM_CENTER_BASE_URL: z.string().url().optional(),
   AUTO_PAGE_MAKER_BASE_URL: z.string().url().optional(),
   STUDENT_PILOT_BASE_URL: z.string().url().optional(),
   PROVIDER_REGISTER_BASE_URL: z.string().url().optional(),
+  AUTO_COM_CENTER_BASE_URL: z.string().url().optional(),
   
   // CORS Origins (comma-separated for frontends)
   FRONTEND_ORIGINS: z.string().optional(),
