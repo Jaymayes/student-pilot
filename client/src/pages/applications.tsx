@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navigation } from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,8 +53,10 @@ export default function Applications() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { trackApplicationSubmitted, trackApplicationStatusViewed } = useTtvTracking();
   
   const [statusFilter, setStatusFilter] = useState("all");
+  const [viewedApplications, setViewedApplications] = useState<Set<string>>(new Set());
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -229,13 +232,26 @@ export default function Applications() {
     });
   };
 
-  const handleStatusChange = (applicationId: string, status: string) => {
+  const handleStatusChange = (applicationId: string, status: string, scholarshipId?: string, scholarshipTitle?: string) => {
     const data: Partial<Application> = { status };
     if (status === 'submitted') {
       data.submittedAt = new Date().toISOString();
       data.progressPercentage = 100;
+      
+      // Track application submission (GA4 event)
+      if (scholarshipId && scholarshipTitle) {
+        trackApplicationSubmitted(applicationId, scholarshipId, scholarshipTitle);
+      }
     }
     updateApplicationMutation.mutate({ id: applicationId, data });
+  };
+
+  const handleViewApplication = (applicationId: string, status: string, scholarshipId?: string) => {
+    // Track status view once per application (GA4 event)
+    if (!viewedApplications.has(applicationId)) {
+      trackApplicationStatusViewed(applicationId, status, scholarshipId);
+      setViewedApplications(prev => new Set(prev).add(applicationId));
+    }
   };
 
   if (authLoading) {
@@ -388,7 +404,11 @@ export default function Applications() {
                   const isOverdue = daysUntilDeadline < 0;
 
                   return (
-                    <Card key={application.id} className="border border-gray-200 hover:shadow-md transition-shadow">
+                    <Card 
+                      key={application.id} 
+                      className="border border-gray-200 hover:shadow-md transition-shadow"
+                      onClick={() => handleViewApplication(application.id, application.status, application.scholarship.id)}
+                    >
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-start space-x-4 flex-1">
@@ -475,7 +495,12 @@ export default function Applications() {
                               </Button>
                               <Select
                                 value={application.status}
-                                onValueChange={(status) => handleStatusChange(application.id, status)}
+                                onValueChange={(status) => handleStatusChange(
+                                  application.id, 
+                                  status, 
+                                  application.scholarship.id, 
+                                  application.scholarship.title
+                                )}
                                 disabled={updateApplicationMutation.isPending}
                               >
                                 <SelectTrigger className="w-40" data-testid="select-change-status">

@@ -11,7 +11,9 @@ export type TtvEventType =
   | "first_essay_assistance"
   | "first_ai_usage"
   | "first_credit_purchase"
-  | "first_application_submitted";
+  | "first_application_submitted"
+  | "application_submitted"
+  | "application_status_viewed";
 
 interface TtvEventMetadata {
   [key: string]: any;
@@ -34,19 +36,45 @@ export function useTtvTracking() {
     eventType: TtvEventType, 
     metadata: TtvEventMetadata = {}
   ) => {
-    try {
-      const sessionId = generateSessionId();
-      
-      await apiRequest('POST', '/api/analytics/ttv-event', {
-        eventType,
-        metadata,
-        sessionId
-      });
-      
-      console.log(`TTV Event tracked: ${eventType}`, metadata);
-    } catch (error) {
-      console.error(`Failed to track TTV event ${eventType}:`, error);
-      // Don't throw - analytics shouldn't break user experience
+    const sessionId = generateSessionId();
+    const eventPayload = { eventType, metadata, sessionId };
+    
+    // Network resilience: Retry with exponential backoff
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        await apiRequest('POST', '/api/analytics/ttv-event', eventPayload);
+        console.log(`TTV Event tracked: ${eventType}`, metadata);
+        return; // Success - exit retry loop
+      } catch (error) {
+        const isLastAttempt = attempt === maxRetries;
+        
+        if (isLastAttempt) {
+          console.error(`Failed to track TTV event ${eventType} after ${maxRetries + 1} attempts:`, error);
+          
+          // Queue event in localStorage for later retry (network resilience)
+          try {
+            const queueKey = 'ttv-event-queue';
+            const existingQueue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+            const queueItem = {
+              ...eventPayload,
+              timestamp: Date.now(),
+              attempts: maxRetries + 1
+            };
+            localStorage.setItem(queueKey, JSON.stringify([...existingQueue, queueItem]));
+            console.log(`Queued ${eventType} event for retry`);
+          } catch (storageError) {
+            console.error('Failed to queue event in localStorage:', storageError);
+          }
+        } else {
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = baseDelay * Math.pow(2, attempt);
+          console.warn(`Retry ${attempt + 1}/${maxRetries} for ${eventType} in ${delay}ms`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
   }, [generateSessionId]);
 
@@ -87,11 +115,21 @@ export function useTtvTracking() {
     trackEvent('first_document_upload', { documentType, documentId, fileSize });
   }, [trackEvent]);
 
+  const trackApplicationSubmitted = useCallback((applicationId: string, scholarshipId: string, scholarshipTitle: string) => {
+    trackEvent('application_submitted', { applicationId, scholarshipId, scholarshipTitle });
+  }, [trackEvent]);
+
+  const trackApplicationStatusViewed = useCallback((applicationId: string, status: string, scholarshipId?: string) => {
+    trackEvent('application_status_viewed', { applicationId, status, scholarshipId });
+  }, [trackEvent]);
+
   return {
     trackEvent,
     trackSignup,
     trackProfileComplete,
     trackFirstDocumentUpload,
+    trackApplicationSubmitted,
+    trackApplicationStatusViewed,
     trackFirstMatchViewed,
     trackFirstApplicationStarted,
     trackFirstEssayAssistance,
