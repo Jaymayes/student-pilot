@@ -4,6 +4,7 @@ import { apiRequest } from '@/lib/queryClient';
 export type TtvEventType = 
   | "signup"
   | "profile_complete" 
+  | "first_document_upload"
   | "first_match_generated"
   | "first_match_viewed"
   | "first_application_started"
@@ -82,10 +83,15 @@ export function useTtvTracking() {
     trackEvent('first_application_submitted', { applicationId, scholarshipId });
   }, [trackEvent]);
 
+  const trackFirstDocumentUpload = useCallback((documentType: string, documentId: string, fileSize: number) => {
+    trackEvent('first_document_upload', { documentType, documentId, fileSize });
+  }, [trackEvent]);
+
   return {
     trackEvent,
     trackSignup,
     trackProfileComplete,
+    trackFirstDocumentUpload,
     trackFirstMatchViewed,
     trackFirstApplicationStarted,
     trackFirstEssayAssistance,

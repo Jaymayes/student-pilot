@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navigation } from "@/components/Navigation";
 import { ObjectUploader } from "@/components/ObjectUploader";
@@ -51,6 +52,7 @@ export default function Documents() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { trackFirstDocumentUpload } = useTtvTracking();
   
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadForm, setUploadForm] = useState({
@@ -123,10 +125,14 @@ export default function Documents() {
     }) => {
       return await apiRequest("POST", "/api/documents", documentData);
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
       setUploadDialogOpen(false);
       setUploadForm({ title: "", type: "" });
+      
+      // CEO Directive: Track "First Document Upload" activation event (North Star B2C metric)
+      trackFirstDocumentUpload(data.type, data.id, data.fileSize);
+      
       toast({
         title: "Success",
         description: "Document uploaded successfully!",
