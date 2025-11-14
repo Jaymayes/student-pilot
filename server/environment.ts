@@ -56,8 +56,7 @@ const EnvironmentSchema = z.object({
   FEATURE_COPPA_AGE_GATE: z.string().optional().default('false'),
   
   // Microservice URLs (Gate 0 requirement - zero hardcoded URLs)
-  // TODO: Make REQUIRED in production once environment is properly configured
-  // Current status: OPTIONAL (transition period - legacy env vars still in use)
+  // CEO Directive: REQUIRED in production/staging; optional in development
   AUTH_API_BASE_URL: z.string().url().optional(),
   SCHOLARSHIP_API_BASE_URL: z.string().url().optional(),
   SAGE_API_BASE_URL: z.string().url().optional(),
@@ -71,11 +70,47 @@ const EnvironmentSchema = z.object({
   FRONTEND_ORIGINS: z.string().optional(),
 });
 
+// Critical microservice URLs that must be present in production/staging
+const CRITICAL_MICROSERVICE_URLS = [
+  'AUTH_API_BASE_URL',
+  'SCHOLARSHIP_API_BASE_URL', 
+  'SAGE_API_BASE_URL',
+  'AGENT_API_BASE_URL',
+  'AUTO_PAGE_MAKER_BASE_URL',
+  'STUDENT_PILOT_BASE_URL',
+  'PROVIDER_REGISTER_BASE_URL',
+] as const;
+
 // Validate and export environment variables
 let env: z.infer<typeof EnvironmentSchema>;
 
 try {
   env = EnvironmentSchema.parse(process.env);
+  
+  // CEO Directive: Fail-fast validation for critical URLs in production/staging
+  const isProductionLike = env.NODE_ENV === 'production' || env.NODE_ENV === 'staging';
+  
+  if (isProductionLike) {
+    const missingUrls = CRITICAL_MICROSERVICE_URLS.filter(
+      urlKey => !env[urlKey as keyof typeof env]
+    );
+    
+    if (missingUrls.length > 0) {
+      console.error('❌ CRITICAL: Missing required microservice URLs in production/staging:');
+      missingUrls.forEach(urlKey => {
+        console.error(`  - ${urlKey} (REQUIRED in ${env.NODE_ENV})`);
+      });
+      console.error('\n💡 Ops must configure these environment variables before deployment.');
+      console.error('📋 See ENV_AUTH_STANDARDS_2025-11-13.md for URL registry.\n');
+      process.exit(1);
+    }
+    console.log(`✅ All ${CRITICAL_MICROSERVICE_URLS.length} critical microservice URLs configured`);
+  } else {
+    const configuredCount = CRITICAL_MICROSERVICE_URLS.filter(
+      urlKey => env[urlKey as keyof typeof env]
+    ).length;
+    console.log(`✅ Development mode: ${configuredCount}/${CRITICAL_MICROSERVICE_URLS.length} microservice URLs configured (optional)`);
+  }
   
   // Validate Scholar Auth configuration if enabled
   if (env.FEATURE_AUTH_PROVIDER === 'scholar-auth') {

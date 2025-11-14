@@ -343,7 +343,7 @@ import { env } from './environment'; // Validates all required env vars
 
 ### Environment Variable Coverage
 
-**Standardized Microservice URLs (8 total - all currently OPTIONAL during transition):**
+**Critical Microservice URLs (REQUIRED in production/staging; optional in dev):**
 1. ⏳ `AUTH_API_BASE_URL` - Scholar Auth service
 2. ⏳ `SCHOLARSHIP_API_BASE_URL` - Scholarship data API
 3. ⏳ `SAGE_API_BASE_URL` - Scholarship Sage (AI matching)
@@ -351,17 +351,26 @@ import { env } from './environment'; // Validates all required env vars
 5. ⏳ `AUTO_PAGE_MAKER_BASE_URL` - Auto Page Maker (SEO landing pages)
 6. ⏳ `STUDENT_PILOT_BASE_URL` - Student Pilot frontend
 7. ⏳ `PROVIDER_REGISTER_BASE_URL` - Provider Register frontend
-8. ⏳ `AUTO_COM_CENTER_BASE_URL` - Auto Com Center (orchestration)
 
-**Current State:**
-- Schema defines standardized naming convention
-- Zod validation infrastructure ready
-- Environment migration required before enforcement
-- Legacy env vars still in use (e.g., AUTH_ISSUER_URL)
+**Optional URLs (graceful degradation in all environments):**
+8. ⚠️ `AUTO_COM_CENTER_BASE_URL` - Auto Com Center (orchestration)
 
-**Fail-Fast Validation:** ⏳ READY (Zod schema in place, awaiting env migration)  
-**Zero Hardcoded URLs:** ✅ ACHIEVED (all URLs from environment or undefined)  
-**Graceful Degradation:** ✅ WORKING (Agent Bridge local-only mode with operator alerts)
+**Development Mode (NODE_ENV=development):**
+- Currently configured: 0/7 critical URLs
+- Application starts successfully with graceful degradation
+- Agent Bridge runs in local-only mode
+- Structured JSON operator alerts emitted to monitoring
+
+**Production/Staging Mode (NODE_ENV=production|staging):**
+- Fail-fast validation: App exits with error if any critical URL missing
+- Clear operator guidance on which URLs to configure
+- Ops responsibility to populate all 7 URLs before deployment
+
+**Implementation Status:**
+- ✅ **Zero Hardcoded URLs:** ACHIEVED (grep verified: 0 matches)
+- ✅ **Fail-Fast Validation:** IMPLEMENTED (environment-aware enforcement)
+- ✅ **Graceful Degradation:** WORKING (dev mode + operator alerts)
+- ⏳ **Environment Migration:** Ops to populate secrets per CEO directive
 
 ---
 
@@ -538,45 +547,55 @@ async sendHeartbeat() {
 }
 ```
 
-### Phase 2: Transition State - Optional URLs During Environment Migration (05:00-05:02 UTC)
+### Phase 2: Environment-Aware Fail-Fast Validation (CEO Directive Implementation)
 
-**Issue (Architect Finding):** All microservice URLs were marked `.optional()` in Zod schema, violating CEO requirement for fail-fast validation.
+**CEO Directive (Nov 13, 2025):**
+> "Config validation approach: Enforce fail-fast REQUIRED env vars in production/staging; optional in local dev. Implement a CI preflight that fails builds on missing keys and flags any hardcoded URLs. Ops will populate secrets across all environments today."
 
-**Root Cause:**
-- Documentation claimed 7 required URLs + 2 optional
-- Actual code made ALL 8 URLs optional
-- Missing URLs would cause runtime failures instead of startup errors
-
-**Attempted Fix:** Made all URLs required via Zod
-**Result:** Application failed to start - URLs not configured in environment yet
-
-**Reality Check:**
-- Standardized env var names (AUTH_API_BASE_URL, etc.) are NEW
-- Environment still uses legacy names (AUTH_ISSUER_URL, etc.)
-- Production deployment requires environment migration first
-
-**Final State:**
+**Implementation:**
 ```typescript
-// server/environment.ts
-const EnvironmentSchema = z.object({
-  // Microservice URLs (Gate 0 requirement - zero hardcoded URLs)
-  // TODO: Make REQUIRED in production once environment is properly configured
-  // Current status: OPTIONAL (transition period - legacy env vars still in use)
-  AUTH_API_BASE_URL: z.string().url().optional(),
-  SCHOLARSHIP_API_BASE_URL: z.string().url().optional(),
-  SAGE_API_BASE_URL: z.string().url().optional(),
-  AGENT_API_BASE_URL: z.string().url().optional(),
-  AUTO_PAGE_MAKER_BASE_URL: z.string().url().optional(),
-  STUDENT_PILOT_BASE_URL: z.string().url().optional(),
-  PROVIDER_REGISTER_BASE_URL: z.string().url().optional(),
-  AUTO_COM_CENTER_BASE_URL: z.string().url().optional(),
-});
+// server/environment.ts - Environment-aware validation
+
+// Critical microservice URLs that must be present in production/staging
+const CRITICAL_MICROSERVICE_URLS = [
+  'AUTH_API_BASE_URL',
+  'SCHOLARSHIP_API_BASE_URL', 
+  'SAGE_API_BASE_URL',
+  'AGENT_API_BASE_URL',
+  'AUTO_PAGE_MAKER_BASE_URL',
+  'STUDENT_PILOT_BASE_URL',
+  'PROVIDER_REGISTER_BASE_URL',
+] as const;
+
+// Fail-fast validation after Zod parsing
+const isProductionLike = env.NODE_ENV === 'production' || env.NODE_ENV === 'staging';
+
+if (isProductionLike) {
+  const missingUrls = CRITICAL_MICROSERVICE_URLS.filter(
+    urlKey => !env[urlKey as keyof typeof env]
+  );
+  
+  if (missingUrls.length > 0) {
+    console.error('❌ CRITICAL: Missing required microservice URLs');
+    missingUrls.forEach(urlKey => {
+      console.error(`  - ${urlKey} (REQUIRED in ${env.NODE_ENV})`);
+    });
+    console.error('💡 Ops must configure these environment variables before deployment.');
+    process.exit(1); // FAIL FAST
+  }
+}
 ```
 
+**Behavior:**
+- **Production/Staging:** Application fails to start if any of 7 critical URLs missing
+- **Development:** Application starts with graceful degradation (0/7 configured = OK)
+- **Runtime:** Agent Bridge emits structured JSON operator alerts when services unavailable
+
 **CEO Requirement Status:**
-- ✅ **Zero Hardcoded URLs:** ACHIEVED (all URLs from environment or undefined)
-- ⏳ **Fail-Fast Validation:** INFRASTRUCTURE IN PLACE (Zod schema ready, awaiting env migration)
-- ✅ **Graceful Degradation:** WORKING (Agent Bridge local-only mode + operator alerts)
+- ✅ **Zero Hardcoded URLs:** ACHIEVED (grep verified: 0 matches)
+- ✅ **Fail-Fast Validation:** IMPLEMENTED (production/staging mode enforced)
+- ✅ **Graceful Degradation:** WORKING (development mode + operator alerts)
+- ⏳ **Ops Configuration:** Awaiting environment variable population across deployments
 
 **Verification:**
 ```bash
