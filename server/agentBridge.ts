@@ -64,6 +64,12 @@ export class AgentBridge {
       return;
     }
 
+    if (!COMMAND_CENTER_URL) {
+      console.log('⚠️  Agent Bridge running in local-only mode (Command Center URL not configured)');
+      console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID})`);
+      return;
+    }
+
     try {
       await this.register();
       console.log('✅ Agent Bridge registered with Command Center');
@@ -134,6 +140,11 @@ export class AgentBridge {
 
   // Send heartbeat to Command Center
   async sendHeartbeat() {
+    if (!COMMAND_CENTER_URL) {
+      // Silently skip heartbeat if Command Center not configured
+      return;
+    }
+
     const heartbeatData = {
       agent_id: AGENT_ID,
       name: AGENT_NAME,
