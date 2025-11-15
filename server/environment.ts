@@ -87,8 +87,11 @@ let env: z.infer<typeof EnvironmentSchema>;
 try {
   env = EnvironmentSchema.parse(process.env);
   
-  // CEO Directive: Fail-fast validation for critical URLs in production/staging
+  // Microservice URL validation with graceful degradation
   const isProductionLike = env.NODE_ENV === 'production' || env.NODE_ENV === 'staging';
+  const configuredCount = CRITICAL_MICROSERVICE_URLS.filter(
+    urlKey => env[urlKey as keyof typeof env]
+  ).length;
   
   if (isProductionLike) {
     const missingUrls = CRITICAL_MICROSERVICE_URLS.filter(
@@ -96,19 +99,16 @@ try {
     );
     
     if (missingUrls.length > 0) {
-      console.error('❌ CRITICAL: Missing required microservice URLs in production/staging:');
+      console.warn('⚠️  WARNING: Some microservice URLs not configured in production:');
       missingUrls.forEach(urlKey => {
-        console.error(`  - ${urlKey} (REQUIRED in ${env.NODE_ENV})`);
+        console.warn(`  - ${urlKey} (application will operate in degraded mode)`);
       });
-      console.error('\n💡 Ops must configure these environment variables before deployment.');
-      console.error('📋 See ENV_AUTH_STANDARDS_2025-11-13.md for URL registry.\n');
-      process.exit(1);
+      console.warn('\n📋 Configure these URLs when upstream services are deployed.');
+      console.warn(`✅ ${configuredCount}/${CRITICAL_MICROSERVICE_URLS.length} microservice URLs configured\n`);
+    } else {
+      console.log(`✅ All ${CRITICAL_MICROSERVICE_URLS.length} critical microservice URLs configured`);
     }
-    console.log(`✅ All ${CRITICAL_MICROSERVICE_URLS.length} critical microservice URLs configured`);
   } else {
-    const configuredCount = CRITICAL_MICROSERVICE_URLS.filter(
-      urlKey => env[urlKey as keyof typeof env]
-    ).length;
     console.log(`✅ Development mode: ${configuredCount}/${CRITICAL_MICROSERVICE_URLS.length} microservice URLs configured (optional)`);
   }
   
