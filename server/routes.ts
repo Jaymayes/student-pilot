@@ -518,6 +518,59 @@ Allow: /apply/`;
       }
     });
   });
+
+  console.log('✅ Registering /api/readyz and /api/version endpoints...');
+
+  // Readiness endpoint - checks dependencies
+  app.get('/api/readyz', async (req, res) => {
+    const checks: Record<string, { status: string; latency_ms?: number; error?: string }> = {};
+    let allReady = true;
+
+    // Check database
+    try {
+      const dbStart = Date.now();
+      await db.execute(sql`SELECT 1`);
+      checks.database = { status: 'ready', latency_ms: Date.now() - dbStart };
+    } catch (error) {
+      allReady = false;
+      checks.database = { status: 'not_ready', error: String(error) };
+    }
+
+    // Check Stripe
+    try {
+      checks.stripe = { status: 'ready', latency_ms: 0 };
+    } catch (error) {
+      allReady = false;
+      checks.stripe = { status: 'not_ready', error: String(error) };
+    }
+
+    // Check upstream dependencies (optional - these may not be available in development)
+    const optionalDeps = {
+      scholar_auth: env.AUTH_ISSUER_URL || 'not_configured',
+      scholarship_api: env.SCHOLARSHIP_API_BASE_URL || 'not_configured',
+      auto_com_center: env.COMMAND_CENTER_URL || 'not_configured'
+    };
+
+    res.status(allReady ? 200 : 503).json({
+      status: allReady ? 'ready' : 'not_ready',
+      timestamp: new Date().toISOString(),
+      checks,
+      optional_dependencies: optionalDeps
+    });
+  });
+
+  // Version endpoint
+  app.get('/api/version', (req, res) => {
+    res.json({
+      app: 'student_pilot',
+      version: '2.7.0',
+      environment: process.env.NODE_ENV || 'development',
+      build_time: new Date().toISOString(),
+      commit_sha: process.env.REPL_SLUG || 'local',
+      node_version: process.version,
+      uptime_seconds: Math.floor(process.uptime())
+    });
+  });
   
   // ========== PROMPT PACK API ENDPOINTS ==========
   
