@@ -1,0 +1,307 @@
+{
+  "app_name": "student_pilot",
+  "app_base_url": "https://student-pilot-jamarrlmayes.replit.app",
+  "version": "1.0.0",
+  "report_date": "2025-11-17T16:15:00Z",
+  "section": "SECTION-5",
+  "go_no_go": "NO-GO",
+  "decision_time": "2025-11-17T16:15:00Z",
+  "ready_eta": "2025-11-22T12:00:00Z",
+  "arr_ignition_date": "2025-12-02T12:00:00Z",
+  
+  "endpoints": {
+    "health_endpoints": [
+      {
+        "path": "/api/health",
+        "status": "operational",
+        "response_code": 200
+      },
+      {
+        "path": "/readyz",
+        "status": "missing",
+        "response_code": 404
+      },
+      {
+        "path": "/version",
+        "status": "missing",
+        "response_code": 404
+      },
+      {
+        "path": "/metrics",
+        "status": "missing",
+        "response_code": 404
+      }
+    ],
+    "seo_endpoints": [
+      {
+        "path": "/robots.txt",
+        "status": "degraded",
+        "issue": "Sitemap URL shows 'undefined/sitemap.xml'",
+        "response_code": 200
+      },
+      {
+        "path": "/sitemap.xml",
+        "status": "operational",
+        "response_code": 200,
+        "entry_count": 140
+      }
+    ],
+    "core_endpoints": [
+      {
+        "path": "/",
+        "status": "operational",
+        "response_code": 200
+      },
+      {
+        "path": "/scholarships",
+        "status": "operational",
+        "response_code": 200
+      },
+      {
+        "path": "/apply",
+        "status": "operational",
+        "response_code": 200
+      }
+    ]
+  },
+  
+  "performance_summary": {
+    "sample_size": 25,
+    "endpoints_tested": [
+      {
+        "endpoint": "/api/health",
+        "min_ms": 47,
+        "p50_ms": 58,
+        "p95_ms": 175,
+        "p99_ms": 221,
+        "max_ms": 221,
+        "target_p95_ms": 120,
+        "status": "FAIL",
+        "excess_percent": 46
+      },
+      {
+        "endpoint": "/ (main landing)",
+        "min_ms": 52,
+        "p50_ms": 62,
+        "p95_ms": 168,
+        "p99_ms": 215,
+        "max_ms": 215,
+        "target_p95_ms": 120,
+        "status": "FAIL",
+        "excess_percent": 40
+      }
+    ],
+    "overall_status": "FAIL",
+    "slo_compliance": false
+  },
+  
+  "dependencies": [
+    {
+      "name": "scholar_auth",
+      "type": "oauth2_provider",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "status": "failing",
+      "health_check": "OIDC discovery failing",
+      "fallback": "Replit OIDC (operational)",
+      "impact": "High - Auth not production-ready"
+    },
+    {
+      "name": "scholarship_api",
+      "type": "data_source",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "status": "down",
+      "health_check": "404 on /v1/scholarships",
+      "fallback": "None",
+      "impact": "Critical - Zero conversions possible"
+    },
+    {
+      "name": "auto_com_center",
+      "type": "notifications",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "status": "unknown",
+      "health_check": "Not tested",
+      "fallback": "None",
+      "impact": "Medium - Notifications unavailable"
+    },
+    {
+      "name": "PostgreSQL",
+      "type": "database",
+      "url": "neon",
+      "status": "healthy",
+      "health_check": "Connection successful",
+      "fallback": "None",
+      "impact": "None"
+    },
+    {
+      "name": "CDN",
+      "type": "edge_cache",
+      "url": "cloudflare",
+      "status": "stale",
+      "health_check": "Serving old robots.txt",
+      "fallback": "None",
+      "impact": "Critical - SEO broken"
+    }
+  ],
+  
+  "issues": [
+    {
+      "id": "ISS-PILOT-001",
+      "severity": "P0",
+      "title": "P95 latency 175ms exceeds 120ms SLO by 46%",
+      "impact": "Poor user experience; fails performance gate",
+      "impact_on_arr": "Degrades activation; increases bounce rate",
+      "owner": "student_pilot team",
+      "eta_hours": "8-16",
+      "eta_date": "2025-11-21T20:00:00Z",
+      "status": "open",
+      "remediation": "Enable APM tracing, profile slow endpoints, optimize DB queries, implement caching"
+    },
+    {
+      "id": "ISS-PILOT-002",
+      "severity": "P0",
+      "title": "Sitemap URL shows 'undefined/sitemap.xml' in robots.txt",
+      "impact": "Breaks SEO discovery (90% of growth strategy)",
+      "impact_on_arr": "Zero organic traffic from Google",
+      "owner": "Platform/CDN team",
+      "eta_hours": "4-8",
+      "eta_date": "2025-11-21T12:00:00Z",
+      "status": "open",
+      "remediation": "Coordinate CDN cache purge with Replit ops",
+      "troubleshooting_duration_minutes": 90
+    },
+    {
+      "id": "ISS-PILOT-003",
+      "severity": "P0",
+      "title": "scholarship_api GET /v1/scholarships returns 404",
+      "impact": "Students cannot discover scholarships (zero conversions)",
+      "impact_on_arr": "100% blocker - No revenue possible",
+      "owner": "scholarship_api team",
+      "eta_hours": "2-4",
+      "eta_date": "2025-11-21T08:00:00Z",
+      "status": "open",
+      "remediation": "Restore endpoint, verify data availability (≥10 scholarships)"
+    },
+    {
+      "id": "ISS-PILOT-004",
+      "severity": "P1",
+      "title": "Missing SEO meta tags (description, Open Graph, canonical)",
+      "impact": "SEO penalty; poor social sharing",
+      "impact_on_arr": "Reduced organic reach; lower conversion on social",
+      "owner": "student_pilot team",
+      "eta_hours": "2",
+      "eta_date": "2025-11-20T18:00:00Z",
+      "status": "open",
+      "remediation": "Add react-helmet-async, implement SEO component, add JSON-LD"
+    },
+    {
+      "id": "ISS-PILOT-005",
+      "severity": "P1",
+      "title": "Scholar Auth failing; using Replit OIDC fallback",
+      "impact": "Auth not production-ready; breaks ecosystem integration",
+      "impact_on_arr": "Cannot leverage unified identity across platform",
+      "owner": "scholar_auth team",
+      "eta_hours": "4",
+      "eta_date": "2025-11-21T00:00:00Z",
+      "status": "open",
+      "remediation": "Debug OIDC issuer config, verify JWKS endpoint"
+    }
+  ],
+  
+  "security_headers": {
+    "endpoints_tested": ["/api/health", "/"],
+    "required_headers": [
+      "Strict-Transport-Security",
+      "Content-Security-Policy",
+      "X-Frame-Options",
+      "X-Content-Type-Options",
+      "Referrer-Policy",
+      "Permissions-Policy"
+    ],
+    "status": "PASS",
+    "compliance": true,
+    "cors_config": "scoped_to_platform_origins"
+  },
+  
+  "seo_validation": {
+    "robots_txt": {
+      "exists": true,
+      "sitemap_url_correct": false,
+      "status": "FAIL"
+    },
+    "sitemap_xml": {
+      "exists": true,
+      "entry_count": 140,
+      "valid_xml": true,
+      "status": "PASS"
+    },
+    "meta_tags": {
+      "title": false,
+      "description": false,
+      "canonical": false,
+      "open_graph": false,
+      "json_ld": false,
+      "status": "FAIL"
+    }
+  },
+  
+  "core_flows": {
+    "login_via_scholar_auth": {
+      "status": "PARTIAL",
+      "fallback": "Replit OIDC operational",
+      "blocker": "scholar_auth OIDC discovery failing"
+    },
+    "discovery_from_scholarship_api": {
+      "status": "FAIL",
+      "blocker": "scholarship_api returns 404"
+    },
+    "application_submission": {
+      "status": "BLOCKED",
+      "blocker": "Dependent on discovery flow"
+    },
+    "notifications_via_auto_com_center": {
+      "status": "PENDING",
+      "blocker": "Not tested - requires auth session"
+    }
+  },
+  
+  "third_party_prerequisites": {
+    "available": [
+      "DATABASE_URL",
+      "STRIPE_SECRET_KEY",
+      "VITE_STRIPE_PUBLIC_KEY",
+      "OPENAI_API_KEY",
+      "SENTRY_DSN",
+      "REPLIT_AUTH credentials"
+    ],
+    "missing_or_broken": [
+      "scholar_auth integration",
+      "scholarship_api connectivity",
+      "CDN cache control"
+    ],
+    "required_for_go": [
+      "scholarship_api team must restore GET /v1/scholarships",
+      "scholar_auth team must fix OIDC discovery",
+      "Replit ops must purge CDN cache for robots.txt"
+    ]
+  },
+  
+  "arr_analysis": {
+    "b2c_revenue_blocked": true,
+    "b2b_revenue_blocked": true,
+    "current_arr": 0,
+    "path_to_arr": [
+      "Nov 22: Resolve P0 blockers → GO-LIVE",
+      "Nov 23-25: Onboard first 10 students (beta)",
+      "Nov 26-30: Monitor activation, optimize funnel",
+      "Dec 2: Enable B2C credit purchases → ARR IGNITION"
+    ]
+  },
+  
+  "recommendations": {
+    "decision": "Slip Go-Live by +1.5 days",
+    "new_go_live": "2025-11-22T12:00:00Z",
+    "new_arr_ignition": "2025-12-02T12:00:00Z",
+    "critical_path_fix_hours": "20-34",
+    "ceo_decision_point": "2025-11-21T20:00:00Z"
+  }
+}
