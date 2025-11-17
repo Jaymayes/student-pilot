@@ -60,6 +60,10 @@ if (process.env.SENTRY_DSN) {
 
 const app = express();
 
+// Enable trust proxy so Express can read X-Forwarded-Proto/Host from Replit's proxy
+// This fixes req.protocol returning 'undefined' (ISS-PILOT-002)
+app.set('trust proxy', true);
+
 // CRITICAL: Top-of-stack guard middleware to serve static compliance files
 const securityTxt = `Contact: security@scholarshipai.com
 Acknowledgments: https://scholarshipai.com/security
@@ -69,7 +73,11 @@ Preferred-Languages: en`;
 
 const getRobotsTxt = (req?: Request) => {
   // Use request to dynamically construct base URL (works in all environments)
+  const protocol = req?.protocol;
+  const host = req?.get('host');
+  console.log(`🔍 getRobotsTxt DEBUG - protocol: ${protocol}, host: ${host}`);
   const baseUrl = req ? `${req.protocol}://${req.get('host')}` : 'https://student-pilot-jamarrlmayes.replit.app';
+  console.log(`🔍 getRobotsTxt DEBUG - baseUrl: ${baseUrl}`);
   
   return `User-agent: *
 Allow: /
@@ -90,7 +98,9 @@ app.use((req, res, next) => {
   if ((req.method === 'GET' || req.method === 'HEAD') && 
       (req.path === '/.well-known/security.txt' || req.path === '/robots.txt')) {
     console.log(`🎯 GUARD MIDDLEWARE serving: ${req.path} (method: ${req.method})`);
-    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    // Use no-store to prevent CDN caching while debugging (ISS-PILOT-002)
+    res.set('Cache-Control', 'no-store, must-revalidate');
+    res.set('Surrogate-Control', 'no-store');
     res.type('text/plain; charset=utf-8');
     res.set('X-WellKnown-Served', '1');
     return res.send(req.path === '/.well-known/security.txt' ? securityTxt : getRobotsTxt(req));
@@ -258,8 +268,10 @@ app.head('/.well-known/security.txt', (req, res) => {
 app.get('/robots.txt', (req, res) => {
   console.log('✅ Serving robots.txt via explicit top-level route');
   res.type('text/plain; charset=utf-8');
-  res.set('Cache-Control', 'public, max-age=3600, immutable');
-  res.send(getRobotsTxt());
+  // Use no-store to prevent CDN caching while debugging (ISS-PILOT-002)
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.set('Surrogate-Control', 'no-store');
+  res.send(getRobotsTxt(req));
 });
 
 app.head('/robots.txt', (req, res) => {
@@ -271,30 +283,31 @@ app.head('/robots.txt', (req, res) => {
 console.log('✅ Registered security.txt and robots.txt routes at MODULE TOP LEVEL');
 
 // CRITICAL: Short-circuit middleware for static compliance files before Vite catch-all
-const PLAIN_ROUTES = new Map([
-  ['/.well-known/security.txt', { 
-    type: 'text/plain; charset=utf-8', 
-    body: `Contact: security@scholarshipai.com
+app.use((req, res, next) => {
+  const pathname = req.path.replace(/\/+$/, ''); // strip trailing slashes
+  
+  // Serve security.txt
+  if (pathname === '/.well-known/security.txt') {
+    console.log(`🎯 Short-circuit serving: ${pathname} (method: ${req.method})`);
+    res.set('Cache-Control', 'public, max-age=3600, immutable');
+    res.type('text/plain; charset=utf-8').send(`Contact: security@scholarshipai.com
 Acknowledgments: https://scholarshipai.com/security
 Policy: https://scholarshipai.com/security-policy
 Expires: 2025-12-31T23:59:59.000Z
-Preferred-Languages: en` 
-  }],
-  ['/robots.txt', { 
-    type: 'text/plain; charset=utf-8', 
-    body: getRobotsTxt()
-  }]
-]);
-
-app.use((req, res, next) => {
-  const pathname = req.path.replace(/\/+$/, ''); // strip trailing slashes
-  const route = PLAIN_ROUTES.get(pathname);
-  if (route) {
-    console.log(`🎯 Short-circuit serving: ${pathname} (method: ${req.method})`);
-    res.set('Cache-Control', 'public, max-age=3600, immutable');
-    res.type(route.type).send(route.body);
+Preferred-Languages: en`);
     return; // HARD STOP: never fall through to Vite
   }
+  
+  // Serve robots.txt dynamically (needs req for protocol/host)
+  if (pathname === '/robots.txt') {
+    console.log(`🎯 Short-circuit serving: ${pathname} (method: ${req.method})`);
+    // Use no-store to prevent CDN caching while debugging (ISS-PILOT-002)
+    res.set('Cache-Control', 'no-store, must-revalidate');
+    res.set('Surrogate-Control', 'no-store');
+    res.type('text/plain; charset=utf-8').send(getRobotsTxt(req));
+    return; // HARD STOP: never fall through to Vite
+  }
+  
   next();
 });
 
