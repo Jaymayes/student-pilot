@@ -67,11 +67,15 @@ Policy: https://scholarshipai.com/security-policy
 Expires: 2025-12-31T23:59:59.000Z
 Preferred-Languages: en`;
 
-const getRobotsTxt = () => `User-agent: *
+const getRobotsTxt = (req?: Request) => {
+  // Use request to dynamically construct base URL (works in all environments)
+  const baseUrl = req ? `${req.protocol}://${req.get('host')}` : 'https://student-pilot-jamarrlmayes.replit.app';
+  
+  return `User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: ${serviceConfig.frontends.student}/sitemap.xml
+Sitemap: ${baseUrl}/sitemap.xml
 
 # Block admin areas
 Disallow: /admin/
@@ -80,6 +84,7 @@ Disallow: /api/
 # Allow scholarship pages
 Allow: /scholarships/
 Allow: /apply/`;
+};
 
 app.use((req, res, next) => {
   if ((req.method === 'GET' || req.method === 'HEAD') && 
@@ -88,7 +93,7 @@ app.use((req, res, next) => {
     res.set('Cache-Control', 'public, max-age=3600, immutable');
     res.type('text/plain; charset=utf-8');
     res.set('X-WellKnown-Served', '1');
-    return res.send(req.path === '/.well-known/security.txt' ? securityTxt : getRobotsTxt());
+    return res.send(req.path === '/.well-known/security.txt' ? securityTxt : getRobotsTxt(req));
   }
   next();
 });

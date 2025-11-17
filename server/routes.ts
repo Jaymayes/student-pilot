@@ -138,20 +138,6 @@ Policy: https://scholarshipai.com/security-policy
 Expires: 2025-12-31T23:59:59.000Z
 Preferred-Languages: en`;
 
-  const robotsTxt = `User-agent: *
-Allow: /
-
-# Sitemap location
-Sitemap: ${serviceConfig.frontends.student}/sitemap.xml
-
-# Block admin areas
-Disallow: /admin/
-Disallow: /api/
-
-# Allow scholarship pages
-Allow: /scholarships/
-Allow: /apply/`;
-
   // SOLUTION: Use API namespace to bypass SPA catch-all
   app.get('/api/security.txt', (req, res) => {
     console.log('🎯 Serving /api/security.txt (RFC 9116 via API namespace)');
@@ -168,6 +154,24 @@ Allow: /apply/`;
 
   app.get('/api/robots.txt', (req, res) => {
     console.log('🎯 Serving /api/robots.txt');
+    
+    // Dynamically construct base URL from request (fallback if env not set)
+    const baseUrl = serviceConfig.frontends.student || `${req.protocol}://${req.get('host')}`;
+    
+    const robotsTxt = `User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: ${baseUrl}/sitemap.xml
+
+# Block admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow scholarship pages
+Allow: /scholarships/
+Allow: /apply/`;
+    
     res.set('Cache-Control', 'public, max-age=3600, immutable');
     res.type('text/plain; charset=utf-8');
     res.send(robotsTxt);
