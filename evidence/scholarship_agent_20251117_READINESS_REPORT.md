@@ -33,10 +33,12 @@ scholarship_agent is **NOT READY** for November 20 Go-Live due to **3 CRITICAL (
 |----|----------|-------|---------------|-------|-----|
 | **ISS-AGENT-001** | P0 | /health P95 latency 184ms (53% over 120ms SLO) | Performance gate failure; monitoring instability | scholarship_agent | 6-10 hours |
 | **ISS-AGENT-002** | P0 | scholarship_api GET /v1/scholarships returns 404 | Cannot generate campaigns or lifecycle automations (zero B2C/B2B uplift) | scholarship_api team | 2-4 hours |
+| **ISS-AGENT-006** | P0 | scholar_auth OAuth2 token endpoint returns 500 error | Cannot authenticate to any S2S service (100% OAuth2 blocker) | scholar_auth team | 6-8 hours |
 
-**Total Estimated Fix Time:** 8-14 hours (critical path)
+**Total Estimated Fix Time:** 14-22 hours (critical path)
 
 **Third-Party Prerequisites:**
+2. scholar_auth team must fix OAuth2 token endpoint (currently returns 500 error)
 1. scholarship_api team must restore GET /v1/scholarships endpoint
 2. (Optional) Redis/SQS configuration for queue-backed jobs
 3. SendGrid/Twilio DNS verification (via auto_com_center dependency)
@@ -117,7 +119,7 @@ Tested endpoints: `/health`, `/api/health`
 
 **Requirement:** Use client_credentials flow with scholar_auth; validate JWT signature via JWKS; enforce iss/aud/exp/nbf/scope
 
-**Test Results:** ✅ INFRASTRUCTURE READY (Implementation Pending)
+**Test Results:** ❌ FAILED (Token endpoint returns 500 error)
 
 #### 3.1 scholar_auth OIDC Discovery
 
@@ -141,14 +143,40 @@ GET https://scholar-auth-jamarrlmayes.replit.app/oidc/jwks
 ✅ Keys found: 1 active signing key
 ```
 
-**Status:** scholar_auth OAuth2 infrastructure is **READY and CONFORMANT**. scholarship_agent can implement client_credentials flow immediately.
+**Status:** scholar_auth OAuth2 infrastructure is **PARTIALLY READY** (OIDC + JWKS operational) but **TOKEN ENDPOINT FAILED** (500 error).
 
-**Required Scopes for Agent3:**
+#### 3.3 Token Acquisition Test (EXECUTED)
+
+```bash
+# Actual Test:
+POST https://scholar-auth-jamarrlmayes.replit.app/oidc/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id=scholarship_agent
+&client_secret=test_secret
+&scope=scholarship.read notify.send agent.tasks
+
+# Result:
+❌ HTTP 500 Internal Server Error
+{
+  "error": "server_error",
+  "error_description": "oops! something went wrong"
+}
+```
+
+**Issue:** ISS-AGENT-006 (P0 BLOCKER)
+- scholar_auth OAuth2 token endpoint failing with 500 error
+- Cannot acquire access_token for S2S authentication
+- Blocks ALL authenticated API calls (scholarship_api, auto_com_center)
+- Possible causes: Client not registered, database issues, missing configuration
+
+**Required Scopes (Cannot Acquire):**
 - `scholarship.read` - For catalog reads from scholarship_api
 - `notify.send` - For calls to auto_com_center
 - `agent.tasks` - For internal task orchestration endpoints
 
-**Implementation Note:** No API-key shortcuts detected in production configuration. OAuth2 client_credentials is enforced for S2S calls per SLO guardrails.
+**Impact:** scholarship_agent cannot authenticate to ANY S2S service (100% OAuth2 blocker)
 
 ---
 
@@ -196,9 +224,9 @@ GET https://scholar-auth-jamarrlmayes.replit.app/oidc/jwks
 | **Database** | PostgreSQL | ✅ HEALTHY | Connection test | 73ms | Production DB operational |
 | **Redis** | Cache/Queue | ⚠️ OPTIONAL | Not configured | 0ms | Not required for MVP; enables job queue |
 | **OpenAI** | LLM API | ✅ HEALTHY | API test | 1032ms | Required for content generation |
-| **scholar_auth** | OAuth2 | ✅ READY | OIDC + JWKS | N/A | Verified externally; not in /readyz |
-| **scholarship_api** | Data Source | ❌ DOWN | N/A | N/A | **BLOCKER: 404 on /v1/scholarships** |
-| **auto_com_center** | Notifications | ✅ READY | Health endpoint | N/A | Verified externally; not in /readyz |
+| **scholar_auth** | OAuth2 | ❌ FAILED | OIDC + JWKS ✅, Token endpoint 500 ❌ | N/A | **BLOCKER: ISS-AGENT-006 token endpoint 500 error** |
+| **scholarship_api** | Data Source | ❌ DOWN | N/A | N/A | **BLOCKER: ISS-AGENT-002 404 on /v1/scholarships** |
+| **auto_com_center** | Notifications | ⏸️ BLOCKED | Health endpoint ✅ | N/A | Blocked by OAuth2 failure; needs valid token to test |
 
 **Gap:** /readyz does NOT check scholar_auth, scholarship_api, or auto_com_center. This is a **P2 observability gap** (not blocking for initial launch, but should be added for production monitoring).
 
@@ -214,34 +242,37 @@ GET https://scholar-auth-jamarrlmayes.replit.app/oidc/jwks
 
 #### 5.1 OAuth2 Test: Acquire client_credentials token from scholar_auth
 
-**Status:** ⏸️ PENDING IMPLEMENTATION
+**Status:** ❌ FAILED (Executed - 500 error from scholar_auth)
 
 ```bash
-# Expected Flow:
+# Test Executed:
 POST https://scholar-auth-jamarrlmayes.replit.app/oidc/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
 &client_id=scholarship_agent
-&client_secret=<SECRET>
+&client_secret=test_secret
 &scope=scholarship.read notify.send agent.tasks
 
-# Expected Response:
+# Actual Response:
+HTTP 500 Internal Server Error
 {
-  "access_token": "<JWT>",
-  "token_type": "Bearer",
-  "expires_in": 3600,
-  "scope": "scholarship.read notify.send agent.tasks"
+  "error": "server_error",
+  "error_description": "oops! something went wrong"
 }
 ```
 
-**JWT Validation Requirements:**
-- Decode JWT header to extract `kid`
-- Fetch public key from scholar_auth JWKS using `kid`
-- Verify signature (RS256 or HS256 per JWKS `alg`)
-- Validate claims: `iss`, `aud`, `exp`, `nbf`, `scope`
+**Analysis (ISS-AGENT-006):**
+- OAuth2 infrastructure EXISTS (endpoint responds)
+- OAuth2 flow is NOT FUNCTIONAL (500 server error)
+- Possible root causes:
+  1. Client not registered in scholar_auth database
+  2. Internal server error in token generation logic
+  3. Missing configuration (database, signing keys, etc.)
+  
+**Impact:** scholarship_agent cannot authenticate to ANY S2S service (scholarship_api, auto_com_center)
 
-**Implementation:** Code exists but not executed in this assessment. Requires OAuth2 client credentials configured in environment.
+**JWT Validation:** BLOCKED by token acquisition failure (cannot test without valid token)
 
 #### 5.2 Data Test: Call scholarship_api to fetch scholarships
 
@@ -265,10 +296,10 @@ GET https://scholarship-api-jamarrlmayes.replit.app/v1/scholarships
 
 #### 5.3 Notification Test: Call auto_com_center POST /api/notify
 
-**Status:** ⏸️ PENDING AUTH TOKEN
+**Status:** ⏸️ BLOCKED (Cannot execute - requires OAuth2 token)
 
 ```bash
-# Test Attempt (health check only):
+# Infrastructure Verification:
 GET https://auto-com-center-jamarrlmayes.replit.app/health
 
 # Result:
@@ -276,9 +307,12 @@ GET https://auto-com-center-jamarrlmayes.replit.app/health
 {"status":"ok"}
 ```
 
-**Full Test Blocked By:** Requires OAuth2 access_token from scholar_auth with `notify.send` scope.
+**Full Integration Test:** BLOCKED by ISS-AGENT-006 (scholar_auth OAuth2 failure)
+- Requires OAuth2 access_token from scholar_auth with `notify.send` scope
+- Cannot acquire token due to 500 error from scholar_auth
+- auto_com_center infrastructure is READY but functional test cannot be completed
 
-**Expected Flow:**
+**Expected Flow (Once OAuth2 Fixed):**
 ```bash
 POST https://auto-com-center-jamarrlmayes.replit.app/api/notify
 Authorization: Bearer <JWT>
@@ -290,16 +324,9 @@ Content-Type: application/json
   "template": "reminder",
   "data": { "scholarship_name": "Test Scholarship", "deadline": "2025-12-01" }
 }
-
-# Expected Response:
-{
-  "status": "queued",
-  "message_id": "<UUID>",
-  "trace_id": "<UUID>"
-}
 ```
 
-**Implementation:** Ready to test once OAuth2 token acquisition working.
+**Conclusion:** auto_com_center infrastructure operational; integration testing pending OAuth2 resolution.
 
 ---
 
@@ -504,6 +531,7 @@ scholarship_agent **CANNOT generate revenue today** due to:
 
 | ID | Title | Impact | Owner | Fix Plan | ETA | Success Metric |
 |----|-------|--------|-------|----------|-----|----------------|
+| ISS-AGENT-006 | scholar_auth OAuth2 token endpoint returns 500 error | Cannot authenticate to any S2S service (100% OAuth2 blocker) | scholar_auth team | Debug 500 error, register scholarship_agent client, verify token generation | 6-8 hours | POST /oidc/token returns 200 OK with valid JWT |
 | ISS-AGENT-001 | /health P95 latency 184ms (53% over 120ms SLO) | Performance gate failure; monitoring instability | scholarship_agent | Profile endpoint, remove non-critical checks, investigate P99 spikes | 6-10 hours | P95 ≤ 100ms |
 | ISS-AGENT-002 | scholarship_api GET /v1/scholarships returns 404 | Cannot generate campaigns, reminders, or lifecycle comms (zero revenue) | scholarship_api team | Restore endpoint with ≥10 scholarships, pagination, filters | 2-4 hours | 200 OK with valid JSON array |
 
