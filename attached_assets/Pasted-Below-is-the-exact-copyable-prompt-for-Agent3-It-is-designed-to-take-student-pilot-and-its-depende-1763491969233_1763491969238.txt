@@ -1,0 +1,126 @@
+Below is the exact, copyable prompt for Agent3. It is designed to take student_pilot and its dependent services to “revenue-ready” today by clearing the current blockers, validating integrations E2E, and hardening ops. If “today” slips, the fallback timeline and gates are included.
+
+Paste-and-run prompt for Agent3
+
+Role: Lead Release Engineer for student_pilot go-live (E2E remediation + integration closure)
+
+Mission
+
+Bring student_pilot to revenue-ready today by resolving the scholarship detail view blocker, wiring required inter-service secrets, and passing a full E2E test suite on both frontend and backend.
+Definition of Done (DoD):
+Scholarship details page loads reliably with Apply and Bookmark CTAs and accurate content.
+No critical defects outstanding; high/medium issues have mitigations.
+All required secrets configured (see below) and verified via health checks.
+Playwright E2E journey passes (anonymous > sign-in > match > open detail > save/bookmark > essay coach credit purchase (test mode) > notification delivered).
+SLOs: ≥99.9% uptime (deployment snapshot), P95 API latency ≤120 ms on all public endpoints (readyz ≤120 ms), security headers A-grade, no PII leakage in logs.
+Deploy a published snapshot with rollback available and a monitoring plan activated. Replit’s “publish” snapshot model must be used so production is immutable and rollbacks are one-click publish of the prior snapshot . Post-deploy, monitor via Replit deployment dashboard logs/resources and request durations .
+Context (from latest E2E test)
+
+Critical blockers to clear first:
+Scholarship detail view broken due to API “[Circular Reference]” error.
+Missing SCHOLARSHIP_API_BASE_URL and AUTO_COM_CENTER_BASE_URL secrets (breaks catalog + notifications).
+Non-blocking but fix/mitigate today if time allows:
+scholar_auth discovery fallback works; keep fallback but document it.
+readyz P95 slightly over target; we’ll tune now and re-measure.
+Immediate execution plan (timeboxed)
+
+Configure inter-service secrets (30 minutes total)
+Add required secrets in deployment settings and verify exposure at runtime:
+SCHOLARSHIP_API_BASE_URL=https://scholarship-api-jamarrlmayes.replit.app
+AUTO_COM_CENTER_BASE_URL=https://auto-com-center-jamarrlmayes.replit.app
+Rationale: Replit Secrets are the only acceptable way to manage inter-service credentials and configuration; don’t hardcode; verify via env and curl smoke tests .
+Validate with:
+curl -s $SCHOLARSHIP_API_BASE_URL/healthz
+curl -s $AUTO_COM_CENTER_BASE_URL/healthz
+curl -s https://<student_pilot_host>/api/healthz
+2. Fix scholarship detail API “[Circular Reference]” (2–4 hours, target 2)
+
+Root cause pattern: server serializes an object graph with back-references (e.g., scholarship -> provider -> scholarships -> …).
+Immediate fix (choose A or B; prefer A):
+A) Introduce a ScholarshipDetailDTO. Map only whitelisted fields required by the UI: scholarship core fields; providerSummary (id, name, logo_url); normalized eligibility array; application_url; deadlines; is_bookmarked; essay_requirements; do not include back-references. Ensure toJSON or explicit mapper strips circular links before response.
+B) As a tactical patch, apply a JSON.stringify replacer guarding against cycles, but still curate fields to a minimal shape for latency and reliability. Replace once DTO (A) is ready.
+Update controller route GET /api/scholarships/:id to return the DTO and add a unit test for payload shape.
+Data-access hygiene: eliminate N+1 queries, ensure indexes on scholarship.id, provider.id, scholarship.deadline, and scholarship.slug (if using slugs).
+Verify with:
+curl -s https://<student_pilot_host>/api/scholarships | head -50
+curl -s https://<student_pilot_host>/api/scholarships/<id> | jq
+This aligns to resilient service design: keep payloads small, deterministic, and defensively coded; use timeouts/retries for downstream calls to avoid cascading failures .
+3. Frontend routing and UX closure for the detail page (30–45 minutes)
+
+Ensure clicking a scholarship card routes to /scholarships/:id or /scholarships/:slug.
+Render ScholarshipDetailDTO fields; surface Apply, Bookmark, and Share CTAs.
+Telemetry: fire view_scholarship_detail, click_apply, click_bookmark events (used for conversion KPIs).
+Regression: check that back/forward navigation and deep links work.
+4. Notifications and Agent Bridge verification (20 minutes)
+
+With AUTO_COM_CENTER_BASE_URL now set, send a test notification on bookmark and on successful essay credit purchase (test mode).
+Add a simple circuit breaker/timeout wrapper for notification calls; non-blocking on failure (log and continue) to protect UX .
+5. Performance and health tuning (45–60 minutes)
+
+readyz: run dependency checks in parallel; cache static config reads; ensure DB ping <20 ms and downstream checks have 500–800 ms timeouts + 1 retry with exponential backoff .
+Gzip/Brotli enabled. Enable HTTP keep-alive. Ensure ETag/Cache-Control on list endpoints.
+Re-measure P95 for /api/readyz and top endpoints; target ≤120 ms P95.
+Post-deploy, confirm via Replit analytics: request durations, top URLs, HTTP statuses, and resource graphs in the deployment dashboard .
+6. Security and headers verification (15 minutes)
+
+Confirm A-grade headers present; no PII in logs; all public endpoints HTTPS (Replit auto-SSL) .
+7. Payments and credits (Stripe test mode) (15–20 minutes)
+
+Execute test purchase of Essay Coach credits end-to-end and verify ledger entries + balance updates.
+Ensure failures degrade gracefully and are idempotent on retry.
+8. E2E automation and report artifacts (30–45 minutes)
+
+Run Playwright suite: anonymous browse > sign-in > matches > open scholarship detail > bookmark > essay credit purchase (test mode) > notification received.
+Generate an E2E report with pass/fail, timings, and screenshots/video.
+Integrate results into our CI/CD and store artifacts. Emphasize continuous testing and fast feedback .
+9. Publish, monitor, and rollback plan (30 minutes)
+
+Publish a new snapshot to production (immutable release) and keep the previous as rollback. Replit’s publish model gives us stable prod and quick rollback via republish of prior snapshot .
+Monitor live logs, resource usage, and request durations for the first 60 minutes; set alerts for error spikes and latency regressions .
+If error rate >1% or P95 >120 ms for 10 minutes, roll back immediately and investigate.
+Non-blocking but do-today if time permits
+
+Data freshness: schedule refresh for usage_events and ledger_entries; if using cron/scheduled deployments, configure an hourly job .
+scholar_auth discovery: keep Replit OIDC fallback; log a follow-up ticket to wire proper SSO before institutional pilots scale.
+Auto Page Maker SEO: ensure sitemap, indexability, and top scholarships pages are rendering for organic capture (our low-CAC growth engine). This supports the strategic emphasis on organic growth and conversion from discovery to first “document upload,” a key behavioral milestone described in our playbook .
+Acceptance tests (must pass before “Go”)
+
+API: /api/healthz, /api/readyz, /api/scholarships, /api/scholarships/:id (DTO shape), /api/bookmarks (auth required).
+UX: scholarship list > detail > apply link resolves; bookmark persists after refresh; “Essay Coach” purchase (test) succeeds.
+Perf: 25-sample run per endpoint shows P95 ≤120 ms; no 5xx in top 5 URLs.
+Security: headers A-grade; no mixed content; cookie flags set.
+Notifications: receipt within 30 seconds for bookmark and purchase events.
+Deploy: published snapshot live; rollback snapshot verified.
+Deliverables
+
+Changelist with SHA(s) and a one-paragraph risk note.
+E2E report (HTML/MD) + artifacts (screenshots/video).
+Performance summary with P95 by endpoint, before/after.
+Runbook: 1-page ops notes for on-call (health checks, log filters, known mitigations).
+Rollback instructions (single step, prior snapshot link) .
+Communication and cadence
+
+Post an initial status in the release channel with ETA to “Go/No-Go.”
+Hourly updates until “Go,” then 30/60-minute post-launch checks with metrics (errors %, P50/P95, top URLs).
+Escalate immediately if scholarship detail fix exceeds 3 hours; switch to patch B (safe JSON replacer) to meet today’s revenue window while finishing DTO shortly after.
+Compliance and Responsible AI guardrails
+
+No ghostwriting of academic submissions; Essay Coach must remain assistive and transparent (retain visible provenance/controls).
+Do not log PII in client/server logs.
+Ensure opt-in for notifications and provide unsubscribe.
+Timeline to revenue-ready
+
+Optimistic: 3 hours (secrets + DTO fix in 2 hours; quick E2E pass; publish).
+Realistic: 6 hours (includes perf tuning and full E2E artifact set).
+Conservative: 12 hours (if DTO requires deeper refactor or flaky tests). If “today” is not met by the 6-hour checkpoint, ship patch B (replacer + field whitelist) and publish with guardrails, then complete DTO hardening within the 12-hour window. This staged approach balances time-to-revenue with reliability.
+Why this plan
+
+Uses Replit’s immutable publish model for safe, reversible releases and fast incident response .
+Applies secure inter-service configuration via Secrets and enforces defensive client patterns (timeouts, retries, fallbacks) to avoid cascading failures and reduce MTTR .
+Embeds continuous testing into the deploy loop for speed and confidence, aligning with modern CI/CD best practices .
+Reinforces our growth strategy by unblocking scholarships detail (core value) and enabling organic SEO capture post-fix, which lowers CAC and drives ARR per our playbook’s priorities .
+Agent3, begin now. Acknowledge when the two secrets are set and validated, then proceed in the exact order above. Report status hourly with blockers, metrics, and revised ETA until we hit “Go.”
+
+CEO decision/ETA
+
+Proceed with the plan above. Based on current findings, I am setting the public “revenue-ready” ETA to 6 hours, with a 3-hour stretch goal and a 12-hour outside bound. If the circular reference fix exceeds 3 hours, execute the fallback patch and ship, maintaining today’s start-of-revenue target.
