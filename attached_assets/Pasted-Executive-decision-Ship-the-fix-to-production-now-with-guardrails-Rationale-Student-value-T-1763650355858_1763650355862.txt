@@ -1,0 +1,75 @@
+Executive decision: Ship the fix to production now with guardrails.
+
+Rationale
+
+Student value: This resolves a core discovery failure that blocks students from seeing scholarships, directly impacting conversion to engagement and revenue.
+SLOs: Your latest measurements show P95 latency well under the 120ms target for both list and detail endpoints, so we’re safe on performance.
+Risk: The OAuth issue (DEFECT-004) is separate and should not block publishing the scholarships fix. We will mitigate auth risk with a short-term product adjustment (see below).
+Directive to the team
+Deploy window: Immediate (today). Ownership: Engineering + Release Manager. Duration: <60 minutes.
+
+Release plan
+
+Pre-deploy checks (5–10 min)
+Confirm the commit hash and that routes are calling the storage layer (explicit column selection; no circular refs).
+Smoke-test in dev:
+GET /api/scholarships returns 81 active items.
+GET /api/scholarships/{valid_id} returns full JSON.
+404 behavior for invalid IDs is correct.
+Verify environment variables and DB credentials for production snapshot. No pending migrations for these endpoints.
+2. Publish new Replit deployment snapshot (10 min)
+
+Use the existing production deployment configuration; publish a new snapshot so the public URL updates.
+Ensure the production start command matches the stable (non-watch) server start and uses the storage-layer queries you validated.
+Document the deployment version tag (e.g., web-<date>-scholarships-fix) in the release notes.
+3. Post-deploy verification (10–15 min)
+
+At the public URL, validate:
+GET /api/scholarships returns count ≈81.
+GET /api/scholarships/{valid_id} returns complete JSON.
+Page-level smoke tests for the scholarships list and details load without serialization errors.
+Check logs for error spikes for 15 minutes. Confirm P95 latency remains ≤120ms.
+4. Monitoring and rollback
+
+Create a 2-hour heightened monitoring window (error rates, latency, 5xxs).
+Rollback plan: revert to prior snapshot if API error rate >1% for 5 consecutive minutes, or P95 latency >400ms for 10 minutes.
+Product adjustments to protect student experience
+
+Short-term: Allow browsing scholarships without requiring login; defer login to “Save” or “Apply” actions. Gate via a feature flag so we can revert once auth is stable.
+Update the CTA flow and copy to make it clear: “Browse scholarships instantly — sign in when you’re ready to save or apply.”
+Priority follow-ups (this week)
+
+Resolve DEFECT-004 (Auth discovery/OAuth callback)
+Owner: Auth squad. SLA: 48 hours to root cause and patch.
+Add automated E2E covering the full “Start Your Journey → browse → save → login → return” path.
+2. SEO and growth hygiene (low CAC priority)
+
+After deployment, purge caches and resubmit sitemap in Search Console.
+Trigger Auto Page Maker to regenerate scholarship index pages so Google re-crawls healthy pages and sheds the prior error state.
+Add an annotation in Analytics at deployment time for attribution.
+3. Instrumentation and KPIs
+
+Instrument events:
+scholarship_list_viewed
+scholarship_detail_viewed
+time_to_first_result
+attempted_login, login_error, login_success
+save_scholarship_clicked, apply_clicked
+Targets to report tomorrow:
+Error rate on scholarship endpoints (goal: <0.1%)
+P95 latency (goal: ≤120ms)
+% of sessions reaching scholarship list (goal: +30% vs. pre-fix)
+Time to first result (goal: <2.0s page-level, <150ms API)
+Conversion to save/apply click from list (baseline + target)
+4. Process hardening
+
+Add a “Replit deployment snapshot” runbook to prevent dev/prod drift.
+Add a CI gate that runs serialization tests to catch circular references on any API response shape change.
+Document the storage-layer pattern (explicit projections) as a mandatory API guideline.
+Confirmation needed
+
+Proceed with the deployment plan above and report back with:
+Deployment tag + commit hash
+Post-deploy verification checklist results
+2-hour monitoring summary against the KPIs
+If you want step-by-step Replit UI guidance for publishing the new snapshot, I will have the Release Manager follow our runbook and share screenshots; otherwise, go ahead and execute now and post the verification results.
