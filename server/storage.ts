@@ -150,21 +150,52 @@ export class DatabaseStorage implements IStorage {
   // Scholarship operations - QA-011: Enhanced error handling
   async getScholarships(): Promise<Scholarship[]> {
     return await withDatabaseErrorHandling(async () => {
-      return await db
-        .select()
+      console.log('✅ [FIXED] getScholarships using explicit column selection (no relations)');
+      const results = await db
+        .select({
+          id: scholarships.id,
+          title: scholarships.title,
+          organization: scholarships.organization,
+          amount: scholarships.amount,
+          description: scholarships.description,
+          requirements: scholarships.requirements,
+          eligibilityCriteria: scholarships.eligibilityCriteria,
+          deadline: scholarships.deadline,
+          applicationUrl: scholarships.applicationUrl,
+          estimatedApplicants: scholarships.estimatedApplicants,
+          isActive: scholarships.isActive,
+          createdAt: scholarships.createdAt,
+          updatedAt: scholarships.updatedAt,
+        })
         .from(scholarships)
         .where(eq(scholarships.isActive, true))
         .orderBy(desc(scholarships.deadline));
+      console.log(`✅ [FIXED] Query returned ${results.length} scholarships`);
+      return results as Scholarship[];
     }, 'getScholarships');
   }
 
   async getScholarshipById(id: string): Promise<Scholarship | undefined> {
     return await withDatabaseErrorHandling(async () => {
       const [scholarship] = await db
-        .select()
+        .select({
+          id: scholarships.id,
+          title: scholarships.title,
+          organization: scholarships.organization,
+          amount: scholarships.amount,
+          description: scholarships.description,
+          requirements: scholarships.requirements,
+          eligibilityCriteria: scholarships.eligibilityCriteria,
+          deadline: scholarships.deadline,
+          applicationUrl: scholarships.applicationUrl,
+          estimatedApplicants: scholarships.estimatedApplicants,
+          isActive: scholarships.isActive,
+          createdAt: scholarships.createdAt,
+          updatedAt: scholarships.updatedAt,
+        })
         .from(scholarships)
         .where(eq(scholarships.id, id));
-      return scholarship;
+      return scholarship as Scholarship | undefined;
     }, 'getScholarshipById');
   }
 

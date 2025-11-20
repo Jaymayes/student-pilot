@@ -552,7 +552,7 @@ Allow: /apply/`;
     const optionalDeps = {
       scholar_auth: env.AUTH_ISSUER_URL || 'not_configured',
       scholarship_api: env.SCHOLARSHIP_API_BASE_URL || 'not_configured',
-      auto_com_center: env.COMMAND_CENTER_URL || 'not_configured'
+      auto_com_center: env.AUTO_COM_CENTER_BASE_URL || 'not_configured'
     };
 
     res.status(allReady ? 200 : 503).json({
@@ -1352,15 +1352,39 @@ Allow: /apply/`;
   // Custom handler combining caching + analytics to track ALL requests accurately
   app.get('/api/scholarships', async (req, res, next) => {
     try {
+      // Clear cache key to force fresh data (temporary fix for circular reference issue)
+      responseCache.delete('scholarships-list');
+      
+      // PATCH B: Safe circular reference handler (tactical fix)
+      const safeSerialize = (data: any) => {
+        const seen = new WeakSet();
+        return JSON.parse(JSON.stringify(data, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+              return undefined; // Skip circular references entirely
+            }
+            seen.add(value);
+          }
+          return value;
+        }));
+      };
+      
       // Use cache middleware manually to get data without sending response yet
       const now = Date.now();
       const cacheKey = 'scholarships-list';
       const ttlMs = 60000;
       
       // Try to get from response cache directly
-      const cachedData = await responseCache.getCached(cacheKey, ttlMs, async () => {
+      const rawData = await responseCache.getCached(cacheKey, ttlMs, async () => {
         return await storage.getScholarships();
       });
+      
+      // Debug logging
+      console.log(`[SCHOLARSHIPS DEBUG] Raw data length: ${Array.isArray(rawData) ? rawData.length : 'not array'}`);
+      console.log(`[SCHOLARSHIPS DEBUG] Raw data first item keys: ${rawData && rawData[0] ? Object.keys(rawData[0]).join(', ') : 'no items'}`);
+      
+      // Apply safe serialization to remove circular references
+      const cachedData = safeSerialize(rawData);
       
       // CEO Analytics: Track ALL requests with accurate count
       const resultCount = Array.isArray(cachedData) ? cachedData.length : 0;
