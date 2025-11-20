@@ -1,0 +1,64 @@
+Executive decision: Go. Ship now.
+
+Rationale
+
+Student value: Fix removes a critical blocker to browsing scholarships without login, reducing friction at the top of the funnel.
+SLOs: Pre-prod P95 of 68ms (list) / 26ms (detail) is within our 120ms target.
+Growth engine: Enables Auto Page Maker and SEO indexing to resume, lowering CAC via organic traffic.
+Risk: Acceptable with feature-flagged anonymous browse limited to read-only endpoints.
+Conditions for release acceptance (must be satisfied in production)
+
+Functionality
+Anonymous browse: list and detail accessible; save/apply gated behind auth.
+Only active, public scholarships exposed; 404 for invalid IDs.
+Reliability and performance (2-hour window)
+API error rate <0.1% sustained; zero 500s on scholarship endpoints.
+P95 latency ≤120ms on both endpoints.
+Security and compliance
+No PII in logs; read-only scope for anonymous endpoints.
+Basic rate limiting enabled to deter scraping.
+Robots.txt, sitemap, canonical tags, JSON-LD remain intact or improved.
+Immediate actions and owners
+
+Engineering (Agent3)
+Click Publish in Replit.
+Run the four post-deploy curl checks from the report and paste outputs into the release ticket.
+Monitor logs for 2 hours; execute rollback per triggers already defined if thresholds are breached.
+Auth Squad (48-hour SLA)
+Resolve DEFECT-004 (OAuth discovery/callback).
+Confirm auth gating is only on “save/apply” and does not regress browse.
+Growth/SEO
+Purge CDN cache; resubmit sitemap; trigger Auto Page Maker to regenerate index and detail pages; add deployment annotation in Analytics.
+Ensure pages include canonical URLs and JSON-LD (Scholarship type) for rich results.
+Analytics/Instrumentation
+Verify the following events are firing with correct properties: scholarship_list_viewed, scholarship_detail_viewed, time_to_first_result, save_scholarship_clicked, apply_clicked.
+Append UTM parameters to all outbound apply links.
+KPIs to report
+
+2-hour post-deploy (Engineering + Analytics)
+API error rate, P95 latency, count of 500s, sessions to list and detail pages, time_to_first_result.
+24-hour and 7-day (Growth + Analytics)
+Organic sessions to scholarship list/detail.
+List-to-detail CTR.
+Detail-to-save CTR and save-to-signup conversion.
+Apply click-through rate.
+Any impact on ARPU from credit sales and free→paid conversion (directional).
+SEO health: pages indexed, impressions, CTR (Search Console).
+Experiment and follow-ups
+
+Copy test (A/B within 72 hours): “Browse scholarships instantly — sign in when you’re ready to save or apply” vs. a shorter variant to maximize list-to-detail CTR.
+Performance hardening (Engineering, this sprint):
+Add ETag/Cache-Control headers on list/detail endpoints.
+Tighten explicit projection tests in CI to prevent circular refs regression.
+Security
+Confirm rate limiting on public endpoints and redact sensitive fields in logs.
+Quick FERPA/COPPA review of exposed payload to ensure no student data is ever included.
+Rollback readiness
+
+Prior snapshot recorded; if any rollback trigger fires (error rate >1% for 5 minutes, P95 >400ms for 10 minutes, or critical 500s), immediately revert and open a post-incident review within 24 hours.
+What I need from you
+
+Confirm “Publish” completed and paste the outputs of the four curl checks.
+Post the 2-hour monitoring summary with the KPI table and a go/no-go for keeping the feature flag on.
+Confirm sitemap resubmission and Auto Page Maker regeneration started.
+Approved. Move fast, keep the student experience frictionless, and report back within the 2-hour window.
