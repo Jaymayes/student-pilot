@@ -1,0 +1,71 @@
+Executive decision: GO to Publish, with guardrails
+
+Rationale
+
+Directly advances low-CAC growth by opening top-of-funnel browsing to search traffic and referrals, aligning with our dual-engine growth model and Auto Page Maker SEO strategy.
+Minimal risk profile: read-only exposure; no PII surfaced; auth still required for “save/apply” flows.
+Stripe already validated; keep live payments gated until post-deploy validation completes.
+What I need now
+
+Human operator: please click Publish in the Replit UI.
+Reply with: PUBLISHED and the timestamp (UTC). I’ll treat that as the trigger to run the four checks, begin the 2‑hour monitoring window, and deliver the KPI report plus the feature-flag go/no-go call.
+Pre-publish guardrails (confirm these are already in place)
+
+Feature flag: browse_anonymous = ON, but ensure “save/apply/checkout” remain behind auth.
+Rate limiting: ≥60 rpm/IP for public GETs; burst control and bot detection enabled.
+Caching: GET /api/scholarships and /api/scholarships/:id
+Cache-Control: public, max-age=60, s-maxage=300; ETag or Last-Modified enabled.
+SEO readiness for public pages:
+robots.txt allows crawl of scholarship pages; sitemap.xml exposed.
+Schema.org (JSON-LD) for Scholarship objects; canonical URLs.
+Privacy and compliance: no PII in public payloads or page markup; FERPA/COPPA posture unchanged.
+Observability: 5xx, latency, and rate-limit metrics visible; error sampling on.
+Post-publish actions (I will execute once you confirm)
+
+Endpoint checks (expected)
+List count: curl …/api/scholarships | jq 'length' → nonzero, typically ≥10.
+Detail title: curl …/api/scholarships/<known-id> | jq '.title' → non-empty string.
+404 handling: curl -i …/invalid-id → 404 with JSON error body, no stack traces.
+No circular refs: grep -c "Circular" → 0.
+2. Live health SLOs for first 2 hours (pass thresholds)
+
+5xx error rate: <0.5% overall; <1% for list/detail endpoints.
+Latency P95: ≤250 ms list; ≤300 ms detail; memory stable; no rising error trend.
+Log hygiene: no unhandled exceptions; rate-limit events within expected ranges.
+3. Rollback criteria (any trigger ⇒ immediate rollback)
+
+5xx >1% sustained for 5 minutes or P95 latency +50% above baseline for 10 minutes.
+Auth bypass detected on “save/apply/checkout.”
+SEO/robots misconfig that exposes non-public resources or blocks scholarship pages.
+Feature flag plan (post-verification)
+
+Anonymous browse: ramp to 100% immediately after the 4 checks pass, provided SLOs hold for 30 minutes. If load spikes, reduce to 50% while tuning cache or rate limits.
+Stripe production: remain at 0% user exposure. After 24–48 hours clean telemetry and passed E2E checkout in test mode + verified webhooks, ramp live to 5%, then 25%, 100% over 3–5 days.
+KPI monitoring packet I’ll deliver after publish
+
+B2C funnel
+Organic sessions to scholarship pages
+CTR from SERP to scholarship detail
+“Save scholarship” click-through (requires auth)
+Account creations from scholarship pages
+Free→paid conversion rate; ARPU from credits
+B2B impact
+Provider impressions and referral traffic to provider pages
+Application starts per provider
+Efficiency
+CAC trend (organic share); indexed pages count; average rank for top queries
+Targets for first 7 days
++25–40% unique visitors to scholarship pages
++15–25% increase in “save” intents (proxy for account creation)
++10–15% lift in new accounts from organic scholarship entry points
+No material increase in 5xx; P95 within SLO; cache hit ratio ≥70%
+Optional quick verifications you (or I) can run right after the core checks
+
+CORS + caching headers: curl -sI https://…/api/scholarships | egrep "Cache-Control|ETag|Access-Control-Allow-Origin"
+robots and sitemap: curl -s https://…/robots.txt; curl -s https://…/sitemap.xml
+Structured data spot-check: view-source of a scholarship detail page; confirm JSON-LD has "@type":"Scholarship", name, description, sponsor, eligibility, deadline.
+Decision summary
+
+Publish: APPROVED. This change advances our low-CAC growth engine and should improve top-of-funnel metrics without increasing compliance risk.
+Payments: Keep live charge exposure at 0% until post-deploy validation passes; then proceed with staged rollout.
+Please click Publish now and reply “PUBLISHED <UTC time>.” I’ll immediately run verification, monitor for 2 hours, and return the KPI report plus the feature-flag go/no-go recommendation.

@@ -1355,6 +1355,10 @@ Allow: /apply/`;
       // Use storage layer with explicit column selection (no circular references)
       const results = await storage.getScholarships();
       
+      // Caching headers for CDN and browser cache
+      res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+      res.set('ETag', `W/"scholarships-${results.length}-${Date.now()}"`);
+      
       // CEO Analytics: Track ALL requests with accurate count
       pilotDashboard.recordSearch(results.length);
       console.log(`[ANALYTICS] Search executed: results=${results.length}, params=${JSON.stringify(req.query)}`);
@@ -1373,6 +1377,10 @@ Allow: /apply/`;
       if (!scholarship) {
         return res.status(404).json({ message: "Scholarship not found" });
       }
+      
+      // Caching headers for CDN and browser cache
+      res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+      res.set('ETag', `W/"scholarship-${req.params.id}-${scholarship.updatedAt}"`);
       
       // CEO Analytics: Track scholarship detail view (CTR tracking)
       console.log(`[ANALYTICS] Scholarship detail view: id=${req.params.id}, user=${req.user?.claims?.sub || 'anonymous'}`);
