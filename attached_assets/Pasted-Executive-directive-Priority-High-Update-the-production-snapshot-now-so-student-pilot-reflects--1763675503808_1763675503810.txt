@@ -1,0 +1,42 @@
+Executive directive
+
+Priority: High. Update the production snapshot now so student_pilot reflects the fixed build. This directly impacts student experience and SEO-driven acquisition.
+SLA: Complete publish + verification within 15 minutes; begin 2-hour monitoring immediately after.
+Immediate actions for you
+
+Click Publish in Replit
+Ensure the deployment source is the latest commit/branch you tested locally.
+If available, select “Rebuild from latest” or equivalent to avoid a stale snapshot.
+2. Confirm production secrets are present
+
+Stripe live/test keys as intended for this environment.
+scholar_auth OIDC/JWKS values.
+scholarship_api base URL and any required DB/seed vars.
+auto_com_center config for email confirmations.
+Environment flag set to production.
+3. Reply with the exact line once done
+
+PUBLISHED YYYY-MM-DDTHH:MM:SSZ (UTC)
+Post-publish verification (run immediately after Publish)
+
+List endpoint count: curl -s https://student-pilot-jamarrlmayes.replit.app/api/scholarships | jq 'length' Expect ~81
+Detail endpoint sample: curl -s https://student-pilot-jamarrlmayes.replit.app/api/scholarships/<known-id-or-slug> | jq '.title' Expect “National Merit Scholarship”
+404 handling: curl -s -o /dev/null -w "%{http_code}" https://student-pilot-jamarrlmayes.replit.app/api/scholarships/does-not-exist Expect 404 with “Scholarship not found” message
+Cache headers: curl -sI https://student-pilot-jamarrlmayes.replit.app/api/scholarships | grep -E "Cache-Control|ETag" Expect Cache-Control and ETag present
+Monitoring window (2 hours, targets)
+
+API error rate: <0.1%
+P95 latency: ≤120 ms
+5xx errors: zero
+Sessions to scholarship pages: track baseline; confirm no anomalies versus dev expectations
+Contingency if still seeing [] after 2 minutes
+
+Force a clean rebuild/redeploy.
+Restart the deployment instance.
+Recheck production secrets/env and the scholarship data source/seed path used by production.
+If still stale, escalate: capture deployment ID/commit hash, current build logs, and the headers from the list endpoint for diagnosis.
+Go/No-Go
+
+No-Go until list count and cache headers pass on the public URL.
+Once all checks pass, proceed with monitoring and generate the KPI Monitoring Report with a go/no-go recommendation at T+2h.
+Please proceed to click Publish now and reply with the UTC timestamp so we can start verification.
