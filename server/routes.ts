@@ -1352,47 +1352,14 @@ Allow: /apply/`;
   // Custom handler combining caching + analytics to track ALL requests accurately
   app.get('/api/scholarships', async (req, res, next) => {
     try {
-      // Clear cache key to force fresh data (temporary fix for circular reference issue)
-      responseCache.delete('scholarships-list');
-      
-      // PATCH B: Safe circular reference handler (tactical fix)
-      const safeSerialize = (data: any) => {
-        const seen = new WeakSet();
-        return JSON.parse(JSON.stringify(data, (key, value) => {
-          if (typeof value === 'object' && value !== null) {
-            if (seen.has(value)) {
-              return undefined; // Skip circular references entirely
-            }
-            seen.add(value);
-          }
-          return value;
-        }));
-      };
-      
-      // Use cache middleware manually to get data without sending response yet
-      const now = Date.now();
-      const cacheKey = 'scholarships-list';
-      const ttlMs = 60000;
-      
-      // Try to get from response cache directly
-      const rawData = await responseCache.getCached(cacheKey, ttlMs, async () => {
-        return await storage.getScholarships();
-      });
-      
-      // Debug logging
-      console.log(`[SCHOLARSHIPS DEBUG] Raw data length: ${Array.isArray(rawData) ? rawData.length : 'not array'}`);
-      console.log(`[SCHOLARSHIPS DEBUG] Raw data first item keys: ${rawData && rawData[0] ? Object.keys(rawData[0]).join(', ') : 'no items'}`);
-      
-      // Apply safe serialization to remove circular references
-      const cachedData = safeSerialize(rawData);
+      // Use storage layer with explicit column selection (no circular references)
+      const results = await storage.getScholarships();
       
       // CEO Analytics: Track ALL requests with accurate count
-      const resultCount = Array.isArray(cachedData) ? cachedData.length : 0;
-      pilotDashboard.recordSearch(resultCount);
-      console.log(`[ANALYTICS] Search executed: results=${resultCount}, params=${JSON.stringify(req.query)}`);
+      pilotDashboard.recordSearch(results.length);
+      console.log(`[ANALYTICS] Search executed: results=${results.length}, params=${JSON.stringify(req.query)}`);
       
-      // Send cached response
-      res.json(cachedData);
+      res.json(results);
     } catch (error) {
       handleError(error, req, res);
     }
@@ -1400,7 +1367,9 @@ Allow: /apply/`;
 
   app.get('/api/scholarships/:id', async (req, res) => {
     try {
+      // Use storage layer with explicit column selection (no circular references)
       const scholarship = await storage.getScholarshipById(req.params.id);
+      
       if (!scholarship) {
         return res.status(404).json({ message: "Scholarship not found" });
       }
