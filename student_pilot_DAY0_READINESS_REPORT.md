@@ -369,3 +369,11 @@ All code is tested, reviewed, and ready. The only gap is a deployment mechanism 
 **Report Generated:** 2025-11-21 04:35 UTC  
 **Status:** 🟡 YELLOW (Conditional Go)  
 **ETA to GREEN:** <5 minutes (manual publish action required)
+
+---
+
+## REQUIRED STATUS LINE (PER AGENT3 MASTER EXECUTION PROMPT)
+
+```
+App: student_pilot | Status: YELLOW | Revenue today: CONDITIONAL YES | ETA: <5 minutes (manual publish required) | Third-party prerequisites: DATABASE_URL ✅, OPENAI_API_KEY ✅, STRIPE_SECRET_KEY ✅, STRIPE_WEBHOOK_SECRET ✅, scholar_auth ✅, scholarship_api ✅, auto_com_center ⏳ (optional)
+```
