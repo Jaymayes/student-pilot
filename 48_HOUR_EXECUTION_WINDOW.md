@@ -1,8 +1,37 @@
 # 48-HOUR EXECUTION WINDOW - OFFICIAL TRACKER
-**Clock Started:** 2025-11-23 (T+0)  
-**CEO Directive:** Gated live-dollar test with full evidence validation  
-**GO/NO-GO Gate:** T+24 (2025-11-24)  
+**Clock Started:** 2025-11-23 21:00 UTC (T+0)  
+**CEO Decision:** CONDITIONAL GO (Issued: 2025-11-23 21:00 UTC)  
+**Status:** Evidence collection phase (T+0 to T+24)  
+**GO/NO-GO Gate:** T+24 (2025-11-24 21:00 UTC)  
 **Live Test Window:** T+24 to T+48 (conditional on GO approval)
+
+---
+
+## 🚨 CEO EXECUTIVE DECISION (2025-11-23 21:00 UTC)
+
+**Decision:** CONDITIONAL GO with Three Non-Negotiable Gates
+
+**Status:** NO-GO to live dollars until all three gates are evidenced. Claims without evidence are treated as unverified.
+
+**Gate Requirements:**
+- **Gate 1 (Payments):** Stripe LIVE keys + webhook 200 OK + receipt notification proof
+- **Gate 2 (Security & Performance):** Auth + API 401/200 and P95 ≤120ms proof  
+- **Gate 3 (CORS):** Strict allowlist, no wildcards; preflight pass/fail proof
+
+**Auto Page Maker Decision:** GO for Phase 1 with guardrails
+- Throughput: 200-500 pages/day starting T+0
+- Domain: pages.scholaraiadvisor.com (or www.scholaraiadvisor.com/scholarships) ONLY
+- NO third-party or legacy domains
+- All canonical tags and sitemaps must reflect scholaraiadvisor.com
+
+**Stockholder Report:** Defer until evidence at T+24  
+- Template prepared now, populate after PSRs arrive
+- Final report ETA: T+30 (within 6 hours after T+24 checkpoint)
+
+**Evidence Discipline:** "Evidence or it didn't happen"
+- All claims backed by screenshots, curl outputs, timings
+- Mask actual secret values (show only prefix/first 8 chars)
+- Production only (no dev/staging evidence)
 
 ---
 

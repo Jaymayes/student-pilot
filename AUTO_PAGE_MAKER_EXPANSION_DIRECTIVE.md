@@ -29,6 +29,37 @@ Ramp Auto Page Maker to 200-500 high-intent scholarship landing pages per day to
 
 ## 🚀 EXPANSION REQUIREMENTS
 
+### 🚨 CRITICAL: Domain and Canonical Requirements (CEO Non-Negotiable)
+
+**ONLY use scholaraiadvisor.com domains:**
+- **Option A (Recommended):** `pages.scholaraiadvisor.com` 
+- **Option B (Alternative):** `www.scholaraiadvisor.com/scholarships`
+
+**PROHIBITED:**
+- ❌ NO third-party domains
+- ❌ NO legacy domains  
+- ❌ NO auto-page-maker-jamarrlmayes.replit.app in production
+- ❌ NO other subdomains without CEO approval
+
+**Canonical Requirements:**
+- All `<link rel="canonical">` tags MUST use scholaraiadvisor.com
+- sitemap.xml MUST use scholaraiadvisor.com URLs
+- robots.txt MUST reference scholaraiadvisor.com sitemap
+- Google Search Console property MUST be verified for scholaraiadvisor.com
+
+**Example Canonical Tag:**
+```html
+<!-- CORRECT -->
+<link rel="canonical" href="https://pages.scholaraiadvisor.com/scholarships/merit-scholarship-2024" />
+
+<!-- WRONG - DO NOT USE -->
+<link rel="canonical" href="https://auto-page-maker-jamarrlmayes.replit.app/..." />
+```
+
+**Domain Confirmation Due:** T+3 (by owner acknowledgment)
+
+---
+
 ### Production Volume Target
 - **Daily Output:** 200-500 pages/day
 - **Start Date:** T+0 (immediate)
@@ -84,7 +115,9 @@ Ramp Auto Page Maker to 200-500 high-intent scholarship landing pages per day to
 
 #### 4. Canonical Tags
 - [ ] Self-referencing canonical on every page
-- [ ] Format: `<link rel="canonical" href="https://auto-page-maker-jamarrlmayes.replit.app/{scholarship-slug}" />`
+- [ ] Format: `<link rel="canonical" href="https://pages.scholaraiadvisor.com/scholarships/{scholarship-slug}" />`
+  - OR: `<link rel="canonical" href="https://www.scholaraiadvisor.com/scholarships/{scholarship-slug}" />`
+- [ ] MUST use scholaraiadvisor.com domain (CEO requirement)
 - [ ] No duplicate canonicals
 
 #### 5. Deduplication
@@ -190,6 +223,9 @@ Ramp Auto Page Maker to 200-500 high-intent scholarship landing pages per day to
 ## 🔧 IMPLEMENTATION CHECKLIST
 
 **Before Starting Expansion:**
+- [ ] **CRITICAL:** Configure domain to pages.scholaraiadvisor.com (or www.scholaraiadvisor.com/scholarships)
+- [ ] **CRITICAL:** Update all canonical tags to use scholaraiadvisor.com
+- [ ] **CRITICAL:** Verify Google Search Console property for scholaraiadvisor.com
 - [ ] Review current 2,102 pages for quality baseline
 - [ ] Verify UTM tracking implementation
 - [ ] Test Apply Now CTA routing to student_pilot
