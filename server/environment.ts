@@ -68,6 +68,10 @@ const EnvironmentSchema = z.object({
   
   // CORS Origins (comma-separated for frontends)
   FRONTEND_ORIGINS: z.string().optional(),
+  
+  // Global Identity Standard (AGENT3)
+  APP_NAME: z.string().optional().default('student_pilot'),
+  APP_BASE_URL: z.string().url().optional().default('https://student-pilot-jamarrlmayes.replit.app'),
 });
 
 // Critical microservice URLs that must be present in production/staging

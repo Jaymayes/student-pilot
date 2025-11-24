@@ -25,6 +25,7 @@ import { getPromptMetadata } from "./utils/systemPrompt";
 // Import production metrics for CEO Option B evidence collection
 import { productionMetrics, startMetricsReporting } from "./monitoring/productionMetrics";
 import { correlationIdMiddleware } from "./middleware/correlationId";
+import { globalIdentityMiddleware } from "./middleware/globalIdentity";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 if (process.env.SENTRY_DSN) {
@@ -379,6 +380,9 @@ app.use((req, res, next) => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const publicDir = path.resolve(__dirname, '..', 'client', 'public');
 
+  // GLOBAL IDENTITY STANDARD - Add identity headers to ALL responses
+  app.use(globalIdentityMiddleware);
+  
   // Register health check and metrics endpoints (before API routes for canary monitoring)
   app.use(healthRouter);
 
@@ -386,6 +390,8 @@ app.use((req, res, next) => {
   // Register canary BEFORE registerRoutes() to prevent API router interference
   app.get('/api/canary', (req, res) => {
     const canaryResponse = {
+      system_identity: process.env.APP_NAME || 'student_pilot',
+      base_url: process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app',
       app: "student_pilot",
       app_base_url: serviceConfig.frontends.student,
       version: "v2.7",
@@ -407,6 +413,8 @@ app.use((req, res, next) => {
   
   app.get('/canary', (req, res) => {
     const canaryResponse = {
+      system_identity: process.env.APP_NAME || 'student_pilot',
+      base_url: process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app',
       app: "student_pilot",
       app_base_url: serviceConfig.frontends.student,
       version: "v2.7",

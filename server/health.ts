@@ -169,7 +169,7 @@ router.get('/metrics', async (req: Request, res: Response) => {
   res.json(sloMetrics);
 });
 
-// GET /healthz - AGENT3-required alias for /health
+// GET /healthz - AGENT3-required alias for /health with Global Identity Standard
 router.get('/healthz', async (req: Request, res: Response) => {
   let dbStatus: 'ok' | 'error' = 'ok';
   try {
@@ -179,6 +179,8 @@ router.get('/healthz', async (req: Request, res: Response) => {
   }
 
   const health = {
+    system_identity: process.env.APP_NAME || 'student_pilot',
+    base_url: process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app',
     status: dbStatus === 'ok' ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
@@ -188,12 +190,26 @@ router.get('/healthz', async (req: Request, res: Response) => {
   };
 
   const statusCode = health.status === 'ok' ? 200 : 503;
+  
+  // Add Global Identity Standard headers
+  res.set('X-System-Identity', health.system_identity);
+  res.set('X-Base-URL', health.base_url);
+  
   res.status(statusCode).json(health);
 });
 
-// GET /version - AGENT3-required version endpoint
+// GET /version - AGENT3-required version endpoint with Global Identity Standard
 router.get('/version', (req: Request, res: Response) => {
+  const systemIdentity = process.env.APP_NAME || 'student_pilot';
+  const baseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+  
+  // Add Global Identity Standard headers
+  res.set('X-System-Identity', systemIdentity);
+  res.set('X-Base-URL', baseUrl);
+  
   res.json({
+    system_identity: systemIdentity,
+    base_url: baseUrl,
     service: 'student_pilot',
     version: process.env.BUILD_ID || process.env.GIT_SHA || 'dev',
     git_sha: process.env.GIT_SHA || 'unknown',
