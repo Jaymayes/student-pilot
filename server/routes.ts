@@ -45,6 +45,7 @@ import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, ge
 import { adminMetricsRouter } from "./routes/adminMetrics";
 import { serviceConfig } from "./serviceConfig";
 import { metricsCollector } from "./monitoring/metrics";
+import { registerTemporaryCreditEndpoints } from "./routes/creditsApiTemp";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -191,6 +192,10 @@ Allow: /apply/`;
   
   console.log('🚀 Static file guard registered in registerRoutes (correct app instance)');
   console.log('⏩ Canary endpoints registered in index.ts (skipping duplicate registration in routes.ts)');
+
+  // ========== AGENT3 TEMPORARY CREDIT API ENDPOINTS ==========
+  // CRITICAL: Must be extracted to scholarship_api by Dec 8, 2025
+  registerTemporaryCreditEndpoints(app);
 
   // ========== HEALTH & MONITORING ENDPOINTS ==========
   
@@ -2568,24 +2573,58 @@ Allow: /apply/`;
         }
 
         // Mark purchase as paid
-        await db
+        const [updatedPurchase] = await db
           .update(purchases)
           .set({ 
             status: "paid",
             stripePaymentIntentId: session.payment_intent,
             updatedAt: new Date(),
           })
-          .where(eq(purchases.id, purchaseId));
+          .where(eq(purchases.id, purchaseId))
+          .returning();
 
-        // Award credits to user
-        const purchase = await billingService.awardPurchaseCredits(purchaseId);
+        // AGENT3: Award credits via temporary /api/v1/credits/credit endpoint
+        // This ensures idempotency via Stripe event.id
+        const userId = session.metadata?.userId || updatedPurchase.userId;
+        const creditsAmount = updatedPurchase.totalCredits;
+        
+        // Call temporary credit API with Stripe event.id as idempotency key
+        try {
+          const creditResponse = await fetch('http://localhost:5000/api/v1/credits/credit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Idempotency-Key': event.id // Stripe event ID ensures idempotency
+            },
+            body: JSON.stringify({
+              userId,
+              amount: creditsAmount,
+              provider: 'stripe',
+              referenceType: 'stripe_payment',
+              referenceId: session.payment_intent || purchaseId,
+              description: `Purchase of ${creditsAmount} credits via Stripe`
+            })
+          });
+
+          if (!creditResponse.ok) {
+            const errorData = await creditResponse.json();
+            throw new Error(`Credit API failed: ${errorData.error?.message || creditResponse.statusText}`);
+          }
+
+          const creditResult = await creditResponse.json();
+          console.log(`✅ Credits awarded via API: ${creditResult.amountCredits} credits to user ${userId}`);
+        } catch (creditError) {
+          console.error(`❌ Failed to award credits via API:`, creditError);
+          // Fall back to local billingService for resilience
+          console.warn(`⚠️  Falling back to local credit grant`);
+          await billingService.awardPurchaseCredits(purchaseId);
+        }
         
         // Business Event: Track credit purchase
         const packageCode = session.metadata?.packageCode || 'unknown';
-        const userId = session.metadata?.userId || 'unknown';
         const paymentIntentId = session.payment_intent || purchaseId;
         const revenueUsd = session.amount_total / 100; // Convert cents to dollars
-        await StudentEvents.creditPurchased(userId, paymentIntentId, purchase.totalCredits, revenueUsd, crypto.randomUUID());
+        await StudentEvents.creditPurchased(userId, paymentIntentId, creditsAmount, revenueUsd, crypto.randomUUID());
         
         // CEO Analytics: Track conversion event (credit purchase)
         console.log(`[ANALYTICS] Conversion: user=${userId}, package=${packageCode}, purchase_id=${purchaseId}, amount=${revenueUsd} USD`);
