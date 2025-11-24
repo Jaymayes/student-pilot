@@ -169,6 +169,39 @@ router.get('/metrics', async (req: Request, res: Response) => {
   res.json(sloMetrics);
 });
 
+// GET /healthz - AGENT3-required alias for /health
+router.get('/healthz', async (req: Request, res: Response) => {
+  let dbStatus: 'ok' | 'error' = 'ok';
+  try {
+    await db.execute(sql`SELECT 1`);
+  } catch (error) {
+    dbStatus = 'error';
+  }
+
+  const health = {
+    status: dbStatus === 'ok' ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    checks: {
+      database: dbStatus,
+    },
+  };
+
+  const statusCode = health.status === 'ok' ? 200 : 503;
+  res.status(statusCode).json(health);
+});
+
+// GET /version - AGENT3-required version endpoint
+router.get('/version', (req: Request, res: Response) => {
+  res.json({
+    service: 'student_pilot',
+    version: process.env.BUILD_ID || process.env.GIT_SHA || 'dev',
+    git_sha: process.env.GIT_SHA || 'unknown',
+    node_version: process.version,
+    environment: process.env.NODE_ENV || 'development',
+  });
+});
+
 // GET /metrics/prometheus - Prometheus-compatible metrics
 router.get('/metrics/prometheus', (req: Request, res: Response) => {
   const now = Date.now();
