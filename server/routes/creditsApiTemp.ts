@@ -57,7 +57,7 @@ setInterval(() => {
 
 // Request schemas (match scholarship_api contract)
 const CreditRequestSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(1), // Accept any non-empty string (schema uses varchar, not strict UUID)
   amount: z.number().int().positive(),
   provider: z.enum(['stripe', 'admin', 'system', 'promo']),
   referenceType: z.string().optional(),
@@ -66,7 +66,7 @@ const CreditRequestSchema = z.object({
 });
 
 const DebitRequestSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(1), // Accept any non-empty string (schema uses varchar, not strict UUID)
   amount: z.number().int().positive(),
   operation: z.string(),
   referenceId: z.string().optional(),
@@ -98,8 +98,11 @@ export function registerTemporaryCreditEndpoints(app: Express) {
     const existing = idempotencyStore.get(idempotencyKey);
     if (existing) {
       if (existing.status === 'COMPLETED') {
-        // Return cached response
-        return res.json(existing.response);
+        // Return cached response (avoid circular references by creating clean copy)
+        return res.json({
+          ...existing.response,
+          cached: true
+        });
       } else if (existing.status === 'PROCESSING') {
         // Request in progress, ask to retry later
         return res.status(409).json({
@@ -205,17 +208,27 @@ export function registerTemporaryCreditEndpoints(app: Express) {
         };
       });
 
+      // Create clean response object (avoid circular references)
+      const response = {
+        success: result.success,
+        userId: result.userId,
+        amountCredits: result.amountCredits,
+        newBalanceCredits: result.newBalanceCredits,
+        ledgerEntryId: result.ledgerEntryId,
+        provider: result.provider
+      };
+
       // Mark idempotency key as completed
       idempotencyStore.set(idempotencyKey, {
         key: idempotencyKey,
         status: 'COMPLETED',
         requestHash,
-        response: result,
+        response,
         createdAt: idempotencyStore.get(idempotencyKey)!.createdAt,
         completedAt: new Date()
       });
 
-      res.json(result);
+      res.json(response);
     } catch (error) {
       // Mark as failed
       idempotencyStore.set(idempotencyKey, {
@@ -258,7 +271,11 @@ export function registerTemporaryCreditEndpoints(app: Express) {
     const existing = idempotencyStore.get(idempotencyKey);
     if (existing) {
       if (existing.status === 'COMPLETED') {
-        return res.json(existing.response);
+        // Return cached response (avoid circular references by creating clean copy)
+        return res.json({
+          ...existing.response,
+          cached: true
+        });
       } else if (existing.status === 'PROCESSING') {
         return res.status(409).json({
           error: {
@@ -353,17 +370,26 @@ export function registerTemporaryCreditEndpoints(app: Express) {
         };
       });
 
+      // Create clean response object (avoid circular references)
+      const response = {
+        success: result.success,
+        userId: result.userId,
+        amountCredits: result.amountCredits,
+        newBalanceCredits: result.newBalanceCredits,
+        ledgerEntryId: result.ledgerEntryId
+      };
+
       // Mark completed
       idempotencyStore.set(idempotencyKey, {
         key: idempotencyKey,
         status: 'COMPLETED',
         requestHash,
-        response: result,
+        response,
         createdAt: idempotencyStore.get(idempotencyKey)!.createdAt,
         completedAt: new Date()
       });
 
-      res.json(result);
+      res.json(response);
     } catch (error: any) {
       idempotencyStore.delete(idempotencyKey); // Allow retry on error
 
