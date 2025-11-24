@@ -2594,7 +2594,8 @@ Allow: /apply/`;
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Idempotency-Key': event.id // Stripe event ID ensures idempotency
+              'Idempotency-Key': event.id, // Stripe event ID ensures idempotency
+              'Authorization': `Bearer ${env.SHARED_SECRET}` // RBAC: Service token for credit operations
             },
             body: JSON.stringify({
               userId,

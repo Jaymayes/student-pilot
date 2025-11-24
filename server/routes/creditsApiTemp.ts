@@ -19,12 +19,13 @@
  * 6. Update Stripe webhook in student_pilot/server/routes.ts to call scholarship_api
  */
 
-import type { Express } from 'express';
+import type { Express, Request, Response, NextFunction } from 'express';
 import { db } from '../db';
 import { creditLedger, creditBalances, users } from '@shared/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { env } from '../environment';
 
 // Idempotency key status enum (matches scholarship_api spec)
 const IdempotencyStatus = {
@@ -55,6 +56,44 @@ setInterval(() => {
   });
 }, 60 * 60 * 1000); // Every hour
 
+/**
+ * RBAC Middleware: Only allow service-to-service calls with cryptographic authentication
+ * Valid sources: Stripe webhook (with service token), system, admin
+ * 
+ * SECURITY: ALL requests must provide Authorization: Bearer <SHARED_SECRET>
+ * NO localhost bypass - prevents Host header spoofing and proxy bypass attacks
+ */
+function requireServiceAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers['authorization'];
+  
+  if (!authHeader) {
+    return res.status(401).json({
+      error: {
+        code: 'MISSING_AUTHORIZATION',
+        message: 'Authorization header is required for credit operations',
+        hint: 'Include Authorization: Bearer <service_token> header',
+        request_id: crypto.randomUUID()
+      }
+    });
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, '');
+  
+  if (token !== env.SHARED_SECRET) {
+    return res.status(403).json({
+      error: {
+        code: 'FORBIDDEN',
+        message: 'Invalid service token. Students cannot directly grant or debit credits.',
+        hint: 'Credit operations must go through Stripe payment flow or admin panel',
+        request_id: crypto.randomUUID()
+      }
+    });
+  }
+
+  // Valid service token - allow request
+  next();
+}
+
 // Request schemas (match scholarship_api contract)
 const CreditRequestSchema = z.object({
   userId: z.string().min(1), // Accept any non-empty string (schema uses varchar, not strict UUID)
@@ -81,7 +120,7 @@ export function registerTemporaryCreditEndpoints(app: Express) {
    * Grant credits to a user (idempotent)
    * RBAC: system, admin, provider roles only
    */
-  app.post('/api/v1/credits/credit', async (req, res) => {
+  app.post('/api/v1/credits/credit', requireServiceAuth, async (req, res) => {
     const idempotencyKey = req.headers['idempotency-key'] as string;
     
     if (!idempotencyKey) {
@@ -254,7 +293,7 @@ export function registerTemporaryCreditEndpoints(app: Express) {
    * Debit credits from a user (idempotent, fail-closed on overdraft)
    * RBAC: system, admin, sage roles
    */
-  app.post('/api/v1/credits/debit', async (req, res) => {
+  app.post('/api/v1/credits/debit', requireServiceAuth, async (req, res) => {
     const idempotencyKey = req.headers['idempotency-key'] as string;
     
     if (!idempotencyKey) {
