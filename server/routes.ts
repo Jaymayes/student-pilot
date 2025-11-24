@@ -44,6 +44,7 @@ import { StudentEvents } from "./services/businessEvents";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 import { adminMetricsRouter } from "./routes/adminMetrics";
 import { serviceConfig } from "./serviceConfig";
+import { metricsCollector } from "./monitoring/metrics";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -574,6 +575,18 @@ Allow: /apply/`;
       node_version: process.version,
       uptime_seconds: Math.floor(process.uptime())
     });
+  });
+
+  // AGENT3 v2.7: Prometheus metrics endpoint for observability
+  app.get('/api/metrics/prometheus', (req, res) => {
+    try {
+      const metrics = metricsCollector.getPrometheusMetrics();
+      res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
+      res.send(metrics);
+    } catch (error) {
+      console.error('Error generating Prometheus metrics:', error);
+      res.status(500).send('# Error generating metrics\n');
+    }
   });
   
   // ========== PROMPT PACK API ENDPOINTS ==========
