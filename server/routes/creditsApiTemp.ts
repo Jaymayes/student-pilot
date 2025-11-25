@@ -26,6 +26,7 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { env } from '../environment';
+import { metricsCollector } from '../monitoring/metrics';
 
 // Idempotency key status enum (matches scholarship_api spec)
 const IdempotencyStatus = {
@@ -513,6 +514,103 @@ export function registerTemporaryCreditEndpoints(app: Express) {
     }
   });
 
-  console.log('✅ Temporary credit API registered: /api/v1/credits/{credit,debit,balance}');
+  /**
+   * AGENT3 v3.0: POST /api/v1/credits/purchase
+   * Create Stripe Checkout Session for credit purchase
+   * Returns checkout_url; increments purchases_total{status}
+   */
+  app.post('/api/v1/credits/purchase', async (req, res) => {
+    const requestId = crypto.randomUUID();
+    
+    try {
+      const { packageCode, userId, userEmail } = req.body;
+      
+      if (!packageCode) {
+        metricsCollector.recordPurchase(false);
+        return res.status(400).json({
+          system_identity: 'student_pilot',
+          base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+          error: {
+            code: 'MISSING_PACKAGE_CODE',
+            message: 'packageCode is required',
+            request_id: requestId
+          }
+        });
+      }
+      
+      const CREDIT_PACKAGES = {
+        starter: { priceUsdCents: 999, baseCredits: 9990, bonusCredits: 0, totalCredits: 9990 },
+        professional: { priceUsdCents: 4999, baseCredits: 49990, bonusCredits: 2500, totalCredits: 52490 },
+        enterprise: { priceUsdCents: 9999, baseCredits: 99990, bonusCredits: 10000, totalCredits: 109990 }
+      };
+      
+      const packageData = CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES];
+      if (!packageData) {
+        metricsCollector.recordPurchase(false);
+        return res.status(400).json({
+          system_identity: 'student_pilot',
+          base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+          error: {
+            code: 'INVALID_PACKAGE_CODE',
+            message: "Invalid package code. Must be 'starter', 'professional', or 'enterprise'",
+            request_id: requestId
+          }
+        });
+      }
+      
+      const stripe = await import('stripe');
+      const stripeClient = new stripe.default(process.env.STRIPE_SECRET_KEY!);
+      
+      const session = await stripeClient.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `ScholarLink Credits - ${packageCode.charAt(0).toUpperCase() + packageCode.slice(1)}`,
+              description: `${packageData.baseCredits.toLocaleString()} credits${packageData.bonusCredits > 0 ? ` + ${packageData.bonusCredits.toLocaleString()} bonus credits` : ''}`,
+            },
+            unit_amount: packageData.priceUsdCents,
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app'}/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app'}/billing?canceled=true`,
+        customer_email: userEmail || undefined,
+        metadata: {
+          userId: userId || 'anonymous',
+          packageCode: packageCode,
+        },
+      });
+      
+      metricsCollector.recordPurchase(true);
+      
+      res.json({
+        system_identity: 'student_pilot',
+        base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        checkout_url: session.url,
+        session_id: session.id,
+        package: packageCode,
+        total_credits: packageData.totalCredits,
+        price_usd: packageData.priceUsdCents / 100,
+        request_id: requestId
+      });
+    } catch (error) {
+      console.error('Purchase checkout creation failed:', error);
+      metricsCollector.recordPurchase(false);
+      res.status(500).json({
+        system_identity: 'student_pilot',
+        base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        error: {
+          code: 'CHECKOUT_CREATION_FAILED',
+          message: 'Failed to create checkout session',
+          request_id: requestId
+        }
+      });
+    }
+  });
+
+  console.log('✅ Temporary credit API registered: /api/v1/credits/{credit,debit,balance,purchase}');
   console.log('⚠️  REMINDER: Extract to scholarship_api by Dec 8, 2025');
 }

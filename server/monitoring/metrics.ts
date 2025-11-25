@@ -57,6 +57,14 @@ class MetricsCollector extends EventEmitter {
   private readonly maxSampleRetention = 1000; // Keep last 1000 samples
   private readonly sampleRetentionMs = 5 * 60 * 1000; // 5 minutes
   
+  // AGENT3 v3.0: Business-specific counters for student_pilot
+  private businessMetrics = {
+    purchasesSuccess: 0,
+    purchasesFailure: 0,
+    webhooksSuccess: 0,
+    webhooksFailure: 0,
+  };
+  
   constructor() {
     super();
     this.metrics = {
@@ -82,6 +90,37 @@ class MetricsCollector extends EventEmitter {
     
     // Clean up old samples periodically
     setInterval(() => this.cleanupOldSamples(), 60000); // Every minute
+  }
+  
+  /**
+   * AGENT3 v3.0: Record purchase attempt
+   */
+  recordPurchase(success: boolean): void {
+    if (success) {
+      this.businessMetrics.purchasesSuccess++;
+    } else {
+      this.businessMetrics.purchasesFailure++;
+    }
+    this.emit('purchase', { success, timestamp: Date.now() });
+  }
+  
+  /**
+   * AGENT3 v3.0: Record webhook processing
+   */
+  recordWebhook(success: boolean): void {
+    if (success) {
+      this.businessMetrics.webhooksSuccess++;
+    } else {
+      this.businessMetrics.webhooksFailure++;
+    }
+    this.emit('webhook', { success, timestamp: Date.now() });
+  }
+  
+  /**
+   * AGENT3 v3.0: Get business metrics for Prometheus
+   */
+  getBusinessMetrics() {
+    return { ...this.businessMetrics };
   }
   
   /**
@@ -473,6 +512,18 @@ class MetricsCollector extends EventEmitter {
     metrics.push('# HELP process_cpu_usage_percent Current CPU usage percentage');
     metrics.push('# TYPE process_cpu_usage_percent gauge');
     metrics.push(`process_cpu_usage_percent ${resourceStats.cpu.usage}`);
+    
+    // AGENT3 v3.0: Business metrics for student_pilot
+    metrics.push('');
+    metrics.push('# HELP purchases_total Total credit purchase attempts by status');
+    metrics.push('# TYPE purchases_total counter');
+    metrics.push(`purchases_total{status="success"} ${this.businessMetrics.purchasesSuccess}`);
+    metrics.push(`purchases_total{status="failure"} ${this.businessMetrics.purchasesFailure}`);
+    
+    metrics.push('# HELP webhooks_total Total webhook processing by status');
+    metrics.push('# TYPE webhooks_total counter');
+    metrics.push(`webhooks_total{status="success"} ${this.businessMetrics.webhooksSuccess}`);
+    metrics.push(`webhooks_total{status="failure"} ${this.businessMetrics.webhooksFailure}`);
     
     return metrics.join('\n');
   }

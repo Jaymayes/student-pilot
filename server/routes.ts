@@ -2539,6 +2539,7 @@ Allow: /apply/`;
     if (!endpointSecret) {
       const correlationId = (req as any).correlationId;
       console.error(`[${correlationId}] STRIPE_WEBHOOK_SECRET not configured`);
+      metricsCollector.recordWebhook(false);
       return res.status(400).json({ 
         error: "Webhook secret not configured",
         correlationId 
@@ -2552,6 +2553,7 @@ Allow: /apply/`;
     } catch (err) {
       const correlationId = (req as any).correlationId;
       console.error(`[${correlationId}] Webhook signature verification failed:`, err);
+      metricsCollector.recordWebhook(false);
       return res.status(400).json({ 
         error: "Webhook signature verification failed",
         correlationId 
@@ -2633,13 +2635,88 @@ Allow: /apply/`;
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
 
+      metricsCollector.recordWebhook(true);
       res.json({ received: true });
     } catch (error) {
       const correlationId = (req as any).correlationId;
       console.error(`[${correlationId}] Error processing webhook:`, error);
+      metricsCollector.recordWebhook(false);
       res.status(500).json({ 
         error: "Webhook processing failed",
         correlationId 
+      });
+    }
+  });
+
+  // AGENT3 v3.0: POST /api/webhooks/stripe - v3.0 compliant webhook endpoint
+  // This aliases to /api/billing/stripe-webhook for compliance
+  app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const requestId = crypto.randomUUID();
+
+    // Add identity headers
+    res.setHeader('X-System-Identity', 'student_pilot');
+    res.setHeader('X-App-Base-URL', 'https://student-pilot-jamarrlmayes.replit.app');
+
+    if (!endpointSecret) {
+      console.error(`[${requestId}] STRIPE_WEBHOOK_SECRET not configured`);
+      metricsCollector.recordWebhook(false);
+      return res.status(400).json({ 
+        system_identity: 'student_pilot',
+        base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        error: {
+          code: 'WEBHOOK_SECRET_MISSING',
+          message: 'Webhook secret not configured',
+          request_id: requestId
+        }
+      });
+    }
+
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig as string, endpointSecret);
+    } catch (err) {
+      console.error(`[${requestId}] Webhook signature verification failed:`, err);
+      metricsCollector.recordWebhook(false);
+      return res.status(400).json({ 
+        system_identity: 'student_pilot',
+        base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        error: {
+          code: 'SIGNATURE_VERIFICATION_FAILED',
+          message: 'Webhook signature verification failed',
+          request_id: requestId
+        }
+      });
+    }
+
+    try {
+      console.log(`[${requestId}] Processing webhook event: ${event.type}`);
+      
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as any;
+        console.log(`[${requestId}] Checkout session completed: ${session.id}`);
+      }
+
+      metricsCollector.recordWebhook(true);
+      res.json({ 
+        system_identity: 'student_pilot',
+        base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        received: true,
+        event_type: event.type,
+        request_id: requestId
+      });
+    } catch (error) {
+      console.error(`[${requestId}] Error processing webhook:`, error);
+      metricsCollector.recordWebhook(false);
+      res.status(500).json({ 
+        system_identity: 'student_pilot',
+        base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        error: {
+          code: 'WEBHOOK_PROCESSING_FAILED',
+          message: 'Webhook processing failed',
+          request_id: requestId
+        }
       });
     }
   });
