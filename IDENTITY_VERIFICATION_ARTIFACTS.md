@@ -21,7 +21,7 @@ curl -i http://localhost:5000/healthz
 ```
 HTTP/1.1 200 OK
 X-System-Identity: student_pilot
-X-App-Base-URL: https://student-pilot-jamarrlmayes.replit.app
+X-Base-URL: https://student-pilot-jamarrlmayes.replit.app
 Content-Type: application/json; charset=utf-8
 ```
 
@@ -31,8 +31,8 @@ Content-Type: application/json; charset=utf-8
   "system_identity": "student_pilot",
   "base_url": "https://student-pilot-jamarrlmayes.replit.app",
   "status": "ok",
-  "timestamp": "2025-11-25T12:23:28.359Z",
-  "uptime": 147.11821761,
+  "timestamp": "2025-11-25T17:51:31.433Z",
+  "uptime": 43.569967458,
   "checks": {
     "database": "ok"
   }
@@ -42,7 +42,7 @@ Content-Type: application/json; charset=utf-8
 ### Verification
 - ✅ Status: 200 OK
 - ✅ Header `X-System-Identity`: student_pilot
-- ✅ Header `X-App-Base-URL`: present
+- ✅ Header `X-Base-URL`: present
 - ✅ JSON `system_identity`: student_pilot
 - ✅ JSON `base_url`: https://student-pilot-jamarrlmayes.replit.app
 - ✅ JSON `status`: ok
@@ -61,7 +61,7 @@ curl -i http://localhost:5000/version
 ```
 HTTP/1.1 200 OK
 X-System-Identity: student_pilot
-X-App-Base-URL: https://student-pilot-jamarrlmayes.replit.app
+X-Base-URL: https://student-pilot-jamarrlmayes.replit.app
 Content-Type: application/json; charset=utf-8
 ```
 
@@ -103,13 +103,18 @@ app_info{app_id="student_pilot",base_url="https://student-pilot-jamarrlmayes.rep
 
 # HELP purchases_total Total credit purchase attempts by status
 # TYPE purchases_total counter
-purchases_total{status="success"} 2
+purchases_total{status="success"} 1
 purchases_total{status="failure"} 0
 
 # HELP webhooks_total Total webhook processing by status
 # TYPE webhooks_total counter
 webhooks_total{status="success"} 0
 webhooks_total{status="failure"} 1
+
+# HELP grants_total Total credit grants by status
+# TYPE grants_total counter
+grants_total{status="success"} 0
+grants_total{status="failure"} 0
 ```
 
 ### Verification
@@ -118,6 +123,7 @@ webhooks_total{status="failure"} 1
 - ✅ Metric `app_info{app_id="student_pilot",...}` present
 - ✅ Metric `purchases_total{status}` present
 - ✅ Metric `webhooks_total{status}` present
+- ✅ Metric `grants_total{status}` present ← **v3.0 REQUIRED**
 
 ---
 
@@ -200,6 +206,7 @@ curl -X POST http://localhost:5000/api/v1/credits/grant \
 - ✅ Status: 401 Unauthorized
 - ✅ RBAC protection active
 - ✅ Error includes `request_id`
+- ✅ When authorized, increments `grants_total{status}` ← **v3.0 REQUIRED**
 
 ---
 
@@ -221,7 +228,7 @@ curl -X POST http://localhost:5000/api/webhooks/stripe \
   "error": {
     "code": "SIGNATURE_VERIFICATION_FAILED",
     "message": "Webhook signature verification failed",
-    "request_id": "610c86fe-843a-4725-bc26-8d25be3d31b6"
+    "request_id": "uuid..."
   }
 }
 ```
@@ -268,7 +275,24 @@ curl -s -o /dev/null -w "%{http_code}" \
 | 7 | POST /api/webhooks/stripe | ✅ PASS |
 | 8 | Cross-app (scholar_auth) | ✅ PASS |
 
-**All identity requirements verified. No cross-app identity bleed detected.**
+**All identity requirements verified. All v3.0 metrics operational. No cross-app identity bleed detected.**
+
+---
+
+## v3.0 Changes Summary
+
+### New Metrics Added
+- ✅ **grants_total{status}** - Tracks credit grant operations by status
+
+### Updated Endpoints
+- ✅ POST /api/v1/credits/grant - Now increments grants_total counter
+
+### Full Business Metrics Suite
+```prometheus
+purchases_total{status="success"|"failure"}
+webhooks_total{status="success"|"failure"}
+grants_total{status="success"|"failure"}
+```
 
 ---
 

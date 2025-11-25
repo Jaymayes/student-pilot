@@ -58,6 +58,7 @@ student_pilot | https://student-pilot-jamarrlmayes.replit.app
 - ✅ **app_info metric:** `app_info{app_id="student_pilot",base_url="...",version="dev"} 1`
 - ✅ **purchases_total{status}:** Tracking purchase attempts
 - ✅ **webhooks_total{status}:** Tracking webhook processing
+- ✅ **grants_total{status}:** Tracking credit grants
 - ✅ **Request IDs:** Included in error JSON
 
 ---
@@ -70,8 +71,27 @@ student_pilot | https://student-pilot-jamarrlmayes.replit.app
 |----------|-------------|--------|-------------------|
 | `POST /api/v1/credits/purchase` | Create Stripe Checkout Session | ✅ WORKING | `purchases_total{status}` |
 | `GET /api/v1/credits/balance?user_id=` | Get credit balance | ✅ WORKING | - |
-| `POST /api/v1/credits/grant` | Admin credit grant (RBAC) | ✅ WORKING | - |
+| `POST /api/v1/credits/grant` | Admin credit grant (RBAC) | ✅ WORKING | `grants_total{status}` |
 | `POST /api/webhooks/stripe` | Stripe webhook handler | ✅ WORKING | `webhooks_total{status}` |
+
+### Required Metrics (v3.0 Spec)
+
+```
+# HELP purchases_total Total credit purchase attempts by status
+# TYPE purchases_total counter
+purchases_total{status="success"} 1
+purchases_total{status="failure"} 0
+
+# HELP webhooks_total Total webhook processing by status
+# TYPE webhooks_total counter
+webhooks_total{status="success"} 0
+webhooks_total{status="failure"} 1
+
+# HELP grants_total Total credit grants by status
+# TYPE grants_total counter
+grants_total{status="success"} 0
+grants_total{status="failure"} 0
+```
 
 ### Test Evidence
 
@@ -88,6 +108,18 @@ student_pilot | https://student-pilot-jamarrlmayes.replit.app
 }
 ```
 
+**Test 7: POST /api/v1/credits/grant (RBAC)**
+```json
+{
+  "error": {
+    "code": "MISSING_AUTHORIZATION",
+    "message": "Authorization header is required for credit operations",
+    "hint": "Include Authorization: Bearer <service_token> header",
+    "request_id": "uuid..."
+  }
+}
+```
+
 **Test 8: POST /api/webhooks/stripe (signature validation)**
 ```json
 {
@@ -96,23 +128,9 @@ student_pilot | https://student-pilot-jamarrlmayes.replit.app
   "error": {
     "code": "SIGNATURE_VERIFICATION_FAILED",
     "message": "Webhook signature verification failed",
-    "request_id": "610c86fe-843a-4725-bc26-8d25be3d31b6"
+    "request_id": "uuid..."
   }
 }
-```
-
-### Metrics Evidence
-
-```
-# HELP purchases_total Total credit purchase attempts by status
-# TYPE purchases_total counter
-purchases_total{status="success"} 2
-purchases_total{status="failure"} 0
-
-# HELP webhooks_total Total webhook processing by status
-# TYPE webhooks_total counter
-webhooks_total{status="success"} 0
-webhooks_total{status="failure"} 1
 ```
 
 ---
@@ -142,7 +160,7 @@ Status: 200 OK ✅
 | 1 | GET /healthz returns identity fields/headers | ✅ PASS |
 | 2 | GET /version returns version and identity | ✅ PASS |
 | 3 | GET /api/metrics/prometheus has app_info | ✅ PASS |
-| 4 | Business metrics (purchases_total, webhooks_total) | ✅ PASS |
+| 4 | Business metrics (purchases_total, webhooks_total, grants_total) | ✅ PASS |
 | 5 | POST /api/v1/credits/purchase returns checkout_url | ✅ PASS |
 | 6 | GET /api/v1/credits/balance returns 200 | ✅ PASS |
 | 7 | POST /api/v1/credits/grant (RBAC protected) | ✅ PASS |
@@ -163,6 +181,7 @@ Status: 200 OK ✅
 | Stripe integration | ✅ LIVE READY | Live keys configured |
 | Credit ledger | ✅ OPERATIONAL | Balance tracking works |
 | Webhook processing | ✅ WORKING | Signature validation active |
+| Credit grant (admin) | ✅ WORKING | RBAC enforced |
 | 4x markup transparency | ✅ CONFIGURED | Pricing clear in UI |
 
 ### Revenue Flow: ✅ COMPLETE
@@ -204,7 +223,7 @@ student_pilot | https://student-pilot-jamarrlmayes.replit.app | Readiness: GO | 
 
 ---
 
-**Report Generated:** November 25, 2025 12:23 UTC  
+**Report Generated:** November 25, 2025 17:51 UTC  
 **AGENT3 Version:** v3.0  
 **Section:** E (B2C storefront + credits)
 

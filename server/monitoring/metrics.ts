@@ -63,6 +63,8 @@ class MetricsCollector extends EventEmitter {
     purchasesFailure: 0,
     webhooksSuccess: 0,
     webhooksFailure: 0,
+    grantsSuccess: 0,
+    grantsFailure: 0,
   };
   
   constructor() {
@@ -114,6 +116,18 @@ class MetricsCollector extends EventEmitter {
       this.businessMetrics.webhooksFailure++;
     }
     this.emit('webhook', { success, timestamp: Date.now() });
+  }
+  
+  /**
+   * AGENT3 v3.0: Record credit grant
+   */
+  recordGrant(success: boolean): void {
+    if (success) {
+      this.businessMetrics.grantsSuccess++;
+    } else {
+      this.businessMetrics.grantsFailure++;
+    }
+    this.emit('grant', { success, timestamp: Date.now() });
   }
   
   /**
@@ -524,6 +538,11 @@ class MetricsCollector extends EventEmitter {
     metrics.push('# TYPE webhooks_total counter');
     metrics.push(`webhooks_total{status="success"} ${this.businessMetrics.webhooksSuccess}`);
     metrics.push(`webhooks_total{status="failure"} ${this.businessMetrics.webhooksFailure}`);
+    
+    metrics.push('# HELP grants_total Total credit grants by status');
+    metrics.push('# TYPE grants_total counter');
+    metrics.push(`grants_total{status="success"} ${this.businessMetrics.grantsSuccess}`);
+    metrics.push(`grants_total{status="failure"} ${this.businessMetrics.grantsFailure}`);
     
     return metrics.join('\n');
   }

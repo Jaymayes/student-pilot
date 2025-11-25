@@ -60,11 +60,11 @@ fi
 echo ""
 
 # Test 4: Business Metrics (v3.0 required)
-echo "=== Test 4: Business Metrics (purchases_total, webhooks_total) ==="
-echo "Expected: purchases_total{status}, webhooks_total{status}"
+echo "=== Test 4: Business Metrics (purchases_total, webhooks_total, grants_total) ==="
+echo "Expected: purchases_total{status}, webhooks_total{status}, grants_total{status}"
 METRICS=$(curl -s "$BASE_URL/api/metrics/prometheus")
-echo "$METRICS" | grep -E "purchases_total|webhooks_total"
-if echo "$METRICS" | grep -q 'purchases_total{status=' && echo "$METRICS" | grep -q 'webhooks_total{status='; then
+echo "$METRICS" | grep -E "purchases_total|webhooks_total|grants_total"
+if echo "$METRICS" | grep -q 'purchases_total{status=' && echo "$METRICS" | grep -q 'webhooks_total{status=' && echo "$METRICS" | grep -q 'grants_total{status='; then
   echo "  ✅ PASS"
   PASS_COUNT=$((PASS_COUNT + 1))
 else

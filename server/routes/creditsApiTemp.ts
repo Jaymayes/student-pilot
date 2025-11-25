@@ -268,6 +268,9 @@ export function registerTemporaryCreditEndpoints(app: Express) {
         completedAt: new Date()
       });
 
+      // AGENT3 v3.0: Record grant success metric
+      metricsCollector.recordGrant(true);
+
       res.json(response);
     } catch (error) {
       // Mark as failed
@@ -277,6 +280,9 @@ export function registerTemporaryCreditEndpoints(app: Express) {
         requestHash,
         createdAt: idempotencyStore.get(idempotencyKey)!.createdAt
       });
+
+      // AGENT3 v3.0: Record grant failure metric
+      metricsCollector.recordGrant(false);
 
       console.error('Credit grant failed:', error);
       res.status(500).json({

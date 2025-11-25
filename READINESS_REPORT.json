@@ -1,7 +1,7 @@
 {
   "system_identity": "student_pilot",
   "base_url": "https://student-pilot-jamarrlmayes.replit.app",
-  "report_date": "2025-11-25T12:23:00Z",
+  "report_date": "2025-11-25T17:51:00Z",
   "agent3_version": "v3.0",
   "section": "E",
   "environment": "development",
@@ -75,6 +75,7 @@
       "credits_grant": {
         "path": "POST /api/v1/credits/grant",
         "rbac_protected": true,
+        "increments_counter": "grants_total{status}",
         "verified": true
       },
       "webhooks_stripe": {
@@ -87,8 +88,9 @@
     },
     "metrics": {
       "app_info": "app_info{app_id=\"student_pilot\",base_url=\"https://student-pilot-jamarrlmayes.replit.app\",version=\"dev\"} 1",
-      "purchases_total": "purchases_total{status=\"success\"} 2",
-      "webhooks_total": "webhooks_total{status=\"failure\"} 1"
+      "purchases_total": "purchases_total{status=\"success\"} 1, purchases_total{status=\"failure\"} 0",
+      "webhooks_total": "webhooks_total{status=\"success\"} 0, webhooks_total{status=\"failure\"} 1",
+      "grants_total": "grants_total{status=\"success\"} 0, grants_total{status=\"failure\"} 0"
     }
   },
 
@@ -107,7 +109,7 @@
       { "id": 1, "name": "GET /healthz", "status": "PASS" },
       { "id": 2, "name": "GET /version", "status": "PASS" },
       { "id": 3, "name": "GET /api/metrics/prometheus", "status": "PASS" },
-      { "id": 4, "name": "Business metrics (purchases_total, webhooks_total)", "status": "PASS" },
+      { "id": 4, "name": "Business metrics (purchases_total, webhooks_total, grants_total)", "status": "PASS" },
       { "id": 5, "name": "POST /api/v1/credits/purchase", "status": "PASS" },
       { "id": 6, "name": "GET /api/v1/credits/balance", "status": "PASS" },
       { "id": 7, "name": "POST /api/v1/credits/grant (RBAC)", "status": "PASS" },
@@ -133,7 +135,7 @@
       "deadline": "2025-12-08",
       "blocks_revenue": false
     }
-  ],
+  },
 
   "deliverables": {
     "READINESS_REPORT.md": true,
