@@ -517,15 +517,44 @@ Allow: /apply/`;
   });
   
   app.get('/api/health', (req, res) => {
+    const appName = process.env.APP_NAME || 'student_pilot';
+    const appBaseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+    
     res.status(200).json({ 
-      status: 'ok', 
+      status: 'ok',
+      app: appName,
+      baseUrl: appBaseUrl,
       timestamp: new Date().toISOString(),
       service: 'scholarlink-api',
       checks: {
         database: 'healthy',
         cache: 'healthy',
-        stripe: 'test_mode' // Note: Actual mode per-user determined by getStripeForUser()
+        stripe: 'test_mode'
       }
+    });
+  });
+  
+  app.get('/api/metrics/basic', (req, res) => {
+    const httpStats = metricsCollector.getHttpMetrics();
+    const businessMetrics = metricsCollector.getBusinessMetrics();
+    
+    let requestsTotal = 0;
+    let errorsTotal = 0;
+    let latencyP95Ms = 0;
+    
+    Object.values(httpStats).forEach((stat: any) => {
+      requestsTotal += stat.count || 0;
+      errorsTotal += Math.round((stat.errorRate / 100) * (stat.count || 0));
+      if (stat.p95 > latencyP95Ms) latencyP95Ms = stat.p95;
+    });
+    
+    res.status(200).json({
+      requests_total: requestsTotal,
+      errors_total: errorsTotal,
+      latency_p95_ms: Math.round(latencyP95Ms),
+      purchases_total: businessMetrics.purchasesSuccess + businessMetrics.purchasesFailure,
+      webhooks_total: businessMetrics.webhooksSuccess + businessMetrics.webhooksFailure,
+      grants_total: businessMetrics.grantsSuccess + businessMetrics.grantsFailure
     });
   });
 
