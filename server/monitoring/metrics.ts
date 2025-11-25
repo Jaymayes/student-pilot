@@ -370,6 +370,16 @@ class MetricsCollector extends EventEmitter {
     
     const metrics: string[] = [];
     
+    // AGENT3 Global Identity Standard: app_info metric MUST be first
+    const appName = process.env.APP_NAME || 'student_pilot';
+    const appBaseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+    const appVersion = process.env.BUILD_ID || process.env.GIT_SHA || 'dev';
+    
+    metrics.push('# HELP app_info Application metadata (AGENT3 required)');
+    metrics.push('# TYPE app_info gauge');
+    metrics.push(`app_info{app_id="${appName}",base_url="${appBaseUrl}",version="${appVersion}"} 1`);
+    metrics.push(''); // Blank line for readability
+    
     // HTTP request duration summary (corrected from incorrect histogram)
     metrics.push('# HELP http_request_duration_seconds HTTP request latency summary');
     metrics.push('# TYPE http_request_duration_seconds summary');

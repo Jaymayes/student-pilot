@@ -234,7 +234,15 @@ router.get('/metrics/prometheus', (req: Request, res: Response) => {
     return latencies[index];
   };
 
+  const appName = process.env.APP_NAME || 'student_pilot';
+  const appBaseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+  const appVersion = process.env.BUILD_ID || process.env.GIT_SHA || 'dev';
+  
   const prometheusMetrics = `
+# HELP app_info Application metadata (AGENT3 required)
+# TYPE app_info gauge
+app_info{app_id="${appName}",base_url="${appBaseUrl}",version="${appVersion}"} 1
+
 # HELP scholarlink_requests_total Total number of HTTP requests
 # TYPE scholarlink_requests_total counter
 scholarlink_requests_total ${totalRequests}
