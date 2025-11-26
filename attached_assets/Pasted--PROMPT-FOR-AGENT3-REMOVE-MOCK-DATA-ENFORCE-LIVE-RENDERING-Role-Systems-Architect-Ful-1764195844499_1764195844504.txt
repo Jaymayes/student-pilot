@@ -1,0 +1,76 @@
+# PROMPT FOR AGENT3 (REMOVE MOCK DATA & ENFORCE LIVE RENDERING)
+
+**Role:** Systems Architect & Full-Stack Engineer
+**Target App:** student_pilot (https://student-pilot-jamarrlmayes.replit.app)
+
+**Identification (Execute First):**
+`IDENTIFY: Agent3 | APP_NAME=student_pilot | APP_BASE_URL=https://student-pilot-jamarrlmayes.replit.app | UTC=<timestamp>`
+
+---
+
+### **Objective**
+Audit the frontend codebase and **eliminate all mock, demo, placeholder, and hardcoded static data** identified in the data audit. Ensure all UI components render only **real-time/live data** from the internal API or show an explicit empty/loading state if data is unavailable.
+
+### **Scope & Targeted Data Sources**
+
+**1. Dashboard (/dashboard)**
+* **Stats Cards:**
+    * `activeApplications`: Ensure count comes from `GET /api/dashboard/stats` (status='draft'|'in_progress').
+    * `newMatches`: Ensure count comes from `GET /api/dashboard/stats`.
+    * `upcomingDeadlines`: Ensure count comes from `GET /api/dashboard/stats` (deadline <= 30 days).
+    * `totalApplied`: Ensure count comes from `GET /api/dashboard/stats`.
+* **Match Card:**
+    * `scholarship-match-card`: Render list from `GET /api/matches` (live DB query + AI score).
+* **Application Progress:**
+    * `application-progress-card`: Render list from `GET /api/applications` (limit 2).
+* **Welcome Message:**
+    * `text-welcome`: Display real `user.firstName` from auth session. Fallback to "Student" only if name is null, not as a hardcoded string.
+
+**2. Scholarship Search (/scholarships)**
+* **Total Matches:**
+    * `text-total-matches`: Render live count from `GET /api/scholarships`.
+* **Scholarship Details:**
+    * `card-scholarship-{id}`: Render title, amount, deadline from `GET /api/scholarships`.
+    * Remove any hardcoded "Sample Scholarship" data.
+
+**3. Profile (/profile)**
+* **Profile Fields:**
+    * `input-gpa`, `input-major`, `select-academic-level`, `input-graduation-year`: Bind directly to `GET /api/profile` response.
+    * `interests-badges`, `extracurriculars-badges`: Render from `studentProfile` array fields.
+    * **PII Compliance:** Ensure these fields are only fetched for the authenticated user (server-side enforcement).
+
+**4. Billing (/Billing)**
+* **Balance & History:**
+    * `current-balance`: Render from `GET /api/billing/summary`.
+    * `recent-transactions`: Render from `GET /api/billing/ledger`.
+    * `ai-usage-history`: Render from `GET /api/billing/usage`.
+* **No Fakes:** Remove any hardcoded transaction rows or static credit amounts (e.g., "100 Credits").
+
+**5. Documents (/documents)**
+* **Document List:**
+    * `document-card`: Render from `GET /api/documents`.
+    * Show explicit empty state if no documents exist. Do not show "Example.pdf".
+
+### **Non-Negotiable Rules**
+1.  **No Fake Data:** If an API returns an empty list, show an empty state component, NOT a list of fake items.
+2.  **No Static Counts:** Do not hardcode "12 Matches" or "$50,000 Won". Use `0` or `-` if data is missing/loading.
+3.  **Remove Mock Files:** Delete any `mockData.ts`, `dummy.json`, `fixtures/`, or `seed.ts` files found in the client source.
+4.  **Error Handling:** If an API call fails, render the `ErrorState` component with a retry button.
+
+### **Execution Plan**
+
+1.  **Search & Destroy:**
+    * Grep for: `mock`, `dummy`, `placeholder`, `sample`, `John Doe`, `123 Main St`, `Example University`.
+    * Remove the hardcoded HTML/JSX or constant variables.
+2.  **Wire Up Live Data:**
+    * Verify `Dashboard` components fetch from `/api/dashboard/stats`.
+    * Verify `Scholarships` components fetch from `/api/scholarships`.
+    * Verify `Billing` components fetch from `/api/billing/*`.
+3.  **Verification:**
+    * Reload `/dashboard`. Confirm no static numbers appear.
+    * Check `/scholarships`. Ensure list matches DB content.
+
+### **Deliverables**
+1.  **Code Changes:** Applied fixes to `client/src` components.
+2.  **Confirmation:** A report listing exactly which files were modified and confirming that specific hardcoded values are gone.
+3.  **Status:** `STATUS: FIXED & REAL-TIME READY`

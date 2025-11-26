@@ -68,6 +68,23 @@ interface Application {
   updatedAt: string;
 }
 
+interface StudentProfile {
+  id: string;
+  userId: string;
+  gpa: string;
+  major: string;
+  academicLevel: string;
+  graduationYear: number;
+  school: string;
+  location: string;
+  demographics: any;
+  interests: string[];
+  extracurriculars: string[];
+  achievements: string[];
+  financialNeed: boolean;
+  completionPercentage: number;
+}
+
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -136,6 +153,16 @@ export default function Dashboard() {
 
   const { data: applications, isLoading: applicationsLoading, error: applicationsError, refetch: refetchApplications } = useQuery<any[]>({
     queryKey: ["/api/applications"],
+    retry: false,
+  });
+
+  const { data: profile, isLoading: profileLoading } = useQuery<StudentProfile>({
+    queryKey: ["/api/profile"],
+    retry: false,
+  });
+
+  const { data: documents } = useQuery<any[]>({
+    queryKey: ["/api/documents"],
     retry: false,
   });
 
@@ -227,7 +254,12 @@ export default function Dashboard() {
     ['draft', 'in_progress'].includes(app.status)
   ).slice(0, 2) || [];
 
-  const profileCompletion = 85; // This would come from profile data
+  const profileCompletion = profile?.completionPercentage || 0;
+  
+  const hasAcademicInfo = !!(profile?.gpa && profile?.major && profile?.academicLevel && profile?.school);
+  const hasDemographics = !!(profile?.location && profile?.graduationYear);
+  const hasInterests = (profile?.interests?.length || 0) > 0;
+  const hasDocuments = (documents?.length || 0) > 0;
 
   return (
     <div className="min-h-screen bg-background-gray">
@@ -622,27 +654,47 @@ export default function Dashboard() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-900">Overall Progress</span>
-                  <span className="text-sm text-primary font-medium" data-testid="text-completion-percentage">
-                    {profileCompletion}%
-                  </span>
+                  {profileLoading ? (
+                    <Skeleton className="h-4 w-8" />
+                  ) : (
+                    <span className="text-sm text-primary font-medium" data-testid="text-completion-percentage">
+                      {profileCompletion}%
+                    </span>
+                  )}
                 </div>
                 <Progress value={profileCompletion} className="w-full" />
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Academic Info</span>
-                    <Check className="text-secondary w-4 h-4" />
+                    {hasAcademicInfo ? (
+                      <Check className="text-secondary w-4 h-4" />
+                    ) : (
+                      <span className="text-red-600">Missing</span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Demographics</span>
-                    <Check className="text-secondary w-4 h-4" />
+                    {hasDemographics ? (
+                      <Check className="text-secondary w-4 h-4" />
+                    ) : (
+                      <span className="text-red-600">Missing</span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Interests</span>
-                    <span className="text-yellow-600">Partial</span>
+                    {hasInterests ? (
+                      <Check className="text-secondary w-4 h-4" />
+                    ) : (
+                      <span className="text-yellow-600">Add some</span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Documents</span>
-                    <span className="text-red-600">Missing</span>
+                    {hasDocuments ? (
+                      <Check className="text-secondary w-4 h-4" />
+                    ) : (
+                      <span className="text-yellow-600">Upload</span>
+                    )}
                   </div>
                 </div>
                 <Link href="/profile">
