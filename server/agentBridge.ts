@@ -81,18 +81,24 @@ export class AgentBridge {
       return;
     }
 
+    let registrationSuccessful = false;
     try {
       await this.register();
       console.log('✅ Agent Bridge registered with Command Center');
+      registrationSuccessful = true;
     } catch (error) {
       // Expected failures: 404 (Command Center not configured), network errors
       console.log('⚠️  Agent Bridge running in local-only mode (Command Center unavailable)');
       console.log(`   Reason: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     
-    // Start heartbeat regardless of registration status
-    this.startHeartbeat();
-    console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID})`);
+    // Only start heartbeat if registration was successful (reduces log noise)
+    if (registrationSuccessful) {
+      this.startHeartbeat();
+      console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID}) with heartbeat`);
+    } else {
+      console.log(`✅ Agent Bridge started for ${AGENT_NAME} (${AGENT_ID}) in local-only mode (no heartbeat)`);
+    }
   }
 
   // Stop the agent bridge
