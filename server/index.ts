@@ -28,33 +28,49 @@ import { correlationIdMiddleware } from "./middleware/correlationId";
 import { globalIdentityMiddleware } from "./middleware/globalIdentity";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV || 'development',
-    integrations: [
-      nodeProfilingIntegration(),
-    ],
-    tracesSampleRate: 0.1, // 10% performance sampling per CEO directive
-    profilesSampleRate: 0.1, // 10% profiling sampling
-    beforeSend(event) {
-      // PII redaction: Remove sensitive data before sending to Sentry
-      if (event.request) {
-        delete event.request.cookies;
-        if (event.request.headers) {
-          delete event.request.headers.cookie;
-          delete event.request.headers.authorization;
+function isValidSentryDsn(dsn: string): boolean {
+  try {
+    const url = new URL(dsn);
+    return url.protocol === 'https:' && url.hostname.includes('sentry.io');
+  } catch {
+    return false;
+  }
+}
+
+const sentryDsn = process.env.SENTRY_DSN;
+if (sentryDsn && isValidSentryDsn(sentryDsn)) {
+  try {
+    Sentry.init({
+      dsn: sentryDsn,
+      environment: process.env.NODE_ENV || 'development',
+      integrations: [
+        nodeProfilingIntegration(),
+      ],
+      tracesSampleRate: 0.1, // 10% performance sampling per CEO directive
+      profilesSampleRate: 0.1, // 10% profiling sampling
+      beforeSend(event) {
+        // PII redaction: Remove sensitive data before sending to Sentry
+        if (event.request) {
+          delete event.request.cookies;
+          if (event.request.headers) {
+            delete event.request.headers.cookie;
+            delete event.request.headers.authorization;
+          }
         }
-      }
-      // Redact user data
-      if (event.user) {
-        delete event.user.email;
-        delete event.user.ip_address;
-      }
-      return event;
-    },
-  });
-  console.log('✅ Sentry initialized for student_pilot (error + performance monitoring)');
+        // Redact user data
+        if (event.user) {
+          delete event.user.email;
+          delete event.user.ip_address;
+        }
+        return event;
+      },
+    });
+    console.log('✅ Sentry initialized for student_pilot (error + performance monitoring)');
+  } catch (sentryError) {
+    console.warn('⚠️  Sentry initialization failed - error monitoring disabled:', sentryError);
+  }
+} else if (sentryDsn) {
+  console.warn('⚠️  SENTRY_DSN format invalid - error monitoring disabled (update DSN in secrets)');
 } else {
   console.warn('⚠️  SENTRY_DSN not configured - error monitoring disabled');
 }
