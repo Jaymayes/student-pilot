@@ -1,0 +1,56 @@
+# PROMPT FOR AGENT3 (FRONTEND DATA AUDIT)
+
+**Role:** Systems Architect & Data Auditor
+**Target App:** student_pilot (https://student-pilot-jamarrlmayes.replit.app)
+
+**Identification (Execute First):**
+`IDENTIFY: Agent3 | APP_NAME=student_pilot | APP_BASE_URL=https://student-pilot-jamarrlmayes.replit.app | UTC=<timestamp>`
+
+---
+
+### **Audit Instructions**
+
+Please audit the application’s frontend and list exactly what data is being reported to users. Respond in a single JSON object containing two arrays: `reported_data` and `analytics_events`.
+
+**1. `reported_data` Array**
+Each object must include:
+* `page`: the page or route where the data appears
+* `component_id`: unique identifier or selector of the UI element
+* `label`: the visible label/title shown to users
+* `metric_name`: canonical name of the data/metric
+* `description`: what the data represents in plain terms
+* `value_type`: number | currency | percentage | text | date | list | boolean
+* `aggregation`: sum | avg | count | distinct_count | latest | min | max | derived (specify formula)
+* `time_window`: the time range shown (e.g., “real-time”)
+* `filters_applied`: any default filters/segments applied
+* `calculation_formula`: exact formula or logic, if derived
+* `data_source`: internal service or external API powering it
+* `endpoint_or_query`: REST/GraphQL endpoint, DB table/view, or query name used
+* `refresh_cadence`: real-time | n-second poll | on-demand
+* `last_updated_displayed`: what timestamp the UI shows, if any
+* `user_scope`: whether values are global (all students) or per-user
+* `permissions_required`: roles/flags needed to see the data
+* `contains_PII`: true/false and list of fields if true
+* `compliance_notes`: FERPA/COPPA/GDPR considerations if applicable
+* `error_states`: how the UI handles missing/failed data
+* `known_gaps_or_issues`: any caveats the team is aware of
+* `owner`: team or service owner for this data
+
+**2. `analytics_events` Array**
+Document any frontend-tracked events related to this data with:
+* `event_name`
+* `trigger_location`
+* `trigger_condition`
+* `payload_schema`
+* `sampling_rate`
+* `destination` (e.g., GA, Segment)
+* `purpose`
+
+**Scope (Specific to student_pilot):**
+1.  **Dashboard (/dashboard)**: Match counts, application status summaries, deadlines.
+2.  **Scholarship Search (/scholarships)**: List data (Amounts, Titles, Deadlines, Provider Names), Match Scores.
+3.  **Profile (/profile)**: Student demographics, GPA, Major, Education history (High PII risk).
+4.  **Billing (/billing)**: Credit balance, transaction history.
+5.  **Documents (/documents)**: File names, metadata.
+
+**Constraint:** If any detail is unknown, use "unknown" rather than guessing. Return valid JSON only.
