@@ -1,6 +1,8 @@
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 import { productionMetrics } from '../monitoring/productionMetrics';
+import { db } from '../db';
+import { businessEvents } from '@shared/schema';
 
 const APP_ID = process.env.APP_NAME || 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
@@ -169,13 +171,36 @@ export class TelemetryClient {
 
       throw new Error(`Fallback failed: ${response.status}`);
     } catch (error) {
+      await this.storeLocally(events);
+    }
+  }
+
+  private async storeLocally(events: TelemetryEvent[]): Promise<void> {
+    try {
+      for (const event of events) {
+        await db.insert(businessEvents).values({
+          requestId: event.request_id || event.event_id,
+          app: event.app_id,
+          env: event.env === 'prod' ? 'production' : 'development',
+          eventName: event.event_type,
+          ts: new Date(event.ts_utc),
+          actorType: event.actor_type || 'system',
+          actorId: event.user_id_hash,
+          sessionId: event.session_id,
+          properties: event.properties as Record<string, unknown>
+        });
+      }
+      
+      this.failedAttempts = 0;
+      console.log(`📊 Telemetry: Stored ${events.length} events locally (business_events table)`);
+    } catch (dbError) {
       this.failedAttempts++;
+      console.error(`❌ Telemetry: Local storage failed:`, dbError);
+      
       const backoffMs = Math.min(
         1000 * Math.pow(2, this.failedAttempts),
         this.maxRetryDelay
       );
-      
-      console.error(`❌ Telemetry: Both endpoints failed. Queuing ${events.length} events. Retry in ${backoffMs}ms`);
       
       setTimeout(() => {
         this.eventQueue.unshift(...events);
