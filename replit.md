@@ -44,6 +44,14 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Build**: Separate builds for client (Vite) and server (esbuild)
 - **Type Safety**: Shared TypeScript types
 
+## Telemetry System (Contract v1.1)
+- **Client**: `server/telemetry/telemetryClient.ts` - Singleton with batched event emission
+- **Middleware**: `server/middleware/telemetryMiddleware.ts` - Automatic page_view tracking
+- **KPI Integration**: `server/services/kpiTelemetry.ts` - Dual-emit to telemetry and Agent Bridge
+- **Events**: app_started, app_heartbeat (60s), page_view, profile_completion, match_click_through, application_start, credit_spend
+- **Fallback**: Local storage to `business_events` table when external endpoints unavailable
+- **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
+
 ## Compliance and Security
 - Fully compliant with AGENT3 v2.7 UNIFIED specifications, including robust security headers (HSTS, CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy, X-Content-Type-Options).
 - PII is not logged to ensure FERPA/COPPA compliance.
