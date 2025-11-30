@@ -24,6 +24,8 @@ import { serviceConfig } from "./serviceConfig";
 import { getPromptMetadata } from "./utils/systemPrompt";
 // Import production metrics for CEO Option B evidence collection
 import { productionMetrics, startMetricsReporting } from "./monitoring/productionMetrics";
+// Import telemetry client for Standard Telemetry Contract v1.1
+import { telemetryClient } from "./telemetry/telemetryClient";
 import { correlationIdMiddleware } from "./middleware/correlationId";
 import { globalIdentityMiddleware } from "./middleware/globalIdentity";
 
@@ -471,6 +473,11 @@ app.use((req, res, next) => {
   } else {
     console.log('⚠️  Agent Bridge disabled - SHARED_SECRET not configured');
   }
+  
+  // Start Telemetry Client (Standard Telemetry Contract v1.1)
+  // Telemetry is exempt from Master Scope Rule - must run continuously
+  console.log('📊 Starting Telemetry Client (Contract v1.1)...');
+  telemetryClient.start();
   
   // Add enterprise monitoring endpoints - Task perf-4
   app.get('/metrics', (req, res) => {
