@@ -12,6 +12,7 @@
 
 import * as crypto from 'crypto';
 import { agentBridge } from '../agentBridge';
+import { telemetryClient } from '../telemetry/telemetryClient';
 
 export interface KPIEvent {
   event_type: string;
@@ -281,7 +282,17 @@ class KPITelemetryService {
       this.events = this.events.slice(-this.MAX_EVENTS);
     }
 
-    // Attempt to send to Command Center via Agent Bridge
+    // Send via Telemetry Contract v1.1 (primary path to scholarship_sage)
+    telemetryClient.track(event.event_type, {
+      ...event.data,
+      labels: event.labels
+    }, {
+      userId: event.user_id,
+      requestId: event.trace_id,
+      actorType: 'student'
+    });
+
+    // Attempt to send to Command Center via Agent Bridge (fallback)
     this.sendToCommandCenter(event).catch(err => {
       // Graceful degradation - event is already logged locally
       console.warn(`Failed to send KPI event to Command Center: ${err.message}`);

@@ -26,6 +26,8 @@ import { getPromptMetadata } from "./utils/systemPrompt";
 import { productionMetrics, startMetricsReporting } from "./monitoring/productionMetrics";
 // Import telemetry client for Standard Telemetry Contract v1.1
 import { telemetryClient } from "./telemetry/telemetryClient";
+// Import telemetry middleware for page view tracking
+import { telemetryMiddleware } from "./middleware/telemetryMiddleware";
 import { correlationIdMiddleware } from "./middleware/correlationId";
 import { globalIdentityMiddleware } from "./middleware/globalIdentity";
 
@@ -400,6 +402,9 @@ app.use((req, res, next) => {
 
   // GLOBAL IDENTITY STANDARD - Add identity headers to ALL responses
   app.use(globalIdentityMiddleware);
+  
+  // TELEMETRY CONTRACT v1.1 - Track page views and user flows
+  app.use(telemetryMiddleware());
   
   // Register health check and metrics endpoints (before API routes for canary monitoring)
   app.use(healthRouter);
