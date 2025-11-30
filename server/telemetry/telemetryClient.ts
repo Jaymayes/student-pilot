@@ -9,14 +9,20 @@ const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlm
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0';
 
+// S2S Authentication - Use SHARED_SECRET for service-to-service calls
+const SHARED_SECRET = process.env.SHARED_SECRET;
+const SCHOLARSHIP_API_BASE = process.env.SCHOLARSHIP_API_BASE_URL || 'https://scholarship-api-jamarrlmayes.replit.app';
+
 function getEnvValue(): 'prod' | 'staging' | 'dev' {
   if (NODE_ENV === 'production') return 'prod';
   if (NODE_ENV === 'staging') return 'staging';
   return 'dev';
 }
 
-const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || 'https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events';
-const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || 'https://scholarship-api-jamarrlmayes.replit.app/api/events';
+// PRIMARY: Central aggregator (scholarship_api) - where Command Center reads from
+const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${SCHOLARSHIP_API_BASE}/api/analytics/events`;
+// FALLBACK: scholarship_sage (if available)
+const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || 'https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events';
 const FLUSH_INTERVAL_MS = parseInt(process.env.TELEMETRY_FLUSH_INTERVAL_MS || '10000');
 const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
 
@@ -115,62 +121,98 @@ export class TelemetryClient {
     this.emit(event);
   }
 
+  private getS2SHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-App-Id': APP_ID,
+      'X-Source-App': APP_ID,
+      'X-Request-Type': 'S2S'
+    };
+    
+    // S2S Authentication: Use SHARED_SECRET as Bearer token for service-to-service calls
+    // This bypasses CSRF protection on the receiving end
+    if (SHARED_SECRET) {
+      headers['Authorization'] = `Bearer ${SHARED_SECRET}`;
+    } else if (this.authToken) {
+      headers['Authorization'] = `Bearer ${this.authToken}`;
+    }
+    
+    return headers;
+  }
+
   async flush(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
     const eventsToSend = [...this.eventQueue];
     this.eventQueue = [];
 
+    // LOUD LOGGING: Make S2S failures visible for debugging
+    console.log(`📊 Telemetry: Attempting to flush ${eventsToSend.length} events to ${TELEMETRY_WRITE_URL}`);
+
     try {
       const response = await fetch(TELEMETRY_WRITE_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-App-Id': APP_ID,
-          ...(this.authToken ? { 'Authorization': `Bearer ${this.authToken}` } : {})
-        },
-        body: JSON.stringify({ events: eventsToSend })
+        headers: this.getS2SHeaders(),
+        body: JSON.stringify({ 
+          events: eventsToSend,
+          source: APP_ID,
+          timestamp: new Date().toISOString()
+        })
       });
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
+        // LOUD: Authentication/Authorization failure - this is the CSRF trap!
+        console.error(`🚨 TELEMETRY S2S AUTH FAILED: ${response.status} - Central API rejecting S2S request from ${APP_ID}`);
+        console.error(`   Headers sent: Authorization=${SHARED_SECRET ? 'Bearer <SHARED_SECRET>' : 'NONE'}`);
+        console.error(`   This indicates the central API needs to whitelist S2S Bearer tokens`);
         await this.refreshAuthToken();
         await this.retryWithFallback(eventsToSend);
         return;
       }
 
       if (!response.ok) {
+        const errorText = await response.text().catch(() => 'unknown');
+        console.error(`🚨 TELEMETRY PRIMARY FAILED: ${response.status} - ${errorText}`);
         throw new Error(`Primary endpoint failed: ${response.status}`);
       }
 
       this.failedAttempts = 0;
-      console.log(`📊 Telemetry: Flushed ${eventsToSend.length} events to scholarship_sage`);
+      console.log(`✅ Telemetry: Successfully flushed ${eventsToSend.length} events to central aggregator (scholarship_api)`);
 
     } catch (error) {
-      console.warn(`⚠️ Telemetry primary failed:`, error);
+      console.error(`🚨 TELEMETRY PRIMARY EXCEPTION:`, error);
       await this.retryWithFallback(eventsToSend);
     }
   }
 
   private async retryWithFallback(events: TelemetryEvent[]): Promise<void> {
+    console.log(`📊 Telemetry: Trying fallback endpoint ${TELEMETRY_FALLBACK_URL}`);
+    
     try {
       const response = await fetch(TELEMETRY_FALLBACK_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-App-Id': APP_ID,
-          ...(this.authToken ? { 'Authorization': `Bearer ${this.authToken}` } : {})
-        },
-        body: JSON.stringify({ events })
+        headers: this.getS2SHeaders(),
+        body: JSON.stringify({ 
+          events,
+          source: APP_ID,
+          timestamp: new Date().toISOString()
+        })
       });
 
       if (response.ok) {
         this.failedAttempts = 0;
-        console.log(`📊 Telemetry: Flushed ${events.length} events to fallback (scholarship_api)`);
+        console.log(`✅ Telemetry: Flushed ${events.length} events to fallback (scholarship_sage)`);
         return;
       }
 
+      const errorText = await response.text().catch(() => 'unknown');
+      console.error(`🚨 TELEMETRY FALLBACK FAILED: ${response.status} - ${errorText}`);
       throw new Error(`Fallback failed: ${response.status}`);
     } catch (error) {
+      console.error(`🚨 TELEMETRY: Both remote endpoints failed. Storing locally.`);
+      console.error(`   Primary: ${TELEMETRY_WRITE_URL}`);
+      console.error(`   Fallback: ${TELEMETRY_FALLBACK_URL}`);
+      console.error(`   SHARED_SECRET configured: ${SHARED_SECRET ? 'YES' : 'NO'}`);
       await this.storeLocally(events);
     }
   }
@@ -192,7 +234,8 @@ export class TelemetryClient {
       }
       
       this.failedAttempts = 0;
-      console.log(`📊 Telemetry: Stored ${events.length} events locally (business_events table)`);
+      console.log(`📊 Telemetry: Stored ${events.length} events locally (business_events table) - DATA IS SILOED`);
+      console.log(`   ⚠️  Command Center will NOT see this data until central aggregation is fixed`);
     } catch (dbError) {
       this.failedAttempts++;
       console.error(`❌ Telemetry: Local storage failed:`, dbError);
