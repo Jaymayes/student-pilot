@@ -24,7 +24,7 @@ import { serviceConfig } from "./serviceConfig";
 import { getPromptMetadata } from "./utils/systemPrompt";
 // Import production metrics for CEO Option B evidence collection
 import { productionMetrics, startMetricsReporting } from "./monitoring/productionMetrics";
-// Import telemetry client for Standard Telemetry Contract v1.1
+// Import telemetry client for Protocol ONE_TRUTH v1.2
 import { telemetryClient } from "./telemetry/telemetryClient";
 // Import telemetry middleware for page view tracking
 import { telemetryMiddleware } from "./middleware/telemetryMiddleware";
@@ -78,6 +78,12 @@ if (sentryDsn && isValidSentryDsn(sentryDsn)) {
 } else {
   console.warn('⚠️  SENTRY_DSN not configured - error monitoring disabled');
 }
+
+// Protocol ONE_TRUTH v1.2: IDENTIFY line MUST be printed immediately on start
+const APP_ID = 'student_pilot';
+const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+const ENV = 'prod';
+console.log(`IDENTIFY: APP=${APP_ID} | APP_BASE_URL=${APP_BASE_URL} | ROLE=Student App + Payments | ENV=${ENV}`);
 
 const app = express();
 
@@ -479,9 +485,9 @@ app.use((req, res, next) => {
     console.log('⚠️  Agent Bridge disabled - SHARED_SECRET not configured');
   }
   
-  // Start Telemetry Client (Standard Telemetry Contract v1.1)
+  // Start Telemetry Client (Protocol ONE_TRUTH v1.2)
   // Telemetry is exempt from Master Scope Rule - must run continuously
-  console.log('📊 Starting Telemetry Client (Contract v1.1)...');
+  console.log('📊 Starting Telemetry Client (Protocol ONE_TRUTH v1.2)...');
   telemetryClient.start();
   
   // Add enterprise monitoring endpoints - Task perf-4

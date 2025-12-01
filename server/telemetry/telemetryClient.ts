@@ -5,7 +5,7 @@ import { db } from '../db';
 import { businessEvents } from '@shared/schema';
 import { sql } from 'drizzle-orm';
 
-// Protocol ONE TRUTH v1.0: app_id is ALWAYS 'student_pilot'
+// Protocol ONE_TRUTH v1.2: app_id is ALWAYS 'student_pilot'
 const APP_ID = 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -15,9 +15,9 @@ const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0
 const SHARED_SECRET = process.env.SHARED_SECRET;
 const SCHOLARSHIP_API_BASE = process.env.SCHOLARSHIP_API_BASE_URL || 'https://scholarship-api-jamarrlmayes.replit.app';
 
-// Protocol ONE TRUTH v1.0: env MUST always be 'prod' for central aggregator
+// Protocol ONE_TRUTH v1.2: env MUST always be 'prod' for central aggregator
 function getEnvValue(): 'prod' | 'staging' | 'dev' {
-  // Per Protocol ONE TRUTH v1.0 Section "Required conventions": env must be "prod"
+  // Per Protocol ONE_TRUTH v1.2 Section "Required conventions": env must be "prod"
   // Always return 'prod' for telemetry events sent to central aggregator
   return 'prod';
 }
@@ -86,7 +86,7 @@ export class TelemetryClient {
       ferpaFlag?: boolean;
     } = {}
   ): TelemetryEvent {
-    // Protocol ONE TRUTH v1.0: Include app_base_url in properties
+    // Protocol ONE_TRUTH v1.2: Include app_base_url in properties
     const enrichedProperties: Record<string, unknown> = {
       ...properties,
       app_base_url: APP_BASE_URL
@@ -153,7 +153,7 @@ export class TelemetryClient {
   async flush(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
-    // Protocol ONE TRUTH v1.0: Validate all events before sending
+    // Protocol ONE_TRUTH v1.2: Validate all events before sending
     const eventsToSend = this.eventQueue.filter(event => {
       if (!event.app_id) {
         console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing app_id`);
