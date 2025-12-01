@@ -75,8 +75,17 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Report Branding**: `ReportBrandingFooter` component for PDF/printed documents
 - **Company Info**: ScholarLink LLC, registered in Delaware, support@scholarlink.com
 
+## Graceful Degradation
+The application continues operating when external services are unavailable:
+- **Scholar Auth**: Falls back to Replit OIDC when discovery fails
+- **Agent Bridge**: Runs in local-only mode when Command Center registration returns 404
+- **Telemetry**: Uses fallback endpoint (scholarship_sage) when primary (scholarship_api) returns 403/5xx
+- **Telemetry Local Storage**: Events stored to business_events table when both endpoints fail; backfilled every 5 minutes
+- **Neon Database**: Pool error handler catches 57P01 (admin termination) without crashing; connections auto-recover
+- **M2M Token**: Falls back to SHARED_SECRET when token refresh endpoints unavailable
+
 ## Compliance and Security
-- Fully compliant with AGENT3 v2.7 UNIFIED specifications, including robust security headers (HSTS, CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy, X-Content-Type-Options).
+- Fully compliant with AGENT3 v3.0 UNIFIED specifications, including robust security headers (HSTS, CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy, X-Content-Type-Options).
 - PII is not logged to ensure FERPA/COPPA compliance.
 - Responsible AI controls are active, emphasizing coaching over ghostwriting essays.
 - Legal pages include canonical SEO metadata and Organization JSON-LD structured data.
