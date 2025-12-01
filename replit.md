@@ -59,6 +59,9 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Business Events (Finance tile drivers)**:
   - `page_view`, `application_started`, `application_submitted`
   - `checkout_started`, `payment_succeeded` (via Stripe webhook), `credit_purchased`
+  - `payment_failed` (via Stripe webhook for checkout.session.expired and payment_intent.payment_failed)
+  - `document_uploaded` (with documentType, documentId, isFirst flag for activation tracking)
+  - `ai_usage` (via kpiTelemetry.trackEssayAssistance for essay assistance operations)
 - **Fallback**: Local storage to `business_events` table when external endpoints unavailable
 - **Backfill**: Automatically syncs locally stored events every 5 minutes
 - **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
