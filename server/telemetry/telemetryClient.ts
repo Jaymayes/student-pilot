@@ -31,22 +31,29 @@ const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
 
 const SALT = process.env.TELEMETRY_SALT || crypto.randomBytes(16).toString('hex');
 
+// Protocol ONE_TRUTH v1.2 compliant event envelope
 export interface TelemetryEvent {
   event_id: string;
   event_type: string;
-  ts_utc: string;
+  ts: string; // v1.2: ISO-8601 UTC timestamp (was ts_utc)
   app_id: string;
+  app_base_url: string; // v1.2: Required at root level
   env: 'prod' | 'staging' | 'dev';
-  version: string;
-  session_id: string | null;
-  user_id_hash: string | null;
-  account_id: string | null;
-  actor_type: 'student' | 'provider' | 'system' | null;
-  request_id: string | null;
-  source_ip_masked: string | null;
-  coppa_flag: boolean;
-  ferpa_flag: boolean;
   properties: Record<string, unknown>;
+  _meta: {
+    protocol: 'ONE_TRUTH';
+    version: '1.2';
+  };
+  // Extended fields for internal use
+  version?: string;
+  session_id?: string | null;
+  user_id_hash?: string | null;
+  account_id?: string | null;
+  actor_type?: 'student' | 'provider' | 'system' | null;
+  request_id?: string | null;
+  source_ip_masked?: string | null;
+  coppa_flag?: boolean;
+  ferpa_flag?: boolean;
 }
 
 export class TelemetryClient {
@@ -86,18 +93,26 @@ export class TelemetryClient {
       ferpaFlag?: boolean;
     } = {}
   ): TelemetryEvent {
-    // Protocol ONE_TRUTH v1.2: Include app_base_url in properties
+    // Protocol ONE_TRUTH v1.2: Include app_base_url in properties AND at root
     const enrichedProperties: Record<string, unknown> = {
       ...properties,
       app_base_url: APP_BASE_URL
     };
 
+    // Protocol ONE_TRUTH v1.2 compliant envelope
     return {
       event_id: crypto.randomUUID(),
       event_type: eventType,
-      ts_utc: new Date().toISOString(),
-      app_id: APP_ID, // Protocol ONE TRUTH: Always 'student_pilot'
-      env: getEnvValue(), // Protocol ONE TRUTH: Always 'prod'
+      ts: new Date().toISOString(), // v1.2: Use 'ts' not 'ts_utc'
+      app_id: APP_ID, // Protocol ONE_TRUTH v1.2: Always 'student_pilot'
+      app_base_url: APP_BASE_URL, // v1.2: Required at root level
+      env: getEnvValue(), // Protocol ONE_TRUTH v1.2: Always 'prod'
+      properties: enrichedProperties,
+      _meta: {
+        protocol: 'ONE_TRUTH',
+        version: '1.2'
+      },
+      // Extended fields
       version: VERSION,
       session_id: options.sessionId || null,
       user_id_hash: options.userId ? this.hashUserId(options.userId) : null,
@@ -106,8 +121,7 @@ export class TelemetryClient {
       request_id: options.requestId || null,
       source_ip_masked: this.maskIp(options.sourceIp),
       coppa_flag: options.coppaFlag ?? false,
-      ferpa_flag: options.ferpaFlag ?? false,
-      properties: enrichedProperties
+      ferpa_flag: options.ferpaFlag ?? false
     };
   }
 
@@ -159,8 +173,16 @@ export class TelemetryClient {
         console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing app_id`);
         return false;
       }
+      if (!event.app_base_url) {
+        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing app_base_url`);
+        return false;
+      }
       if (!event.event_type) {
         console.error(`🚨 Telemetry: Dropping event - missing event_type`);
+        return false;
+      }
+      if (!event._meta || event._meta.protocol !== 'ONE_TRUTH' || event._meta.version !== '1.2') {
+        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - invalid _meta block`);
         return false;
       }
       return true;
@@ -251,7 +273,7 @@ export class TelemetryClient {
           app: event.app_id,
           env: event.env === 'prod' ? 'production' : 'development',
           eventName: event.event_type,
-          ts: new Date(event.ts_utc),
+          ts: new Date(event.ts),
           actorType: event.actor_type || 'system',
           actorId: event.user_id_hash,
           sessionId: event.session_id,
@@ -437,13 +459,25 @@ export class TelemetryClient {
       
       console.log(`📊 Telemetry: Attempting to backfill ${localEvents.length} locally stored events`);
       
-      // Convert to TelemetryEvent format
+      // Convert to Protocol ONE_TRUTH v1.2 compliant format
       const eventsToSync: TelemetryEvent[] = localEvents.map(evt => ({
         event_id: evt.requestId || crypto.randomUUID(),
         event_type: evt.eventName,
-        ts_utc: evt.ts?.toISOString() || new Date().toISOString(),
+        ts: evt.ts?.toISOString() || new Date().toISOString(), // v1.2: Use 'ts' not 'ts_utc'
         app_id: APP_ID,
+        app_base_url: APP_BASE_URL, // v1.2: Required at root level
         env: getEnvValue(),
+        properties: {
+          ...(evt.properties as Record<string, unknown> || {}),
+          app_base_url: APP_BASE_URL,
+          backfilled: true,
+          original_ts: evt.ts?.toISOString()
+        },
+        _meta: {
+          protocol: 'ONE_TRUTH' as const,
+          version: '1.2' as const
+        },
+        // Extended fields
         version: VERSION,
         session_id: evt.sessionId || null,
         user_id_hash: evt.actorId || null,
@@ -452,13 +486,7 @@ export class TelemetryClient {
         request_id: evt.requestId || null,
         source_ip_masked: null,
         coppa_flag: false,
-        ferpa_flag: false,
-        properties: {
-          ...(evt.properties as Record<string, unknown> || {}),
-          app_base_url: APP_BASE_URL,
-          backfilled: true,
-          original_ts: evt.ts?.toISOString()
-        }
+        ferpa_flag: false
       }));
       
       // Try to send to central aggregator
