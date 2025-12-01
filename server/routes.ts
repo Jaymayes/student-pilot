@@ -2666,7 +2666,7 @@ Allow: /apply/`;
         
         await StudentEvents.creditPurchased(userId, paymentIntentId, creditsAmount, revenueUsd, correlationId);
         
-        // Protocol ONE TRUTH v1.1: Emit payment_succeeded to central aggregator
+        // Protocol ONE TRUTH v1.2 (A5 spec): Emit payment_succeeded to central aggregator
         // This powers the Finance tile in Command Center
         trackPaymentSucceeded(
           amountCents,
@@ -2674,17 +2674,20 @@ Allow: /apply/`;
           'stripe',
           userId,
           correlationId,
-          paymentIntentId
+          paymentIntentId,
+          'credits',  // product
+          creditsAmount  // credits
         );
         
-        // Protocol ONE TRUTH v1.1: Emit credit_purchased to central aggregator
+        // Protocol ONE TRUTH v1.2 (A5 spec): Emit credit_purchased to central aggregator
         trackCreditPurchased(
           amountCents,
           creditsAmount,
-          packageCode,
+          'stripe_checkout',  // source per A5 spec
           userId,
           correlationId,
-          session.currency?.toUpperCase() || 'USD'
+          session.currency?.toUpperCase() || 'USD',
+          packageCode  // sku
         );
         
         // CEO Analytics: Track conversion event (credit purchase)
@@ -2694,7 +2697,7 @@ Allow: /apply/`;
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
       
-      // Protocol ONE_TRUTH v1.2: Handle payment failures
+      // Protocol ONE_TRUTH v1.2 (A5 spec): Handle payment failures
       if (event.type === 'checkout.session.expired') {
         const session = event.data.object as any;
         const correlationId = (req as any).correlationId || crypto.randomUUID();
@@ -2703,13 +2706,15 @@ Allow: /apply/`;
         
         console.log(`⚠️ Checkout session expired: ${session.id}`);
         
+        // A5 spec: payment_failed {reason, amount_cents?, intent_id?}
         trackPaymentFailed(
           'checkout_session_expired',
           'stripe',
           userId,
           correlationId,
           purchaseId,
-          session.amount_total
+          session.amount_total,
+          session.payment_intent  // intent_id per A5 spec
         );
         
         console.log(`📊 Telemetry: payment_failed (checkout_session_expired) emitted for user ${userId}`);
@@ -2724,13 +2729,15 @@ Allow: /apply/`;
         
         console.log(`❌ Payment failed: ${paymentIntent.id} - ${failureReason}`);
         
+        // A5 spec: payment_failed {reason, amount_cents?, intent_id?}
         trackPaymentFailed(
           failureReason,
           'stripe',
           userId,
           correlationId,
           purchaseId,
-          paymentIntent.amount
+          paymentIntent.amount,
+          paymentIntent.id  // intent_id per A5 spec
         );
         
         console.log(`📊 Telemetry: payment_failed emitted for user ${userId}`);

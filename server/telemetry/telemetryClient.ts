@@ -622,22 +622,20 @@ export class TelemetryClient {
     });
   }
 
+  // Legacy alias - redirects to A5-compliant credit_purchased
   trackCreditsPurchased(
     amountUsd: number,
     quantity: number,
     sku: string,
     options: { userId?: string; requestId?: string } = {}
   ): void {
-    this.track('credits_purchased', {
-      amount_usd: amountUsd,
-      quantity,
-      sku,
-      payment_provider: 'stripe'
-    }, {
-      userId: options.userId,
-      requestId: options.requestId,
-      actorType: 'student'
-    });
+    // A5 spec uses credit_purchased (singular), redirect for consistency
+    this.trackCreditPurchased(
+      Math.round(amountUsd * 100), // Convert USD to cents
+      quantity, // credits
+      'legacy_api', // source
+      { ...options, sku, currency: 'USD' }
+    );
   }
 
   trackAiTokensConsumed(
@@ -677,10 +675,13 @@ export class TelemetryClient {
     amountCents: number,
     currency: string,
     paymentProvider: string,
-    options: { userId?: string; requestId?: string; transactionId?: string } = {}
+    options: { userId?: string; requestId?: string; transactionId?: string; product?: string; credits?: number } = {}
   ): void {
+    // A5 spec: payment_succeeded {user_id_hash, amount_cents, product, credits?}
     this.track('payment_succeeded', {
       amount_cents: amountCents,
+      product: options.product || 'credits',
+      credits: options.credits,
       currency,
       payment_provider: paymentProvider,
       transaction_id: options.transactionId
@@ -693,14 +694,16 @@ export class TelemetryClient {
 
   trackCreditPurchased(
     amountCents: number,
-    quantity: number,
-    sku: string,
-    options: { userId?: string; requestId?: string; currency?: string } = {}
+    credits: number,
+    source: string,
+    options: { userId?: string; requestId?: string; currency?: string; sku?: string } = {}
   ): void {
+    // A5 spec: credit_purchased {user_id_hash, credits, amount_cents, source}
     this.track('credit_purchased', {
+      credits,
       amount_cents: amountCents,
-      quantity,
-      sku,
+      source,
+      sku: options.sku,
       currency: options.currency || 'USD',
       payment_provider: 'stripe'
     }, {
@@ -713,13 +716,14 @@ export class TelemetryClient {
   trackPaymentFailed(
     reason: string,
     paymentProvider: string,
-    options: { userId?: string; requestId?: string; orderId?: string; amountCents?: number } = {}
+    options: { userId?: string; requestId?: string; orderId?: string; amountCents?: number; intentId?: string } = {}
   ): void {
+    // A5 spec: payment_failed {reason, amount_cents?, intent_id?}
     this.track('payment_failed', {
       reason,
-      payment_provider: paymentProvider,
-      order_id: options.orderId,
-      amount_cents: options.amountCents
+      amount_cents: options.amountCents,
+      intent_id: options.intentId || options.orderId,
+      payment_provider: paymentProvider
     }, {
       userId: options.userId,
       requestId: options.requestId,
@@ -731,10 +735,11 @@ export class TelemetryClient {
     documentType: string,
     options: { userId?: string; requestId?: string; documentId?: string; isFirst?: boolean } = {}
   ): void {
+    // A5 spec: document_uploaded {document_type, document_id, is_first}
     this.track('document_uploaded', {
       document_type: documentType,
       document_id: options.documentId,
-      is_first_upload: options.isFirst || false
+      is_first: options.isFirst || false
     }, {
       userId: options.userId,
       requestId: options.requestId,
@@ -742,19 +747,20 @@ export class TelemetryClient {
     });
   }
 
-  trackAiUsage(
-    model: string,
-    operation: string,
-    inputTokens: number,
-    outputTokens: number,
+  trackAiAssistUsed(
+    tool: string,
+    op: string,
+    tokensIn: number,
+    tokensOut: number,
     options: { userId?: string; requestId?: string; durationMs?: number; creditsCost?: number } = {}
   ): void {
-    this.track('ai_usage', {
-      model,
-      operation,
-      input_tokens: inputTokens,
-      output_tokens: outputTokens,
-      total_tokens: inputTokens + outputTokens,
+    // A5 spec: ai_assist_used {tool, op, tokens_in, tokens_out}
+    this.track('ai_assist_used', {
+      tool,
+      op,
+      tokens_in: tokensIn,
+      tokens_out: tokensOut,
+      total_tokens: tokensIn + tokensOut,
       duration_ms: options.durationMs,
       credits_cost: options.creditsCost
     }, {
@@ -762,6 +768,17 @@ export class TelemetryClient {
       requestId: options.requestId,
       actorType: 'student'
     });
+  }
+
+  // Legacy alias for backward compatibility
+  trackAiUsage(
+    model: string,
+    operation: string,
+    inputTokens: number,
+    outputTokens: number,
+    options: { userId?: string; requestId?: string; durationMs?: number; creditsCost?: number } = {}
+  ): void {
+    this.trackAiAssistUsed(model, operation, inputTokens, outputTokens, options);
   }
 }
 

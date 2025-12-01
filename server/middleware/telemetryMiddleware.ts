@@ -98,27 +98,35 @@ export function trackPaymentSucceeded(
   paymentProvider: string,
   userId?: string,
   requestId?: string,
-  transactionId?: string
+  transactionId?: string,
+  product?: string,
+  credits?: number
 ): void {
+  // A5 spec: payment_succeeded {user_id_hash, amount_cents, product, credits?}
   telemetryClient.trackPaymentSucceeded(amountCents, currency, paymentProvider, { 
     userId, 
     requestId, 
-    transactionId 
+    transactionId,
+    product,
+    credits
   });
 }
 
 export function trackCreditPurchased(
   amountCents: number,
-  quantity: number,
-  sku: string,
+  credits: number,
+  source: string,
   userId?: string,
   requestId?: string,
-  currency?: string
+  currency?: string,
+  sku?: string
 ): void {
-  telemetryClient.trackCreditPurchased(amountCents, quantity, sku, { 
+  // A5 spec: credit_purchased {user_id_hash, credits, amount_cents, source}
+  telemetryClient.trackCreditPurchased(amountCents, credits, source, { 
     userId, 
     requestId, 
-    currency 
+    currency,
+    sku
   });
 }
 
@@ -128,13 +136,16 @@ export function trackPaymentFailed(
   userId?: string,
   requestId?: string,
   orderId?: string,
-  amountCents?: number
+  amountCents?: number,
+  intentId?: string
 ): void {
+  // A5 spec: payment_failed {reason, amount_cents?, intent_id?}
   telemetryClient.trackPaymentFailed(reason, paymentProvider, { 
     userId, 
     requestId, 
     orderId,
-    amountCents 
+    amountCents,
+    intentId
   });
 }
 
@@ -145,6 +156,7 @@ export function trackDocumentUploaded(
   documentId?: string,
   isFirst?: boolean
 ): void {
+  // A5 spec: document_uploaded {document_type, document_id, is_first}
   telemetryClient.trackDocumentUploaded(documentType, { 
     userId, 
     requestId, 
@@ -153,6 +165,26 @@ export function trackDocumentUploaded(
   });
 }
 
+export function trackAiAssistUsed(
+  tool: string,
+  op: string,
+  tokensIn: number,
+  tokensOut: number,
+  userId?: string,
+  requestId?: string,
+  durationMs?: number,
+  creditsCost?: number
+): void {
+  // A5 spec: ai_assist_used {tool, op, tokens_in, tokens_out}
+  telemetryClient.trackAiAssistUsed(tool, op, tokensIn, tokensOut, { 
+    userId, 
+    requestId, 
+    durationMs,
+    creditsCost 
+  });
+}
+
+// Legacy alias for backward compatibility
 export function trackAiUsage(
   model: string,
   operation: string,
@@ -163,10 +195,5 @@ export function trackAiUsage(
   durationMs?: number,
   creditsCost?: number
 ): void {
-  telemetryClient.trackAiUsage(model, operation, inputTokens, outputTokens, { 
-    userId, 
-    requestId, 
-    durationMs,
-    creditsCost 
-  });
+  trackAiAssistUsed(model, operation, inputTokens, outputTokens, userId, requestId, durationMs, creditsCost);
 }
