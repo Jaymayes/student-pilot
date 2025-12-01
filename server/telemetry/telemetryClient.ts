@@ -675,13 +675,14 @@ export class TelemetryClient {
     amountCents: number,
     currency: string,
     paymentProvider: string,
-    options: { userId?: string; requestId?: string; transactionId?: string; product?: string; credits?: number } = {}
+    options: { userId?: string; requestId?: string; transactionId?: string; product?: string; credits?: number; intentId?: string } = {}
   ): void {
-    // A5 spec: payment_succeeded {user_id_hash, amount_cents, product, credits?}
+    // A5 spec: payment_succeeded {user_id_hash, amount_cents, product, credits, intent_id}
     this.track('payment_succeeded', {
       amount_cents: amountCents,
       product: options.product || 'credits',
       credits: options.credits,
+      intent_id: options.intentId || options.transactionId,
       currency,
       payment_provider: paymentProvider,
       transaction_id: options.transactionId

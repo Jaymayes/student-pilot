@@ -100,15 +100,17 @@ export function trackPaymentSucceeded(
   requestId?: string,
   transactionId?: string,
   product?: string,
-  credits?: number
+  credits?: number,
+  intentId?: string
 ): void {
-  // A5 spec: payment_succeeded {user_id_hash, amount_cents, product, credits?}
+  // A5 spec: payment_succeeded {user_id_hash, amount_cents, product, credits, intent_id}
   telemetryClient.trackPaymentSucceeded(amountCents, currency, paymentProvider, { 
     userId, 
     requestId, 
     transactionId,
     product,
-    credits
+    credits,
+    intentId
   });
 }
 

@@ -2676,7 +2676,8 @@ Allow: /apply/`;
           correlationId,
           paymentIntentId,
           'credits',  // product
-          creditsAmount  // credits
+          creditsAmount,  // credits
+          paymentIntentId  // intent_id per A5 spec
         );
         
         // Protocol ONE TRUTH v1.2 (A5 spec): Emit credit_purchased to central aggregator
