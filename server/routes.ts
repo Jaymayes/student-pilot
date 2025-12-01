@@ -41,6 +41,7 @@ import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
+import { trackPaymentSucceeded, trackCreditPurchased } from "./middleware/telemetryMiddleware";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 import { adminMetricsRouter } from "./routes/adminMetrics";
 import { serviceConfig } from "./serviceConfig";
@@ -2652,14 +2653,39 @@ Allow: /apply/`;
           await billingService.awardPurchaseCredits(purchaseId);
         }
         
-        // Business Event: Track credit purchase
+        // Business Event: Track credit purchase (local database)
         const packageCode = session.metadata?.packageCode || 'unknown';
         const paymentIntentId = session.payment_intent || purchaseId;
         const revenueUsd = session.amount_total / 100; // Convert cents to dollars
-        await StudentEvents.creditPurchased(userId, paymentIntentId, creditsAmount, revenueUsd, crypto.randomUUID());
+        const amountCents = session.amount_total || 0;
+        const correlationId = (req as any).correlationId || crypto.randomUUID();
+        
+        await StudentEvents.creditPurchased(userId, paymentIntentId, creditsAmount, revenueUsd, correlationId);
+        
+        // Protocol ONE TRUTH v1.1: Emit payment_succeeded to central aggregator
+        // This powers the Finance tile in Command Center
+        trackPaymentSucceeded(
+          amountCents,
+          session.currency?.toUpperCase() || 'USD',
+          'stripe',
+          userId,
+          correlationId,
+          paymentIntentId
+        );
+        
+        // Protocol ONE TRUTH v1.1: Emit credit_purchased to central aggregator
+        trackCreditPurchased(
+          amountCents,
+          creditsAmount,
+          packageCode,
+          userId,
+          correlationId,
+          session.currency?.toUpperCase() || 'USD'
+        );
         
         // CEO Analytics: Track conversion event (credit purchase)
         console.log(`[ANALYTICS] Conversion: user=${userId}, package=${packageCode}, purchase_id=${purchaseId}, amount=${revenueUsd} USD`);
+        console.log(`📊 Telemetry: payment_succeeded and credit_purchased emitted for user ${userId}`);
         
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
