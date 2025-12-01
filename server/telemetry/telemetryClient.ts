@@ -4,7 +4,8 @@ import { productionMetrics } from '../monitoring/productionMetrics';
 import { db } from '../db';
 import { businessEvents } from '@shared/schema';
 
-const APP_ID = process.env.APP_NAME || 'student_pilot';
+// Protocol ONE TRUTH v1.0: app_id is ALWAYS 'student_pilot'
+const APP_ID = 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0';
@@ -13,10 +14,11 @@ const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0
 const SHARED_SECRET = process.env.SHARED_SECRET;
 const SCHOLARSHIP_API_BASE = process.env.SCHOLARSHIP_API_BASE_URL || 'https://scholarship-api-jamarrlmayes.replit.app';
 
+// Protocol ONE TRUTH v1.0: env MUST always be 'prod' for central aggregator
 function getEnvValue(): 'prod' | 'staging' | 'dev' {
-  if (NODE_ENV === 'production') return 'prod';
-  if (NODE_ENV === 'staging') return 'staging';
-  return 'dev';
+  // Per Protocol ONE TRUTH v1.0 Section "Required conventions": env must be "prod"
+  // Always return 'prod' for telemetry events sent to central aggregator
+  return 'prod';
 }
 
 // PRIMARY: Central aggregator (scholarship_api) - where Command Center reads from
@@ -83,12 +85,18 @@ export class TelemetryClient {
       ferpaFlag?: boolean;
     } = {}
   ): TelemetryEvent {
+    // Protocol ONE TRUTH v1.0: Include app_base_url in properties
+    const enrichedProperties: Record<string, unknown> = {
+      ...properties,
+      app_base_url: APP_BASE_URL
+    };
+
     return {
       event_id: crypto.randomUUID(),
       event_type: eventType,
       ts_utc: new Date().toISOString(),
-      app_id: APP_ID,
-      env: getEnvValue(),
+      app_id: APP_ID, // Protocol ONE TRUTH: Always 'student_pilot'
+      env: getEnvValue(), // Protocol ONE TRUTH: Always 'prod'
       version: VERSION,
       session_id: options.sessionId || null,
       user_id_hash: options.userId ? this.hashUserId(options.userId) : null,
@@ -98,7 +106,7 @@ export class TelemetryClient {
       source_ip_masked: this.maskIp(options.sourceIp),
       coppa_flag: options.coppaFlag ?? false,
       ferpa_flag: options.ferpaFlag ?? false,
-      properties
+      properties: enrichedProperties
     };
   }
 
@@ -143,8 +151,24 @@ export class TelemetryClient {
   async flush(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
-    const eventsToSend = [...this.eventQueue];
+    // Protocol ONE TRUTH v1.0: Validate all events before sending
+    const eventsToSend = this.eventQueue.filter(event => {
+      if (!event.app_id) {
+        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing app_id`);
+        return false;
+      }
+      if (!event.event_type) {
+        console.error(`🚨 Telemetry: Dropping event - missing event_type`);
+        return false;
+      }
+      return true;
+    });
     this.eventQueue = [];
+
+    if (eventsToSend.length === 0) {
+      console.log(`📊 Telemetry: No valid events to flush`);
+      return;
+    }
 
     // LOUD LOGGING: Make S2S failures visible for debugging
     console.log(`📊 Telemetry: Attempting to flush ${eventsToSend.length} events to ${TELEMETRY_WRITE_URL}`);
