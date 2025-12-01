@@ -56,12 +56,13 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Required Events**:
   - `app_started` (at boot with version, uptime_sec=0, service_ok, p95_ms, error_rate_pct, app_base_url)
   - `app_heartbeat` (every 60s with uptime_sec, service_ok, p95_ms, error_rate_pct, app_base_url)
-- **Business Events (Finance tile drivers)**:
+- **Business Events (A5 spec compliant - Finance tile drivers)**:
   - `page_view`, `application_started`, `application_submitted`
-  - `checkout_started`, `payment_succeeded` (via Stripe webhook), `credit_purchased`
-  - `payment_failed` (via Stripe webhook for checkout.session.expired and payment_intent.payment_failed)
-  - `document_uploaded` (with documentType, documentId, isFirst flag for activation tracking)
-  - `ai_usage` (via kpiTelemetry.trackEssayAssistance for essay assistance operations)
+  - `checkout_started`, `payment_succeeded` {amount_cents, product, credits} (via Stripe webhook)
+  - `credit_purchased` {credits, amount_cents, source} (via Stripe webhook)
+  - `payment_failed` {reason, amount_cents, intent_id} (via Stripe webhook for checkout.session.expired and payment_intent.payment_failed)
+  - `document_uploaded` {document_type, document_id, is_first} (with isFirst flag for activation tracking)
+  - `ai_assist_used` {tool, op, tokens_in, tokens_out} (via kpiTelemetry.trackEssayAssistance)
 - **Fallback**: Local storage to `business_events` table when external endpoints unavailable
 - **Backfill**: Automatically syncs locally stored events every 5 minutes
 - **Privacy**: User IDs hashed with SHA-256, IPs masked to /24

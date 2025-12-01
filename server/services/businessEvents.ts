@@ -93,16 +93,19 @@ export const StudentEvents = {
       },
     }),
 
-  creditPurchased: (userId: string, paymentId: string, credits: number, revenueUsd: number, requestId: string) =>
+  // A5 spec: credit_purchased {user_id_hash, credits, amount_cents, source}
+  creditPurchased: (userId: string, paymentId: string, credits: number, revenueUsd: number, requestId: string, source: string = 'stripe_checkout') =>
     emitBusinessEvent({
       eventName: "credit_purchased",
       actorType: "student",
       actorId: userId,
       requestId,
       properties: {
-        payment_id: paymentId,
         credits,
-        revenue_usd: revenueUsd,
+        amount_cents: Math.round(revenueUsd * 100),
+        source,
+        payment_id: paymentId,
+        revenue_usd: revenueUsd, // Keep legacy field for backward compatibility
       },
     }),
 
