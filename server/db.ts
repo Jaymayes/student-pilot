@@ -9,10 +9,14 @@ neonConfig.webSocketConstructor = ws;
 // Environment validation is already done in environment.ts
 
 // Database connection with error handling and retry logic
+// Using a small pool size to prevent "too many connections" errors
+// Neon serverless recommends max: 1-10 for serverless environments
 export const pool = new Pool({ 
   connectionString: env.DATABASE_URL,
+  max: 5, // Limit concurrent connections to prevent exhaustion
   connectionTimeoutMillis: 30000, // 30 second timeout
-  idleTimeoutMillis: 60000, // 60 second idle timeout
+  idleTimeoutMillis: 30000, // 30 second idle timeout (reduced to free connections faster)
+  maxUses: 7500, // Close connections after 7500 uses to prevent memory leaks
 });
 
 // Handle pool errors
