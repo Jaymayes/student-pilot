@@ -41,7 +41,7 @@ import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
-import { trackPaymentSucceeded, trackCreditPurchased } from "./middleware/telemetryMiddleware";
+import { trackPaymentSucceeded, trackCreditPurchased, trackPaymentFailed, trackDocumentUploaded, trackAiUsage } from "./middleware/telemetryMiddleware";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 import { adminMetricsRouter } from "./routes/adminMetrics";
 import { serviceConfig } from "./serviceConfig";
@@ -2158,11 +2158,15 @@ Allow: /apply/`;
       const isFirstUpload = existingDocuments.length === 0;
 
       // Track First Document Upload activation event (CEO directive: north-star activation driver)
+      const documentType = req.body.documentType || 'unknown';
       if (isFirstUpload) {
-        const documentType = req.body.documentType || 'unknown';
         StudentEvents.firstDocumentUpload(userId, documentType, requestId);
         console.log(`[ACTIVATION] First document upload for user ${userId} (type: ${documentType}) - North-star activation milestone reached`);
       }
+      
+      // Protocol ONE_TRUTH v1.2: Emit document_uploaded telemetry
+      trackDocumentUploaded(documentType, userId, requestId, objectPath, isFirstUpload);
+      console.log(`📊 Telemetry: document_uploaded emitted for user ${userId}`);
 
       res.status(200).json({
         objectPath: objectPath,
@@ -2688,6 +2692,48 @@ Allow: /apply/`;
         console.log(`📊 Telemetry: payment_succeeded and credit_purchased emitted for user ${userId}`);
         
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
+      }
+      
+      // Protocol ONE_TRUTH v1.2: Handle payment failures
+      if (event.type === 'checkout.session.expired') {
+        const session = event.data.object as any;
+        const correlationId = (req as any).correlationId || crypto.randomUUID();
+        const userId = session.metadata?.userId || 'unknown';
+        const purchaseId = session.metadata?.purchaseId;
+        
+        console.log(`⚠️ Checkout session expired: ${session.id}`);
+        
+        trackPaymentFailed(
+          'checkout_session_expired',
+          'stripe',
+          userId,
+          correlationId,
+          purchaseId,
+          session.amount_total
+        );
+        
+        console.log(`📊 Telemetry: payment_failed (checkout_session_expired) emitted for user ${userId}`);
+      }
+      
+      if (event.type === 'payment_intent.payment_failed') {
+        const paymentIntent = event.data.object as any;
+        const correlationId = (req as any).correlationId || crypto.randomUUID();
+        const userId = paymentIntent.metadata?.userId || 'unknown';
+        const purchaseId = paymentIntent.metadata?.purchaseId;
+        const failureReason = paymentIntent.last_payment_error?.message || 'payment_failed';
+        
+        console.log(`❌ Payment failed: ${paymentIntent.id} - ${failureReason}`);
+        
+        trackPaymentFailed(
+          failureReason,
+          'stripe',
+          userId,
+          correlationId,
+          purchaseId,
+          paymentIntent.amount
+        );
+        
+        console.log(`📊 Telemetry: payment_failed emitted for user ${userId}`);
       }
 
       metricsCollector.recordWebhook(true);

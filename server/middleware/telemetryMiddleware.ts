@@ -121,3 +121,52 @@ export function trackCreditPurchased(
     currency 
   });
 }
+
+export function trackPaymentFailed(
+  reason: string,
+  paymentProvider: string,
+  userId?: string,
+  requestId?: string,
+  orderId?: string,
+  amountCents?: number
+): void {
+  telemetryClient.trackPaymentFailed(reason, paymentProvider, { 
+    userId, 
+    requestId, 
+    orderId,
+    amountCents 
+  });
+}
+
+export function trackDocumentUploaded(
+  documentType: string,
+  userId?: string,
+  requestId?: string,
+  documentId?: string,
+  isFirst?: boolean
+): void {
+  telemetryClient.trackDocumentUploaded(documentType, { 
+    userId, 
+    requestId, 
+    documentId,
+    isFirst 
+  });
+}
+
+export function trackAiUsage(
+  model: string,
+  operation: string,
+  inputTokens: number,
+  outputTokens: number,
+  userId?: string,
+  requestId?: string,
+  durationMs?: number,
+  creditsCost?: number
+): void {
+  telemetryClient.trackAiUsage(model, operation, inputTokens, outputTokens, { 
+    userId, 
+    requestId, 
+    durationMs,
+    creditsCost 
+  });
+}

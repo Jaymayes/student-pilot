@@ -709,6 +709,60 @@ export class TelemetryClient {
       actorType: 'student'
     });
   }
+
+  trackPaymentFailed(
+    reason: string,
+    paymentProvider: string,
+    options: { userId?: string; requestId?: string; orderId?: string; amountCents?: number } = {}
+  ): void {
+    this.track('payment_failed', {
+      reason,
+      payment_provider: paymentProvider,
+      order_id: options.orderId,
+      amount_cents: options.amountCents
+    }, {
+      userId: options.userId,
+      requestId: options.requestId,
+      actorType: 'student'
+    });
+  }
+
+  trackDocumentUploaded(
+    documentType: string,
+    options: { userId?: string; requestId?: string; documentId?: string; isFirst?: boolean } = {}
+  ): void {
+    this.track('document_uploaded', {
+      document_type: documentType,
+      document_id: options.documentId,
+      is_first_upload: options.isFirst || false
+    }, {
+      userId: options.userId,
+      requestId: options.requestId,
+      actorType: 'student'
+    });
+  }
+
+  trackAiUsage(
+    model: string,
+    operation: string,
+    inputTokens: number,
+    outputTokens: number,
+    options: { userId?: string; requestId?: string; durationMs?: number; creditsCost?: number } = {}
+  ): void {
+    this.track('ai_usage', {
+      model,
+      operation,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      total_tokens: inputTokens + outputTokens,
+      duration_ms: options.durationMs,
+      credits_cost: options.creditsCost
+    }, {
+      userId: options.userId,
+      requestId: options.requestId,
+      actorType: 'student'
+    });
+  }
 }
 
 export const telemetryClient = new TelemetryClient();
