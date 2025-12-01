@@ -44,18 +44,38 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Build**: Separate builds for client (Vite) and server (esbuild)
 - **Type Safety**: Shared TypeScript types
 
-## Telemetry System (Contract v1.1)
+## Telemetry System (Protocol ONE_TRUTH v1.2)
 - **Client**: `server/telemetry/telemetryClient.ts` - Singleton with batched event emission
 - **Middleware**: `server/middleware/telemetryMiddleware.ts` - Automatic page_view tracking
 - **KPI Integration**: `server/services/kpiTelemetry.ts` - Dual-emit to telemetry and Agent Bridge
-- **Events**: app_started, app_heartbeat (60s), page_view, profile_completion, match_click_through, application_start, credit_spend
+- **Primary Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/api/analytics/events`
+- **Fallback Endpoint**: `https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events`
+- **App Registry ID**: `student_pilot` (hardcoded, never dynamic)
+- **App Base URL**: `https://student-pilot-jamarrlmayes.replit.app`
+- **Environment**: Always `prod` for central aggregator (per Protocol ONE_TRUTH)
+- **Required Events**:
+  - `app_started` (at boot with version, uptime_sec=0, service_ok, p95_ms, error_rate_pct, app_base_url)
+  - `app_heartbeat` (every 60s with uptime_sec, service_ok, p95_ms, error_rate_pct, app_base_url)
+- **Business Events (Finance tile drivers)**:
+  - `page_view`, `application_started`, `application_submitted`
+  - `checkout_started`, `payment_succeeded` (via Stripe webhook), `credit_purchased`
 - **Fallback**: Local storage to `business_events` table when external endpoints unavailable
+- **Backfill**: Automatically syncs locally stored events every 5 minutes
 - **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
+- **SLO Targets**: uptime ≥99.9%, p95 latency ≤120ms, error_rate_pct ≤1%
+
+## Legal Pages
+- **Routes**: `/privacy`, `/terms`, `/accessibility` (accessible without authentication)
+- **Components**: `client/src/pages/legal.tsx` - Privacy Policy, Terms of Service, Accessibility Statement
+- **Footer**: `LegalFooter` component displayed on landing and dashboard pages
+- **Report Branding**: `ReportBrandingFooter` component for PDF/printed documents
+- **Company Info**: ScholarLink LLC, registered in Delaware, support@scholarlink.com
 
 ## Compliance and Security
 - Fully compliant with AGENT3 v2.7 UNIFIED specifications, including robust security headers (HSTS, CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy, X-Content-Type-Options).
 - PII is not logged to ensure FERPA/COPPA compliance.
 - Responsible AI controls are active, emphasizing coaching over ghostwriting essays.
+- Legal pages include canonical SEO metadata and Organization JSON-LD structured data.
 
 # External Dependencies
 
