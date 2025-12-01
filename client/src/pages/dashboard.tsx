@@ -29,6 +29,7 @@ import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { TtvDashboardTile } from "@/components/TtvDashboardTile";
 import { InfrastructureDashboardTile } from "@/components/InfrastructureDashboardTile";
 import { SecurityDashboardTile } from "@/components/SecurityDashboardTile";
+import { LegalFooter } from "@/pages/legal";
 
 interface DashboardStats {
   activeApplications: number;
@@ -707,6 +708,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      
+      {/* Footer with Legal Links */}
+      <LegalFooter />
     </div>
   );
 }

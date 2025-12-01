@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GraduationCap, Search, FileText, Folder, PenTool, Shield } from "lucide-react";
+import { LegalFooter } from "@/pages/legal";
 
 export default function Landing() {
   return (
@@ -162,15 +163,8 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-surface border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center space-x-2">
-            <GraduationCap className="text-primary" />
-            <span className="text-gray-600">© 2024 ScholarLink. Empowering student success.</span>
-          </div>
-        </div>
-      </footer>
+      {/* Footer with Legal Links */}
+      <LegalFooter />
     </div>
   );
 }
