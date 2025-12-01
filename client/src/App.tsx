@@ -22,6 +22,7 @@ import RecommendationAnalytics from "@/pages/RecommendationAnalytics";
 import AutofillEssayTest from "@/pages/AutofillEssayTest";
 import PaymentDashboard from "@/pages/PaymentDashboard";
 import { AccessibilityTestPanel } from "@/components/AccessibilityTestPanel";
+import { PrivacyPolicy, TermsOfService, AccessibilityStatement } from "@/pages/legal";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -29,6 +30,11 @@ function Router() {
 
   return (
     <Switch>
+      {/* Legal pages - accessible to everyone */}
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/accessibility" component={AccessibilityStatement} />
+      
       <Route path="/pricing" component={Billing} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
