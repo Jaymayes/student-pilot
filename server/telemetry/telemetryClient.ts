@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { productionMetrics } from '../monitoring/productionMetrics';
 import { db } from '../db';
 import { businessEvents } from '@shared/schema';
+import { sql } from 'drizzle-orm';
 
 // Protocol ONE TRUTH v1.0: app_id is ALWAYS 'student_pilot'
 const APP_ID = 'student_pilot';
@@ -137,12 +138,13 @@ export class TelemetryClient {
       'X-Request-Type': 'S2S'
     };
     
-    // S2S Authentication: Use SHARED_SECRET as Bearer token for service-to-service calls
-    // This bypasses CSRF protection on the receiving end
-    if (SHARED_SECRET) {
-      headers['Authorization'] = `Bearer ${SHARED_SECRET}`;
-    } else if (this.authToken) {
+    // S2S Authentication Priority:
+    // 1. M2M JWT token (preferred - short-lived, rotatable)
+    // 2. SHARED_SECRET as fallback (static, for bootstrap)
+    if (this.authToken) {
       headers['Authorization'] = `Bearer ${this.authToken}`;
+    } else if (SHARED_SECRET) {
+      headers['Authorization'] = `Bearer ${SHARED_SECRET}`;
     }
     
     return headers;
@@ -276,27 +278,46 @@ export class TelemetryClient {
   }
 
   private async refreshAuthToken(): Promise<void> {
-    try {
-      const authUrl = process.env.AUTH_ISSUER_URL || 'https://scholar-auth-jamarrlmayes.replit.app';
-      const response = await fetch(`${authUrl}/oauth/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          grant_type: 'client_credentials',
-          client_id: process.env.AUTH_CLIENT_ID || APP_ID,
-          client_secret: process.env.AUTH_CLIENT_SECRET,
-          scope: 'telemetry:write',
-          audience: 'telemetry'
-        })
-      });
+    // Try scholarship_api M2M endpoint first (preferred for telemetry)
+    const endpoints = [
+      `${SCHOLARSHIP_API_BASE}/api/auth/token`,
+      `${process.env.AUTH_ISSUER_URL || 'https://scholar-auth-jamarrlmayes.replit.app'}/oauth/token`
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Source-App': APP_ID
+          },
+          body: JSON.stringify({
+            grant_type: 'client_credentials',
+            client_id: process.env.AUTH_CLIENT_ID || APP_ID,
+            client_secret: process.env.AUTH_CLIENT_SECRET || SHARED_SECRET,
+            scope: 'telemetry:write',
+            audience: 'telemetry'
+          })
+        });
 
-      if (response.ok) {
-        const data = await response.json() as { access_token: string };
-        this.authToken = data.access_token;
+        if (response.ok) {
+          const data = await response.json() as { access_token: string; expires_in?: number };
+          this.authToken = data.access_token;
+          console.log(`✅ Telemetry: M2M token acquired from ${endpoint}`);
+          
+          // Schedule token refresh before expiry (default 1 hour, refresh at 50 minutes)
+          const expiresIn = data.expires_in || 3600;
+          setTimeout(() => this.refreshAuthToken(), (expiresIn - 600) * 1000);
+          return;
+        }
+      } catch (error) {
+        // Try next endpoint
+        continue;
       }
-    } catch (error) {
-      console.warn('⚠️ Telemetry: Auth token refresh failed', error);
     }
+    
+    console.warn('⚠️ Telemetry: M2M token refresh failed, falling back to SHARED_SECRET');
   }
 
   emitAppStarted(): void {
@@ -370,6 +391,9 @@ export class TelemetryClient {
     console.log(`   Fallback endpoint: ${TELEMETRY_FALLBACK_URL}`);
     console.log(`   Flush interval: ${FLUSH_INTERVAL_MS}ms, Batch max: ${BATCH_MAX}`);
 
+    // Try to acquire M2M token on startup
+    this.refreshAuthToken().catch(() => {});
+
     this.emitAppStarted();
 
     setTimeout(() => {
@@ -384,11 +408,83 @@ export class TelemetryClient {
       this.flush();
     }, FLUSH_INTERVAL_MS);
 
+    // Start backfill process for locally stored events (every 5 minutes)
+    setTimeout(() => {
+      this.backfillLocalEvents();
+    }, 30000); // First backfill after 30 seconds
+    
+    setInterval(() => {
+      this.backfillLocalEvents();
+    }, 5 * 60 * 1000); // Then every 5 minutes
+
     if (process.env.SYNTHETIC === 'true') {
       this.emitSynthetic();
     }
 
     console.log(`✅ Telemetry: Client started with heartbeat (60s) and flush (${FLUSH_INTERVAL_MS}ms)`);
+  }
+  
+  private async backfillLocalEvents(): Promise<void> {
+    try {
+      // Query business_events table for events that need to be synced
+      const localEvents = await db
+        .select()
+        .from(businessEvents)
+        .where(sql`app = ${APP_ID} AND created_at > NOW() - INTERVAL '24 hours'`)
+        .limit(50);
+      
+      if (localEvents.length === 0) return;
+      
+      console.log(`📊 Telemetry: Attempting to backfill ${localEvents.length} locally stored events`);
+      
+      // Convert to TelemetryEvent format
+      const eventsToSync: TelemetryEvent[] = localEvents.map(evt => ({
+        event_id: evt.requestId || crypto.randomUUID(),
+        event_type: evt.eventName,
+        ts_utc: evt.ts?.toISOString() || new Date().toISOString(),
+        app_id: APP_ID,
+        env: getEnvValue(),
+        version: VERSION,
+        session_id: evt.sessionId || null,
+        user_id_hash: evt.actorId || null,
+        account_id: null,
+        actor_type: (evt.actorType as 'student' | 'provider' | 'system') || 'system',
+        request_id: evt.requestId || null,
+        source_ip_masked: null,
+        coppa_flag: false,
+        ferpa_flag: false,
+        properties: {
+          ...(evt.properties as Record<string, unknown> || {}),
+          app_base_url: APP_BASE_URL,
+          backfilled: true,
+          original_ts: evt.ts?.toISOString()
+        }
+      }));
+      
+      // Try to send to central aggregator
+      const response = await fetch(TELEMETRY_WRITE_URL, {
+        method: 'POST',
+        headers: this.getS2SHeaders(),
+        body: JSON.stringify({ 
+          events: eventsToSync,
+          source: APP_ID,
+          timestamp: new Date().toISOString(),
+          backfill: true
+        })
+      });
+      
+      if (response.ok) {
+        // Delete successfully synced events from local storage
+        const eventIds = localEvents.map(e => e.id);
+        await db.delete(businessEvents).where(sql`id = ANY(${eventIds})`);
+        console.log(`✅ Telemetry: Backfilled ${localEvents.length} events to central aggregator`);
+      }
+    } catch (error) {
+      // Backfill is best-effort, don't spam logs
+      if (this.failedAttempts === 0) {
+        console.warn(`⚠️ Telemetry: Backfill attempt failed (will retry silently)`);
+      }
+    }
   }
 
   stop(): void {
