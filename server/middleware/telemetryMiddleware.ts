@@ -91,3 +91,33 @@ export function trackCtaClick(
 ): void {
   telemetryClient.trackCtaClick(cta, page, { userId, requestId });
 }
+
+export function trackPaymentSucceeded(
+  amountCents: number,
+  currency: string,
+  paymentProvider: string,
+  userId?: string,
+  requestId?: string,
+  transactionId?: string
+): void {
+  telemetryClient.trackPaymentSucceeded(amountCents, currency, paymentProvider, { 
+    userId, 
+    requestId, 
+    transactionId 
+  });
+}
+
+export function trackCreditPurchased(
+  amountCents: number,
+  quantity: number,
+  sku: string,
+  userId?: string,
+  requestId?: string,
+  currency?: string
+): void {
+  telemetryClient.trackCreditPurchased(amountCents, quantity, sku, { 
+    userId, 
+    requestId, 
+    currency 
+  });
+}

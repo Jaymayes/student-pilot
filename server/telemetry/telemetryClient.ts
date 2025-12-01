@@ -524,6 +524,43 @@ export class TelemetryClient {
       actorType: 'student'
     });
   }
+
+  trackPaymentSucceeded(
+    amountCents: number,
+    currency: string,
+    paymentProvider: string,
+    options: { userId?: string; requestId?: string; transactionId?: string } = {}
+  ): void {
+    this.track('payment_succeeded', {
+      amount_cents: amountCents,
+      currency,
+      payment_provider: paymentProvider,
+      transaction_id: options.transactionId
+    }, {
+      userId: options.userId,
+      requestId: options.requestId,
+      actorType: 'student'
+    });
+  }
+
+  trackCreditPurchased(
+    amountCents: number,
+    quantity: number,
+    sku: string,
+    options: { userId?: string; requestId?: string; currency?: string } = {}
+  ): void {
+    this.track('credit_purchased', {
+      amount_cents: amountCents,
+      quantity,
+      sku,
+      currency: options.currency || 'USD',
+      payment_provider: 'stripe'
+    }, {
+      userId: options.userId,
+      requestId: options.requestId,
+      actorType: 'student'
+    });
+  }
 }
 
 export const telemetryClient = new TelemetryClient();
