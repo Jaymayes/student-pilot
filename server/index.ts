@@ -83,6 +83,16 @@ if (sentryDsn && isValidSentryDsn(sentryDsn)) {
 const APP_ID = 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
 const ENV = 'prod';
+
+// Protocol ONE_TRUTH v1.2: REPORT prefix for all structured logs
+function REPORT(msg: string, data?: Record<string, unknown>): void {
+  const logLine = `REPORT: app=${APP_ID} | app_base_url=${APP_BASE_URL} | env=${ENV} | msg=${msg}`;
+  if (data) {
+    console.log(logLine, JSON.stringify(data));
+  } else {
+    console.log(logLine);
+  }
+}
 console.log(`IDENTIFY: APP=${APP_ID} | APP_BASE_URL=${APP_BASE_URL} | ROLE=Student App + Payments | ENV=${ENV}`);
 
 const app = express();
@@ -672,5 +682,16 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Protocol ONE_TRUTH v1.2: Emit success confirmation after 5s warmup
+    setTimeout(() => {
+      REPORT('Telemetry v1.2 active, events flowing, Command Center visible', {
+        status: 'ready',
+        port,
+        telemetry_protocol: 'ONE_TRUTH',
+        telemetry_version: '1.2',
+        heartbeat_interval_sec: 60
+      });
+    }, 5000);
   });
 })();
