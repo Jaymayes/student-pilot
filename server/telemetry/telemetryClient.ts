@@ -33,22 +33,25 @@ const SALT = process.env.TELEMETRY_SALT || crypto.randomBytes(16).toString('hex'
 
 // Protocol ONE_TRUTH v1.2 compliant event envelope
 // DUAL-FIELD APPROACH per Master Prompt v1.2 Legacy Compatibility section:
-// - Send v1.2 canonical fields: app, event_name, ts_iso, _meta.version: "v1.2"
-// - Also send legacy duplicates: app_id, event_type, ts, _meta.version: "1.2"
+// - v1.2 canonical: app, app_base_url, env, event_name, ts_iso, data, id (uuid), schema_version
+// - Legacy duplicates: app_id, event_type, ts, properties
 export interface TelemetryEvent {
-  event_id: string;
-  // v1.2 canonical fields
+  // v1.2 canonical fields (per Master Prompt specification)
+  id: string; // v1.2: canonical uuid
   app: string; // v1.2: Master Prompt canonical field
   event_name: string; // v1.2: Master Prompt canonical field
   ts_iso: string; // v1.2: Master Prompt canonical field (ISO-8601)
+  data: Record<string, unknown>; // v1.2: canonical data field
+  schema_version: string; // v1.2: schema version identifier
   // Legacy duplicate fields (for backward compatibility with deployed endpoints)
+  event_id: string; // Legacy: duplicate of id
   event_type: string; // Legacy: endpoints still expect "event_type"
   ts: string; // Legacy: endpoints still expect "ts" (ISO-8601)
   app_id: string; // Legacy: endpoints still expect "app_id"
+  properties: Record<string, unknown>; // Legacy: duplicate of data
   // Common fields
   app_base_url: string; // v1.2: Required at root level
   env: 'prod' | 'staging' | 'dev';
-  properties: Record<string, unknown>;
   _meta: {
     protocol: 'ONE_TRUTH';
     version: 'v1.2' | '1.2'; // v1.2 canonical: "v1.2", legacy: "1.2" - we send "1.2" for compatibility
@@ -102,31 +105,35 @@ export class TelemetryClient {
       ferpaFlag?: boolean;
     } = {}
   ): TelemetryEvent {
-    // Protocol ONE_TRUTH v1.2: Include app_base_url in properties AND at root
-    const enrichedProperties: Record<string, unknown> = {
+    // Protocol ONE_TRUTH v1.2: Include app_base_url in data/properties
+    const enrichedData: Record<string, unknown> = {
       ...properties,
       app_base_url: APP_BASE_URL
     };
 
     const timestamp = new Date().toISOString();
+    const eventUuid = crypto.randomUUID();
 
-    // Protocol ONE_TRUTH v1.2 DUAL-FIELD envelope per Master Prompt Legacy Compatibility:
-    // - Send v1.2 canonical fields: app, event_name, ts_iso
-    // - Also send legacy duplicates: app_id, event_type, ts
+    // Protocol ONE_TRUTH v1.2 DUAL-FIELD envelope per Master Prompt:
+    // - v1.2 canonical: app, app_base_url, env, event_name, ts_iso, data, id, schema_version
+    // - Legacy duplicates: app_id, event_type, ts, properties, event_id
     return {
-      event_id: crypto.randomUUID(),
-      // v1.2 canonical fields
+      // v1.2 canonical fields (per Master Prompt specification)
+      id: eventUuid, // v1.2: canonical uuid
       app: APP_ID, // v1.2: Master Prompt canonical field
       event_name: eventType, // v1.2: Master Prompt canonical field
       ts_iso: timestamp, // v1.2: Master Prompt canonical field (ISO-8601)
+      data: enrichedData, // v1.2: canonical data field
+      schema_version: 'v1.2', // v1.2: schema version identifier
       // Legacy duplicate fields (backward compatibility with deployed endpoints)
+      event_id: eventUuid, // Legacy: duplicate of id
       event_type: eventType, // Legacy: endpoints expect "event_type"
       ts: timestamp, // Legacy: endpoints expect "ts" (ISO-8601)
       app_id: APP_ID, // Legacy: endpoints expect "app_id" - always 'student_pilot'
+      properties: enrichedData, // Legacy: duplicate of data
       // Common fields
       app_base_url: APP_BASE_URL, // v1.2: Required at root level
       env: getEnvValue(), // Protocol ONE_TRUTH v1.2: Always 'prod'
-      properties: enrichedProperties,
       _meta: {
         protocol: 'ONE_TRUTH',
         version: '1.2' // Legacy: endpoints accept "1.2" (not "v1.2")
@@ -173,11 +180,12 @@ export class TelemetryClient {
     
     // S2S Authentication Priority:
     // 1. M2M JWT token (preferred - short-lived, rotatable)
-    // 2. SHARED_SECRET as fallback (static, for bootstrap)
+    // 2. SHARED_SECRET in per-app format: <app_id>:<secret>
     if (this.authToken) {
       headers['Authorization'] = `Bearer ${this.authToken}`;
     } else if (SHARED_SECRET) {
-      headers['Authorization'] = `Bearer ${SHARED_SECRET}`;
+      // Per-app secret format as required by scholarship_sage fallback
+      headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
     }
     
     return headers;
@@ -226,13 +234,11 @@ export class TelemetryClient {
     // LOUD LOGGING: Make S2S failures visible for debugging
     console.log(`📊 Telemetry: Attempting to flush ${eventsToSend.length} events to ${TELEMETRY_WRITE_URL}`);
     
-    // DEBUG: Log dual-field structure for troubleshooting (v1.2 canonical + legacy)
-    if (eventsToSend.length > 0 && process.env.TELEMETRY_DEBUG === 'true') {
-      console.log(`📊 DEBUG: DUAL-FIELD event structure: ${JSON.stringify({
-        v12_canonical: { app: eventsToSend[0].app, event_name: eventsToSend[0].event_name, ts_iso: !!eventsToSend[0].ts_iso },
-        legacy: { app_id: eventsToSend[0].app_id, event_type: eventsToSend[0].event_type, ts: !!eventsToSend[0].ts },
-        meta_version: eventsToSend[0]._meta?.version
-      })}`);
+    // Debug logging (only when TELEMETRY_DEBUG env var is set)
+    if (process.env.TELEMETRY_DEBUG === 'true') {
+      eventsToSend.forEach((evt, i) => {
+        console.log(`📊 DEBUG[${i}]: id=${evt.id}, app=${evt.app}, app_id=${evt.app_id}, event_name=${evt.event_name}`);
+      });
     }
 
     try {
@@ -241,6 +247,11 @@ export class TelemetryClient {
         headers: this.getS2SHeaders(),
         body: JSON.stringify({ 
           events: eventsToSend,
+          // v1.2 canonical fields at envelope level
+          app: APP_ID,
+          app_base_url: APP_BASE_URL,
+          // Legacy fields at envelope level
+          app_id: APP_ID,
           source: APP_ID,
           timestamp: new Date().toISOString()
         })
@@ -280,6 +291,11 @@ export class TelemetryClient {
         headers: this.getS2SHeaders(),
         body: JSON.stringify({ 
           events,
+          // v1.2 canonical fields at envelope level
+          app: APP_ID,
+          app_base_url: APP_BASE_URL,
+          // Legacy fields at envelope level
+          app_id: APP_ID,
           source: APP_ID,
           timestamp: new Date().toISOString()
         })
@@ -500,25 +516,30 @@ export class TelemetryClient {
       // Convert to Protocol ONE_TRUTH v1.2 DUAL-FIELD format per Master Prompt
       const eventsToSync: TelemetryEvent[] = localEvents.map(evt => {
         const timestamp = evt.ts?.toISOString() || new Date().toISOString();
+        const eventUuid = evt.requestId || crypto.randomUUID();
+        const eventData = {
+          ...(evt.properties as Record<string, unknown> || {}),
+          app_base_url: APP_BASE_URL,
+          backfilled: true,
+          original_ts: evt.ts?.toISOString()
+        };
         return {
-          event_id: evt.requestId || crypto.randomUUID(),
-          // v1.2 canonical fields
+          // v1.2 canonical fields (per Master Prompt specification)
+          id: eventUuid, // v1.2: canonical uuid
           app: APP_ID, // v1.2: Master Prompt canonical field
           event_name: evt.eventName, // v1.2: Master Prompt canonical field
           ts_iso: timestamp, // v1.2: Master Prompt canonical field (ISO-8601)
+          data: eventData, // v1.2: canonical data field
+          schema_version: 'v1.2', // v1.2: schema version identifier
           // Legacy duplicate fields (for backward compatibility)
+          event_id: eventUuid, // Legacy: duplicate of id
           event_type: evt.eventName, // Legacy: endpoints expect "event_type"
           ts: timestamp, // Legacy: endpoints expect "ts"
           app_id: APP_ID, // Legacy: endpoints expect "app_id"
+          properties: eventData, // Legacy: duplicate of data
           // Common fields
           app_base_url: APP_BASE_URL, // v1.2: Required at root level
           env: getEnvValue(),
-          properties: {
-            ...(evt.properties as Record<string, unknown> || {}),
-            app_base_url: APP_BASE_URL,
-            backfilled: true,
-            original_ts: evt.ts?.toISOString()
-          },
           _meta: {
             protocol: 'ONE_TRUTH' as const,
             version: '1.2' as const // Legacy: endpoints accept "1.2"

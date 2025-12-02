@@ -55,8 +55,8 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Environment**: Always `prod` for central aggregator (per Protocol ONE_TRUTH)
 - **DUAL-FIELD APPROACH (Master Prompt v1.2 Legacy Compatibility)**:
   - Sends BOTH v1.2 canonical fields AND legacy duplicates per Master Prompt specification
-  - v1.2 canonical: `app`, `event_name`, `ts_iso`, `_meta.version: "v1.2"`
-  - Legacy duplicates: `app_id`, `event_type`, `ts`, `_meta.version: "1.2"`
+  - v1.2 canonical: `app`, `event_name`, `ts_iso`, `data`, `id`, `schema_version`, `_meta.version: "v1.2"`
+  - Legacy duplicates: `app_id`, `event_type`, `ts`, `properties`, `event_id`, `_meta.version: "1.2"`
   - Both are included in every event payload for forward/backward compatibility
   - Deployed endpoints currently validate legacy fields; canonical fields future-proof for migration
 - **Required Events**:
@@ -120,7 +120,23 @@ The application continues operating when external services are unavailable:
 - **Telemetry**: Uses fallback endpoint (scholarship_sage) when primary (scholarship_api) returns 403/5xx
 - **Telemetry Local Storage**: Events stored to business_events table when both endpoints fail; backfilled every 5 minutes
 - **Neon Database**: Pool error handler catches 57P01 (admin termination) without crashing; connections auto-recover
-- **M2M Token**: Falls back to SHARED_SECRET when token refresh endpoints unavailable
+- **M2M Token**: Falls back to SHARED_SECRET in per-app format (`<app_id>:<secret>`) when token refresh endpoints unavailable
+
+## External Service Configuration Requirements
+The following external services need configuration to enable full ecosystem integration:
+
+### A2 scholarship_api (Primary Telemetry Endpoint)
+- **Current Status**: Returns 403 on S2S requests
+- **Required Action**: Whitelist S2S Bearer tokens for `student_pilot` app
+- **Auth Format**: `Bearer student_pilot:<SHARED_SECRET>` or M2M JWT
+
+### A4 scholarship_sage (Fallback Telemetry Endpoint)
+- **Current Status**: Returns 401 "Telemetry not configured for app 'student_pilot'"
+- **Required Action**: Configure `student_pilot` as allowed app in telemetry config
+
+### A8 auto_com_center (Command Center)
+- **Current Status**: Returns 404 on registration
+- **Required Action**: Register `student_pilot` endpoint in Command Center app registry
 
 ## Compliance and Security
 - Fully compliant with AGENT3 v3.0 UNIFIED specifications, including robust security headers (HSTS, CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy, X-Content-Type-Options).
