@@ -42,6 +42,7 @@ import { pilotDashboard } from "./monitoring/pilotDashboard";
 import { kpiTelemetry } from "./services/kpiTelemetry";
 import { StudentEvents } from "./services/businessEvents";
 import { trackPaymentSucceeded, trackCreditPurchased, trackPaymentFailed, trackDocumentUploaded, trackAiUsage } from "./middleware/telemetryMiddleware";
+import { telemetryClient } from "./telemetry/telemetryClient";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 import { adminMetricsRouter } from "./routes/adminMetrics";
 import { serviceConfig } from "./serviceConfig";
@@ -610,6 +611,24 @@ Allow: /apply/`;
       node_version: process.version,
       uptime_seconds: Math.floor(process.uptime())
     });
+  });
+
+  // Telemetry status endpoint (internal diagnostic - auth restricted)
+  app.get('/api/internal/telemetry/status', isAuthenticated, (req, res) => {
+    try {
+      const status = telemetryClient.getStatus();
+      res.json({
+        status: 'ok',
+        telemetry: status,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    }
   });
 
   // AGENT3 v2.7: Prometheus metrics endpoint for observability

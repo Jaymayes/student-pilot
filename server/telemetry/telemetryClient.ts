@@ -68,6 +68,22 @@ export interface TelemetryEvent {
   ferpa_flag?: boolean;
 }
 
+export interface TelemetryStatus {
+  enabled: boolean;
+  queue_depth: number;
+  uptime_sec: number;
+  last_flush_ts: string | null;
+  last_backfill_ts: string | null;
+  last_error: string | null;
+  last_error_ts: string | null;
+  failed_attempts: number;
+  primary_endpoint: string;
+  fallback_endpoint: string;
+  auth_configured: boolean;
+  protocol: 'ONE_TRUTH';
+  version: 'v1.2';
+}
+
 export class TelemetryClient {
   private eventQueue: TelemetryEvent[] = [];
   private flushInterval: NodeJS.Timeout | null = null;
@@ -77,6 +93,14 @@ export class TelemetryClient {
   private authToken: string | null = null;
   private failedAttempts: number = 0;
   private maxRetryDelay: number = 5 * 60 * 1000;
+  
+  // Diagnostic tracking
+  private lastFlushTs: string | null = null;
+  private lastBackfillTs: string | null = null;
+  private lastError: string | null = null;
+  private lastErrorTs: string | null = null;
+  private consecutiveFailures: number = 0;
+  private readonly ALERT_THRESHOLD = 3; // Emit alert after 3 consecutive failures
 
   hashUserId(userId: string): string {
     return crypto.createHash('sha256').update(userId + SALT).digest('hex');
@@ -89,6 +113,58 @@ export class TelemetryClient {
       return `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
     }
     return null;
+  }
+
+  getStatus(): TelemetryStatus {
+    return {
+      enabled: this.enabled,
+      queue_depth: this.eventQueue.length,
+      uptime_sec: Math.floor((Date.now() - this.startTime) / 1000),
+      last_flush_ts: this.lastFlushTs,
+      last_backfill_ts: this.lastBackfillTs,
+      last_error: this.lastError,
+      last_error_ts: this.lastErrorTs,
+      failed_attempts: this.failedAttempts,
+      primary_endpoint: TELEMETRY_WRITE_URL,
+      fallback_endpoint: TELEMETRY_FALLBACK_URL,
+      auth_configured: !!SHARED_SECRET || !!this.authToken,
+      protocol: 'ONE_TRUTH',
+      version: 'v1.2'
+    };
+  }
+
+  private recordError(error: string): void {
+    this.lastError = error;
+    this.lastErrorTs = new Date().toISOString();
+    this.consecutiveFailures++;
+    
+    // Emit telemetry_delivery_failed after threshold consecutive failures
+    if (this.consecutiveFailures === this.ALERT_THRESHOLD) {
+      console.warn(`🚨 Telemetry: ${this.ALERT_THRESHOLD} consecutive failures - emitting telemetry_delivery_failed`);
+      // Store this event locally only (avoid infinite loop)
+      db.insert(businessEvents).values({
+        requestId: crypto.randomUUID(),
+        app: APP_ID,
+        env: 'production',
+        eventName: 'telemetry_delivery_failed',
+        ts: new Date(),
+        actorType: 'system',
+        properties: {
+          consecutive_failures: this.consecutiveFailures,
+          last_error: this.lastError,
+          primary_endpoint: TELEMETRY_WRITE_URL,
+          fallback_endpoint: TELEMETRY_FALLBACK_URL
+        }
+      }).catch(err => console.error('Failed to store telemetry_delivery_failed event:', err));
+    }
+  }
+
+  private recordSuccess(): void {
+    this.lastFlushTs = new Date().toISOString();
+    this.failedAttempts = 0;
+    this.consecutiveFailures = 0;
+    this.lastError = null;
+    this.lastErrorTs = null;
   }
 
   createEvent(
@@ -273,7 +349,7 @@ export class TelemetryClient {
         throw new Error(`Primary endpoint failed: ${response.status}`);
       }
 
-      this.failedAttempts = 0;
+      this.recordSuccess();
       console.log(`✅ Telemetry: Successfully flushed ${eventsToSend.length} events to central aggregator (scholarship_api)`);
 
     } catch (error) {
@@ -302,14 +378,16 @@ export class TelemetryClient {
       });
 
       if (response.ok) {
-        this.failedAttempts = 0;
+        this.recordSuccess();
         console.log(`✅ Telemetry: Flushed ${events.length} events to fallback (scholarship_sage)`);
         return;
       }
 
       const errorText = await response.text().catch(() => 'unknown');
+      const errorMsg = `Fallback ${response.status}: ${errorText}`;
       console.error(`🚨 TELEMETRY FALLBACK FAILED: ${response.status} - ${errorText}`);
-      throw new Error(`Fallback failed: ${response.status}`);
+      this.recordError(errorMsg);
+      throw new Error(errorMsg);
     } catch (error) {
       console.error(`🚨 TELEMETRY: Both remote endpoints failed. Storing locally.`);
       console.error(`   Primary: ${TELEMETRY_WRITE_URL}`);
@@ -573,6 +651,7 @@ export class TelemetryClient {
         // Delete successfully synced events from local storage
         const eventIds = localEvents.map(e => e.id);
         await db.delete(businessEvents).where(sql`id = ANY(${eventIds})`);
+        this.lastBackfillTs = new Date().toISOString();
         console.log(`✅ Telemetry: Backfilled ${localEvents.length} events to central aggregator`);
       }
     } catch (error) {
