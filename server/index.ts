@@ -85,13 +85,14 @@ const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlm
 const ENV = 'prod';
 
 // Protocol ONE_TRUTH v1.2: REPORT prefix for all structured logs
-function REPORT(msg: string, data?: Record<string, unknown>): void {
-  const logLine = `REPORT: app=${APP_ID} | app_base_url=${APP_BASE_URL} | env=${ENV} | msg=${msg}`;
-  if (data) {
-    console.log(logLine, JSON.stringify(data));
-  } else {
-    console.log(logLine);
+// Format: REPORT: app=<app_id> | app_base_url=<base> | env=prod | protocol=ONE_TRUTH | version=v1.2 | msg=<human-readable> | fields=<key1=val1; key2=val2; ...>
+function REPORT(msg: string, fields?: Record<string, unknown>): void {
+  let logLine = `REPORT: app=${APP_ID} | app_base_url=${APP_BASE_URL} | env=${ENV} | protocol=ONE_TRUTH | version=v1.2 | msg=${msg}`;
+  if (fields && Object.keys(fields).length > 0) {
+    const fieldsStr = Object.entries(fields).map(([k, v]) => `${k}=${v}`).join('; ');
+    logLine += ` | fields=${fieldsStr}`;
   }
+  console.log(logLine);
 }
 console.log(`IDENTIFY: APP=${APP_ID} | APP_BASE_URL=${APP_BASE_URL} | ROLE=Student App + Payments | ENV=${ENV}`);
 
