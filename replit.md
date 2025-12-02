@@ -58,15 +58,47 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
   - `app_heartbeat` (every 60s with uptime_sec, service_ok, p95_ms, error_rate_pct, app_base_url)
 - **Business Events (A5 spec compliant - Finance tile drivers)**:
   - `page_view`, `application_started`, `application_submitted`
-  - `checkout_started`, `payment_succeeded` {amount_cents, product, credits} (via Stripe webhook)
-  - `credit_purchased` {credits, amount_cents, source} (via Stripe webhook)
+  - `checkout_started`, `payment_succeeded` {amount_cents, product, credits, intent_id, user_id_hash} (via Stripe webhook)
+  - `credit_purchased` {credits, amount_cents, source, user_id_hash} (via Stripe webhook)
   - `payment_failed` {reason, amount_cents, intent_id} (via Stripe webhook for checkout.session.expired and payment_intent.payment_failed)
-  - `document_uploaded` {document_type, document_id, is_first} (with isFirst flag for activation tracking)
-  - `ai_assist_used` {tool, op, tokens_in, tokens_out} (via kpiTelemetry.trackEssayAssistance)
+  - `document_uploaded` {document_type, document_id, is_first, user_id_hash} (with isFirst flag for activation tracking)
+  - `ai_assist_used` {tool, op, tokens_in, tokens_out, user_id_hash} (via kpiTelemetry.trackEssayAssistance)
 - **Fallback**: Local storage to `business_events` table when external endpoints unavailable
 - **Backfill**: Automatically syncs locally stored events every 5 minutes
 - **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
-- **SLO Targets**: uptime ≥99.9%, p95 latency ≤120ms, error_rate_pct ≤1%
+- **SLO Targets**: uptime ≥99.9%, p95 latency ≤120ms, error_rate_pct <2%
+
+## AGENT3 Ecosystem Integration (8-App Architecture)
+student_pilot is A5 in the 8-app ecosystem. All apps communicate via telemetry to A2 (scholarship_api) which feeds A8 (auto_com_center) Command Center UI.
+
+### App Registry
+- **A1 scholar_auth**: Auth gateway (signups/logins) → `https://scholar-auth-jamarrlmayes.replit.app`
+- **A2 scholarship_api**: Central Aggregator "The Heart" → `https://scholarship-api-jamarrlmayes.replit.app`
+- **A3 scholarship_agent**: Acquisition + Campaign Orchestrator → `https://scholarship-agent-jamarrlmayes.replit.app`
+- **A4 scholarship_sage**: AI Recommendations + Trust → `https://scholarship-sage-jamarrlmayes.replit.app`
+- **A5 student_pilot (THIS APP)**: Student App + Credits/Payments → `https://student-pilot-jamarrlmayes.replit.app`
+- **A6 provider_register**: Provider Onboarding/Publishing → `https://provider-register-jamarrlmayes.replit.app`
+- **A7 auto_page_maker**: SEO Page Builder → `https://auto-page-maker-jamarrlmayes.replit.app`
+- **A8 auto_com_center**: Command Center UI "The Eyes" → `https://auto-com-center-jamarrlmayes.replit.app`
+
+### Command Center Tiles (A5 Contributions)
+- **Finance tile**: `payment_succeeded`, `credit_purchased` (primary monetization path)
+- **B2C tile**: Attributed via UTM from A3 campaigns
+- **SLO tile**: `app_started`, `app_heartbeat` with p95_ms, error_rate_pct
+
+### UTM Attribution from A3 (scholarship_agent)
+A3 routes traffic to A5 with exact UTM parameters:
+- `utm_source=scholarship_agent`
+- `utm_medium=organic-seo` (must be exactly "organic-seo")
+- `utm_campaign={campaign_slug}` (e.g., sotd_2025_12_02)
+- `utm_content={template_slug}` (e.g., sotd_basic)
+- `utm_term={keyword_slug}`
+
+### CTA Routing (A3 → A5)
+Primary CTA: `purchase_credits` routes to:
+```
+https://student-pilot-jamarrlmayes.replit.app/start?utm_source=scholarship_agent&utm_medium=organic-seo&utm_campaign={campaign}&utm_content={template}&utm_term={keyword}
+```
 
 ## Legal Pages
 - **Routes**: `/privacy`, `/terms`, `/accessibility` (accessible without authentication)
