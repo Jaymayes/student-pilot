@@ -32,19 +32,26 @@ const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
 const SALT = process.env.TELEMETRY_SALT || crypto.randomBytes(16).toString('hex');
 
 // Protocol ONE_TRUTH v1.2 compliant event envelope
-// Note: Deployed endpoints still use legacy field names (app_id, event_type, ts)
-// Master Prompt specifies (app, event_name, ts_iso) but migration is pending
+// DUAL-FIELD APPROACH per Master Prompt v1.2 Legacy Compatibility section:
+// - Send v1.2 canonical fields: app, event_name, ts_iso, _meta.version: "v1.2"
+// - Also send legacy duplicates: app_id, event_type, ts, _meta.version: "1.2"
 export interface TelemetryEvent {
   event_id: string;
+  // v1.2 canonical fields
+  app: string; // v1.2: Master Prompt canonical field
+  event_name: string; // v1.2: Master Prompt canonical field
+  ts_iso: string; // v1.2: Master Prompt canonical field (ISO-8601)
+  // Legacy duplicate fields (for backward compatibility with deployed endpoints)
   event_type: string; // Legacy: endpoints still expect "event_type"
   ts: string; // Legacy: endpoints still expect "ts" (ISO-8601)
   app_id: string; // Legacy: endpoints still expect "app_id"
+  // Common fields
   app_base_url: string; // v1.2: Required at root level
   env: 'prod' | 'staging' | 'dev';
   properties: Record<string, unknown>;
   _meta: {
     protocol: 'ONE_TRUTH';
-    version: '1.2'; // Deployed endpoints accept "1.2"
+    version: 'v1.2' | '1.2'; // v1.2 canonical: "v1.2", legacy: "1.2" - we send "1.2" for compatibility
   };
   // Extended fields for internal use
   version?: string;
@@ -101,18 +108,28 @@ export class TelemetryClient {
       app_base_url: APP_BASE_URL
     };
 
-    // Protocol ONE_TRUTH v1.2 compliant envelope (legacy field names for deployed endpoints)
+    const timestamp = new Date().toISOString();
+
+    // Protocol ONE_TRUTH v1.2 DUAL-FIELD envelope per Master Prompt Legacy Compatibility:
+    // - Send v1.2 canonical fields: app, event_name, ts_iso
+    // - Also send legacy duplicates: app_id, event_type, ts
     return {
       event_id: crypto.randomUUID(),
+      // v1.2 canonical fields
+      app: APP_ID, // v1.2: Master Prompt canonical field
+      event_name: eventType, // v1.2: Master Prompt canonical field
+      ts_iso: timestamp, // v1.2: Master Prompt canonical field (ISO-8601)
+      // Legacy duplicate fields (backward compatibility with deployed endpoints)
       event_type: eventType, // Legacy: endpoints expect "event_type"
-      ts: new Date().toISOString(), // Legacy: endpoints expect "ts" (ISO-8601)
+      ts: timestamp, // Legacy: endpoints expect "ts" (ISO-8601)
       app_id: APP_ID, // Legacy: endpoints expect "app_id" - always 'student_pilot'
+      // Common fields
       app_base_url: APP_BASE_URL, // v1.2: Required at root level
       env: getEnvValue(), // Protocol ONE_TRUTH v1.2: Always 'prod'
       properties: enrichedProperties,
       _meta: {
         protocol: 'ONE_TRUTH',
-        version: '1.2' // Deployed endpoints accept "1.2"
+        version: '1.2' // Legacy: endpoints accept "1.2" (not "v1.2")
       },
       // Extended fields
       version: VERSION,
@@ -169,26 +186,32 @@ export class TelemetryClient {
   async flush(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
-    // Protocol ONE_TRUTH v1.2: Validate all events before sending
+    // Protocol ONE_TRUTH v1.2 DUAL-FIELD: Validate all events have both canonical AND legacy fields
     const eventsToSend = this.eventQueue.filter(event => {
+      // Check v1.2 canonical fields
+      if (!event.app) {
+        console.error(`🚨 Telemetry: Dropping event ${event.event_name || event.event_type} - missing app (v1.2 canonical)`);
+        return false;
+      }
+      // Check legacy fields (for backward compatibility)
       if (!event.app_id) {
-        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing app_id`);
+        console.error(`🚨 Telemetry: Dropping event ${event.event_name || event.event_type} - missing app_id (legacy)`);
         return false;
       }
       if (!event.app_base_url) {
-        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing app_base_url`);
+        console.error(`🚨 Telemetry: Dropping event ${event.event_name || event.event_type} - missing app_base_url`);
         return false;
       }
-      if (!event.event_type) {
-        console.error(`🚨 Telemetry: Dropping event - missing event_type`);
+      if (!event.event_type || !event.event_name) {
+        console.error(`🚨 Telemetry: Dropping event - missing event_type/event_name`);
         return false;
       }
-      if (!event.ts) {
-        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing ts`);
+      if (!event.ts || !event.ts_iso) {
+        console.error(`🚨 Telemetry: Dropping event ${event.event_name} - missing ts/ts_iso`);
         return false;
       }
       if (!event._meta || event._meta.protocol !== 'ONE_TRUTH' || event._meta.version !== '1.2') {
-        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - invalid _meta block`);
+        console.error(`🚨 Telemetry: Dropping event ${event.event_name} - invalid _meta block`);
         return false;
       }
       return true;
@@ -203,13 +226,11 @@ export class TelemetryClient {
     // LOUD LOGGING: Make S2S failures visible for debugging
     console.log(`📊 Telemetry: Attempting to flush ${eventsToSend.length} events to ${TELEMETRY_WRITE_URL}`);
     
-    // DEBUG: Log event structure for troubleshooting validation issues
-    if (eventsToSend.length > 0) {
-      console.log(`📊 DEBUG: First event structure: ${JSON.stringify({
-        app_id: eventsToSend[0].app_id,
-        event_type: eventsToSend[0].event_type,
-        has_ts: !!eventsToSend[0].ts,
-        has_meta: !!eventsToSend[0]._meta,
+    // DEBUG: Log dual-field structure for troubleshooting (v1.2 canonical + legacy)
+    if (eventsToSend.length > 0 && process.env.TELEMETRY_DEBUG === 'true') {
+      console.log(`📊 DEBUG: DUAL-FIELD event structure: ${JSON.stringify({
+        v12_canonical: { app: eventsToSend[0].app, event_name: eventsToSend[0].event_name, ts_iso: !!eventsToSend[0].ts_iso },
+        legacy: { app_id: eventsToSend[0].app_id, event_type: eventsToSend[0].event_type, ts: !!eventsToSend[0].ts },
         meta_version: eventsToSend[0]._meta?.version
       })}`);
     }
@@ -476,35 +497,44 @@ export class TelemetryClient {
       
       console.log(`📊 Telemetry: Attempting to backfill ${localEvents.length} locally stored events`);
       
-      // Convert to Protocol ONE_TRUTH v1.2 compliant format (legacy field names)
-      const eventsToSync: TelemetryEvent[] = localEvents.map(evt => ({
-        event_id: evt.requestId || crypto.randomUUID(),
-        event_type: evt.eventName, // Legacy: endpoints expect "event_type"
-        ts: evt.ts?.toISOString() || new Date().toISOString(), // Legacy: endpoints expect "ts"
-        app_id: APP_ID, // Legacy: endpoints expect "app_id"
-        app_base_url: APP_BASE_URL, // v1.2: Required at root level
-        env: getEnvValue(),
-        properties: {
-          ...(evt.properties as Record<string, unknown> || {}),
-          app_base_url: APP_BASE_URL,
-          backfilled: true,
-          original_ts: evt.ts?.toISOString()
-        },
-        _meta: {
-          protocol: 'ONE_TRUTH' as const,
-          version: '1.2' as const // Deployed endpoints accept "1.2"
-        },
-        // Extended fields
-        version: VERSION,
-        session_id: evt.sessionId || null,
-        user_id_hash: evt.actorId || null,
-        account_id: null,
-        actor_type: (evt.actorType as 'student' | 'provider' | 'system') || 'system',
-        request_id: evt.requestId || null,
-        source_ip_masked: null,
-        coppa_flag: false,
-        ferpa_flag: false
-      }));
+      // Convert to Protocol ONE_TRUTH v1.2 DUAL-FIELD format per Master Prompt
+      const eventsToSync: TelemetryEvent[] = localEvents.map(evt => {
+        const timestamp = evt.ts?.toISOString() || new Date().toISOString();
+        return {
+          event_id: evt.requestId || crypto.randomUUID(),
+          // v1.2 canonical fields
+          app: APP_ID, // v1.2: Master Prompt canonical field
+          event_name: evt.eventName, // v1.2: Master Prompt canonical field
+          ts_iso: timestamp, // v1.2: Master Prompt canonical field (ISO-8601)
+          // Legacy duplicate fields (for backward compatibility)
+          event_type: evt.eventName, // Legacy: endpoints expect "event_type"
+          ts: timestamp, // Legacy: endpoints expect "ts"
+          app_id: APP_ID, // Legacy: endpoints expect "app_id"
+          // Common fields
+          app_base_url: APP_BASE_URL, // v1.2: Required at root level
+          env: getEnvValue(),
+          properties: {
+            ...(evt.properties as Record<string, unknown> || {}),
+            app_base_url: APP_BASE_URL,
+            backfilled: true,
+            original_ts: evt.ts?.toISOString()
+          },
+          _meta: {
+            protocol: 'ONE_TRUTH' as const,
+            version: '1.2' as const // Legacy: endpoints accept "1.2"
+          },
+          // Extended fields
+          version: VERSION,
+          session_id: evt.sessionId || null,
+          user_id_hash: evt.actorId || null,
+          account_id: null,
+          actor_type: (evt.actorType as 'student' | 'provider' | 'system') || 'system',
+          request_id: evt.requestId || null,
+          source_ip_masked: null,
+          coppa_flag: false,
+          ferpa_flag: false
+        };
+      });
       
       // Try to send to central aggregator
       const response = await fetch(TELEMETRY_WRITE_URL, {

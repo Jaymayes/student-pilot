@@ -53,10 +53,12 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **App Registry ID**: `student_pilot` (hardcoded, never dynamic)
 - **App Base URL**: `https://student-pilot-jamarrlmayes.replit.app`
 - **Environment**: Always `prod` for central aggregator (per Protocol ONE_TRUTH)
-- **Field Names (IMPORTANT)**: Deployed endpoints use legacy field names:
-  - `app_id` (not `app`), `event_type` (not `event_name`), `ts` (not `ts_iso`)
-  - `_meta.version: "1.2"` (without "v" prefix)
-  - Master Prompt v1.2 specifies new names but endpoints pending migration
+- **DUAL-FIELD APPROACH (Master Prompt v1.2 Legacy Compatibility)**:
+  - Sends BOTH v1.2 canonical fields AND legacy duplicates per Master Prompt specification
+  - v1.2 canonical: `app`, `event_name`, `ts_iso`, `_meta.version: "v1.2"`
+  - Legacy duplicates: `app_id`, `event_type`, `ts`, `_meta.version: "1.2"`
+  - Both are included in every event payload for forward/backward compatibility
+  - Deployed endpoints currently validate legacy fields; canonical fields future-proof for migration
 - **Required Events**:
   - `app_started` (at boot with version, uptime_sec=0, service_ok, p95_ms, error_rate_pct, app_base_url)
   - `app_heartbeat` (every 60s with uptime_sec, service_ok, p95_ms, error_rate_pct, app_base_url)
