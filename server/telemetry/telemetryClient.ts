@@ -32,17 +32,19 @@ const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
 const SALT = process.env.TELEMETRY_SALT || crypto.randomBytes(16).toString('hex');
 
 // Protocol ONE_TRUTH v1.2 compliant event envelope
+// Note: Deployed endpoints still use legacy field names (app_id, event_type, ts)
+// Master Prompt specifies (app, event_name, ts_iso) but migration is pending
 export interface TelemetryEvent {
   event_id: string;
-  event_type: string;
-  ts: string; // v1.2: ISO-8601 UTC timestamp (was ts_utc)
-  app_id: string;
+  event_type: string; // Legacy: endpoints still expect "event_type"
+  ts: string; // Legacy: endpoints still expect "ts" (ISO-8601)
+  app_id: string; // Legacy: endpoints still expect "app_id"
   app_base_url: string; // v1.2: Required at root level
   env: 'prod' | 'staging' | 'dev';
   properties: Record<string, unknown>;
   _meta: {
     protocol: 'ONE_TRUTH';
-    version: '1.2';
+    version: '1.2'; // Deployed endpoints accept "1.2"
   };
   // Extended fields for internal use
   version?: string;
@@ -99,18 +101,18 @@ export class TelemetryClient {
       app_base_url: APP_BASE_URL
     };
 
-    // Protocol ONE_TRUTH v1.2 compliant envelope
+    // Protocol ONE_TRUTH v1.2 compliant envelope (legacy field names for deployed endpoints)
     return {
       event_id: crypto.randomUUID(),
-      event_type: eventType,
-      ts: new Date().toISOString(), // v1.2: Use 'ts' not 'ts_utc'
-      app_id: APP_ID, // Protocol ONE_TRUTH v1.2: Always 'student_pilot'
+      event_type: eventType, // Legacy: endpoints expect "event_type"
+      ts: new Date().toISOString(), // Legacy: endpoints expect "ts" (ISO-8601)
+      app_id: APP_ID, // Legacy: endpoints expect "app_id" - always 'student_pilot'
       app_base_url: APP_BASE_URL, // v1.2: Required at root level
       env: getEnvValue(), // Protocol ONE_TRUTH v1.2: Always 'prod'
       properties: enrichedProperties,
       _meta: {
         protocol: 'ONE_TRUTH',
-        version: '1.2'
+        version: '1.2' // Deployed endpoints accept "1.2"
       },
       // Extended fields
       version: VERSION,
@@ -181,6 +183,10 @@ export class TelemetryClient {
         console.error(`🚨 Telemetry: Dropping event - missing event_type`);
         return false;
       }
+      if (!event.ts) {
+        console.error(`🚨 Telemetry: Dropping event ${event.event_type} - missing ts`);
+        return false;
+      }
       if (!event._meta || event._meta.protocol !== 'ONE_TRUTH' || event._meta.version !== '1.2') {
         console.error(`🚨 Telemetry: Dropping event ${event.event_type} - invalid _meta block`);
         return false;
@@ -196,6 +202,17 @@ export class TelemetryClient {
 
     // LOUD LOGGING: Make S2S failures visible for debugging
     console.log(`📊 Telemetry: Attempting to flush ${eventsToSend.length} events to ${TELEMETRY_WRITE_URL}`);
+    
+    // DEBUG: Log event structure for troubleshooting validation issues
+    if (eventsToSend.length > 0) {
+      console.log(`📊 DEBUG: First event structure: ${JSON.stringify({
+        app_id: eventsToSend[0].app_id,
+        event_type: eventsToSend[0].event_type,
+        has_ts: !!eventsToSend[0].ts,
+        has_meta: !!eventsToSend[0]._meta,
+        meta_version: eventsToSend[0]._meta?.version
+      })}`);
+    }
 
     try {
       const response = await fetch(TELEMETRY_WRITE_URL, {
@@ -459,12 +476,12 @@ export class TelemetryClient {
       
       console.log(`📊 Telemetry: Attempting to backfill ${localEvents.length} locally stored events`);
       
-      // Convert to Protocol ONE_TRUTH v1.2 compliant format
+      // Convert to Protocol ONE_TRUTH v1.2 compliant format (legacy field names)
       const eventsToSync: TelemetryEvent[] = localEvents.map(evt => ({
         event_id: evt.requestId || crypto.randomUUID(),
-        event_type: evt.eventName,
-        ts: evt.ts?.toISOString() || new Date().toISOString(), // v1.2: Use 'ts' not 'ts_utc'
-        app_id: APP_ID,
+        event_type: evt.eventName, // Legacy: endpoints expect "event_type"
+        ts: evt.ts?.toISOString() || new Date().toISOString(), // Legacy: endpoints expect "ts"
+        app_id: APP_ID, // Legacy: endpoints expect "app_id"
         app_base_url: APP_BASE_URL, // v1.2: Required at root level
         env: getEnvValue(),
         properties: {
@@ -475,7 +492,7 @@ export class TelemetryClient {
         },
         _meta: {
           protocol: 'ONE_TRUTH' as const,
-          version: '1.2' as const
+          version: '1.2' as const // Deployed endpoints accept "1.2"
         },
         // Extended fields
         version: VERSION,
