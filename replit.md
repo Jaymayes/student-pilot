@@ -73,6 +73,9 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Backfill**: Automatically syncs locally stored events every 5 minutes
 - **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
 - **SLO Targets**: uptime ≥99.9%, p95 latency ≤120ms, error_rate_pct <2%
+- **Diagnostic Endpoint**: `/api/internal/telemetry/status` (auth-restricted) returns queue depth, last flush/backfill timestamps, errors, and endpoint health
+- **Alerting**: `telemetry_delivery_failed` event emitted after 3 consecutive delivery failures (stored locally only)
+- **Integration Packet**: `docs/TELEMETRY_INTEGRATION_PACKET.md` contains configuration requirements for A2/A4/A8
 
 ## AGENT3 Ecosystem Integration (8-App Architecture)
 student_pilot is A5 in the 8-app ecosystem. All apps communicate via telemetry to A2 (scholarship_api) which feeds A8 (auto_com_center) Command Center UI.
