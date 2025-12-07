@@ -2638,6 +2638,18 @@ Allow: /apply/`;
           .where(eq(purchases.id, purchaseId))
           .returning();
 
+        // BFF Step 2: Update user subscription_status = 'active' on successful payment
+        const purchaseUserId = session.metadata?.userId || updatedPurchase.userId;
+        if (purchaseUserId) {
+          await db.update(users)
+            .set({ 
+              subscriptionStatus: 'active',
+              updatedAt: new Date()
+            })
+            .where(eq(users.id, purchaseUserId));
+          console.log(`✅ User ${purchaseUserId} subscription_status set to 'active'`);
+        }
+
         // AGENT3: Award credits via temporary /api/v1/credits/credit endpoint
         // This ensures idempotency via Stripe event.id
         const userId = session.metadata?.userId || updatedPurchase.userId;
@@ -2843,6 +2855,195 @@ Allow: /apply/`;
         error: {
           code: 'WEBHOOK_PROCESSING_FAILED',
           message: 'Webhook processing failed',
+          request_id: requestId
+        }
+      });
+    }
+  });
+
+  // ========== SUBSCRIPTION CHECKOUT ENDPOINT (BFF Auth Client Step 2) ==========
+  // POST /api/checkout - Create Stripe checkout session for subscription
+  app.post('/api/checkout', billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const requestId = (req as any).correlationId || crypto.randomUUID();
+    
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      const userEmail = (req.user as any)?.claims?.email;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          error: {
+            code: 'UNAUTHENTICATED',
+            message: 'User authentication required',
+            request_id: requestId
+          }
+        });
+      }
+
+      // Validate request body
+      const CheckoutRequestSchema = z.object({
+        priceId: z.string().min(1).optional(), // Stripe price ID (optional, defaults to credits)
+        mode: z.enum(['payment', 'subscription']).default('payment'),
+        successUrl: z.string().url().optional(),
+        cancelUrl: z.string().url().optional(),
+        packageCode: z.enum(['starter', 'professional', 'enterprise']).optional()
+      });
+      
+      const validatedBody = CheckoutRequestSchema.parse(req.body);
+      const mode = validatedBody.mode;
+      const baseUrl = `${req.protocol}://${req.headers.host}`;
+      const successUrl = validatedBody.successUrl || `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = validatedBody.cancelUrl || `${baseUrl}/pricing?checkout=canceled`;
+
+      // Determine which Stripe instance to use (phased rollout)
+      const { stripe: userStripe, mode: stripeMode } = getStripeForUser(userId);
+      console.log(`[CHECKOUT] User ${userId} assigned to Stripe ${stripeMode.toUpperCase()} mode`);
+
+      // Get or create Stripe customer
+      let stripeCustomerId: string | undefined;
+      const user = await storage.getUser(userId);
+      
+      if (user?.stripeCustomerId) {
+        stripeCustomerId = user.stripeCustomerId;
+      } else if (userEmail) {
+        // Create new Stripe customer
+        const customer = await userStripe.customers.create({
+          email: userEmail,
+          metadata: { userId }
+        });
+        stripeCustomerId = customer.id;
+        
+        // Save customer ID to database
+        await db.update(users)
+          .set({ stripeCustomerId: customer.id, updatedAt: new Date() })
+          .where(eq(users.id, userId));
+      }
+
+      let sessionConfig: any = {
+        payment_method_types: ['card'],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        customer_email: stripeCustomerId ? undefined : userEmail,
+        customer: stripeCustomerId,
+        metadata: {
+          userId,
+          mode
+        }
+      };
+
+      // Configure based on mode
+      if (validatedBody.priceId) {
+        // Use provided Stripe price ID (for subscription products)
+        sessionConfig.mode = mode;
+        sessionConfig.line_items = [{
+          price: validatedBody.priceId,
+          quantity: 1
+        }];
+      } else if (validatedBody.packageCode) {
+        // Use credit package (one-time payment)
+        const packageData = CREDIT_PACKAGES[validatedBody.packageCode as keyof typeof CREDIT_PACKAGES];
+        
+        if (!packageData) {
+          return res.status(400).json({
+            error: {
+              code: 'INVALID_PACKAGE',
+              message: 'Invalid package code',
+              request_id: requestId
+            }
+          });
+        }
+
+        // Create purchase record
+        const [purchase] = await db.insert(purchases).values({
+          userId,
+          packageCode: validatedBody.packageCode as any,
+          priceUsdCents: packageData.priceUsdCents,
+          baseCredits: packageData.baseCredits,
+          bonusCredits: packageData.bonusCredits,
+          totalCredits: packageData.totalCredits,
+          status: "created",
+        }).returning();
+
+        sessionConfig.mode = 'payment';
+        sessionConfig.line_items = [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `ScholarLink Credits - ${validatedBody.packageCode.charAt(0).toUpperCase() + validatedBody.packageCode.slice(1)}`,
+              description: `${packageData.baseCredits.toLocaleString()} credits${packageData.bonusCredits > 0 ? ` + ${packageData.bonusCredits.toLocaleString()} bonus credits` : ''}`,
+            },
+            unit_amount: packageData.priceUsdCents,
+          },
+          quantity: 1,
+        }];
+        sessionConfig.metadata.purchaseId = purchase.id;
+        sessionConfig.metadata.packageCode = validatedBody.packageCode;
+      } else {
+        // Default: Starter package
+        const packageData = CREDIT_PACKAGES.starter;
+        
+        const [purchase] = await db.insert(purchases).values({
+          userId,
+          packageCode: 'starter' as any,
+          priceUsdCents: packageData.priceUsdCents,
+          baseCredits: packageData.baseCredits,
+          bonusCredits: packageData.bonusCredits,
+          totalCredits: packageData.totalCredits,
+          status: "created",
+        }).returning();
+
+        sessionConfig.mode = 'payment';
+        sessionConfig.line_items = [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'ScholarLink Credits - Starter',
+              description: `${packageData.baseCredits.toLocaleString()} credits`,
+            },
+            unit_amount: packageData.priceUsdCents,
+          },
+          quantity: 1,
+        }];
+        sessionConfig.metadata.purchaseId = purchase.id;
+        sessionConfig.metadata.packageCode = 'starter';
+      }
+
+      // Create Stripe checkout session
+      const session = await userStripe.checkout.sessions.create(sessionConfig);
+
+      // Update purchase with session ID if applicable
+      if (sessionConfig.metadata.purchaseId) {
+        await db.update(purchases)
+          .set({ stripeSessionId: session.id })
+          .where(eq(purchases.id, sessionConfig.metadata.purchaseId));
+      }
+
+      console.log(`[CHECKOUT] Session created: ${session.id} for user ${userId}`);
+      
+      res.json({
+        url: session.url,
+        sessionId: session.id,
+        mode: sessionConfig.mode,
+        request_id: requestId
+      });
+    } catch (error) {
+      console.error(`[${requestId}] Error creating checkout session:`, error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid request parameters',
+            details: error.errors,
+            request_id: requestId
+          }
+        });
+      }
+      
+      res.status(500).json({
+        error: {
+          code: 'CHECKOUT_FAILED',
+          message: 'Failed to create checkout session',
           request_id: requestId
         }
       });
