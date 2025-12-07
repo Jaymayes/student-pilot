@@ -2639,15 +2639,32 @@ Allow: /apply/`;
           .returning();
 
         // BFF Step 2: Update user subscription_status = 'active' on successful payment
-        const purchaseUserId = session.metadata?.userId || updatedPurchase.userId;
+        // The purchase record userId is set from the authenticated user in /api/checkout
+        // This is authoritative since purchase records can only be created by authenticated users
+        const purchaseUserId = updatedPurchase.userId;
+        const metadataUserId = session.metadata?.userId;
+        
+        // Log validation for debugging but use purchase record as source of truth
+        if (metadataUserId && metadataUserId !== purchaseUserId) {
+          console.warn(`⚠️ Metadata userId mismatch: metadata=${metadataUserId}, purchase=${purchaseUserId}`);
+        }
+        
         if (purchaseUserId) {
-          await db.update(users)
-            .set({ 
-              subscriptionStatus: 'active',
-              updatedAt: new Date()
-            })
-            .where(eq(users.id, purchaseUserId));
-          console.log(`✅ User ${purchaseUserId} subscription_status set to 'active'`);
+          // Verify user exists before updating
+          const existingUser = await db.select().from(users).where(eq(users.id, purchaseUserId)).limit(1);
+          if (existingUser.length > 0) {
+            await db.update(users)
+              .set({ 
+                subscriptionStatus: 'active',
+                updatedAt: new Date()
+              })
+              .where(eq(users.id, purchaseUserId));
+            console.log(`✅ User ${purchaseUserId} subscription_status set to 'active'`);
+          } else {
+            console.warn(`⚠️ Cannot update subscription status: user ${purchaseUserId} not found`);
+          }
+        } else {
+          console.warn(`⚠️ Skipping subscription status update: no userId in purchase record`);
         }
 
         // AGENT3: Award credits via temporary /api/v1/credits/credit endpoint

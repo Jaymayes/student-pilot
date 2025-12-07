@@ -137,7 +137,7 @@ export function PricingModal({
                       <span className="font-semibold text-[#13293D] dark:text-[#F5A742]">
                         {tier.credits.toLocaleString()} Credits
                       </span>
-                      {tier.bonusCredits && (
+                      {'bonusCredits' in tier && tier.bonusCredits && (
                         <span className="text-green-600 dark:text-green-400 ml-1">
                           +{tier.bonusCredits} bonus
                         </span>

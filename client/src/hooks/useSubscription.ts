@@ -2,6 +2,7 @@ import { useAuth } from './useAuth';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { SubscriptionStatus } from '@/types/user';
+import { useCallback } from 'react';
 
 export interface CheckoutOptions {
   priceId?: string;
@@ -25,10 +26,25 @@ export function useSubscription() {
   const isActive = subscriptionStatus === 'active' || subscriptionStatus === 'trialing';
   const isPastDue = subscriptionStatus === 'past_due';
   const isCanceled = subscriptionStatus === 'canceled';
+
+  // Build proper success/cancel URLs
+  const getCheckoutUrls = useCallback(() => {
+    const baseUrl = window.location.origin;
+    return {
+      successUrl: `${baseUrl}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${baseUrl}/pricing?checkout=canceled`
+    };
+  }, []);
   
   const checkoutMutation = useMutation({
     mutationFn: async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
-      const response = await apiRequest('POST', '/api/checkout', options);
+      const urls = getCheckoutUrls();
+      const requestBody = {
+        ...options,
+        successUrl: options.successUrl || urls.successUrl,
+        cancelUrl: options.cancelUrl || urls.cancelUrl
+      };
+      const response = await apiRequest('POST', '/api/checkout', requestBody);
       return response.json();
     },
     onSuccess: (data) => {
@@ -42,9 +58,9 @@ export function useSubscription() {
     return checkoutMutation.mutateAsync(options);
   };
 
-  const refreshSubscription = () => {
+  const refreshSubscription = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-  };
+  }, []);
 
   return {
     subscriptionStatus,
