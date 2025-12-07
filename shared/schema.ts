@@ -16,6 +16,15 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Subscription status enum for premium features
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "inactive",   // No active subscription
+  "active",     // Active paid subscription
+  "trialing",   // Free trial period
+  "canceled",   // Subscription canceled but may still be active until period end
+  "past_due"    // Payment failed, grace period
+]);
+
 // Session storage table (required for Replit Auth)
 export const sessions = pgTable(
   "sessions",
@@ -38,6 +47,8 @@ export const users = pgTable("users", {
   ageVerified: boolean("age_verified").default(false), // Confirmed 13+
   parentalConsent: boolean("parental_consent").default(false), // For users under 13
   parentalConsentDate: timestamp("parental_consent_date"),
+  subscriptionStatus: subscriptionStatusEnum("subscription_status").default("inactive"), // Premium subscription status
+  stripeCustomerId: varchar("stripe_customer_id"), // Stripe customer ID for payment management
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
