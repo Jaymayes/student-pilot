@@ -1,10 +1,14 @@
 // Shared user types for client-side components
+export type SubscriptionStatus = 'inactive' | 'active' | 'trialing' | 'canceled' | 'past_due';
+
 export interface User {
   id: string;
   email?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   profileImageUrl?: string | null;
+  subscriptionStatus?: SubscriptionStatus | null;
+  stripeCustomerId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
