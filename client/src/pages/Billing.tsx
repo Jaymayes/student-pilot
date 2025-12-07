@@ -133,11 +133,15 @@ export default function Billing() {
 
   // Purchase credits mutation
   const purchaseCredits = useMutation({
-    mutationFn: (packageCode: string) => 
-      apiRequest('POST', '/api/billing/create-checkout', { packageCode }),
-    onSuccess: (data: { url: string }) => {
+    mutationFn: async (packageCode: string) => {
+      const response = await apiRequest('POST', '/api/billing/create-checkout', { packageCode });
+      return response.json() as Promise<{ url: string; sessionId: string; purchaseId: string }>;
+    },
+    onSuccess: (data) => {
       // Redirect to Stripe checkout
-      window.location.href = data.url;
+      if (data.url) {
+        window.location.href = data.url;
+      }
     },
     onError: (error) => {
       toast({

@@ -27,6 +27,16 @@ Preferred communication style: Simple, everyday language.
 ## Database Design
 Core entities include Users, Student Profiles, Scholarships, Applications, Scholarship Matches, Documents, and Essays.
 
+## Subscription & Payment Gating (BFF Architecture)
+- **Schema**: Users table has `subscription_status` enum field (inactive, active, trialing, canceled, past_due) and `stripe_customer_id`
+- **Checkout Endpoint**: `POST /api/checkout` creates Stripe checkout sessions for credit packages or subscriptions
+- **Webhook Handler**: `POST /api/billing/stripe-webhook` updates `subscription_status = 'active'` on successful payment
+- **Frontend Components**:
+  - `useSubscription` hook: Manages subscription state, checkout flow, and status refresh
+  - `PricingModal`: 3-tier pricing display (Starter, Professional, Enterprise)
+  - `SubscriptionGate`: Wrapper component for gating premium features
+- **Flow**: Credit purchase → Stripe checkout → Webhook activation → subscription_status = 'active' → UI gate unlocks
+
 ## Authentication & Authorization
 - **Provider**: Centralized OAuth via Scholar Auth
 - **Client**: `student-pilot` with PKCE S256 and refresh token rotation
