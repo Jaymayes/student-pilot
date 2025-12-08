@@ -66,10 +66,15 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Build**: Separate builds for client (Vite) and server (esbuild)
 - **Type Safety**: Shared TypeScript types
 
-## Telemetry System (Protocol ONE_TRUTH v1.2)
+## Telemetry System (Protocol ONE_TRUTH v1.2 + Command Center)
 - **Client**: `server/telemetry/telemetryClient.ts` - Singleton with batched event emission
 - **Middleware**: `server/middleware/telemetryMiddleware.ts` - Automatic page_view tracking
 - **KPI Integration**: `server/services/kpiTelemetry.ts` - Dual-emit to telemetry and Agent Bridge
+- **Dual Destination Reporting** (Master System Prompt compliance):
+  1. **Protocol ONE_TRUTH v1.2**: Primary analytics pipeline (A2/A4)
+  2. **Command Center (A8)**: Real-time reporting to `/api/report` endpoint
+
+### Protocol ONE_TRUTH v1.2 Analytics
 - **Primary Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/api/analytics/events`
 - **Fallback Endpoint**: `https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events`
 - **App Registry ID**: `student_pilot` (hardcoded, never dynamic)
@@ -91,7 +96,23 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
   - `payment_failed` {reason, amount_cents, intent_id} (via Stripe webhook for checkout.session.expired and payment_intent.payment_failed)
   - `document_uploaded` {document_type, document_id, is_first, user_id_hash} (with isFirst flag for activation tracking)
   - `ai_assist_used` {tool, op, tokens_in, tokens_out, user_id_hash} (via kpiTelemetry.trackEssayAssistance)
-- **Fallback**: Local storage to `business_events` table when external endpoints unavailable
+
+### Command Center Reporting (A8)
+- **Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/api/report`
+- **Payload Format**: `{source_app_id, event_type, payload, display, timestamp}`
+- **SYSTEM_HEALTH Heartbeat**: Every 300 seconds with uptime, p95 latency, error rate
+- **LAUNCH_COMPLETE Event**: Emitted on startup with identity banner
+- **A5-Specific Events**:
+  - `DAU` - Daily active user tracking
+  - `PREMIUM_UPGRADE_CLICK` - Premium upgrade intent
+  - `REFERRAL_SHARE_CLICK` - Referral link shares
+  - `DASHBOARD_LOAD_FAILURE` - Dashboard error tracking
+  - `REVENUE` - Payment/credit purchases (via Stripe webhook)
+- **Queue & Retry**: Offline queue with exponential backoff (max 5 retries)
+- **Current Status**: A8 returns 404 (endpoint not yet configured on A8 side)
+
+### Fallback & Resilience
+- **Local Storage**: Events stored to `business_events` table when external endpoints unavailable
 - **Backfill**: Automatically syncs locally stored events every 5 minutes
 - **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
 - **SLO Targets**: uptime ≥99.9%, p95 latency ≤120ms, error_rate_pct <2%
