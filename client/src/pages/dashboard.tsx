@@ -29,6 +29,7 @@ import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { TtvDashboardTile } from "@/components/TtvDashboardTile";
 import { InfrastructureDashboardTile } from "@/components/InfrastructureDashboardTile";
 import { SecurityDashboardTile } from "@/components/SecurityDashboardTile";
+import { DailyBriefTile } from "@/components/DailyBriefTile";
 import { LegalFooter } from "@/pages/legal";
 
 interface DashboardStats {
@@ -277,6 +278,9 @@ export default function Dashboard() {
 
         {/* Dashboard Tiles Grid */}
         <div className="space-y-8 mb-8">
+          {/* Daily Brief - Revenue & ARR Metrics */}
+          <DailyBriefTile />
+          
           {/* TTV Performance Tile */}
           <TtvDashboardTile />
           

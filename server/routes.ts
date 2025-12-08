@@ -4762,6 +4762,135 @@ Allow: /apply/`;
     }
   });
 
+  // Daily Brief ARR Metrics - Realized Revenue + Modeled ARR
+  app.get("/api/billing/arr-metrics", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const yearStart = new Date(now.getFullYear(), 0, 1);
+      
+      // Get paid purchases for different periods ('paid' is the status for successful payments)
+      const [allTimePurchases] = await db
+        .select({
+          totalRevenueCents: sql<number>`COALESCE(SUM(price_usd_cents), 0)`,
+          totalTransactions: sql<number>`COUNT(*)`,
+        })
+        .from(purchases)
+        .where(eq(purchases.status, 'paid'));
+
+      const [ytdPurchases] = await db
+        .select({
+          totalRevenueCents: sql<number>`COALESCE(SUM(price_usd_cents), 0)`,
+          totalTransactions: sql<number>`COUNT(*)`,
+        })
+        .from(purchases)
+        .where(and(
+          eq(purchases.status, 'paid'),
+          sql`created_at >= ${yearStart}`
+        ));
+
+      const [last30DaysPurchases] = await db
+        .select({
+          totalRevenueCents: sql<number>`COALESCE(SUM(price_usd_cents), 0)`,
+          totalTransactions: sql<number>`COUNT(*)`,
+        })
+        .from(purchases)
+        .where(and(
+          eq(purchases.status, 'paid'),
+          sql`created_at >= ${thirtyDaysAgo}`
+        ));
+
+      const [last7DaysPurchases] = await db
+        .select({
+          totalRevenueCents: sql<number>`COALESCE(SUM(price_usd_cents), 0)`,
+          totalTransactions: sql<number>`COUNT(*)`,
+        })
+        .from(purchases)
+        .where(and(
+          eq(purchases.status, 'paid'),
+          sql`created_at >= ${sevenDaysAgo}`
+        ));
+
+      // Calculate realized and modeled metrics
+      const realizedRevenueCents = Number(allTimePurchases?.totalRevenueCents || 0);
+      const ytdRevenueCents = Number(ytdPurchases?.totalRevenueCents || 0);
+      const last30DaysRevenueCents = Number(last30DaysPurchases?.totalRevenueCents || 0);
+      const last7DaysRevenueCents = Number(last7DaysPurchases?.totalRevenueCents || 0);
+      
+      // Model ARR based on last 30 days run rate (annualized)
+      // Guard against NaN/undefined with || 0
+      const monthlyRunRateCents = last30DaysRevenueCents || 0;
+      const modeledArrCents = monthlyRunRateCents * 12;
+      
+      // Target is $10M ARR in 5 years = ~$2M/year average growth
+      // Year 1 target: $200K (conservative ramp)
+      const yearOneTargetCents = 20000000; // $200K
+      const arrTargetCents = 1000000000; // $10M
+      // Guard against division by zero (though yearOneTargetCents is a constant)
+      const progressToTarget = yearOneTargetCents > 0 
+        ? (modeledArrCents / yearOneTargetCents) * 100 
+        : 0;
+      
+      // Weekly velocity - guard against NaN/undefined
+      const weeklyVelocityCents = last7DaysRevenueCents || 0;
+      const projectedMonthlyFromWeeklyCents = weeklyVelocityCents * 4.33;
+      
+      // Transactions metrics
+      const totalTransactions = Number(allTimePurchases?.totalTransactions || 0);
+      const avgTransactionCents = totalTransactions > 0 ? realizedRevenueCents / totalTransactions : 0;
+
+      res.json({
+        dailyBrief: {
+          date: now.toISOString().split('T')[0],
+          realizedRevenue: {
+            allTimeCents: realizedRevenueCents,
+            allTimeUsd: realizedRevenueCents / 100,
+            ytdCents: ytdRevenueCents,
+            ytdUsd: ytdRevenueCents / 100,
+            last30DaysCents: last30DaysRevenueCents,
+            last30DaysUsd: last30DaysRevenueCents / 100,
+            last7DaysCents: last7DaysRevenueCents,
+            last7DaysUsd: last7DaysRevenueCents / 100,
+          },
+          modeledArr: {
+            annualizedCents: modeledArrCents,
+            annualizedUsd: modeledArrCents / 100,
+            monthlyRunRateCents: monthlyRunRateCents,
+            monthlyRunRateUsd: monthlyRunRateCents / 100,
+            weeklyVelocityCents: weeklyVelocityCents,
+            weeklyVelocityUsd: weeklyVelocityCents / 100,
+          },
+          targets: {
+            yearOneTargetCents: yearOneTargetCents,
+            yearOneTargetUsd: yearOneTargetCents / 100,
+            fiveYearArrTargetCents: arrTargetCents,
+            fiveYearArrTargetUsd: arrTargetCents / 100,
+            progressToYearOneTarget: Math.min(progressToTarget, 100),
+          },
+          transactionMetrics: {
+            totalTransactions,
+            avgTransactionCents,
+            avgTransactionUsd: avgTransactionCents / 100,
+          },
+        },
+        metadata: {
+          generatedAt: now.toISOString(),
+          correlationId,
+        }
+      });
+    } catch (error) {
+      console.error(`[${correlationId}] Error fetching ARR metrics:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch ARR metrics",
+        correlationId 
+      });
+    }
+  });
+
   // Track conversion events for funnel analysis
   app.post("/api/billing/track-conversion", billingCorrelationMiddleware, isAuthenticated, async (req, res) => {
     const correlationId = (req as any).correlationId;

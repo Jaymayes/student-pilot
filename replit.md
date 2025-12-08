@@ -31,11 +31,23 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Schema**: Users table has `subscription_status` enum field (inactive, active, trialing, canceled, past_due) and `stripe_customer_id`
 - **Checkout Endpoint**: `POST /api/checkout` creates Stripe checkout sessions for credit packages or subscriptions
 - **Webhook Handler**: `POST /api/billing/stripe-webhook` updates `subscription_status = 'active'` on successful payment
+- **Webhook Security**: `STRIPE_WEBHOOK_SECRET` enforces strict signature verification via `stripe.webhooks.constructEvent()`
 - **Frontend Components**:
   - `useSubscription` hook: Manages subscription state, checkout flow, and status refresh
   - `PricingModal`: 3-tier pricing display (Starter, Professional, Enterprise)
   - `SubscriptionGate`: Wrapper component for gating premium features
 - **Flow**: Credit purchase → Stripe checkout → Webhook activation → subscription_status = 'active' → UI gate unlocks
+
+## Daily Brief & ARR Metrics
+- **Endpoint**: `GET /api/billing/arr-metrics` returns revenue and ARR metrics for the Daily Brief
+- **Metrics Calculated**:
+  - Realized Revenue (all-time, YTD, last 30 days, last 7 days)
+  - Modeled ARR (annualized from last 30 days run rate)
+  - Year 1 Target ($200K) and 5-Year Target ($10M ARR)
+  - Progress to Year 1 Target percentage
+  - Transaction metrics (total count, average transaction value)
+- **Frontend Component**: `DailyBriefTile` displays metrics on dashboard with visual progress tracking
+- **Purpose**: Track pace vs. goal for $10M ARR in 5 years
 
 ## Authentication & Authorization
 - **Provider**: Centralized OAuth via Scholar Auth
