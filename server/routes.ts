@@ -2743,6 +2743,15 @@ Allow: /apply/`;
         console.log(`[ANALYTICS] Conversion: user=${userId}, package=${packageCode}, purchase_id=${purchaseId}, amount=${revenueUsd} USD`);
         console.log(`📊 Telemetry: payment_succeeded and credit_purchased emitted for user ${userId}`);
         
+        // Master System Prompt: Report REVENUE to Command Center (A8)
+        telemetryClient.trackRevenueEvent(
+          amountCents,
+          'credits',
+          packageCode,
+          session.metadata?.utmSource || 'direct'
+        );
+        console.log(`📊 Command Center: REVENUE event reported (${amountCents} cents)`);
+        
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
       

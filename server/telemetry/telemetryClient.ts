@@ -26,8 +26,36 @@ function getEnvValue(): 'prod' | 'staging' | 'dev' {
 const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${SCHOLARSHIP_API_BASE}/api/analytics/events`;
 // FALLBACK: scholarship_sage (if available)
 const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || 'https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events';
+// COMMAND CENTER: Direct reporting to A8 per Master System Prompt
+const COMMAND_CENTER_URL = process.env.AUTO_COM_CENTER_BASE_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
+const COMMAND_CENTER_REPORT_URL = `${COMMAND_CENTER_URL}/api/report`;
 const FLUSH_INTERVAL_MS = parseInt(process.env.TELEMETRY_FLUSH_INTERVAL_MS || '10000');
 const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
+// Master System Prompt intervals
+const HEARTBEAT_INTERVAL_MS = 300000; // 300 seconds per Master Prompt
+const HEALTH_METRICS_INTERVAL_MS = 60000; // 60 seconds for infrastructure metrics
+
+// Master System Prompt event types
+type CommandCenterEventType = 'TRAFFIC' | 'REVENUE' | 'SYSTEM_HEALTH' | 'ERROR' | 'CONVERSION' | 'PRODUCT' | 'NOTIFICATION';
+
+// Master System Prompt payload format
+export interface CommandCenterPayload {
+  source_app_id: string;
+  app_base_url: string;
+  timestamp: string;
+  event_type: CommandCenterEventType;
+  payload: {
+    message: string;
+    value: number;
+    units: string;
+    details: Record<string, unknown>;
+  };
+  display: {
+    widgets: string[];
+    tile_id?: string;
+    severity: 'info' | 'warn' | 'critical';
+  };
+}
 
 const SALT = process.env.TELEMETRY_SALT || crypto.randomBytes(16).toString('hex');
 
@@ -86,13 +114,18 @@ export interface TelemetryStatus {
 
 export class TelemetryClient {
   private eventQueue: TelemetryEvent[] = [];
+  private commandCenterQueue: CommandCenterPayload[] = [];
   private flushInterval: NodeJS.Timeout | null = null;
   private heartbeatInterval: NodeJS.Timeout | null = null;
+  private commandCenterHeartbeatInterval: NodeJS.Timeout | null = null;
+  private healthMetricsInterval: NodeJS.Timeout | null = null;
   private startTime: number = Date.now();
   private enabled: boolean = process.env.TELEMETRY_ENABLED !== 'false';
   private authToken: string | null = null;
   private failedAttempts: number = 0;
   private maxRetryDelay: number = 5 * 60 * 1000;
+  private ccRetryAttempts: number = 0;
+  private ccMaxRetries: number = 5;
   
   // Diagnostic tracking
   private lastFlushTs: string | null = null;
@@ -575,7 +608,21 @@ export class TelemetryClient {
       this.emitSynthetic();
     }
 
+    // Master System Prompt: Start Command Center reporting
+    this.startCommandCenterHeartbeat();
+    
+    // Emit LAUNCH_COMPLETE after a short delay to ensure everything is initialized
+    setTimeout(() => {
+      this.emitLaunchComplete();
+    }, 2000);
+
+    // Flush Command Center queue periodically
+    setInterval(() => {
+      this.flushCommandCenter();
+    }, 30000); // Every 30 seconds
+
     console.log(`✅ Telemetry: Client started with heartbeat (60s) and flush (${FLUSH_INTERVAL_MS}ms)`);
+    console.log(`✅ Command Center: Reporting enabled to ${COMMAND_CENTER_REPORT_URL}`);
   }
   
   private async backfillLocalEvents(): Promise<void> {
@@ -671,8 +718,17 @@ export class TelemetryClient {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
+    if (this.commandCenterHeartbeatInterval) {
+      clearInterval(this.commandCenterHeartbeatInterval);
+      this.commandCenterHeartbeatInterval = null;
+    }
+    if (this.healthMetricsInterval) {
+      clearInterval(this.healthMetricsInterval);
+      this.healthMetricsInterval = null;
+    }
 
     this.flush();
+    this.flushCommandCenter();
     console.log('📊 Telemetry: Client stopped');
   }
 
@@ -927,6 +983,266 @@ export class TelemetryClient {
     options: { userId?: string; requestId?: string; durationMs?: number; creditsCost?: number } = {}
   ): void {
     this.trackAiAssistUsed(model, operation, inputTokens, outputTokens, options);
+  }
+
+  // ========================================
+  // MASTER SYSTEM PROMPT: Command Center Reporting (A8)
+  // ========================================
+
+  // Create a Command Center payload per Master System Prompt format
+  createCommandCenterPayload(
+    eventType: CommandCenterEventType,
+    message: string,
+    value: number,
+    units: string,
+    details: Record<string, unknown> = {},
+    display: { widgets?: string[]; tile_id?: string; severity?: 'info' | 'warn' | 'critical' } = {}
+  ): CommandCenterPayload {
+    return {
+      source_app_id: APP_ID,
+      app_base_url: APP_BASE_URL,
+      timestamp: new Date().toISOString(),
+      event_type: eventType,
+      payload: {
+        message,
+        value,
+        units,
+        details: {
+          trace_id: crypto.randomUUID(),
+          ...details
+        }
+      },
+      display: {
+        widgets: display.widgets || [],
+        tile_id: display.tile_id,
+        severity: display.severity || 'info'
+      }
+    };
+  }
+
+  // Report to Command Center (A8) with exponential backoff retry
+  async reportToCommandCenter(payload: CommandCenterPayload): Promise<void> {
+    if (!this.enabled) return;
+
+    try {
+      const response = await fetch(COMMAND_CENTER_REPORT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Source-App': APP_ID,
+          'X-App-Base-URL': APP_BASE_URL
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        this.ccRetryAttempts = 0;
+        console.log(`✅ Command Center: Reported ${payload.event_type} event`);
+        return;
+      }
+
+      // Queue for retry on failure
+      console.warn(`⚠️ Command Center: Report failed (${response.status}), queuing for retry`);
+      this.commandCenterQueue.push(payload);
+    } catch (error) {
+      console.warn(`⚠️ Command Center: Report exception, queuing for retry`);
+      this.commandCenterQueue.push(payload);
+    }
+  }
+
+  // Flush queued Command Center events with exponential backoff
+  async flushCommandCenter(): Promise<void> {
+    if (this.commandCenterQueue.length === 0) return;
+
+    const eventsToSend = [...this.commandCenterQueue];
+    this.commandCenterQueue = [];
+
+    for (const payload of eventsToSend) {
+      try {
+        const response = await fetch(COMMAND_CENTER_REPORT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Source-App': APP_ID,
+            'X-App-Base-URL': APP_BASE_URL
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          this.commandCenterQueue.push(payload);
+          this.ccRetryAttempts++;
+        } else {
+          this.ccRetryAttempts = 0;
+        }
+      } catch {
+        this.commandCenterQueue.push(payload);
+        this.ccRetryAttempts++;
+      }
+    }
+
+    // Exponential backoff for next retry
+    if (this.commandCenterQueue.length > 0 && this.ccRetryAttempts < this.ccMaxRetries) {
+      const backoffMs = Math.min(1000 * Math.pow(2, this.ccRetryAttempts), 60000);
+      setTimeout(() => this.flushCommandCenter(), backoffMs);
+    }
+  }
+
+  // ========================================
+  // A5-Specific Events per Master System Prompt
+  // ========================================
+
+  // TRAFFIC: DAU tracking
+  trackDau(count: number): void {
+    const payload = this.createCommandCenterPayload(
+      'TRAFFIC',
+      'Daily Active Users',
+      count,
+      'count',
+      { metric: 'dau' },
+      { widgets: ['traffic_graph'], tile_id: 'traffic.dau', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('dau', { value: count }, { actorType: 'system' });
+  }
+
+  // CONVERSION: Premium upgrade click
+  trackPremiumUpgradeClick(options: { userId?: string; page?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'CONVERSION',
+      'Premium Upgrade Click',
+      1,
+      'count',
+      { funnel_step: 'premium_upgrade', success: true, page: options.page },
+      { widgets: ['revenue_ticker'], tile_id: 'conversion.premium', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('premium_upgrade_click', { page: options.page }, { userId: options.userId, actorType: 'student' });
+  }
+
+  // CONVERSION: Referral share click
+  trackReferralShareClick(options: { userId?: string; referralCode?: string; page?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'CONVERSION',
+      'Referral Share Click',
+      1,
+      'count',
+      { funnel_step: 'referral_share', success: true, referral_code: options.referralCode, page: options.page },
+      { widgets: ['traffic_graph'], tile_id: 'conversion.referral', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('referral_share_click', { referral_code: options.referralCode, page: options.page }, { userId: options.userId, actorType: 'student' });
+  }
+
+  // ERROR: Dashboard load failure
+  trackDashboardLoadFailure(error: string, options: { userId?: string; requestId?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'ERROR',
+      'Dashboard Load Failure',
+      1,
+      'count',
+      { message: error, route: '/dashboard', http_status: 500 },
+      { widgets: ['system_health'], severity: 'critical' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('dashboard_load_failure', { error, route: '/dashboard' }, { userId: options.userId, requestId: options.requestId, actorType: 'system' });
+  }
+
+  // REVENUE: Track revenue event for Command Center
+  trackRevenueEvent(amountCents: number, product: string, plan?: string, attribution?: string): void {
+    const payload = this.createCommandCenterPayload(
+      'REVENUE',
+      `Payment: ${product}`,
+      amountCents,
+      'usd_cents',
+      { product, plan, attribution, quantity: 1 },
+      { widgets: ['revenue_ticker'], tile_id: 'revenue.overview', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+  }
+
+  // SYSTEM_HEALTH: Heartbeat per Master System Prompt (every 300s)
+  emitCommandCenterHeartbeat(): void {
+    const uptimeSec = Math.floor((Date.now() - this.startTime) / 1000);
+    const metrics = productionMetrics.getMetricsSnapshot();
+    
+    const payload = this.createCommandCenterPayload(
+      'SYSTEM_HEALTH',
+      'agent_online',
+      1,
+      'status',
+      {
+        uptime_s: uptimeSec,
+        p95_latency_ms: metrics.latency.overall.p95,
+        error_rate: metrics.errors.errorRate,
+        dependencies_ok: true,
+        version: VERSION
+      },
+      { widgets: ['system_health'], severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+  }
+
+  // PRODUCT: Launch complete confirmation
+  emitLaunchComplete(): void {
+    console.log(`\n========================================`);
+    console.log(`SYSTEM INITIALIZED`);
+    console.log(`IDENTITY CONFIRMED: ${APP_ID}`);
+    console.log(`BASE URL: ${APP_BASE_URL}`);
+    console.log(`MODE: Operational`);
+    console.log(`TARGET: Launch, Revenue, Traffic, Reporting`);
+    console.log(`========================================\n`);
+
+    const payload = this.createCommandCenterPayload(
+      'PRODUCT',
+      'LAUNCH_COMPLETE',
+      1,
+      'count',
+      { kpi_ready: true, version: VERSION },
+      { widgets: ['system_health'], tile_id: 'product.launch', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+  }
+
+  // Start Command Center heartbeat (300s per Master System Prompt)
+  startCommandCenterHeartbeat(): void {
+    // Initial heartbeat with cold_start flag
+    const initialPayload = this.createCommandCenterPayload(
+      'SYSTEM_HEALTH',
+      'agent_online',
+      1,
+      'status',
+      { version: VERSION, cold_start: true },
+      { widgets: ['system_health'], severity: 'info' }
+    );
+    this.reportToCommandCenter(initialPayload);
+
+    // Heartbeat every 300 seconds per Master System Prompt
+    this.commandCenterHeartbeatInterval = setInterval(() => {
+      this.emitCommandCenterHeartbeat();
+    }, HEARTBEAT_INTERVAL_MS);
+
+    // Health metrics every 60 seconds (infrastructure-centric)
+    this.healthMetricsInterval = setInterval(() => {
+      const metrics = productionMetrics.getMetricsSnapshot();
+      const payload = this.createCommandCenterPayload(
+        'SYSTEM_HEALTH',
+        'health_metrics',
+        1,
+        'status',
+        {
+          uptime_s: Math.floor((Date.now() - this.startTime) / 1000),
+          p95_latency_ms: metrics.latency.overall.p95,
+          error_rate: metrics.errors.errorRate,
+          requests_per_minute: (metrics.volume.requestsPerSecond || 0) * 60,
+          dependencies_ok: true
+        },
+        { widgets: ['system_health'], severity: 'info' }
+      );
+      this.reportToCommandCenter(payload);
+    }, HEALTH_METRICS_INTERVAL_MS);
+
+    console.log(`✅ Command Center: Heartbeat started (${HEARTBEAT_INTERVAL_MS / 1000}s interval)`);
   }
 }
 
