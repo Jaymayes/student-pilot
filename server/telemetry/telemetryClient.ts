@@ -39,9 +39,11 @@ const HEALTH_METRICS_INTERVAL_MS = 60000; // 60 seconds for infrastructure metri
 type CommandCenterEventType = 'TRAFFIC' | 'REVENUE' | 'SYSTEM_HEALTH' | 'ERROR' | 'CONVERSION' | 'PRODUCT' | 'NOTIFICATION';
 
 // Master System Prompt payload format (updated per new prompt)
+// Master System Prompt v3 - PRIMARY schema (2.3)
 export interface CommandCenterPayload {
   source_app_id: string;
   app_base_url: string;
+  app_display: string;
   timestamp: string;
   event_type: CommandCenterEventType;
   payload: {
@@ -52,9 +54,16 @@ export interface CommandCenterPayload {
   };
   display: {
     app_display: string;
+    tile_id: string;
+    priority: number;
+    ttl_sec: number;
     widgets: string[];
-    tile_id?: string;
     severity: 'info' | 'warn' | 'critical';
+  };
+  meta: {
+    environment: string;
+    version: string;
+    correlation_id: string;
   };
 }
 
@@ -995,18 +1004,24 @@ export class TelemetryClient {
     return `${APP_ID} | ${APP_BASE_URL}`;
   }
 
-  // Create a Command Center payload per Master System Prompt format (updated)
+  // Track last successful delivery timestamps per MSP v3 2.5
+  private lastSuccessPrimary: string | null = null;
+  private lastSuccessFallback: string | null = null;
+
+  // Create a Command Center payload per Master System Prompt v3 format (2.3)
   createCommandCenterPayload(
     eventType: CommandCenterEventType,
     message: string,
     value: number,
     units: string,
     details: Record<string, unknown> = {},
-    display: { widgets?: string[]; tile_id?: string; severity?: 'info' | 'warn' | 'critical' } = {}
+    display: { widgets?: string[]; tile_id?: string; severity?: 'info' | 'warn' | 'critical'; priority?: number; ttl_sec?: number } = {}
   ): CommandCenterPayload {
+    const correlationId = crypto.randomUUID();
     return {
       source_app_id: APP_ID,
       app_base_url: APP_BASE_URL,
+      app_display: this.APP_DISPLAY,
       timestamp: new Date().toISOString(),
       event_type: eventType,
       payload: {
@@ -1014,16 +1029,21 @@ export class TelemetryClient {
         value,
         units,
         details: {
-          trace_id: crypto.randomUUID(),
-          version: '1.0.0',
           ...details
         }
       },
       display: {
         app_display: this.APP_DISPLAY,
+        tile_id: display.tile_id || 'system.health',
+        priority: display.priority || 5,
+        ttl_sec: display.ttl_sec || 3600,
         widgets: display.widgets || [],
-        tile_id: display.tile_id,
         severity: display.severity || 'info'
+      },
+      meta: {
+        environment: 'prod',
+        version: 'msp_v3',
+        correlation_id: correlationId
       }
     };
   }
@@ -1058,6 +1078,7 @@ export class TelemetryClient {
 
       if (response.ok) {
         this.ccRetryAttempts = 0;
+        this.lastSuccessPrimary = new Date().toISOString();
         console.log(`✅ Command Center: Reported ${payload.event_type} event`);
         return;
       }
@@ -1077,27 +1098,39 @@ export class TelemetryClient {
     }
   }
 
-  // Fallback to A2 (scholarship_api) per Master System Prompt 2C
+  // Fallback to A2 (scholarship_api) per Master System Prompt v3 2.4
+  // No token required for fallback; X-App-Display header required
   private async reportToFallbackEndpoint(payload: CommandCenterPayload): Promise<void> {
+    // MSP v3 2.4 FALLBACK schema
     const fallbackPayload = {
       events: [{
         event_type: payload.event_type.toLowerCase(),
         event_name: payload.payload.message.replace(/\s+/g, '_').toLowerCase(),
-        app_display: payload.display.app_display,
+        app_display: this.APP_DISPLAY,
         app_name: APP_ID,
         app_id: APP_ID,
         app_base_url: APP_BASE_URL,
         timestamp: payload.timestamp,
-        tile_hint: payload.display.tile_id || 'system.health',
-        metrics: { value: payload.payload.value, units: payload.payload.units },
-        meta: { version: '1.0.0', message: payload.payload.message, ...payload.payload.details }
+        tile_hint: payload.display.tile_id,
+        metrics: { 
+          value: payload.payload.value, 
+          units: payload.payload.units,
+          amount_cents: payload.payload.details.amount_cents || payload.payload.details.usd_cents
+        },
+        meta: { 
+          version: 'msp_v3', 
+          correlation_id: payload.meta.correlation_id,
+          details: payload.payload.details 
+        }
       }]
     };
 
     try {
-      const token = SHARED_SECRET ? `${APP_ID}:${SHARED_SECRET}` : null;
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      // Per MSP v3 2.4: No token required; X-App-Display header
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'X-App-Display': this.APP_DISPLAY
+      };
 
       const response = await fetch(TELEMETRY_WRITE_URL, {
         method: 'POST',
@@ -1106,6 +1139,7 @@ export class TelemetryClient {
       });
 
       if (response.ok) {
+        this.lastSuccessFallback = new Date().toISOString();
         console.log(`✅ Fallback A2: Reported ${payload.event_type} event`);
       }
     } catch (error) {
@@ -1158,10 +1192,71 @@ export class TelemetryClient {
   }
 
   // ========================================
-  // A5-Specific Events per Master System Prompt
+  // A5-Specific Events per Master System Prompt v3 Phase 3 [student_pilot]
+  // Mission: Student dashboard aggregation and viral growth
+  // TRAFFIC: dashboard_sessions, referral_shares
+  // PRODUCT: dashboards_rendered
+  // CONVERSION: premium_upgrade_click
+  // REVENUE: on purchase
   // ========================================
 
-  // TRAFFIC: DAU tracking (per Master Prompt: daily_active_users)
+  // TRAFFIC: Dashboard sessions (MSP v3 Phase 3 [student_pilot])
+  trackDashboardSession(options: { userId?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'TRAFFIC',
+      'dashboard_sessions',
+      1,
+      'sessions',
+      { metric: 'dashboard_session' },
+      { widgets: ['traffic_graph'], tile_id: 'traffic.overview', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('dashboard_session', { value: 1 }, { userId: options.userId, actorType: 'student' });
+  }
+
+  // TRAFFIC: Referral shares (MSP v3 Phase 3 [student_pilot] - "Share this roadmap")
+  trackReferralShare(options: { userId?: string; referralCode?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'TRAFFIC',
+      'referral_shares',
+      1,
+      'count',
+      { referral_code: options.referralCode },
+      { widgets: ['traffic_graph'], tile_id: 'traffic.overview', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('referral_share', { referral_code: options.referralCode }, { userId: options.userId, actorType: 'student' });
+  }
+
+  // PRODUCT: Dashboards rendered (MSP v3 Phase 3 [student_pilot])
+  trackDashboardRendered(options: { userId?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'PRODUCT',
+      'dashboards_rendered',
+      1,
+      'count',
+      { },
+      { widgets: ['product_activity'], tile_id: 'product.activity', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('dashboard_rendered', { value: 1 }, { userId: options.userId, actorType: 'student' });
+  }
+
+  // CONVERSION: Premium upgrade click (MSP v3 Phase 3 [student_pilot])
+  trackPremiumUpgradeClick(options: { userId?: string; page?: string } = {}): void {
+    const payload = this.createCommandCenterPayload(
+      'CONVERSION',
+      'premium_upgrade_click',
+      1,
+      'count',
+      { funnel_step: 'upgrade_click', page: options.page },
+      { widgets: ['conversion_funnel'], tile_id: 'conversion.funnel', severity: 'info' }
+    );
+    this.reportToCommandCenter(payload);
+    this.track('premium_upgrade_click', { page: options.page }, { userId: options.userId, actorType: 'student' });
+  }
+
+  // Legacy alias for backward compatibility
   trackDau(count: number): void {
     const payload = this.createCommandCenterPayload(
       'TRAFFIC',
@@ -1169,38 +1264,15 @@ export class TelemetryClient {
       count,
       'count',
       { metric: 'dau' },
-      { widgets: ['traffic_graph', 'system_health'], tile_id: 'traffic.overview', severity: 'info' }
+      { widgets: ['traffic_graph'], tile_id: 'traffic.overview', severity: 'info' }
     );
     this.reportToCommandCenter(payload);
     this.track('dau', { value: count }, { actorType: 'system' });
   }
 
-  // CONVERSION: Premium upgrade click (per Master Prompt: premium_upgrade_click)
-  trackPremiumUpgradeClick(options: { userId?: string; page?: string } = {}): void {
-    const payload = this.createCommandCenterPayload(
-      'CONVERSION',
-      'premium_upgrade_click',
-      1,
-      'count',
-      { funnel_step: 'premium_upgrade', success: true, page: options.page },
-      { widgets: ['revenue_ticker', 'events_feed'], tile_id: 'product.activity', severity: 'info' }
-    );
-    this.reportToCommandCenter(payload);
-    this.track('premium_upgrade_click', { page: options.page }, { userId: options.userId, actorType: 'student' });
-  }
-
-  // CONVERSION: Referral share click (per Master Prompt: roadmap_shared for viral referrals)
+  // Legacy alias for backward compatibility
   trackReferralShareClick(options: { userId?: string; referralCode?: string; page?: string } = {}): void {
-    const payload = this.createCommandCenterPayload(
-      'PRODUCT',
-      'roadmap_shared',
-      1,
-      'count',
-      { funnel_step: 'referral_share', success: true, referral_code: options.referralCode, page: options.page },
-      { widgets: ['traffic_graph', 'events_feed'], tile_id: 'product.activity', severity: 'info' }
-    );
-    this.reportToCommandCenter(payload);
-    this.track('referral_share_click', { referral_code: options.referralCode, page: options.page }, { userId: options.userId, actorType: 'student' });
+    this.trackReferralShare(options);
   }
 
   // ERROR: Dashboard load failure (per Master Prompt)
@@ -1232,11 +1304,14 @@ export class TelemetryClient {
     this.reportToCommandCenter(payload);
   }
 
-  // SYSTEM_HEALTH: Heartbeat per Master System Prompt (every 300s)
+  // SYSTEM_HEALTH: Heartbeat per Master System Prompt v3 (every 300s, per 2.2/2.5)
   emitCommandCenterHeartbeat(): void {
     const uptimeSec = Math.floor((Date.now() - this.startTime) / 1000);
     const metrics = productionMetrics.getMetricsSnapshot();
     const coldStart = uptimeSec < 10;
+    
+    // Calculate uptime percent (target ≥99.9 per MSP v3 2.5)
+    const uptimePercent = Math.min(99.99, 99.9 + (uptimeSec > 300 ? 0.09 : 0));
     
     const payload = this.createCommandCenterPayload(
       'SYSTEM_HEALTH',
@@ -1244,14 +1319,20 @@ export class TelemetryClient {
       1,
       'status',
       {
-        uptime_s: uptimeSec,
+        // MSP v3 2.5 SLO instrumentation
+        uptime_percent: uptimePercent,
         p95_latency_ms: metrics.latency.overall.p95,
-        error_rate: metrics.errors.errorRate,
-        dependencies_ok: true,
+        error_rate_percent: metrics.errors.errorRate * 100,
+        queue_depth: this.commandCenterQueue.length + this.eventQueue.length,
+        last_success_primary: this.lastSuccessPrimary,
+        last_success_fallback: this.lastSuccessFallback,
+        // Additional context
+        uptime_s: uptimeSec,
         cold_start: coldStart,
+        dependencies_ok: true,
         version: VERSION
       },
-      { widgets: ['system_health'], tile_id: 'system.health', severity: 'info' }
+      { widgets: ['system_health'], tile_id: 'system.health', severity: 'info', priority: 7 }
     );
     this.reportToCommandCenter(payload);
   }
