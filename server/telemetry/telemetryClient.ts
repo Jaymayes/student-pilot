@@ -38,7 +38,7 @@ const HEALTH_METRICS_INTERVAL_MS = 60000; // 60 seconds for infrastructure metri
 // Master System Prompt event types
 type CommandCenterEventType = 'TRAFFIC' | 'REVENUE' | 'SYSTEM_HEALTH' | 'ERROR' | 'CONVERSION' | 'PRODUCT' | 'NOTIFICATION';
 
-// Master System Prompt payload format
+// Master System Prompt payload format (updated per new prompt)
 export interface CommandCenterPayload {
   source_app_id: string;
   app_base_url: string;
@@ -51,6 +51,7 @@ export interface CommandCenterPayload {
     details: Record<string, unknown>;
   };
   display: {
+    app_display: string;
     widgets: string[];
     tile_id?: string;
     severity: 'info' | 'warn' | 'critical';
@@ -989,7 +990,12 @@ export class TelemetryClient {
   // MASTER SYSTEM PROMPT: Command Center Reporting (A8)
   // ========================================
 
-  // Create a Command Center payload per Master System Prompt format
+  // Derived variable per Master System Prompt
+  private get APP_DISPLAY(): string {
+    return `${APP_ID} | ${APP_BASE_URL}`;
+  }
+
+  // Create a Command Center payload per Master System Prompt format (updated)
   createCommandCenterPayload(
     eventType: CommandCenterEventType,
     message: string,
@@ -1009,10 +1015,12 @@ export class TelemetryClient {
         units,
         details: {
           trace_id: crypto.randomUUID(),
+          version: '1.0.0',
           ...details
         }
       },
       display: {
+        app_display: this.APP_DISPLAY,
         widgets: display.widgets || [],
         tile_id: display.tile_id,
         severity: display.severity || 'info'
@@ -1020,18 +1028,31 @@ export class TelemetryClient {
     };
   }
 
+  // Get Command Center token for auth per Master System Prompt
+  private getCommandCenterToken(): string | null {
+    return process.env.COMMAND_CENTER_TOKEN || SHARED_SECRET || null;
+  }
+
   // Report to Command Center (A8) with exponential backoff retry
   async reportToCommandCenter(payload: CommandCenterPayload): Promise<void> {
     if (!this.enabled) return;
 
+    const token = this.getCommandCenterToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Source-App': APP_ID,
+      'X-App-Base-URL': APP_BASE_URL
+    };
+
+    // Per Master System Prompt: Authorization: Bearer {COMMAND_CENTER_TOKEN}
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
       const response = await fetch(COMMAND_CENTER_REPORT_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Source-App': APP_ID,
-          'X-App-Base-URL': APP_BASE_URL
-        },
+        headers,
         body: JSON.stringify(payload)
       });
 
@@ -1039,6 +1060,12 @@ export class TelemetryClient {
         this.ccRetryAttempts = 0;
         console.log(`✅ Command Center: Reported ${payload.event_type} event`);
         return;
+      }
+
+      // On auth failure (401/403/404), also try fallback endpoint per Master Prompt
+      if (response.status === 401 || response.status === 403 || response.status === 404) {
+        console.warn(`⚠️ Command Center: Auth/endpoint issue (${response.status}), trying fallback to A2`);
+        await this.reportToFallbackEndpoint(payload);
       }
 
       // Queue for retry on failure
@@ -1050,6 +1077,42 @@ export class TelemetryClient {
     }
   }
 
+  // Fallback to A2 (scholarship_api) per Master System Prompt 2C
+  private async reportToFallbackEndpoint(payload: CommandCenterPayload): Promise<void> {
+    const fallbackPayload = {
+      events: [{
+        event_type: payload.event_type.toLowerCase(),
+        event_name: payload.payload.message.replace(/\s+/g, '_').toLowerCase(),
+        app_display: payload.display.app_display,
+        app_name: APP_ID,
+        app_id: APP_ID,
+        app_base_url: APP_BASE_URL,
+        timestamp: payload.timestamp,
+        tile_hint: payload.display.tile_id || 'system.health',
+        metrics: { value: payload.payload.value, units: payload.payload.units },
+        meta: { version: '1.0.0', message: payload.payload.message, ...payload.payload.details }
+      }]
+    };
+
+    try {
+      const token = SHARED_SECRET ? `${APP_ID}:${SHARED_SECRET}` : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(TELEMETRY_WRITE_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(fallbackPayload)
+      });
+
+      if (response.ok) {
+        console.log(`✅ Fallback A2: Reported ${payload.event_type} event`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Fallback A2: Report exception`);
+    }
+  }
+
   // Flush queued Command Center events with exponential backoff
   async flushCommandCenter(): Promise<void> {
     if (this.commandCenterQueue.length === 0) return;
@@ -1057,15 +1120,21 @@ export class TelemetryClient {
     const eventsToSend = [...this.commandCenterQueue];
     this.commandCenterQueue = [];
 
+    const token = this.getCommandCenterToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Source-App': APP_ID,
+      'X-App-Base-URL': APP_BASE_URL
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     for (const payload of eventsToSend) {
       try {
         const response = await fetch(COMMAND_CENTER_REPORT_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Source-App': APP_ID,
-            'X-App-Base-URL': APP_BASE_URL
-          },
+          headers,
           body: JSON.stringify(payload)
         });
 
@@ -1092,71 +1161,73 @@ export class TelemetryClient {
   // A5-Specific Events per Master System Prompt
   // ========================================
 
-  // TRAFFIC: DAU tracking
+  // TRAFFIC: DAU tracking (per Master Prompt: daily_active_users)
   trackDau(count: number): void {
     const payload = this.createCommandCenterPayload(
       'TRAFFIC',
-      'Daily Active Users',
+      'daily_active_users',
       count,
       'count',
       { metric: 'dau' },
-      { widgets: ['traffic_graph'], tile_id: 'traffic.dau', severity: 'info' }
+      { widgets: ['traffic_graph', 'system_health'], tile_id: 'traffic.overview', severity: 'info' }
     );
     this.reportToCommandCenter(payload);
     this.track('dau', { value: count }, { actorType: 'system' });
   }
 
-  // CONVERSION: Premium upgrade click
+  // CONVERSION: Premium upgrade click (per Master Prompt: premium_upgrade_click)
   trackPremiumUpgradeClick(options: { userId?: string; page?: string } = {}): void {
     const payload = this.createCommandCenterPayload(
       'CONVERSION',
-      'Premium Upgrade Click',
+      'premium_upgrade_click',
       1,
       'count',
       { funnel_step: 'premium_upgrade', success: true, page: options.page },
-      { widgets: ['revenue_ticker'], tile_id: 'conversion.premium', severity: 'info' }
+      { widgets: ['revenue_ticker', 'events_feed'], tile_id: 'product.activity', severity: 'info' }
     );
     this.reportToCommandCenter(payload);
     this.track('premium_upgrade_click', { page: options.page }, { userId: options.userId, actorType: 'student' });
   }
 
-  // CONVERSION: Referral share click
+  // CONVERSION: Referral share click (per Master Prompt: roadmap_shared for viral referrals)
   trackReferralShareClick(options: { userId?: string; referralCode?: string; page?: string } = {}): void {
     const payload = this.createCommandCenterPayload(
-      'CONVERSION',
-      'Referral Share Click',
+      'PRODUCT',
+      'roadmap_shared',
       1,
       'count',
       { funnel_step: 'referral_share', success: true, referral_code: options.referralCode, page: options.page },
-      { widgets: ['traffic_graph'], tile_id: 'conversion.referral', severity: 'info' }
+      { widgets: ['traffic_graph', 'events_feed'], tile_id: 'product.activity', severity: 'info' }
     );
     this.reportToCommandCenter(payload);
     this.track('referral_share_click', { referral_code: options.referralCode, page: options.page }, { userId: options.userId, actorType: 'student' });
   }
 
-  // ERROR: Dashboard load failure
+  // ERROR: Dashboard load failure (per Master Prompt)
   trackDashboardLoadFailure(error: string, options: { userId?: string; requestId?: string } = {}): void {
     const payload = this.createCommandCenterPayload(
       'ERROR',
-      'Dashboard Load Failure',
+      'dashboard_load_failure',
       1,
       'count',
-      { message: error, route: '/dashboard', http_status: 500 },
-      { widgets: ['system_health'], severity: 'critical' }
+      { message: error, route: '/dashboard', http_status: 500, stack_hint: error.substring(0, 100) },
+      { widgets: ['system_health', 'events_feed'], tile_id: 'errors.stream', severity: 'critical' }
     );
     this.reportToCommandCenter(payload);
     this.track('dashboard_load_failure', { error, route: '/dashboard' }, { userId: options.userId, requestId: options.requestId, actorType: 'system' });
   }
 
-  // REVENUE: Track revenue event for Command Center
+  // REVENUE: Track revenue event for Command Center (per Master Prompt)
   trackRevenueEvent(amountCents: number, product: string, plan?: string, attribution?: string): void {
+    // Convert cents to USD for display per Master Prompt (units="usd")
+    const amountUsd = amountCents / 100;
     const payload = this.createCommandCenterPayload(
       'REVENUE',
-      `Payment: ${product}`,
-      amountCents,
-      'usd_cents',
-      { product, plan, attribution, quantity: 1 },
-      { widgets: ['revenue_ticker'], tile_id: 'revenue.overview', severity: 'info' }
+      `payment_${product.toLowerCase().replace(/\s+/g, '_')}`,
+      amountUsd,
+      'usd',
+      { product, plan, attribution, quantity: 1, usd_cents: amountCents, transaction_id: crypto.randomUUID() },
+      { widgets: ['revenue_ticker'], tile_id: 'revenue.ticker', severity: 'info' }
     );
     this.reportToCommandCenter(payload);
   }
@@ -1165,6 +1236,7 @@ export class TelemetryClient {
   emitCommandCenterHeartbeat(): void {
     const uptimeSec = Math.floor((Date.now() - this.startTime) / 1000);
     const metrics = productionMetrics.getMetricsSnapshot();
+    const coldStart = uptimeSec < 10;
     
     const payload = this.createCommandCenterPayload(
       'SYSTEM_HEALTH',
@@ -1176,9 +1248,10 @@ export class TelemetryClient {
         p95_latency_ms: metrics.latency.overall.p95,
         error_rate: metrics.errors.errorRate,
         dependencies_ok: true,
+        cold_start: coldStart,
         version: VERSION
       },
-      { widgets: ['system_health'], severity: 'info' }
+      { widgets: ['system_health'], tile_id: 'system.health', severity: 'info' }
     );
     this.reportToCommandCenter(payload);
   }
