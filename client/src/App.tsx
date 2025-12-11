@@ -35,7 +35,10 @@ function Router() {
       <Route path="/terms" component={TermsOfService} />
       <Route path="/accessibility" component={AccessibilityStatement} />
       
+      {/* Public pages - accessible to everyone for discovery */}
       <Route path="/pricing" component={Billing} />
+      <Route path="/scholarships" component={Scholarships} />
+      
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
@@ -45,7 +48,6 @@ function Router() {
           <Route path="/age-gate" component={AgeGate} />
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/profile" component={Profile} />
-          <Route path="/scholarships" component={Scholarships} />
           <Route path="/applications" component={Applications} />
           <Route path="/documents" component={Documents} />
           <Route path="/essay-assistant" component={EssayAssistant} />
