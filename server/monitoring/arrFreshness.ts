@@ -56,7 +56,9 @@ class ArrFreshnessMonitor {
         })
         .from(usageEvents);
 
-      const lastUpdate = latest[0]?.lastUpdate || new Date(0);
+      // Ensure lastUpdate is a proper Date object (SQL may return string or null)
+      const rawLastUpdate = latest[0]?.lastUpdate;
+      const lastUpdate = rawLastUpdate ? new Date(rawLastUpdate) : new Date(0);
       const recordCount = countResult[0]?.count || 0;
       const ageDuration = Date.now() - lastUpdate.getTime();
       const ageHours = ageDuration / (1000 * 60 * 60);
@@ -106,7 +108,9 @@ class ArrFreshnessMonitor {
         })
         .from(creditLedger);
 
-      const lastUpdate = latest[0]?.lastUpdate || new Date(0);
+      // Ensure lastUpdate is a proper Date object (SQL may return string or null)
+      const rawLastUpdate = latest[0]?.lastUpdate;
+      const lastUpdate = rawLastUpdate ? new Date(rawLastUpdate) : new Date(0);
       const recordCount = countResult[0]?.count || 0;
       const ageDuration = Date.now() - lastUpdate.getTime();
       const ageHours = ageDuration / (1000 * 60 * 60);
@@ -157,7 +161,9 @@ class ArrFreshnessMonitor {
         );
 
       const result = recentActivity[0];
-      const lastUpdate = result?.lastUpdate || new Date(0);
+      // Ensure lastUpdate is a proper Date object (SQL may return string or null)
+      const rawLastUpdate = result?.lastUpdate;
+      const lastUpdate = rawLastUpdate ? new Date(rawLastUpdate) : new Date(0);
       const ageDuration = Date.now() - lastUpdate.getTime();
       const ageHours = ageDuration / (1000 * 60 * 60);
       const threshold = this.FRESHNESS_THRESHOLDS.arrCalculation;
