@@ -11,7 +11,8 @@ const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlm
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0';
 
-// S2S Authentication - Use SHARED_SECRET for service-to-service calls
+// S2S Authentication - Use S2S_API_KEY (Master Go-Live Prompt) or SHARED_SECRET fallback
+const S2S_API_KEY = process.env.S2S_API_KEY;
 const SHARED_SECRET = process.env.SHARED_SECRET;
 const SCHOLARSHIP_API_BASE = process.env.SCHOLARSHIP_API_BASE_URL || 'https://scholarship-api-jamarrlmayes.replit.app';
 
@@ -297,13 +298,14 @@ export class TelemetryClient {
       'X-Request-Type': 'S2S'
     };
     
-    // S2S Authentication Priority:
-    // 1. M2M JWT token (preferred - short-lived, rotatable)
-    // 2. SHARED_SECRET in per-app format: <app_id>:<secret>
+    // S2S Authentication for A2/A4 telemetry endpoints:
+    // A2 (scholarship_api) and A4 (scholarship_sage) require per-app format: <app_id>:<secret>
+    // This is DIFFERENT from Command Center which uses S2S_API_KEY
+    // Priority: M2M JWT > per-app SHARED_SECRET format
     if (this.authToken) {
       headers['Authorization'] = `Bearer ${this.authToken}`;
     } else if (SHARED_SECRET) {
-      // Per-app secret format as required by scholarship_sage fallback
+      // Per-app secret format as required by scholarship_sage and scholarship_api
       headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
     }
     
@@ -379,8 +381,9 @@ export class TelemetryClient {
       if (response.status === 401 || response.status === 403) {
         // LOUD: Authentication/Authorization failure - this is the CSRF trap!
         console.error(`🚨 TELEMETRY S2S AUTH FAILED: ${response.status} - Central API rejecting S2S request from ${APP_ID}`);
-        console.error(`   Headers sent: Authorization=${SHARED_SECRET ? 'Bearer <SHARED_SECRET>' : 'NONE'}`);
-        console.error(`   This indicates the central API needs to whitelist S2S Bearer tokens`);
+        const authMethod = this.authToken ? 'M2M_JWT' : (SHARED_SECRET ? `${APP_ID}:SHARED_SECRET` : 'NONE');
+        console.error(`   Headers sent: Authorization=Bearer <${authMethod}>`);
+        console.error(`   A2/A4 require whitelist for per-app S2S tokens. Command Center (A8) uses S2S_API_KEY.`);
         await this.refreshAuthToken();
         await this.retryWithFallback(eventsToSend);
         return;
@@ -1048,9 +1051,10 @@ export class TelemetryClient {
     };
   }
 
-  // Get Command Center token for auth per Master System Prompt
+  // Get Command Center token for auth per Master Go-Live Prompt v2.0
+  // Priority: S2S_API_KEY > COMMAND_CENTER_TOKEN > SHARED_SECRET
   private getCommandCenterToken(): string | null {
-    return process.env.COMMAND_CENTER_TOKEN || SHARED_SECRET || null;
+    return S2S_API_KEY || process.env.COMMAND_CENTER_TOKEN || SHARED_SECRET || null;
   }
 
   // Report to Command Center (A8) with exponential backoff retry
