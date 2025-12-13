@@ -5,9 +5,13 @@ import { db } from '../db';
 import { businessEvents } from '@shared/schema';
 import { sql } from 'drizzle-orm';
 
-// Protocol ONE_TRUTH v1.2: app_id is ALWAYS 'student_pilot'
-const APP_ID = 'student_pilot';
+// Protocol v3.3.1: A5 student_pilot identity
+const APP_ID = 'A5';
+const APP_NAME = 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+const APP_LABEL = `${APP_ID} ${APP_NAME} ${APP_BASE_URL}`;
+const PROTOCOL_VERSION = 'v3.3.1';
+const APP_ROLE = 'b2c_frontend';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0';
 
@@ -223,33 +227,38 @@ export class TelemetryClient {
       sourceIp?: string;
       coppaFlag?: boolean;
       ferpaFlag?: boolean;
+      dashboard?: boolean;
+      tile?: string;
     } = {}
   ): TelemetryEvent {
-    // Protocol ONE_TRUTH v1.2: Include app_base_url in data/properties
+    // Protocol v3.3.1: Include app_label in all events
     const enrichedData: Record<string, unknown> = {
       ...properties,
-      app_base_url: APP_BASE_URL
+      app_base_url: APP_BASE_URL,
+      app_label: APP_LABEL,
+      ...(options.dashboard !== undefined && { dashboard: options.dashboard }),
+      ...(options.tile && { tile: options.tile })
     };
 
     const timestamp = new Date().toISOString();
     const eventUuid = crypto.randomUUID();
 
-    // Protocol ONE_TRUTH v1.2 DUAL-FIELD envelope per Master Prompt:
-    // - v1.2 canonical: app, app_base_url, env, event_name, ts_iso, data, id, schema_version
+    // Protocol v3.3.1 DUAL-FIELD envelope per Master Prompt:
+    // - v3.3.1: app_id (A5), app_name (student_pilot), app_base_url, app_label
     // - Legacy duplicates: app_id, event_type, ts, properties, event_id
     return {
-      // v1.2 canonical fields (per Master Prompt specification)
-      id: eventUuid, // v1.2: canonical uuid
-      app: APP_ID, // v1.2: Master Prompt canonical field
-      event_name: eventType, // v1.2: Master Prompt canonical field
-      ts_iso: timestamp, // v1.2: Master Prompt canonical field (ISO-8601)
-      data: enrichedData, // v1.2: canonical data field
-      schema_version: 'v1.2', // v1.2: schema version identifier
+      // v3.3.1 canonical fields (per Master Prompt specification)
+      id: eventUuid, // v3.3.1: canonical uuid
+      app: APP_NAME, // v3.3.1: student_pilot (for Protocol ONE_TRUTH compatibility)
+      event_name: eventType, // v3.3.1: Master Prompt canonical field
+      ts_iso: timestamp, // v3.3.1: Master Prompt canonical field (ISO-8601)
+      data: enrichedData, // v3.3.1: canonical data field
+      schema_version: PROTOCOL_VERSION, // v3.3.1: schema version identifier
       // Legacy duplicate fields (backward compatibility with deployed endpoints)
       event_id: eventUuid, // Legacy: duplicate of id
       event_type: eventType, // Legacy: endpoints expect "event_type"
       ts: timestamp, // Legacy: endpoints expect "ts" (ISO-8601)
-      app_id: APP_ID, // Legacy: endpoints expect "app_id" - always 'student_pilot'
+      app_id: APP_NAME, // Legacy: endpoints expect "app_id" - always 'student_pilot'
       properties: enrichedData, // Legacy: duplicate of data
       // Common fields
       app_base_url: APP_BASE_URL, // v1.2: Required at root level
@@ -294,8 +303,10 @@ export class TelemetryClient {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-App-Id': APP_ID,
-      'X-Source-App': APP_ID,
-      'X-Request-Type': 'S2S'
+      'X-Source-App': APP_NAME,
+      'X-Request-Type': 'S2S',
+      'X-Protocol-Version': PROTOCOL_VERSION,
+      'X-Idempotency-Key': crypto.randomUUID()
     };
     
     // S2S Authentication for A2/A4 telemetry endpoints:
@@ -535,23 +546,189 @@ export class TelemetryClient {
       actorType: 'system'
     });
 
-    console.log(`📊 Telemetry: app_started emitted for ${APP_ID}`);
+    console.log(`📊 Telemetry: app_started emitted for ${APP_NAME}`);
+  }
+
+  // Protocol v3.3.1: APP_ONLINE event
+  emitAppOnline(): void {
+    console.log(`APP_IDENTITY: ${APP_ID} ${APP_NAME} ${APP_BASE_URL} protocol=${PROTOCOL_VERSION}`);
+    
+    this.track('APP_ONLINE', {
+      app_id: APP_ID,
+      app_name: APP_NAME,
+      app_base_url: APP_BASE_URL,
+      role: APP_ROLE,
+      message: 'A5 online and b2c_frontend ready',
+      version: PROTOCOL_VERSION,
+      commit: process.env.GIT_SHA || VERSION,
+      region: process.env.REPLIT_DEPLOYMENT_REGION || 'us-central1',
+      dashboard: true
+    }, {
+      actorType: 'system',
+      dashboard: true
+    });
+
+    console.log(`✅ Protocol v3.3.1: APP_ONLINE emitted for ${APP_LABEL}`);
+  }
+
+  // Protocol v3.3.1: PREFLIGHT_CHECK event
+  async emitPreflightCheck(): Promise<void> {
+    const statusMatrix: Record<string, string> = {};
+    const deps = [
+      { id: 'A1', url: 'https://scholar-auth-jamarrlmayes.replit.app/api/health' },
+      { id: 'A2', url: 'https://scholarship-api-jamarrlmayes.replit.app/api/health' },
+      { id: 'A4', url: 'https://scholarship-sage-jamarrlmayes.replit.app/api/health' },
+      { id: 'A6', url: 'https://provider-register-jamarrlmayes.replit.app/api/health' },
+      { id: 'A7', url: 'https://auto-page-maker-jamarrlmayes.replit.app/api/health' },
+      { id: 'A8', url: 'https://auto-com-center-jamarrlmayes.replit.app/api/health' }
+    ];
+
+    for (const dep of deps) {
+      try {
+        const response = await fetch(dep.url, { 
+          method: 'GET',
+          headers: { 'X-Protocol-Version': PROTOCOL_VERSION },
+          signal: AbortSignal.timeout(5000)
+        });
+        statusMatrix[dep.id] = response.ok ? 'ok' : 'degraded';
+      } catch {
+        statusMatrix[dep.id] = 'down';
+      }
+    }
+
+    const allOk = Object.values(statusMatrix).every(s => s === 'ok');
+    const goLive = allOk ? 'go' : 'hold'; // v3.3.1: only "go" or "hold" allowed
+    const metrics = productionMetrics.getMetricsSnapshot();
+
+    this.track('PREFLIGHT_CHECK', {
+      app_id: APP_ID,
+      app_name: APP_NAME,
+      app_base_url: APP_BASE_URL,
+      message: 'A5 preflight complete',
+      status_matrix: statusMatrix,
+      slo_overall: allOk ? 'green' : 'yellow',
+      go_live: goLive,
+      p95_ms: metrics.latency.overall.p95,
+      error_rate: metrics.errors.errorRate,
+      dashboard: true
+    }, {
+      actorType: 'system',
+      dashboard: true
+    });
+
+    console.log(`✅ Protocol v3.3.1: PREFLIGHT_CHECK emitted - go_live: ${goLive}`);
+  }
+
+  // Protocol v3.3.1: CTA_EMITTED event
+  trackCtaEmitted(options: {
+    surface: 'seo' | 'landing' | 'inproduct' | 'dashboard';
+    ctaId: string;
+    pageSlug?: string;
+    variant?: string;
+    destination?: 'A1' | 'A5' | 'A6';
+    userId?: string;
+    sessionId?: string;
+  }): void {
+    this.track('CTA_EMITTED', {
+      surface: options.surface,
+      cta_id: options.ctaId,
+      page_slug: options.pageSlug,
+      variant: options.variant,
+      destination: options.destination || 'A5',
+      message: 'cta impression',
+      dashboard: true,
+      tile: 'B2C'
+    }, {
+      userId: options.userId,
+      sessionId: options.sessionId,
+      actorType: 'student',
+      dashboard: true,
+      tile: 'B2C'
+    });
+  }
+
+  // Protocol v3.3.1: LEAD_STUDENT event
+  trackLeadStudent(options: {
+    source: 'organic_seo' | 'landing' | 'inproduct' | 'referral' | 'direct';
+    consentVersion?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+    referrerDomain?: string;
+    ctaVariant?: string;
+    userId?: string;
+    sessionId?: string;
+  }): void {
+    this.track('LEAD_STUDENT', {
+      source: options.source,
+      consent_version: options.consentVersion || '1.0',
+      target_app: 'A5',
+      utm_source: options.utmSource,
+      utm_medium: options.utmMedium,
+      utm_campaign: options.utmCampaign,
+      referrer_domain: options.referrerDomain,
+      cta_variant: options.ctaVariant,
+      message: 'lead intent (student)',
+      dashboard: true,
+      tile: 'B2C'
+    }, {
+      userId: options.userId,
+      sessionId: options.sessionId,
+      actorType: 'student',
+      dashboard: true,
+      tile: 'B2C'
+    });
+  }
+
+  // Protocol v3.3.1: KPI_SNAPSHOT event
+  emitKpiSnapshot(): void {
+    const metrics = productionMetrics.getMetricsSnapshot();
+    const uptimeSec = Math.floor((Date.now() - this.startTime) / 1000);
+
+    this.track('KPI_SNAPSHOT', {
+      app_id: APP_ID,
+      app_name: APP_NAME,
+      app_base_url: APP_BASE_URL,
+      message: 'A5 KPIs (5m)',
+      window: '5m',
+      metrics: {
+        ctr_cta_5m: 0, // Will be populated from actual tracking
+        leads_student_5m: 0, // Will be populated from actual tracking
+        uptime_s: uptimeSec,
+        p95_ms: metrics.latency.overall.p95,
+        error_rate: metrics.errors.errorRate
+      },
+      metric_name: 'a5_kpi_snapshot',
+      dashboard: true,
+      tile: 'B2C'
+    }, {
+      actorType: 'system',
+      dashboard: true,
+      tile: 'B2C'
+    });
+
+    console.log(`📊 Protocol v3.3.1: KPI_SNAPSHOT emitted`);
   }
 
   emitHeartbeat(): void {
     const uptimeSec = Math.floor((Date.now() - this.startTime) / 1000);
     const metrics = productionMetrics.getMetricsSnapshot();
     
-    this.track('app_heartbeat', {
-      uptime_sec: uptimeSec,
+    // Protocol v3.3.1: HEARTBEAT with dashboard: false
+    this.track('HEARTBEAT', {
+      app_id: APP_ID,
+      app_name: APP_NAME,
+      app_base_url: APP_BASE_URL,
+      message: 'A5 heartbeat',
+      uptime_s: uptimeSec,
       p95_ms: metrics.latency.overall.p95,
-      error_rate_pct: metrics.errors.errorRate,
+      error_rate: metrics.errors.errorRate,
       queue_depth: this.eventQueue.length,
-      db_status: 'connected',
-      ws_status: 'active',
-      requests_per_sec: metrics.volume.requestsPerSecond
+      health: this.consecutiveFailures < 3 ? 'ok' : 'degraded',
+      dashboard: false
     }, {
-      actorType: 'system'
+      actorType: 'system',
+      dashboard: false
     });
   }
 
@@ -586,7 +763,9 @@ export class TelemetryClient {
       return;
     }
 
-    console.log(`📊 Telemetry: Starting client for ${APP_ID}`);
+    // Protocol v3.3.1: Self-identification (required first step)
+    console.log(`APP_IDENTITY: ${APP_ID} ${APP_NAME} ${APP_BASE_URL} protocol=${PROTOCOL_VERSION}`);
+    console.log(`📊 Telemetry: Starting client for ${APP_NAME} (${APP_ID})`);
     console.log(`   Primary endpoint: ${TELEMETRY_WRITE_URL}`);
     console.log(`   Fallback endpoint: ${TELEMETRY_FALLBACK_URL}`);
     console.log(`   Flush interval: ${FLUSH_INTERVAL_MS}ms, Batch max: ${BATCH_MAX}`);
@@ -594,8 +773,16 @@ export class TelemetryClient {
     // Try to acquire M2M token on startup
     this.refreshAuthToken().catch(() => {});
 
+    // Protocol v3.3.1: Emit APP_ONLINE immediately
+    this.emitAppOnline();
     this.emitAppStarted();
 
+    // Protocol v3.3.1: Run PREFLIGHT_CHECK after short delay
+    setTimeout(() => {
+      this.emitPreflightCheck().catch(err => console.error('PREFLIGHT_CHECK error:', err));
+    }, 3000);
+
+    // Protocol v3.3.1: HEARTBEAT every 60s
     setTimeout(() => {
       this.emitHeartbeat();
     }, 5000);
@@ -603,6 +790,15 @@ export class TelemetryClient {
     this.heartbeatInterval = setInterval(() => {
       this.emitHeartbeat();
     }, 60000);
+
+    // Protocol v3.3.1: KPI_SNAPSHOT every 5 minutes
+    setTimeout(() => {
+      this.emitKpiSnapshot();
+    }, 10000);
+
+    setInterval(() => {
+      this.emitKpiSnapshot();
+    }, 5 * 60 * 1000); // Every 5 minutes
 
     this.flushInterval = setInterval(() => {
       this.flush();
@@ -634,7 +830,8 @@ export class TelemetryClient {
       this.flushCommandCenter();
     }, 30000); // Every 30 seconds
 
-    console.log(`✅ Telemetry: Client started with heartbeat (60s) and flush (${FLUSH_INTERVAL_MS}ms)`);
+    console.log(`✅ Protocol v3.3.1: ${APP_LABEL} online`);
+    console.log(`✅ Telemetry: Client started with HEARTBEAT (60s), KPI_SNAPSHOT (5m), flush (${FLUSH_INTERVAL_MS}ms)`);
     console.log(`✅ Command Center: Reporting enabled to ${COMMAND_CENTER_REPORT_URL}`);
   }
   
