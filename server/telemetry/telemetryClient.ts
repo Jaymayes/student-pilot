@@ -10,7 +10,7 @@ const APP_ID = 'A5';
 const APP_NAME = 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
 const APP_LABEL = `${APP_ID} ${APP_NAME} ${APP_BASE_URL}`;
-const PROTOCOL_VERSION = 'v3.4.1';
+const PROTOCOL_VERSION = 'v3.5.0';
 const APP_ROLE = 'b2c_frontend';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0';
@@ -50,10 +50,10 @@ type CommandCenterEventType = 'TRAFFIC' | 'REVENUE' | 'SYSTEM_HEALTH' | 'ERROR' 
 // Protocol v3.4.1 event types
 type V341EventType = 'identify' | 'heartbeat' | 'metric' | 'revenue_blocker' | 'funnel_event';
 
-// Protocol v3.4.1 envelope structure
+// Protocol v3.5.0 envelope structure
 export interface V341Payload {
   envelope: {
-    version: 'v3.4.1';
+    version: 'v3.5.0';
   };
   app: {
     app_id: string;

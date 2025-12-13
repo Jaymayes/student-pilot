@@ -66,19 +66,19 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Build**: Separate builds for client (Vite) and server (esbuild)
 - **Type Safety**: Shared TypeScript types
 
-## Telemetry System (Protocol v3.4.1 + Command Center)
+## Telemetry System (Protocol v3.5.0 + Command Center)
 - **Client**: `server/telemetry/telemetryClient.ts` - Singleton with batched event emission
 - **Middleware**: `server/middleware/telemetryMiddleware.ts` - Automatic page_view tracking
 - **KPI Integration**: `server/services/kpiTelemetry.ts` - Dual-emit to telemetry and Agent Bridge
-- **Protocol Version**: v3.4.1
-- **Telemetry Destination** (Master Go-Live Prompt v3.4.1):
+- **Protocol Version**: v3.5.0
+- **Telemetry Destination** (Master Go-Live Prompt v3.5.0):
   1. **Primary (A8)**: Command Center `/events` endpoint (new in v3.4.1)
   2. **Alias (A8)**: Command Center `/api/events` endpoint (retry)
   3. **Legacy (A8)**: Command Center `/ingest` and `/api/ingest` endpoints
   4. **Fallback (A2)**: scholarship_api `/telemetry/ingest` endpoint
 
-### Protocol v3.4.1 Telemetry Endpoints
-- **Primary Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/events` (A8 Command Center, v3.4.1)
+### Protocol v3.5.0 Telemetry Endpoints
+- **Primary Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/events` (A8 Command Center, v3.5.0)
 - **Alias Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/api/events` (A8 retry)
 - **Legacy Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/ingest` (A8 v3.3.1 compat)
 - **Fallback Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/telemetry/ingest` (A2)
