@@ -66,17 +66,20 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Build**: Separate builds for client (Vite) and server (esbuild)
 - **Type Safety**: Shared TypeScript types
 
-## Telemetry System (Protocol ONE_TRUTH v1.2 + Command Center)
+## Telemetry System (Protocol v3.3.1 + Command Center)
 - **Client**: `server/telemetry/telemetryClient.ts` - Singleton with batched event emission
 - **Middleware**: `server/middleware/telemetryMiddleware.ts` - Automatic page_view tracking
 - **KPI Integration**: `server/services/kpiTelemetry.ts` - Dual-emit to telemetry and Agent Bridge
-- **Dual Destination Reporting** (Master System Prompt compliance):
-  1. **Protocol ONE_TRUTH v1.2**: Primary analytics pipeline (A2/A4)
-  2. **Command Center (A8)**: Real-time reporting to `/api/report` endpoint
+- **Protocol Version**: v3.3.1
+- **Telemetry Destination** (Master Go-Live Prompt v3.3.1):
+  1. **Primary (A8)**: Command Center `/ingest` endpoint
+  2. **Alias (A8)**: Command Center `/api/ingest` endpoint (retry)
+  3. **Fallback (A2)**: scholarship_api `/telemetry/ingest` endpoint
 
-### Protocol ONE_TRUTH v1.2 Analytics
-- **Primary Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/api/analytics/events`
-- **Fallback Endpoint**: `https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events`
+### Protocol v3.3.1 Telemetry Endpoints
+- **Primary Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/ingest` (A8 Command Center)
+- **Alias Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/api/ingest` (A8 retry)
+- **Fallback Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/telemetry/ingest` (A2)
 - **App Registry ID**: `student_pilot` (hardcoded, never dynamic)
 - **App Base URL**: `https://student-pilot-jamarrlmayes.replit.app`
 - **Environment**: Always `prod` for central aggregator (per Protocol ONE_TRUTH)

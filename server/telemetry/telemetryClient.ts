@@ -27,12 +27,13 @@ function getEnvValue(): 'prod' | 'staging' | 'dev' {
   return 'prod';
 }
 
-// PRIMARY: Central aggregator (scholarship_api) - where Command Center reads from
-const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${SCHOLARSHIP_API_BASE}/api/analytics/events`;
-// FALLBACK: scholarship_sage (if available)
-const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || 'https://scholarship-sage-jamarrlmayes.replit.app/api/analytics/events';
-// COMMAND CENTER: Direct reporting to A8 per Master System Prompt
+// Protocol v3.3.1: PRIMARY telemetry endpoint (A8 Command Center)
 const COMMAND_CENTER_URL = process.env.AUTO_COM_CENTER_BASE_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
+const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${COMMAND_CENTER_URL}/ingest`;
+const TELEMETRY_WRITE_URL_ALIAS = `${COMMAND_CENTER_URL}/api/ingest`;
+// Protocol v3.3.1: FALLBACK telemetry endpoint (A2 scholarship_api)
+const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || `${SCHOLARSHIP_API_BASE}/telemetry/ingest`;
+// Command Center reporting endpoint (legacy - keep for backward compatibility)
 const COMMAND_CENTER_REPORT_URL = `${COMMAND_CENTER_URL}/api/report`;
 const FLUSH_INTERVAL_MS = parseInt(process.env.TELEMETRY_FLUSH_INTERVAL_MS || '10000');
 const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
@@ -407,7 +408,7 @@ export class TelemetryClient {
       }
 
       this.recordSuccess();
-      console.log(`✅ Telemetry: Successfully flushed ${eventsToSend.length} events to central aggregator (scholarship_api)`);
+      console.log(`✅ Telemetry: Successfully flushed ${eventsToSend.length} events to A8 Command Center (/ingest)`);
 
     } catch (error) {
       console.error(`🚨 TELEMETRY PRIMARY EXCEPTION:`, error);
@@ -416,27 +417,46 @@ export class TelemetryClient {
   }
 
   private async retryWithFallback(events: TelemetryEvent[]): Promise<void> {
+    const payload = JSON.stringify({ 
+      events,
+      app: APP_ID,
+      app_base_url: APP_BASE_URL,
+      app_id: APP_ID,
+      source: APP_ID,
+      timestamp: new Date().toISOString()
+    });
+
+    // Protocol v3.3.1: Try alias URL first (/api/ingest), then fallback to A2
+    console.log(`📊 Telemetry: Trying alias endpoint ${TELEMETRY_WRITE_URL_ALIAS}`);
+    try {
+      const aliasResponse = await fetch(TELEMETRY_WRITE_URL_ALIAS, {
+        method: 'POST',
+        headers: this.getS2SHeaders(),
+        body: payload
+      });
+
+      if (aliasResponse.ok) {
+        this.recordSuccess();
+        console.log(`✅ Telemetry: Flushed ${events.length} events to A8 alias (/api/ingest)`);
+        return;
+      }
+      console.log(`📊 Telemetry: Alias returned ${aliasResponse.status}, trying A2 fallback`);
+    } catch (aliasError) {
+      console.log(`📊 Telemetry: Alias failed, trying A2 fallback`);
+    }
+
+    // Fallback to A2 (/telemetry/ingest)
     console.log(`📊 Telemetry: Trying fallback endpoint ${TELEMETRY_FALLBACK_URL}`);
-    
     try {
       const response = await fetch(TELEMETRY_FALLBACK_URL, {
         method: 'POST',
         headers: this.getS2SHeaders(),
-        body: JSON.stringify({ 
-          events,
-          // v1.2 canonical fields at envelope level
-          app: APP_ID,
-          app_base_url: APP_BASE_URL,
-          // Legacy fields at envelope level
-          app_id: APP_ID,
-          source: APP_ID,
-          timestamp: new Date().toISOString()
-        })
+        body: payload
       });
 
       if (response.ok) {
         this.recordSuccess();
-        console.log(`✅ Telemetry: Flushed ${events.length} events to fallback (scholarship_sage)`);
+        console.log(`✅ Telemetry: Flushed ${events.length} events to A2 fallback (/telemetry/ingest)`);
         return;
       }
 
@@ -446,8 +466,9 @@ export class TelemetryClient {
       this.recordError(errorMsg);
       throw new Error(errorMsg);
     } catch (error) {
-      console.error(`🚨 TELEMETRY: Both remote endpoints failed. Storing locally.`);
+      console.error(`🚨 TELEMETRY: All remote endpoints failed. Storing locally.`);
       console.error(`   Primary: ${TELEMETRY_WRITE_URL}`);
+      console.error(`   Alias: ${TELEMETRY_WRITE_URL_ALIAS}`);
       console.error(`   Fallback: ${TELEMETRY_FALLBACK_URL}`);
       console.error(`   SHARED_SECRET configured: ${SHARED_SECRET ? 'YES' : 'NO'}`);
       await this.storeLocally(events);
