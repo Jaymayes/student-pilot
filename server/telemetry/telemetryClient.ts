@@ -818,7 +818,10 @@ export class TelemetryClient {
     // Try to acquire M2M token on startup
     this.refreshAuthToken().catch(() => {});
 
-    // Protocol v3.3.1: Emit APP_ONLINE immediately
+    // Protocol v3.4.1: Emit identify event immediately (new in v3.4.1)
+    this.emitIdentify();
+    
+    // Protocol v3.3.1+ compatibility: Emit APP_ONLINE immediately
     this.emitAppOnline();
     this.emitAppStarted();
 
@@ -875,8 +878,8 @@ export class TelemetryClient {
       this.flushCommandCenter();
     }, 30000); // Every 30 seconds
 
-    console.log(`✅ Protocol v3.3.1: ${APP_LABEL} online`);
-    console.log(`✅ Telemetry: Client started with HEARTBEAT (60s), KPI_SNAPSHOT (5m), flush (${FLUSH_INTERVAL_MS}ms)`);
+    console.log(`✅ Protocol v3.4.1: ${APP_LABEL} online`);
+    console.log(`✅ Telemetry: Client started with identify, HEARTBEAT (60s), KPI_SNAPSHOT (5m), flush (${FLUSH_INTERVAL_MS}ms)`);
     console.log(`✅ Command Center: Reporting enabled to ${COMMAND_CENTER_REPORT_URL}`);
   }
   

@@ -2577,6 +2577,14 @@ Allow: /apply/`;
     } catch (error) {
       const correlationId = (req as any).correlationId;
       console.error(`[${correlationId}] Error creating checkout session:`, error);
+      
+      // v3.4.1: Emit CHECKOUT_BROKEN revenue blocker for 500 errors
+      const checkoutUserId = (req.user as any)?.claims?.sub || 'unknown';
+      telemetryClient.emitCheckoutBroken(
+        error instanceof Error ? error.message : 'Unknown checkout error',
+        { correlation_id: correlationId, user_id: checkoutUserId }
+      );
+      
       res.status(500).json({ 
         error: "Failed to create checkout session",
         correlationId 
@@ -2751,6 +2759,9 @@ Allow: /apply/`;
           session.metadata?.utmSource || 'direct'
         );
         console.log(`📊 Command Center: REVENUE event reported (${amountCents} cents)`);
+        
+        // Protocol v3.4.1: Emit purchase funnel event
+        telemetryClient.trackPurchaseFunnel(revenueUsd, { userId, product: packageCode });
         
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
@@ -3065,6 +3076,13 @@ Allow: /apply/`;
           }
         });
       }
+      
+      // v3.4.1: Emit CHECKOUT_BROKEN revenue blocker for 500 errors
+      const checkoutUserId = (req.user as any)?.claims?.sub || 'unknown';
+      telemetryClient.emitCheckoutBroken(
+        error instanceof Error ? error.message : 'Unknown checkout error',
+        { request_id: requestId, user_id: checkoutUserId }
+      );
       
       res.status(500).json({
         error: {

@@ -11,6 +11,7 @@ import { storage } from "./storage";
 import { env } from "./environment";
 import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
 import { StudentEvents } from "./services/businessEvents";
+import { telemetryClient } from "./telemetry/telemetryClient";
 
 // Environment validation is already done in environment.ts
 
@@ -129,6 +130,10 @@ async function upsertUser(
       }
     );
     console.log(`📊 Business Event: student_signup emitted for user ${userId}`);
+    
+    // Protocol v3.4.1: Emit funnel event for student signup
+    telemetryClient.trackStudentSignup({ userId, source: 'oauth' });
+    console.log(`📊 v3.4.1: funnel_event (student_signup) emitted for user ${userId}`);
   }
 }
 
