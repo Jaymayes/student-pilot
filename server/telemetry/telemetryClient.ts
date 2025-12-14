@@ -5,12 +5,12 @@ import { db } from '../db';
 import { businessEvents } from '@shared/schema';
 import { sql } from 'drizzle-orm';
 
-// Protocol v3.4.1: A5 student_pilot identity
+// Protocol v3.5.1: A5 student_pilot identity
 const APP_ID = 'A5';
 const APP_NAME = 'student_pilot';
 const APP_BASE_URL = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
 const APP_LABEL = `${APP_ID} ${APP_NAME} ${APP_BASE_URL}`;
-const PROTOCOL_VERSION = 'v3.5.0';
+const PROTOCOL_VERSION = 'v3.5.1';
 const APP_ROLE = 'b2c_frontend';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const VERSION = process.env.GIT_SHA || process.env.npm_package_version || '1.0.0';
@@ -27,9 +27,9 @@ function getEnvValue(): 'prod' | 'staging' | 'dev' {
   return 'prod';
 }
 
-// Protocol v3.4.1: PRIMARY telemetry endpoint (A8 Command Center)
+// Protocol v3.5.1: PRIMARY telemetry endpoint (A8 Command Center)
 const COMMAND_CENTER_URL = process.env.AUTO_COM_CENTER_BASE_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
-// v3.4.1: POST to /events (primary), /api/events, /ingest as fallbacks
+// v3.5.1: POST to /events (primary), /api/events as fallback
 const TELEMETRY_EVENTS_URL = `${COMMAND_CENTER_URL}/events`;
 const TELEMETRY_EVENTS_URL_ALIAS = `${COMMAND_CENTER_URL}/api/events`;
 const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${COMMAND_CENTER_URL}/ingest`;
@@ -47,13 +47,15 @@ const HEALTH_METRICS_INTERVAL_MS = 60000; // 60 seconds for infrastructure metri
 // Master System Prompt event types
 type CommandCenterEventType = 'TRAFFIC' | 'REVENUE' | 'SYSTEM_HEALTH' | 'ERROR' | 'CONVERSION' | 'PRODUCT' | 'NOTIFICATION';
 
-// Protocol v3.4.1 event types
-type V341EventType = 'identify' | 'heartbeat' | 'metric' | 'revenue_blocker' | 'funnel_event';
+// Protocol v3.5.1 event types
+type V351EventType = 'identify' | 'heartbeat' | 'metric' | 'revenue_blocker' | 'funnel_event';
+// Type alias for backwards compatibility
+type V341EventType = V351EventType;
 
-// Protocol v3.5.0 envelope structure
-export interface V341Payload {
+// Protocol v3.5.1 envelope structure
+export interface V351Payload {
   envelope: {
-    version: 'v3.5.0';
+    version: 'v3.5.1';
   };
   app: {
     app_id: string;
@@ -62,11 +64,14 @@ export interface V341Payload {
     env: 'prod' | 'staging' | 'dev';
   };
   event: {
-    type: V341EventType;
+    type: V351EventType;
     ts_iso: string;
   };
   data: Record<string, unknown>;
 }
+
+// Type alias for backwards compatibility
+type V341Payload = V351Payload;
 
 // Master System Prompt payload format (updated per new prompt)
 // Master System Prompt v3 - PRIMARY schema (2.3)
@@ -1649,15 +1654,15 @@ export class TelemetryClient {
   }
 
   // ========================================
-  // Protocol v3.4.1: New Event Methods
+  // Protocol v3.5.1: Event Methods
   // ========================================
 
-  // Create v3.4.1 compliant payload
-  createV341Payload(eventType: V341EventType, data: Record<string, unknown>): V341Payload {
+  // Create v3.5.1 compliant payload
+  createV351Payload(eventType: V351EventType, data: Record<string, unknown>): V351Payload {
     return {
-      envelope: { version: 'v3.4.1' },
+      envelope: { version: 'v3.5.1' },
       app: {
-        app_id: APP_NAME,
+        app_id: APP_ID,
         app_name: APP_NAME,
         app_base_url: APP_BASE_URL,
         env: 'prod'
@@ -1670,8 +1675,13 @@ export class TelemetryClient {
     };
   }
 
-  // Send v3.4.1 event to /events endpoint with fallbacks
-  async sendV341Event(payload: V341Payload): Promise<void> {
+  // Alias for backwards compatibility
+  createV341Payload(eventType: V341EventType, data: Record<string, unknown>): V341Payload {
+    return this.createV351Payload(eventType, data);
+  }
+
+  // Send v3.5.1 event to /events endpoint with fallbacks
+  async sendV351Event(payload: V351Payload): Promise<void> {
     if (!this.enabled) return;
 
     const headers = this.getS2SHeaders();
@@ -1695,7 +1705,7 @@ export class TelemetryClient {
         });
 
         if (response.ok) {
-          console.log(`✅ v3.4.1: Sent ${payload.event.type} to ${endpoint}`);
+          console.log(`✅ v3.5.1: Sent ${payload.event.type} to ${endpoint}`);
           return;
         }
       } catch (error) {
@@ -1703,10 +1713,15 @@ export class TelemetryClient {
       }
     }
 
-    console.warn(`⚠️ v3.4.1: All endpoints failed for ${payload.event.type}`);
+    console.warn(`⚠️ v3.5.1: All endpoints failed for ${payload.event.type}`);
   }
 
-  // v3.4.1: Identify event at startup
+  // Alias for backwards compatibility
+  async sendV341Event(payload: V341Payload): Promise<void> {
+    return this.sendV351Event(payload);
+  }
+
+  // v3.5.1: Identify event at startup
   emitIdentify(): void {
     const payload = this.createV341Payload('identify', {
       role: APP_ROLE,
@@ -1714,7 +1729,7 @@ export class TelemetryClient {
       protocol: PROTOCOL_VERSION
     });
     
-    console.log(`📊 v3.4.1: Emitting identify event for ${APP_NAME}`);
+    console.log(`📊 v3.5.1: Emitting identify event for ${APP_NAME}`);
     this.sendV341Event(payload);
   }
 
@@ -1738,7 +1753,7 @@ export class TelemetryClient {
       ...data
     });
     
-    console.log(`📊 v3.4.1: Emitting funnel_event stage=${stage}`);
+    console.log(`📊 v3.5.1: Emitting funnel_event stage=${stage}`);
     this.sendV341Event(payload);
     
     // Also track via legacy system for backward compatibility
@@ -1754,7 +1769,7 @@ export class TelemetryClient {
       ...details
     });
     
-    console.error(`🚨 v3.4.1: REVENUE BLOCKER - ${blockerCode}: ${remediationHint}`);
+    console.error(`🚨 v3.5.1: REVENUE BLOCKER - ${blockerCode}: ${remediationHint}`);
     this.sendV341Event(payload);
     
     // Also report to Command Center for visibility
