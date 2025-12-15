@@ -37,6 +37,7 @@ function Router() {
       
       {/* Public pages - accessible to everyone for discovery */}
       <Route path="/pricing" component={Billing} />
+      <Route path="/credits/purchase" component={Billing} />
       <Route path="/scholarships" component={Scholarships} />
       <Route path="/start" component={Landing} />
       
