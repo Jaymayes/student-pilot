@@ -79,8 +79,8 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: env.NODE_ENV === 'production', // Only require HTTPS in production
-      sameSite: 'lax', // RT-018: CSRF protection
+      secure: true, // Always require HTTPS for cross-app auth
+      sameSite: 'none', // Required for cross-domain OIDC redirects
       maxAge: sessionTtl,
       domain: undefined, // Explicit domain scoping
       path: '/', // Explicit path scoping
