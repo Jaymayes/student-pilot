@@ -521,6 +521,8 @@ Allow: /apply/`;
   app.get('/api/health', (req, res) => {
     const appName = process.env.APP_NAME || 'student_pilot';
     const appBaseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+    const rolloutPct = env.BILLING_ROLLOUT_PERCENTAGE || 0;
+    const stripeMode = rolloutPct >= 100 ? 'live_mode' : (rolloutPct > 0 ? 'mixed_mode' : 'test_mode');
     
     res.status(200).json({ 
       status: 'ok',
@@ -531,7 +533,7 @@ Allow: /apply/`;
       checks: {
         database: 'healthy',
         cache: 'healthy',
-        stripe: 'test_mode'
+        stripe: stripeMode
       }
     });
   });
@@ -823,12 +825,15 @@ Allow: /apply/`;
   });
   
   app.get('/api/status', (req, res) => {
+    const rolloutPct = env.BILLING_ROLLOUT_PERCENTAGE || 0;
+    const stripeMode = rolloutPct >= 100 ? 'live_mode' : (rolloutPct > 0 ? 'mixed_mode' : 'test_mode');
+    
     res.status(200).json({ 
       status: 'operational',
       services: {
         api: 'healthy',
         database: 'connected',
-        stripe: 'test_mode', // Note: Actual mode per-user determined by getStripeForUser()
+        stripe: stripeMode,
         monitoring: 'active'
       },
       timestamp: new Date().toISOString()
