@@ -329,7 +329,7 @@ export class TelemetryClient {
     this.emit(event);
   }
 
-  private getS2SHeaders(): Record<string, string> {
+  private getS2SHeaders(forA8: boolean = true): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-App-Id': APP_ID,
@@ -339,15 +339,26 @@ export class TelemetryClient {
       'X-Idempotency-Key': crypto.randomUUID()
     };
     
-    // S2S Authentication for A2/A4 telemetry endpoints:
-    // A2 (scholarship_api) and A4 (scholarship_sage) require per-app format: <app_id>:<secret>
-    // This is DIFFERENT from Command Center which uses S2S_API_KEY
-    // Priority: M2M JWT > per-app SHARED_SECRET format
-    if (this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
-    } else if (SHARED_SECRET) {
-      // Per-app secret format as required by scholarship_sage and scholarship_api
-      headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
+    // S2S Authentication varies by destination:
+    // - A8 (Command Center): Uses S2S_API_KEY directly
+    // - A2/A4 (fallback): Uses per-app format: <app_id>:<secret>
+    if (forA8) {
+      // A8 Command Center: Use S2S_API_KEY (Master Go-Live Prompt)
+      if (S2S_API_KEY) {
+        headers['Authorization'] = `Bearer ${S2S_API_KEY}`;
+      } else if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      } else if (SHARED_SECRET) {
+        // Fallback to per-app format if no S2S_API_KEY
+        headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
+      }
+    } else {
+      // A2/A4: Per-app secret format required
+      if (this.authToken) {
+        headers['Authorization'] = `Bearer ${this.authToken}`;
+      } else if (SHARED_SECRET) {
+        headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
+      }
     }
     
     return headers;
@@ -403,45 +414,65 @@ export class TelemetryClient {
       });
     }
 
-    try {
-      const response = await fetch(TELEMETRY_WRITE_URL, {
-        method: 'POST',
-        headers: this.getS2SHeaders(),
-        body: JSON.stringify({ 
-          events: eventsToSend,
-          // v1.2 canonical fields at envelope level
-          app: APP_ID,
-          app_base_url: APP_BASE_URL,
-          // Legacy fields at envelope level
+    // A8 expects individual events with event_type and app_name at root
+    // Send each event individually to A8
+    let successCount = 0;
+    const failedEvents: TelemetryEvent[] = [];
+    
+    for (const event of eventsToSend) {
+      try {
+        // A8-compatible payload format with event_type and app_name at root
+        const a8Payload = {
+          event_type: event.event_type || event.event_name,
+          app_name: APP_NAME,
           app_id: APP_ID,
-          source: APP_ID,
-          timestamp: new Date().toISOString()
-        })
-      });
+          app_base_url: APP_BASE_URL,
+          timestamp: event.ts || event.ts_iso,
+          event_id: event.id || event.event_id,
+          env: event.env,
+          properties: event.properties || event.data,
+          user_id_hash: event.user_id_hash,
+          session_id: event.session_id,
+          _meta: event._meta
+        };
+        
+        const response = await fetch(TELEMETRY_WRITE_URL, {
+          method: 'POST',
+          headers: this.getS2SHeaders(true), // A8 uses S2S_API_KEY
+          body: JSON.stringify(a8Payload)
+        });
 
-      if (response.status === 401 || response.status === 403) {
-        // LOUD: Authentication/Authorization failure - this is the CSRF trap!
-        console.error(`🚨 TELEMETRY S2S AUTH FAILED: ${response.status} - Central API rejecting S2S request from ${APP_ID}`);
-        const authMethod = this.authToken ? 'M2M_JWT' : (SHARED_SECRET ? `${APP_ID}:SHARED_SECRET` : 'NONE');
-        console.error(`   Headers sent: Authorization=Bearer <${authMethod}>`);
-        console.error(`   A2/A4 require whitelist for per-app S2S tokens. Command Center (A8) uses S2S_API_KEY.`);
-        await this.refreshAuthToken();
-        await this.retryWithFallback(eventsToSend);
-        return;
+        if (response.status === 401 || response.status === 403) {
+          console.error(`🚨 TELEMETRY S2S AUTH FAILED: ${response.status} - A8 Command Center rejecting S2S request`);
+          const authMethod = S2S_API_KEY ? 'S2S_API_KEY' : (this.authToken ? 'M2M_JWT' : (SHARED_SECRET ? `${APP_ID}:SHARED_SECRET` : 'NONE'));
+          console.error(`   Auth method: ${authMethod} (S2S_API_KEY configured: ${S2S_API_KEY ? 'YES' : 'NO'})`);
+          failedEvents.push(event);
+          continue;
+        }
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'unknown');
+          console.error(`🚨 TELEMETRY PRIMARY FAILED: ${response.status} - ${errorText}`);
+          failedEvents.push(event);
+          continue;
+        }
+
+        successCount++;
+      } catch (error) {
+        console.error(`🚨 TELEMETRY PRIMARY EXCEPTION:`, error);
+        failedEvents.push(event);
       }
+    }
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'unknown');
-        console.error(`🚨 TELEMETRY PRIMARY FAILED: ${response.status} - ${errorText}`);
-        throw new Error(`Primary endpoint failed: ${response.status}`);
-      }
-
+    if (successCount > 0) {
       this.recordSuccess();
-      console.log(`✅ Telemetry: Successfully flushed ${eventsToSend.length} events to A8 Command Center (/ingest)`);
-
-    } catch (error) {
-      console.error(`🚨 TELEMETRY PRIMARY EXCEPTION:`, error);
-      await this.retryWithFallback(eventsToSend);
+      console.log(`✅ Telemetry: Successfully sent ${successCount}/${eventsToSend.length} events to A8 Command Center (/ingest)`);
+    }
+    
+    // Retry failed events with fallback
+    if (failedEvents.length > 0) {
+      console.log(`📊 Telemetry: ${failedEvents.length} events failed, retrying with fallback...`);
+      await this.retryWithFallback(failedEvents);
     }
   }
 
@@ -460,7 +491,7 @@ export class TelemetryClient {
     try {
       const aliasResponse = await fetch(TELEMETRY_WRITE_URL_ALIAS, {
         method: 'POST',
-        headers: this.getS2SHeaders(),
+        headers: this.getS2SHeaders(true), // A8 uses S2S_API_KEY
         body: payload
       });
 
@@ -479,7 +510,7 @@ export class TelemetryClient {
     try {
       const response = await fetch(TELEMETRY_FALLBACK_URL, {
         method: 'POST',
-        headers: this.getS2SHeaders(),
+        headers: this.getS2SHeaders(false), // A2 uses per-app SHARED_SECRET format
         body: payload
       });
 
