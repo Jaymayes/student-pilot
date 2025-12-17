@@ -8,14 +8,14 @@ Preferred communication style: Simple, everyday language.
 
 # System Architecture
 
-## Frontend Architecture
+## Frontend
 - **Framework**: React with TypeScript (Vite)
 - **UI/Styling**: shadcn/ui components (Radix UI primitives) with Tailwind CSS
 - **State Management**: TanStack React Query
 - **Routing**: Wouter
 - **Form Handling**: React Hook Form with Zod
 
-## Backend Architecture
+## Backend
 - **Framework**: Express.js with TypeScript
 - **Database**: PostgreSQL with Drizzle ORM (Neon Database)
 - **Authentication**: Centralized Scholar Auth via Passport.js, utilizing Replit's OIDC or similar.
@@ -27,181 +27,39 @@ Preferred communication style: Simple, everyday language.
 ## Database Design
 Core entities include Users, Student Profiles, Scholarships, Applications, Scholarship Matches, Documents, and Essays.
 
-## Subscription & Payment Gating (BFF Architecture)
-- **Schema**: Users table has `subscription_status` enum field (inactive, active, trialing, canceled, past_due) and `stripe_customer_id`
-- **Checkout Endpoint**: `POST /api/checkout` creates Stripe checkout sessions for credit packages or subscriptions
-- **Webhook Handler**: `POST /api/billing/stripe-webhook` updates `subscription_status = 'active'` on successful payment
-- **Webhook Security**: `STRIPE_WEBHOOK_SECRET` enforces strict signature verification via `stripe.webhooks.constructEvent()`
-- **Frontend Components**:
-  - `useSubscription` hook: Manages subscription state, checkout flow, and status refresh
-  - `PricingModal`: 3-tier pricing display (Starter, Professional, Enterprise)
-  - `SubscriptionGate`: Wrapper component for gating premium features
-- **Flow**: Credit purchase → Stripe checkout → Webhook activation → subscription_status = 'active' → UI gate unlocks
-
-## Daily Brief & ARR Metrics
-- **Endpoint**: `GET /api/billing/arr-metrics` returns revenue and ARR metrics for the Daily Brief
-- **Metrics Calculated**:
-  - Realized Revenue (all-time, YTD, last 30 days, last 7 days)
-  - Modeled ARR (annualized from last 30 days run rate)
-  - Year 1 Target ($200K) and 5-Year Target ($10M ARR)
-  - Progress to Year 1 Target percentage
-  - Transaction metrics (total count, average transaction value)
-- **Frontend Component**: `DailyBriefTile` displays metrics on dashboard with visual progress tracking
-- **Purpose**: Track pace vs. goal for $10M ARR in 5 years
-
-## Authentication & Authorization
-- **Provider**: Centralized OAuth via Scholar Auth
-- **Client**: `student-pilot` with PKCE S256 and refresh token rotation
-- **Session Storage**: PostgreSQL-backed sessions
-- **Security**: Route-level authentication, automatic user creation, and SSO.
-
-## File Upload System
-- **Storage**: Google Cloud Storage via Replit's sidecar
-- **Method**: Direct browser-to-cloud uploads using presigned URLs
-- **Components**: Custom ObjectUploader using Uppy
-
-## Development Environment
-- **Structure**: Monorepo with client and server code
-- **Dev Server**: Vite with Express API proxy
-- **Build**: Separate builds for client (Vite) and server (esbuild)
-- **Type Safety**: Shared TypeScript types
+## Subscription & Payment Gating
+- Users table includes `subscription_status` and `stripe_customer_id`.
+- Utilizes Stripe for checkout and webhooks to update subscription status.
+- Implements a trial credits system (5 trial credits on first signup) to drive activation.
 
 ## Telemetry System (Protocol v3.5.0 + Command Center)
-- **Client**: `server/telemetry/telemetryClient.ts` - Singleton with batched event emission
-- **Middleware**: `server/middleware/telemetryMiddleware.ts` - Automatic page_view tracking
-- **KPI Integration**: `server/services/kpiTelemetry.ts` - Dual-emit to telemetry and Agent Bridge
-- **Protocol Version**: v3.5.0
-- **Telemetry Destination** (Master Go-Live Prompt v3.5.0):
-  1. **Primary (A8)**: Command Center `/events` endpoint (new in v3.4.1)
-  2. **Alias (A8)**: Command Center `/api/events` endpoint (retry)
-  3. **Legacy (A8)**: Command Center `/ingest` and `/api/ingest` endpoints
-  4. **Fallback (A2)**: scholarship_api `/telemetry/ingest` endpoint
+- **Client**: Singleton with batched event emission.
+- **Middleware**: Automatic `page_view` tracking.
+- **KPI Integration**: Dual-emits to telemetry and Agent Bridge.
+- **Primary Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/events` (A8 Command Center).
+- **Fallback Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/telemetry/ingest` (A2).
+- Emits required events like `app_started`, `app_heartbeat`, and business events (e.g., `page_view`, `payment_succeeded`, `ai_assist_used`).
+- Events are stored locally and backfilled if external endpoints are unavailable.
 
-### Protocol v3.5.0 Telemetry Endpoints
-- **Primary Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/events` (A8 Command Center, v3.5.0)
-- **Alias Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/api/events` (A8 retry)
-- **Legacy Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/ingest` (A8 v3.3.1 compat)
-- **Fallback Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/telemetry/ingest` (A2)
-- **App Registry ID**: `student_pilot` (hardcoded, never dynamic)
-- **App Base URL**: `https://student-pilot-jamarrlmayes.replit.app`
-- **Environment**: Always `prod` for central aggregator (per Protocol ONE_TRUTH)
-- **DUAL-FIELD APPROACH (Master Prompt v1.2 Legacy Compatibility)**:
-  - Sends BOTH v1.2 canonical fields AND legacy duplicates per Master Prompt specification
-  - v1.2 canonical: `app`, `event_name`, `ts_iso`, `data`, `id`, `schema_version`, `_meta.version: "v1.2"`
-  - Legacy duplicates: `app_id`, `event_type`, `ts`, `properties`, `event_id`, `_meta.version: "1.2"`
-  - Both are included in every event payload for forward/backward compatibility
-  - Deployed endpoints currently validate legacy fields; canonical fields future-proof for migration
-- **Required Events**:
-  - `app_started` (at boot with version, uptime_sec=0, service_ok, p95_ms, error_rate_pct, app_base_url)
-  - `app_heartbeat` (every 60s with uptime_sec, service_ok, p95_ms, error_rate_pct, app_base_url)
-- **Business Events (A5 spec compliant - Finance tile drivers)**:
-  - `page_view`, `application_started`, `application_submitted`
-  - `checkout_started`, `payment_succeeded` {amount_cents, product, credits, intent_id, user_id_hash} (via Stripe webhook)
-  - `credit_purchased` {credits, amount_cents, source, user_id_hash} (via Stripe webhook)
-  - `payment_failed` {reason, amount_cents, intent_id} (via Stripe webhook for checkout.session.expired and payment_intent.payment_failed)
-  - `document_uploaded` {document_type, document_id, is_first, user_id_hash} (with isFirst flag for activation tracking)
-  - `ai_assist_used` {tool, op, tokens_in, tokens_out, user_id_hash} (via kpiTelemetry.trackEssayAssistance)
-
-### Command Center Reporting (A8)
-- **Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/api/report`
-- **Payload Format**: `{source_app_id, event_type, payload, display, timestamp}`
-- **SYSTEM_HEALTH Heartbeat**: Every 300 seconds with uptime, p95 latency, error rate
-- **LAUNCH_COMPLETE Event**: Emitted on startup with identity banner
-- **A5-Specific Events**:
-  - `DAU` - Daily active user tracking
-  - `PREMIUM_UPGRADE_CLICK` - Premium upgrade intent
-  - `REFERRAL_SHARE_CLICK` - Referral link shares
-  - `DASHBOARD_LOAD_FAILURE` - Dashboard error tracking
-  - `REVENUE` - Payment/credit purchases (via Stripe webhook)
-- **Queue & Retry**: Offline queue with exponential backoff (max 5 retries)
-- **Current Status**: A8 returns 404 (endpoint not yet configured on A8 side)
-
-### Fallback & Resilience
-- **Local Storage**: Events stored to `business_events` table when external endpoints unavailable
-- **Backfill**: Automatically syncs locally stored events every 5 minutes
-- **Privacy**: User IDs hashed with SHA-256, IPs masked to /24
-- **SLO Targets**: uptime ≥99.9%, p95 latency ≤120ms, error_rate_pct <2%
-- **Diagnostic Endpoint**: `/api/internal/telemetry/status` (auth-restricted) returns queue depth, last flush/backfill timestamps, errors, and endpoint health
-- **Alerting**: `telemetry_delivery_failed` event emitted after 3 consecutive delivery failures (stored locally only)
-- **Integration Packet**: `docs/TELEMETRY_INTEGRATION_PACKET.md` contains configuration requirements for A2/A4/A8
-
-## AGENT3 Ecosystem Integration (8-App Architecture)
-student_pilot is A5 in the 8-app ecosystem. All apps communicate via telemetry to A2 (scholarship_api) which feeds A8 (auto_com_center) Command Center UI.
-
-### App Registry
-- **A1 scholar_auth**: Auth gateway (signups/logins) → `https://scholar-auth-jamarrlmayes.replit.app`
-- **A2 scholarship_api**: Central Aggregator "The Heart" → `https://scholarship-api-jamarrlmayes.replit.app`
-- **A3 scholarship_agent**: Acquisition + Campaign Orchestrator → `https://scholarship-agent-jamarrlmayes.replit.app`
-- **A4 scholarship_sage**: AI Recommendations + Trust → `https://scholarship-sage-jamarrlmayes.replit.app`
-- **A5 student_pilot (THIS APP)**: Student App + Credits/Payments → `https://student-pilot-jamarrlmayes.replit.app`
-- **A6 provider_register**: Provider Onboarding/Publishing → `https://provider-register-jamarrlmayes.replit.app`
-- **A7 auto_page_maker**: SEO Page Builder → `https://auto-page-maker-jamarrlmayes.replit.app`
-- **A8 auto_com_center**: Command Center UI "The Eyes" → `https://auto-com-center-jamarrlmayes.replit.app`
-
-### Command Center Tiles (A5 Contributions)
-- **Finance tile**: `payment_succeeded`, `credit_purchased` (primary monetization path)
-- **B2C tile**: Attributed via UTM from A3 campaigns
-- **SLO tile**: `app_started`, `app_heartbeat` with p95_ms, error_rate_pct
-
-### UTM Attribution from A3 (scholarship_agent)
-A3 routes traffic to A5 with exact UTM parameters:
-- `utm_source=scholarship_agent`
-- `utm_medium=organic-seo` (must be exactly "organic-seo")
-- `utm_campaign={campaign_slug}` (e.g., sotd_2025_12_02)
-- `utm_content={template_slug}` (e.g., sotd_basic)
-- `utm_term={keyword_slug}`
-
-### CTA Routing (A3 → A5)
-Primary CTA: `purchase_credits` routes to:
-```
-https://student-pilot-jamarrlmayes.replit.app/start?utm_source=scholarship_agent&utm_medium=organic-seo&utm_campaign={campaign}&utm_content={template}&utm_term={keyword}
-```
-
-## Legal Pages
-- **Routes**: `/privacy`, `/terms`, `/accessibility` (accessible without authentication)
-- **Components**: `client/src/pages/legal.tsx` - Privacy Policy, Terms of Service, Accessibility Statement
-- **Footer**: `LegalFooter` component displayed on landing and dashboard pages
-- **Report Branding**: `ReportBrandingFooter` component for PDF/printed documents
-- **Company Info**: ScholarLink LLC, registered in Delaware, support@scholarlink.com
+## AGENT3 Ecosystem Integration
+- Student Pilot (A5) is part of an 8-app ecosystem, communicating via telemetry to A2 (scholarship_api) which feeds A8 (auto_com_center) Command Center UI.
+- Contributes to Command Center Tiles (Finance, B2C, SLO).
+- Supports UTM attribution from A3 (scholarship_agent) for campaign tracking.
 
 ## Graceful Degradation
-The application continues operating when external services are unavailable:
-- **Scholar Auth**: Falls back to Replit OIDC when discovery fails
-- **Agent Bridge**: Runs in local-only mode when Command Center registration returns 404
-- **Telemetry**: Uses fallback endpoint (scholarship_sage) when primary (scholarship_api) returns 403/5xx
-- **Telemetry Local Storage**: Events stored to business_events table when both endpoints fail; backfilled every 5 minutes
-- **Neon Database**: Pool error handler catches 57P01 (admin termination) without crashing; connections auto-recover
-- **M2M Token**: Falls back to SHARED_SECRET in per-app format (`<app_id>:<secret>`) when token refresh endpoints unavailable
-
-## External Service Configuration Requirements
-The following external services need configuration to enable full ecosystem integration:
-
-### A2 scholarship_api (Primary Telemetry Endpoint)
-- **Current Status**: Returns 403 on S2S requests
-- **Required Action**: Whitelist S2S Bearer tokens for `student_pilot` app
-- **Auth Format**: `Bearer student_pilot:<SHARED_SECRET>` or M2M JWT
-
-### A4 scholarship_sage (Fallback Telemetry Endpoint)
-- **Current Status**: Returns 401 "Telemetry not configured for app 'student_pilot'"
-- **Required Action**: Configure `student_pilot` as allowed app in telemetry config
-
-### A8 auto_com_center (Command Center)
-- **Current Status**: Returns 404 on registration
-- **Required Action**: Register `student_pilot` endpoint in Command Center app registry
+The application is designed to continue operating when external services are unavailable, with fallbacks for Scholar Auth, Agent Bridge, Telemetry, Neon Database, and M2M Tokens.
 
 ## Compliance and Security
-- Fully compliant with AGENT3 v3.0 UNIFIED specifications, including robust security headers (HSTS, CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy, X-Content-Type-Options).
-- PII is not logged to ensure FERPA/COPPA compliance.
-- Responsible AI controls are active, emphasizing coaching over ghostwriting essays.
-- Legal pages include canonical SEO metadata and Organization JSON-LD structured data.
+- Fully compliant with AGENT3 v3.0 UNIFIED specifications.
+- Robust security headers, PII not logged, FERPA/COPPA compliant.
+- Responsible AI controls emphasizing coaching over ghostwriting.
 
 # External Dependencies
 
 ## Cloud Services
 - **Replit Authentication**: OIDC provider
 - **Neon Database**: Serverless PostgreSQL
-- **Google Cloud Storage**: Object storage
-- **Replit Sidecar**: Service proxy for GCS
+- **Google Cloud Storage**: Object storage, accessed via Replit Sidecar
 - **OpenAI GPT-4o**: AI services for essay assistance and scholarship matching
 - **Auto Com Center**: Microservices orchestration and communication hub
 
@@ -221,9 +79,3 @@ The following external services need configuration to enable full ecosystem inte
 - **Passport.js**: Authentication middleware
 - **Express Session**: Session management
 - **Zod**: Runtime type validation
-
-## Development Tools
-- **Vite**: Development server and build tool
-- **TypeScript**: Type safety
-- **ESBuild**: JavaScript bundler
-- **PostCSS**: CSS processing

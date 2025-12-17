@@ -12,6 +12,11 @@ import { env } from "./environment";
 import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
 import { StudentEvents } from "./services/businessEvents";
 import { telemetryClient } from "./telemetry/telemetryClient";
+import { billingService, creditsToMillicredits } from "./billing";
+
+// Trial credits configuration
+const TRIAL_CREDITS = 5; // 5 credits for new signups to experience AI features
+const TRIAL_CREDITS_MILLICREDITS = creditsToMillicredits(TRIAL_CREDITS);
 
 // Environment validation is already done in environment.ts
 
@@ -134,6 +139,35 @@ async function upsertUser(
     // Protocol v3.4.1: Emit funnel event for student signup
     telemetryClient.trackStudentSignup({ userId, source: 'oauth' });
     console.log(`📊 v3.4.1: funnel_event (student_signup) emitted for user ${userId}`);
+    
+    // Grant trial credits to new users for activation
+    try {
+      // Ensure user has a balance record
+      await billingService.getUserBalance(userId);
+      
+      // Grant trial credits
+      await billingService.applyLedgerEntry(userId, TRIAL_CREDITS_MILLICREDITS, {
+        type: 'adjustment',
+        referenceType: 'system',
+        referenceId: `trial_${requestId || crypto.randomUUID()}`,
+        metadata: {
+          reason: 'new_user_trial',
+          credits: TRIAL_CREDITS,
+          millicredits: Number(TRIAL_CREDITS_MILLICREDITS),
+        },
+      });
+      console.log(`🎁 Trial credits granted: ${TRIAL_CREDITS} credits to user ${userId}`);
+      
+      // Emit telemetry for trial credits
+      telemetryClient.track('trial_credits_granted', {
+        user_id_hash: crypto.createHash('sha256').update(userId).digest('hex').substring(0, 16),
+        credits: TRIAL_CREDITS,
+        source: 'signup',
+      });
+    } catch (trialError) {
+      // Non-blocking - log but don't fail auth
+      console.error(`⚠️  Failed to grant trial credits to user ${userId}:`, trialError);
+    }
   }
 }
 
