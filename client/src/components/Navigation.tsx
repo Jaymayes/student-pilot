@@ -136,19 +136,13 @@ export function Navigation() {
                   {theme === "dark" ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
                 </button>
 
-                {/* Notifications */}
+                {/* Notifications - placeholder for future notification system */}
                 <button 
                   className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  aria-label="Notifications (3 unread)"
+                  aria-label="Notifications"
                   data-testid="button-notifications"
                 >
                   <Bell className="h-6 w-6" />
-                  <span 
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                    aria-hidden="true"
-                  >
-                    3
-                  </span>
                 </button>
 
                 {/* Mobile Menu Toggle */}
@@ -309,19 +303,13 @@ export function Navigation() {
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
 
-              {/* Notifications */}
+              {/* Notifications - placeholder for future notification system */}
               <button 
                 className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label="Notifications (3 unread)"
+                aria-label="Notifications"
                 data-testid="button-notifications"
               >
                 <Bell className="h-5 w-5" />
-                <span 
-                  className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  3
-                </span>
               </button>
 
               {/* Profile Menu */}
