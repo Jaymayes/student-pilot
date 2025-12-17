@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,11 +22,14 @@ import {
   Folder,
   TriangleAlert,
   Info,
-  Check
+  Check,
+  X,
+  Sparkles
 } from "lucide-react";
 import { Link } from "wouter";
 import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { LegalFooter } from "@/pages/legal";
+import { getAbandonedCheckout, dismissAbandonedCheckout, markCheckoutCompleted } from "@/pages/Billing";
 
 interface DashboardStats {
   activeApplications: number;
@@ -88,6 +91,33 @@ export default function Dashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { trackFirstMatchViewed } = useTtvTracking();
+  
+  // Checkout abandonment recovery state
+  const [abandonedCheckout, setAbandonedCheckout] = useState<{ packageCode: string; startedAt: string } | null>(null);
+  const [showUpgradeNudge, setShowUpgradeNudge] = useState(false);
+  
+  // Check for abandoned checkout on mount
+  useEffect(() => {
+    const abandoned = getAbandonedCheckout();
+    if (abandoned) {
+      setAbandonedCheckout(abandoned);
+      setShowUpgradeNudge(true);
+    }
+    
+    // Clear abandoned checkout if returning from successful purchase
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      markCheckoutCompleted();
+      setShowUpgradeNudge(false);
+      setAbandonedCheckout(null);
+    }
+  }, []);
+  
+  const handleDismissNudge = () => {
+    dismissAbandonedCheckout();
+    setShowUpgradeNudge(false);
+    setAbandonedCheckout(null);
+  };
 
   // AI-powered scholarship matching
   const generateMatchesMutation = useMutation({
@@ -264,6 +294,45 @@ export default function Dashboard() {
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-6">
+        {/* Checkout Abandonment Nudge Banner */}
+        {showUpgradeNudge && abandonedCheckout && (
+          <div 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg p-4 mb-6 shadow-lg"
+            data-testid="banner-upgrade-nudge"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-6 w-6 text-yellow-300" />
+                <div>
+                  <p className="font-semibold">Complete your upgrade to unlock unlimited AI</p>
+                  <p className="text-sm text-purple-100">You started a checkout but didn't finish. Get credits to power your scholarship search!</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link href="/billing">
+                  <Button 
+                    variant="secondary" 
+                    size="sm"
+                    className="bg-white text-purple-700 hover:bg-purple-50"
+                    data-testid="button-complete-upgrade"
+                  >
+                    Complete Upgrade
+                  </Button>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleDismissNudge}
+                  className="text-white hover:bg-purple-500"
+                  data-testid="button-dismiss-nudge"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="text-welcome">

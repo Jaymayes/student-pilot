@@ -632,6 +632,39 @@ Allow: /apply/`;
       });
     }
   });
+  
+  // Checkout initiated telemetry endpoint - tracks intent to purchase
+  app.post('/api/telemetry/checkout-initiated', isAuthenticated, (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub || 'unknown';
+      const { packageCode, timestamp } = req.body;
+      
+      // Hash user ID for privacy
+      const userIdHash = require('crypto').createHash('sha256').update(userId).digest('hex').substring(0, 16);
+      
+      // Emit checkout_initiated event to A8 Command Center
+      telemetryClient.track('checkout_initiated', {
+        user_id_hash: userIdHash,
+        package_code: packageCode || 'unknown',
+        timestamp: timestamp || new Date().toISOString(),
+        source: 'billing_page'
+      });
+      
+      console.log(`📊 Telemetry: checkout_initiated emitted for user ${userIdHash}, package: ${packageCode}`);
+      
+      res.json({ 
+        success: true, 
+        event: 'checkout_initiated',
+        timestamp: new Date().toISOString() 
+      });
+    } catch (error) {
+      console.error('Error tracking checkout_initiated:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to track checkout' 
+      });
+    }
+  });
 
   // AGENT3 v2.7: Prometheus metrics endpoint for observability
   app.get('/api/metrics/prometheus', (req, res) => {

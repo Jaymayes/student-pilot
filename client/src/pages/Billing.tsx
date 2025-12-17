@@ -21,7 +21,46 @@ import {
   Sparkles
 } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Checkout abandonment tracking utility
+const CHECKOUT_ABANDONED_KEY = 'scholarlink_checkout_abandoned';
+
+export function markCheckoutStarted(packageCode: string) {
+  localStorage.setItem(CHECKOUT_ABANDONED_KEY, JSON.stringify({
+    packageCode,
+    startedAt: new Date().toISOString(),
+    completed: false
+  }));
+}
+
+export function markCheckoutCompleted() {
+  localStorage.removeItem(CHECKOUT_ABANDONED_KEY);
+}
+
+export function getAbandonedCheckout(): { packageCode: string; startedAt: string } | null {
+  try {
+    const data = localStorage.getItem(CHECKOUT_ABANDONED_KEY);
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    if (parsed.completed) return null;
+    // Only return if abandoned within last 7 days
+    const startedAt = new Date(parsed.startedAt);
+    const now = new Date();
+    const daysSinceStart = (now.getTime() - startedAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceStart > 7) {
+      localStorage.removeItem(CHECKOUT_ABANDONED_KEY);
+      return null;
+    }
+    return { packageCode: parsed.packageCode, startedAt: parsed.startedAt };
+  } catch {
+    return null;
+  }
+}
+
+export function dismissAbandonedCheckout() {
+  localStorage.removeItem(CHECKOUT_ABANDONED_KEY);
+}
 
 interface BillingSummary {
   currentBalance: number;
@@ -134,6 +173,19 @@ export default function Billing() {
   // Purchase credits mutation
   const purchaseCredits = useMutation({
     mutationFn: async (packageCode: string) => {
+      // Track checkout initiation BEFORE calling API
+      markCheckoutStarted(packageCode);
+      
+      // Emit checkout_initiated event to backend for A8 telemetry
+      try {
+        await apiRequest('POST', '/api/telemetry/checkout-initiated', { 
+          packageCode,
+          timestamp: new Date().toISOString()
+        });
+      } catch {
+        // Non-blocking - continue even if telemetry fails
+      }
+      
       const response = await apiRequest('POST', '/api/billing/create-checkout', { packageCode });
       return response.json() as Promise<{ url: string; sessionId: string; purchaseId: string }>;
     },
@@ -156,6 +208,14 @@ export default function Billing() {
     setSelectedPackage(packageCode);
     purchaseCredits.mutate(packageCode);
   };
+  
+  // Clear abandoned checkout if user completed purchase (check URL params)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      markCheckoutCompleted();
+    }
+  }, []);
 
   if (summaryLoading) {
     return (
