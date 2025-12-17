@@ -48,6 +48,7 @@ import { adminMetricsRouter } from "./routes/adminMetrics";
 import { serviceConfig } from "./serviceConfig";
 import { metricsCollector } from "./monitoring/metrics";
 import { registerTemporaryCreditEndpoints } from "./routes/creditsApiTemp";
+import { csrfProtection, getCsrfToken, exemptFromCsrf, conditionalCsrfProtection } from "./middleware/csrfProtection";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {
@@ -613,6 +614,65 @@ Allow: /apply/`;
       node_version: process.version,
       uptime_seconds: Math.floor(process.uptime())
     });
+  });
+
+  // ========== SESSION SECURITY ENDPOINTS (RT-018 Remediation) ==========
+  
+  // GET /api/csrf-token - Get CSRF token for authenticated session
+  app.get('/api/csrf-token', isAuthenticated, getCsrfToken);
+  
+  // POST /api/session/revoke-all - Invalidate all sessions for current user
+  app.post('/api/session/revoke-all', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      const requestId = crypto.randomUUID();
+      
+      if (!userId) {
+        return res.status(401).json({
+          error: {
+            code: 'UNAUTHENTICATED',
+            message: 'User identification required',
+            request_id: requestId
+          }
+        });
+      }
+      
+      // Delete all sessions for this user from PostgreSQL session store
+      const result = await db.execute(sql`
+        DELETE FROM sessions 
+        WHERE sess::jsonb -> 'passport' -> 'user' -> 'claims' ->> 'sub' = ${userId}
+      `);
+      
+      // Log the revocation for audit trail
+      console.log(`🔐 Session revocation: All sessions revoked for user ${userId.substring(0, 8)}...`);
+      
+      // Emit security event
+      telemetryClient.track('session_revoke_all', {
+        user_id_hash: crypto.createHash('sha256').update(userId).digest('hex').substring(0, 16),
+        timestamp: new Date().toISOString()
+      });
+      
+      // Logout current session as well
+      req.logout((err) => {
+        if (err) {
+          console.error('Error during logout after session revocation:', err);
+        }
+        res.json({
+          success: true,
+          message: 'All sessions have been revoked. Please log in again.',
+          request_id: requestId
+        });
+      });
+    } catch (error) {
+      console.error('Error revoking sessions:', error);
+      res.status(500).json({
+        error: {
+          code: 'SESSION_REVOKE_ERROR',
+          message: 'Failed to revoke sessions',
+          request_id: crypto.randomUUID()
+        }
+      });
+    }
   });
 
   // Telemetry status endpoint (internal diagnostic - auth restricted)

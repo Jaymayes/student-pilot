@@ -13,6 +13,7 @@ import { authRateLimit, recordAuthSuccess } from "./middleware/authRateLimit";
 import { StudentEvents } from "./services/businessEvents";
 import { telemetryClient } from "./telemetry/telemetryClient";
 import { billingService, creditsToMillicredits } from "./billing";
+import { getSessionSecrets, getKeyRotationStatus } from "./utils/keyRotation";
 
 // Trial credits configuration
 const TRIAL_CREDITS = 5; // 5 credits for new signups to experience AI features
@@ -77,15 +78,25 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  
+  // RT-018: Support key rotation via array of secrets
+  // First secret is used for signing, all secrets are used for validation
+  const secrets = getSessionSecrets();
+  const rotationStatus = getKeyRotationStatus();
+  
+  if (rotationStatus.inRotation) {
+    console.log(`🔑 Key rotation active: current=${rotationStatus.currentKeyHash}, previous=${rotationStatus.previousKeyHash}`);
+  }
+  
   return session({
-    secret: env.SESSION_SECRET,
+    secret: secrets, // Array supports key rotation (first = sign, all = verify)
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
       secure: true, // Always require HTTPS for cross-app auth
-      sameSite: 'none', // Required for cross-domain OIDC redirects
+      sameSite: 'none', // Required for cross-domain OIDC redirects (mitigated by httpOnly)
       maxAge: sessionTtl,
       domain: undefined, // Explicit domain scoping
       path: '/', // Explicit path scoping
