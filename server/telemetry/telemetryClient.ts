@@ -1345,6 +1345,7 @@ export class TelemetryClient {
     const token = this.getCommandCenterToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-App-ID': APP_NAME,
       'X-Source-App': APP_ID,
       'X-App-Base-URL': APP_BASE_URL
     };
@@ -1442,6 +1443,7 @@ export class TelemetryClient {
     const token = this.getCommandCenterToken();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-App-ID': APP_NAME,
       'X-Source-App': APP_ID,
       'X-App-Base-URL': APP_BASE_URL
     };
