@@ -12,7 +12,7 @@ export interface UtmParams {
 
 function getStoredUtm(): UtmParams | null {
   try {
-    const stored = sessionStorage.getItem(UTM_STORAGE_KEY);
+    const stored = localStorage.getItem(UTM_STORAGE_KEY);
     if (!stored) return null;
     
     const parsed = JSON.parse(stored) as UtmParams;
@@ -23,7 +23,7 @@ function getStoredUtm(): UtmParams | null {
       const daysDiff = (now.getTime() - capturedDate.getTime()) / (1000 * 60 * 60 * 24);
       
       if (daysDiff > UTM_EXPIRY_DAYS) {
-        sessionStorage.removeItem(UTM_STORAGE_KEY);
+        localStorage.removeItem(UTM_STORAGE_KEY);
         return null;
       }
     }
@@ -36,7 +36,7 @@ function getStoredUtm(): UtmParams | null {
 
 function storeUtm(params: UtmParams): void {
   try {
-    sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify({
+    localStorage.setItem(UTM_STORAGE_KEY, JSON.stringify({
       ...params,
       capturedAt: new Date().toISOString()
     }));
@@ -53,7 +53,12 @@ export function captureUtmFromUrl(): UtmParams {
   const utmCampaign = urlParams.get('utm_campaign') || undefined;
   
   if (utmSource || utmMedium || utmCampaign) {
-    const params: UtmParams = { utmSource, utmMedium, utmCampaign };
+    const existingParams = getStoredUtm() || {};
+    const params: UtmParams = { 
+      utmSource: utmSource || existingParams.utmSource, 
+      utmMedium: utmMedium || existingParams.utmMedium, 
+      utmCampaign: utmCampaign || existingParams.utmCampaign 
+    };
     storeUtm(params);
     return params;
   }
@@ -71,7 +76,7 @@ export function useUtm() {
   }, []);
   
   const clearUtm = useCallback(() => {
-    sessionStorage.removeItem(UTM_STORAGE_KEY);
+    localStorage.removeItem(UTM_STORAGE_KEY);
   }, []);
   
   return { getUtmParams, clearUtm };

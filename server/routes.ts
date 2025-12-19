@@ -1415,12 +1415,12 @@ Allow: /apply/`;
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       
-      // Include credit balance for trial-to-paid nudge
+      // Include credit balance for trial-to-paid nudge (preserve fractional credits)
       let credits = 0;
       try {
         const balance = await billingService.getUserBalance(userId);
         const balanceMillicredits = balance.balanceMillicredits || BigInt(0);
-        credits = Number(balanceMillicredits / BigInt(1000));
+        credits = Number(balanceMillicredits) / 1000;
       } catch (balanceError) {
         console.warn(`Could not fetch credits for user ${userId}:`, balanceError);
       }
