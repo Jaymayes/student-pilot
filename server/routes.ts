@@ -1414,7 +1414,18 @@ Allow: /apply/`;
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      res.json(user);
+      
+      // Include credit balance for trial-to-paid nudge
+      let credits = 0;
+      try {
+        const balance = await billingService.getUserBalance(userId);
+        const balanceMillicredits = balance.balanceMillicredits || BigInt(0);
+        credits = Number(balanceMillicredits / BigInt(1000));
+      } catch (balanceError) {
+        console.warn(`Could not fetch credits for user ${userId}:`, balanceError);
+      }
+      
+      res.json({ ...user, credits });
     } catch (error) {
       handleError(error, req, res);
     }
@@ -3021,7 +3032,10 @@ Allow: /apply/`;
         mode: z.enum(['payment', 'subscription']).default('payment'),
         successUrl: z.string().url().optional(),
         cancelUrl: z.string().url().optional(),
-        packageCode: z.enum(['starter', 'professional', 'enterprise']).optional()
+        packageCode: z.enum(['starter', 'professional', 'enterprise']).optional(),
+        utmSource: z.string().optional(),
+        utmMedium: z.string().optional(),
+        utmCampaign: z.string().optional()
       });
       
       const validatedBody = CheckoutRequestSchema.parse(req.body);
@@ -3062,7 +3076,10 @@ Allow: /apply/`;
         customer: stripeCustomerId,
         metadata: {
           userId,
-          mode
+          mode,
+          utmSource: validatedBody.utmSource || 'direct',
+          utmMedium: validatedBody.utmMedium || 'none',
+          utmCampaign: validatedBody.utmCampaign || 'none'
         }
       };
 

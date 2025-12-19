@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeatureFlags } from "@/lib/featureFlags";
+import { useUtm } from "@/hooks/useUtm";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
@@ -27,6 +28,7 @@ import { PrivacyPolicy, TermsOfService, AccessibilityStatement } from "@/pages/l
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
   const featureFlags = useFeatureFlags();
+  useUtm();
 
   return (
     <Switch>

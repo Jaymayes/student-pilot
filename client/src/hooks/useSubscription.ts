@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { SubscriptionStatus } from '@/types/user';
 import { useCallback } from 'react';
+import { getUtmForCheckout } from './useUtm';
 
 export interface CheckoutOptions {
   priceId?: string;
@@ -10,6 +11,9 @@ export interface CheckoutOptions {
   packageCode?: 'starter' | 'professional' | 'enterprise';
   successUrl?: string;
   cancelUrl?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 }
 
 export interface CheckoutResponse {
@@ -39,10 +43,14 @@ export function useSubscription() {
   const checkoutMutation = useMutation({
     mutationFn: async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
       const urls = getCheckoutUrls();
+      const utmParams = getUtmForCheckout();
       const requestBody = {
         ...options,
         successUrl: options.successUrl || urls.successUrl,
-        cancelUrl: options.cancelUrl || urls.cancelUrl
+        cancelUrl: options.cancelUrl || urls.cancelUrl,
+        utmSource: options.utmSource || utmParams.utmSource,
+        utmMedium: options.utmMedium || utmParams.utmMedium,
+        utmCampaign: options.utmCampaign || utmParams.utmCampaign
       };
       const response = await apiRequest('POST', '/api/checkout', requestBody);
       return response.json();

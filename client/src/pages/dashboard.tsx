@@ -30,6 +30,7 @@ import { Link } from "wouter";
 import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { LegalFooter } from "@/pages/legal";
 import { getAbandonedCheckout, dismissAbandonedCheckout, markCheckoutCompleted } from "@/pages/Billing";
+import { TrialNudge } from "@/components/TrialNudge";
 
 interface DashboardStats {
   activeApplications: number;
@@ -332,6 +333,9 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+        
+        {/* Trial-to-Paid Nudge (low/zero credits) */}
+        <TrialNudge />
         
         {/* Welcome Header */}
         <div className="mb-8">

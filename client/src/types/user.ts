@@ -9,6 +9,7 @@ export interface User {
   profileImageUrl?: string | null;
   subscriptionStatus?: SubscriptionStatus | null;
   stripeCustomerId?: string | null;
+  credits?: number;
   createdAt?: string;
   updatedAt?: string;
 }
