@@ -209,6 +209,20 @@ export async function setupAuth(app: Express) {
     domains.push('localhost');
   }
   
+  // Add production domain from APP_BASE_URL if not already included
+  const appBaseUrl = process.env.APP_BASE_URL;
+  if (appBaseUrl) {
+    try {
+      const prodDomain = new URL(appBaseUrl).hostname;
+      if (!domains.includes(prodDomain)) {
+        domains.push(prodDomain);
+        console.log(`🔐 Added production domain to auth strategies: ${prodDomain}`);
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+  }
+  
   for (const domain of domains) {
     const strategyConfig: any = {
       name: `replitauth:${domain}`,
@@ -233,10 +247,19 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", authRateLimit, (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const strategyName = `replitauth:${req.hostname}`;
+    console.log(`🔐 Login attempt: hostname=${req.hostname}, strategy=${strategyName}`);
+    
+    passport.authenticate(strategyName, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+    })(req, res, (err?: any) => {
+      if (err) {
+        console.error(`🔐 Login error for ${strategyName}:`, err.message || err);
+        return res.status(500).json({ error: 'Authentication failed', message: err.message });
+      }
+      next(err);
+    });
   });
 
   app.get("/api/callback", authRateLimit, (req, res, next) => {
