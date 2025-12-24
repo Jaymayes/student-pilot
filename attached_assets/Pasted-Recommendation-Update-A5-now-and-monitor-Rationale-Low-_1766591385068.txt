@@ -1,0 +1,167 @@
+Recommendation: Update A5 now and monitor
+
+Rationale: Low-risk, high-UX impact. Back end now emits specific buckets; showing precise user guidance prevents unnecessary drop-offs in the sign-in funnel. Keep backend monitoring active.
+Copy/paste prompt for A5 (student_pilot) — Frontend error UX remediation
+ROLE: Frontend SDET/Engineer (A5 only)
+OBJECTIVE: Map A1’s new error buckets to clear, actionable UI on A5 during auth redirects. Do not modify other apps.
+
+Strict logic gate
+
+DETECT: Must be A5 student_pilot at https://student-pilot-jamarrlmayes.replit.app
+If not A5, ABORT.
+HANDSHAKE (print exactly):
+🔍 AGENT IDENTITY CONFIRMED CURRENT APP ID: student_pilot TARGET URL: https://student-pilot-jamarrlmayes.replit.app ACTION: Locking context. Implementing error‑bucket UI for A5 only.
+Scope and constraints
+
+Implement client-side handling for these reason buckets from A1 redirect:
+upstream_temporarily_unavailable (retryable)
+upstream_server_error (retryable)
+upstream_unavailable (retryable/5xx)
+access_denied (non‑retryable)
+expired_auth_code (non‑retryable)
+client_configuration (non‑retryable)
+pkce_mismatch (non‑retryable)
+Read-only for secrets/config; no backend changes.
+Redact correlation_id in logs (show first/last 4 only).
+Deliverables (A5)
+
+Error mapping (UI copy and CTAs)
+upstream_temporarily_unavailable | upstream_server_error | upstream_unavailable
+Title: “Temporary sign‑in issue”
+Message: “Our login partner is having a brief outage. Please try again.”
+CTA: “Try again” → call /api/login (or your existing login route)
+Secondary: “Back to Home”
+access_denied
+Title: “Access was not granted”
+Message: “You canceled the sign‑in. No changes were made.”
+CTA: “Try sign‑in again”
+expired_auth_code
+Title: “Your sign‑in expired”
+Message: “Please restart the sign‑in process.”
+CTA: “Restart sign‑in”
+client_configuration
+Title: “Sign‑in configuration issue”
+Message: “We’re fixing a configuration issue. Please try again later.”
+CTA: “Back to Home”
+pkce_mismatch
+Title: “Security check failed”
+Message: “Please restart sign‑in.”
+CTA: “Restart sign‑in”
+Unknown (fallback)
+Title: “We hit a snag”
+Message: “Please try again. If it persists, contact support with this code.”
+CTA: “Try again”
+2. URL param parsing (read-only example)
+
+On the auth error landing route (e.g., /auth/error), parse:
+error (e.g., server_error)
+reason (e.g., upstream_temporarily_unavailable)
+cid (correlation_id, optional)
+Build a UI state {bucket, cidRedacted, ctaAction} from reason.
+3. Minimal React/TS drop-in (example)
+
+Keep your existing wiring; this is illustrative only.
+// src/routes/AuthError.tsx (example)
+import React, { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+
+const COPY: Record<string, {title:string; msg:string; ctaLabel:string; ctaPath:string}> = {
+upstream_temporarily_unavailable: {
+title: 'Temporary sign‑in issue',
+msg: 'Our login partner is having a brief outage. Please try again.',
+ctaLabel: 'Try again',
+ctaPath: '/api/login'
+},
+upstream_server_error: {
+title: 'Temporary sign‑in issue',
+msg: 'Our login partner is having a brief outage. Please try again.',
+ctaLabel: 'Try again',
+ctaPath: '/api/login'
+},
+upstream_unavailable: {
+title: 'Temporary sign‑in issue',
+msg: 'Our login partner is having a brief outage. Please try again.',
+ctaLabel: 'Try again',
+ctaPath: '/api/login'
+},
+access_denied: {
+title: 'Access was not granted',
+msg: 'You canceled the sign‑in. No changes were made.',
+ctaLabel: 'Try sign‑in again',
+ctaPath: '/api/login'
+},
+expired_auth_code: {
+title: 'Your sign‑in expired',
+msg: 'Please restart the sign‑in process.',
+ctaLabel: 'Restart sign‑in',
+ctaPath: '/api/login'
+},
+client_configuration: {
+title: 'Sign‑in configuration issue',
+msg: 'We’re fixing a configuration issue. Please try again later.',
+ctaLabel: 'Back to Home',
+ctaPath: '/'
+},
+pkce_mismatch: {
+title: 'Security check failed',
+msg: 'Please restart sign‑in.',
+ctaLabel: 'Restart sign‑in',
+ctaPath: '/api/login'
+},
+fallback: {
+title: 'We hit a snag',
+msg: 'Please try again. If it persists, contact support with this code.',
+ctaLabel: 'Try again',
+ctaPath: '/api/login'
+}
+};
+
+export default function AuthErrorPage() {
+const { search } = useLocation();
+const params = new URLSearchParams(search);
+const reason = (params.get('reason') || '').toLowerCase();
+const cid = params.get('cid') || '';
+const cidRedacted = cid.length > 8 ? ${cid.slice(0,4)}****${cid.slice(-4)} : cid;
+
+const model = useMemo(() => COPY[reason] ?? COPY.fallback, [reason]);
+
+return (
+<div className="max-w-md mx-auto mt-16 p-6 rounded-lg border bg-white">
+<h1 className="text-xl font-semibold mb-2">{model.title}</h1>
+<p className="text-sm text-gray-700 mb-3">{model.msg}</p>
+{cidRedacted ? <p className="text-xs text-gray-500 mb-4">Code: {cidRedacted}</p> : null}
+<div className="flex gap-3">
+<a className="btn btn-primary" href={model.ctaPath}>{model.ctaLabel}</a>
+<a className="btn btn-ghost" href="/">Back to Home</a>
+</div>
+</div>
+);
+}
+
+4. Read-only E2E checks (A5)
+
+Simulate redirects by visiting:
+/auth/error?error=server_error&reason=upstream_temporarily_unavailable&cid=1234abcd9876wxyz
+/auth/error?error=server_error&reason=access_denied
+/auth/error?error=server_error&reason=expired_auth_code
+/auth/error?error=server_error&reason=pkce_mismatch
+Assert:
+Title/message match bucket
+CTA points to /api/login (or fallback /)
+cid is redacted as abcd****wxyz
+No console errors
+Acceptance criteria (A5)
+
+100% of buckets render a specific message (no generic/blank).
+CTA always present; login CTA re‑enters flow.
+Correlation code redacted; never logs secrets.
+No layout regressions at 375px mobile width.
+Rollout and monitoring
+
+Ship to staging; manually test three buckets minimum:
+upstream_temporarily_unavailable, access_denied, expired_auth_code
+After prod deploy, monitor:
+A1: callback_retries_total and bucket distribution
+A5: auth error page impressions; bounce rate after error (should decrease)
+If you prefer “Monitor Only,” I can generate a one‑pager console checklist (curl + log queries) to track buckets/latency without front‑end changes. Otherwise, confirm “Proceed A5 UI update,” and I’ll provide a brief PR plan (files, test cases, and a two‑line release note).
+

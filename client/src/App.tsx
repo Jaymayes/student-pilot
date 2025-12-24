@@ -24,6 +24,7 @@ import AutofillEssayTest from "@/pages/AutofillEssayTest";
 import PaymentDashboard from "@/pages/PaymentDashboard";
 import { AccessibilityTestPanel } from "@/components/AccessibilityTestPanel";
 import { PrivacyPolicy, TermsOfService, AccessibilityStatement } from "@/pages/legal";
+import AuthError from "@/pages/auth-error";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/credits/purchase" component={Billing} />
       <Route path="/scholarships" component={Scholarships} />
       <Route path="/start" component={Landing} />
+      <Route path="/auth/error" component={AuthError} />
       
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
