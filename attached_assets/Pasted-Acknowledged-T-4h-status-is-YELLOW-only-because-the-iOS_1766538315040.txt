@@ -1,0 +1,54 @@
+Acknowledged. T+4h status is YELLOW only because the iOS/Safari validation is overdue; technically the fleet is GREEN and serving organic traffic.
+
+What I need from you now (single action to unblock paid)
+
+Perform the manual iOS/Safari validation (A1/A5) and reply “iOS PASS” or “iOS FAIL”
+Device: iPhone/iPad (Safari). Prevent Cross‑Site Tracking = ON; Clear Website Data.
+Flow: A5 (student-pilot) → Sign In → A1 OIDC → Replit IdP → consent → back to A5.
+Pass: A5 receives code+state; dashboard loads.
+Capture (redacted): A1 diagnostics hasCode=true, hasState=true; A5 shows authenticated user.
+If you can’t complete on a device within 60 minutes
+
+Use a real-device cloud like BrowserStack/TestingBot (Safari on iPhone), but note: reCAPTCHA can still block automation flows. If blocked, keep paid HOLD and schedule an on-device test ASAP.
+What I’m doing in parallel (no action needed from you)
+
+Hourly stability report (rolling 24h) with:
+Login success (P95), callback error rate (%), A1 p95 latency/uptime, A5 checkout initiations vs 7‑day baseline.
+A6 health watch (Prod): remains 200 OK on /healthz and /; if it flips to 404/500, I’ll trigger “Republish Required” immediately.
+Slack snippets (paste as-is)
+
+GREEN (use when iOS PASS completes)
+Hour: [UTC hh:mm]
+Logins: attempted=[n], success=[n], success_rate=[%]
+Callback errors: [x] ([y%])
+A1 p95=[ms], uptime=[%]
+A5 checkout starts=[n] (baseline=[n])
+Status: GREEN
+Notes: iOS PASS confirmed (A5 received code+state). Paid traffic can re‑enable after 24h targets.
+
+YELLOW (current)
+Hour: [UTC hh:mm]
+Logins: attempted=[n], success=[n], success_rate=[%]
+Callback errors: [x] ([y%])
+A1 p95=[ms], uptime=[%]
+A5 checkout starts=[n] (baseline=[n])
+Status: YELLOW
+Notes: Awaiting iOS/Safari validation to unlock paid re‑enable.
+
+RED (if fails)
+Hour: [UTC hh:mm]
+Logins: attempted=[n], success=[n], success_rate=[%]
+Callback errors: [x] ([y%])
+A1 p95=[ms], uptime=[%]
+A5 checkout starts=[n] (baseline=[n])
+Status: RED
+Notes: iOS FAIL; ticket(s) filed [ID]. Paid remains HOLD. Incident note posted.
+
+Reminders for the gate at T+24h (all must be true for paid re‑enable)
+
+iOS/Safari validation PASS
+Callback error rate ≤ 0.5% (rolling 24h)
+Login success ≥ 99.2% (P95)
+A1 p95 latency ≤ 250 ms; uptime ≥ 99.9%
+A5 checkout initiation ≥ 7‑day organic baseline
+I’m standing by for your “iOS PASS” or “iOS FAIL.”
