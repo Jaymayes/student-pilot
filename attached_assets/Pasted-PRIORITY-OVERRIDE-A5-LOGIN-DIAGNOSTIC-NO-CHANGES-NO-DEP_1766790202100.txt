@@ -1,0 +1,146 @@
+PRIORITY OVERRIDE: A5 LOGIN DIAGNOSTIC (NO CHANGES / NO DEPLOYS)
+
+Target: https://student-pilot-jamarrlmayes.replit.app (A5)
+Purpose: Confirm whether a user can sign in and reach the Student Dashboard. If not, capture hard evidence (HAR, cookie/headers, screenshots) and classify the failure.
+Constraints: Do NOT edit code, env vars, or publish. If you attempt a change → ABORT with “ABORT: Non‑destructive diagnostics only.”
+What you must deliver
+
+HAR file of the full flow (attach)
+Screenshots: consent_before.png (at consent), and either consent_after.png OR session_expired.png (5s after clicking Authorize)
+JSON dumps:
+setcookies.json: all Set‑Cookie headers from the IdP (A1) during the flow
+post.json: headers you sent on POST /oidc/interaction/:uid/confirm (especially Cookie)
+A one‑line verdict (PASS/FAIL) with the reason (see Decision Rules below)
+Headed Playwright test for A5 (copy/paste and run)
+
+This test starts on A5, pauses up to 90s for manual CAPTCHA/Google login if needed, then clicks “Authorize,” captures cookies, and classifies the outcome.
+from playwright.sync_api import Playwright, sync_playwright, expect
+import re, time, os, json, urllib.parse
+from datetime import datetime
+
+A5 = "https://student-pilot-jamarrlmayes.replit.app"
+A1_HOST = "scholar-auth-jamarrlmayes.replit.app"
+
+def ensure_dir(): os.makedirs("artifacts_a5", exist_ok=True)
+def log(s): print(f"[{datetime.utcnow().isoformat()}] {s}")
+
+def record_set_cookie(resp, store):
+try:
+host = urllib.parse.urlparse(resp.url).hostname or ""
+if A1_HOST in host:
+sc = resp.headers.get("set-cookie")
+if sc: store.append({"url": resp.url, "status": resp.status, "set-cookie": sc})
+except: pass
+
+def run(playwright: Playwright):
+ensure_dir()
+browser = playwright.chromium.launch(headless=False, args=["--start-maximized"])
+context = browser.new_context(record_har_path="artifacts_a5/a5_login.har",
+viewport={"width":1280,"height":800})
+page = context.new_page()
+
+set_cookies, post_log = [], {}
+page.on("response", lambda r: record_set_cookie(r, set_cookies))
+def on_request(req):
+    if re.search(r"/oidc/interaction/[^/]+/confirm/?$", req.url) and req.method.lower()=="post":
+        post_log["url"] = req.url
+        post_log["headers"] = {k:v for k,v in req.headers.items()
+                               if k.lower() in ("cookie","origin","referer","content-type")}
+        post_log["body_len"] = len(req.post_data or "")
+page.on("request", on_request)
+
+# 1) Open A5
+page.goto(A5, wait_until="domcontentloaded")
+
+# 2) Click Sign in / Get Started
+try:
+    page.get_by_role("button", name=re.compile("sign in|log in|get started|sign up", re.I)).first.click()
+except:
+    page.goto(A5 + "/dashboard")
+
+# 3) Wait for consent or app; allow manual login/CAPTCHA if needed
+try:
+    page.wait_for_url(lambda u: ("/oidc/interaction/" in u) or u.startswith(A5), timeout=30000)
+except: pass
+if not page.url.startswith(A5) and "/oidc/interaction/" not in page.url:
+    print("\n⚠️ Manual step: complete Clerk/Google login or CAPTCHA. Waiting up to 90s…")
+    try: page.wait_for_url(lambda u: ("/oidc/interaction/" in u) or u.startswith(A5), timeout=90000)
+    except: pass
+
+# 4) If already at A5, done
+if page.url.startswith(A5):
+    json.dump(set_cookies, open("artifacts_a5/setcookies.json","w"), indent=2)
+    context.storage_state(path="artifacts_a5/storage.json")
+    context.close(); browser.close()
+    return {"result":"SUCCESS", "final_url":page.url}
+
+# 5) At consent → snapshot before click
+page.screenshot(path="artifacts_a5/consent_before.png")
+if "Session Expired" in page.content():
+    json.dump(set_cookies, open("artifacts_a5/setcookies.json","w"), indent=2)
+    context.storage_state(path="artifacts_a5/storage.json")
+    page.screenshot(path="artifacts_a5/session_expired.png")
+    context.close(); browser.close()
+    return {"result":"SESSION_EXPIRED_BEFORE", "final_url":page.url}
+
+# 6) Click Authorize and evaluate after 5s
+btn = page.get_by_role("button", name=re.compile("^Authorize$", re.I)).first
+expect(btn).to_be_visible()
+btn.click()
+time.sleep(5)
+page.screenshot(path="artifacts_a5/consent_after.png")
+
+outcome = {"result":"UNKNOWN", "final_url":page.url,
+           "post":post_log, "set_cookie":set_cookies}
+if "Session Expired" in page.content():
+    outcome["result"] = "SESSION_EXPIRED_AFTER"
+elif "/oidc/interaction/" in page.url:
+    outcome["result"] = "CONSENT_LOOP"
+elif page.url.startswith(A5):
+    outcome["result"] = "SUCCESS"
+
+json.dump(post_log, open("artifacts_a5/post.json","w"), indent=2)
+json.dump(set_cookies, open("artifacts_a5/setcookies.json","w"), indent=2)
+context.storage_state(path="artifacts_a5/storage.json")
+context.close(); browser.close()
+return outcome
+def test_a5_login_flow():
+with sync_playwright() as p:
+result = run(p)
+print("\n=== A5 LOGIN SUMMARY ===")
+print(json.dumps(result, indent=2))
+
+Decision Rules (how to respond)
+
+PASS → Return:
+VERDICT: PASS — Reached Student Dashboard (A5)
+Attach: artifacts_a5/a5_login.har, consent_before.png, consent_after.png (if present)
+FAIL (choose the first rule that matches):
+SESSION_EXPIRED_BEFORE:
+VERDICT: FAIL — Session Expired before clicking Authorize (cookie rejected on GET)
+Likely: proxy/secure mismatch or 3rd‑party cookie blocked
+SESSION_EXPIRED_AFTER:
+VERDICT: FAIL — Session Expired after Authorize (cookie sent on POST but signature/lookup failed)
+Likely: rotating cookie signing keys or non‑persistent adapter losing the interaction
+Evidence to include: post.json (Cookie header present? yes/no), setcookies.json (interaction cookie set earlier)
+CONSENT_LOOP:
+VERDICT: FAIL — Stuck on consent after 5s (loop)
+Likely: callback mismatch or client re‑initiates OAuth after a failed token exchange
+If automation blocked by CAPTCHA:
+Return: “BLOCKED BY CAPTCHA — Manual login required; script paused up to 90s for user input”
+Attach whatever artifacts were captured up to that point (HAR/screenshot).
+Final Output (return in this structure)
+A5 LOGIN E2E REPORT (READ‑ONLY)
+
+Target: https://student-pilot-jamarrlmayes.replit.app
+Outcome: [PASS | FAIL: SESSION_EXPIRED_BEFORE | FAIL: SESSION_EXPIRED_AFTER | FAIL: CONSENT_LOOP | BLOCKED BY CAPTCHA]
+Evidence:
+HAR: artifacts_a5/a5_login.har
+Screens: artifacts_a5/consent_before.png and consent_after.png OR session_expired.png
+POST Headers: artifacts_a5/post.json (Cookie header present? yes/no)
+Set‑Cookie: artifacts_a5/setcookies.json
+One‑line Reason (use Decision Rules above):
+[e.g., “FAIL — Session Expired after Authorize; Cookie header present on POST; likely signing‑key rotation or non‑persistent adapter.”]
+Agent Rule
+
+Do not propose changes. Only deliver evidence and a reasoned verdict.
