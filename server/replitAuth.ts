@@ -247,8 +247,56 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", authRateLimit, (req, res, next) => {
+    const loginStartTime = Date.now();
     const strategyName = `replitauth:${req.hostname}`;
     console.log(`🔐 Login attempt: hostname=${req.hostname}, strategy=${strategyName}`);
+    
+    // Capture timing on response finish
+    res.on('finish', () => {
+      const totalMs = Date.now() - loginStartTime;
+      
+      // Emit login timing to A8 for SLO monitoring
+      telemetryClient.emit({
+        id: crypto.randomUUID(),
+        app: 'student_pilot',
+        event_name: 'login_timing',
+        ts_iso: new Date().toISOString(),
+        data: {
+          endpoint: '/api/login',
+          ttfb_ms: totalMs,
+          total_ms: totalMs,
+          status_code: res.statusCode,
+          hostname: req.hostname,
+          user_agent: req.get('User-Agent')?.substring(0, 50) || 'unknown',
+          target_p95_ms: 200,
+          target_p50_ms: 120,
+          correlation_id: (req as any).id || crypto.randomUUID(),
+        },
+        schema_version: '1.2',
+        event_id: crypto.randomUUID(),
+        event_type: 'login_timing',
+        ts: new Date().toISOString(),
+        app_id: 'A5',
+        properties: {
+          endpoint: '/api/login',
+          ttfb_ms: totalMs,
+          total_ms: totalMs,
+          status_code: res.statusCode,
+        },
+        app_base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+        env: 'prod',
+        session_id: (req as any).sessionID || 'unknown',
+        _meta: {
+          protocol: 'ONE_TRUTH' as const,
+          version: '1.2' as const,
+        },
+      });
+      
+      // Log timing for debugging
+      if (totalMs > 200) {
+        console.warn(`⚠️  Slow login: ${totalMs}ms (target <200ms)`);
+      }
+    });
     
     passport.authenticate(strategyName, {
       prompt: "login consent",
