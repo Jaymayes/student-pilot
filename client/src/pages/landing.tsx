@@ -33,9 +33,12 @@ export default function Landing() {
             <br />
             <span className="text-primary">Starts Here</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto">
             Discover scholarships tailored to your profile, manage applications effortlessly, 
             and get expert essay assistance—all in one powerful platform.
+          </p>
+          <p className="text-lg text-secondary font-medium mb-8">
+            Get 5 free AI credits when you sign up — no credit card required
           </p>
           <Button 
             size="lg"
@@ -43,7 +46,7 @@ export default function Landing() {
             className="bg-primary hover:bg-blue-700 text-lg px-8 py-4"
             data-testid="button-get-started"
           >
-            Start Your Journey
+            Start Free — 5 Credits Included
           </Button>
         </div>
       </div>
@@ -147,8 +150,11 @@ export default function Landing() {
             <h2 className="text-3xl font-bold text-white mb-4">
               Ready to Find Your Perfect Scholarship?
             </h2>
-            <p className="text-blue-100 text-lg mb-8">
+            <p className="text-blue-100 text-lg mb-4">
               Join thousands of students who have already started their journey to educational funding success.
+            </p>
+            <p className="text-yellow-200 font-medium mb-8">
+              Sign up now and get 5 free AI credits to power your scholarship search
             </p>
             <Button 
               size="lg"
@@ -157,8 +163,28 @@ export default function Landing() {
               className="bg-white text-primary hover:bg-gray-100 text-lg px-8 py-4"
               data-testid="button-join-now"
             >
-              Join ScholarLink Today
+              Start Free — 5 Credits Included
             </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Trust Strip */}
+      <div className="bg-gray-100 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-green-600" />
+              <span>Stripe Secured Payments</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-primary" />
+              <span>Scholar Auth Protected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <PenTool className="w-5 h-5 text-purple-600" />
+              <span>Assistive AI (No Ghostwriting)</span>
+            </div>
           </div>
         </div>
       </div>
