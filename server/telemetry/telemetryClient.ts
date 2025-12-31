@@ -1339,54 +1339,72 @@ export class TelemetryClient {
   }
 
   // Report to Command Center (A8) with exponential backoff retry
+  // Uses /ingest endpoint with same S2S auth that works for telemetry
   async reportToCommandCenter(payload: CommandCenterPayload): Promise<void> {
     if (!this.enabled) return;
 
-    const token = this.getCommandCenterToken();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'X-App-ID': APP_NAME,
-      'X-Source-App': APP_ID,
-      'X-App-Base-URL': APP_BASE_URL
+    // Convert CommandCenterPayload to A8-compatible event format (same as /ingest)
+    const a8Event = {
+      event_type: payload.event_type.toLowerCase(),
+      app_name: APP_NAME,
+      app_id: APP_ID,
+      app_base_url: APP_BASE_URL,
+      timestamp: payload.timestamp,
+      event_id: `cc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      env: 'prod',
+      properties: {
+        message: payload.payload.message,
+        value: payload.payload.value,
+        units: payload.payload.units,
+        ...payload.payload.details
+      },
+      display: payload.display,
+      _meta: {
+        protocol: 'ONE_TRUTH',
+        version: '1.2',
+        source: APP_ID
+      }
     };
 
-    // Per Master System Prompt: Authorization: Bearer {COMMAND_CENTER_TOKEN}
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
     try {
-      const response = await fetch(COMMAND_CENTER_REPORT_URL, {
+      // Use same working S2S headers and /ingest endpoint
+      const response = await fetch(TELEMETRY_WRITE_URL, {
         method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
+        headers: this.getS2SHeaders(true),
+        body: JSON.stringify(a8Event)
       });
 
       if (response.ok) {
         this.ccRetryAttempts = 0;
         this.lastSuccessPrimary = new Date().toISOString();
-        console.log(`✅ Command Center: Reported ${payload.event_type} event`);
         return;
       }
 
-      // On auth failure (401/403/404), also try fallback endpoint per Master Prompt
+      // On auth issues, try fallback silently
       if (response.status === 401 || response.status === 403 || response.status === 404) {
-        console.warn(`⚠️ Command Center: Auth/endpoint issue (${response.status}), trying fallback to A2`);
-        await this.reportToFallbackEndpoint(payload);
+        const fallbackSuccess = await this.reportToFallbackEndpoint(payload);
+        if (fallbackSuccess) {
+          return; // Fallback succeeded, don't requeue
+        }
+        // Fallback also failed, requeue for retry
       }
 
-      // Queue for retry on failure
-      console.warn(`⚠️ Command Center: Report failed (${response.status}), queuing for retry`);
+      // Queue for retry on failures (primary or fallback)
       this.commandCenterQueue.push(payload);
+      if (this.ccRetryAttempts === 0) {
+        console.warn(`⚠️ Command Center: Report queued for retry`);
+      }
+      this.ccRetryAttempts++;
     } catch (error) {
-      console.warn(`⚠️ Command Center: Report exception, queuing for retry`);
+      // Queue for retry on network errors
       this.commandCenterQueue.push(payload);
+      this.ccRetryAttempts++;
     }
   }
 
   // Fallback to A2 (scholarship_api) per Master System Prompt v3 2.4
-  // No token required for fallback; X-App-Display header required
-  private async reportToFallbackEndpoint(payload: CommandCenterPayload): Promise<void> {
+  // Returns true if fallback succeeded, false otherwise
+  private async reportToFallbackEndpoint(payload: CommandCenterPayload): Promise<boolean> {
     // MSP v3 2.4 FALLBACK schema
     const fallbackPayload = {
       events: [{
@@ -1412,13 +1430,13 @@ export class TelemetryClient {
     };
 
     try {
-      // Per MSP v3 2.4: No token required; X-App-Display header
-      const headers: Record<string, string> = { 
-        'Content-Type': 'application/json',
-        'X-App-Display': this.APP_DISPLAY
+      // Use A2 fallback endpoint with per-app auth headers + required MSP v3 headers
+      const headers = {
+        ...this.getS2SHeaders(false), // A2 uses per-app format
+        'X-App-Display': this.APP_DISPLAY // Required by MSP v3 2.4
       };
 
-      const response = await fetch(TELEMETRY_WRITE_URL, {
+      const response = await fetch(TELEMETRY_FALLBACK_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify(fallbackPayload)
@@ -1426,37 +1444,54 @@ export class TelemetryClient {
 
       if (response.ok) {
         this.lastSuccessFallback = new Date().toISOString();
-        console.log(`✅ Fallback A2: Reported ${payload.event_type} event`);
+        console.log(`✅ Fallback: Event sent to A2`);
+        return true;
       }
+      console.warn(`⚠️ Fallback: A2 returned ${response.status}`);
+      return false;
     } catch (error) {
-      console.warn(`⚠️ Fallback A2: Report exception`);
+      console.warn(`⚠️ Fallback: A2 unreachable`);
+      return false;
     }
   }
 
   // Flush queued Command Center events with exponential backoff
+  // Uses /ingest endpoint with same S2S auth that works for telemetry
   async flushCommandCenter(): Promise<void> {
     if (this.commandCenterQueue.length === 0) return;
 
     const eventsToSend = [...this.commandCenterQueue];
     this.commandCenterQueue = [];
 
-    const token = this.getCommandCenterToken();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'X-App-ID': APP_NAME,
-      'X-Source-App': APP_ID,
-      'X-App-Base-URL': APP_BASE_URL
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
     for (const payload of eventsToSend) {
       try {
-        const response = await fetch(COMMAND_CENTER_REPORT_URL, {
+        // Convert to A8-compatible event format
+        const a8Event = {
+          event_type: payload.event_type.toLowerCase(),
+          app_name: APP_NAME,
+          app_id: APP_ID,
+          app_base_url: APP_BASE_URL,
+          timestamp: payload.timestamp,
+          event_id: `cc_flush_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          env: 'prod',
+          properties: {
+            message: payload.payload.message,
+            value: payload.payload.value,
+            units: payload.payload.units,
+            ...payload.payload.details
+          },
+          display: payload.display,
+          _meta: {
+            protocol: 'ONE_TRUTH',
+            version: '1.2',
+            source: APP_ID
+          }
+        };
+
+        const response = await fetch(TELEMETRY_WRITE_URL, {
           method: 'POST',
-          headers,
-          body: JSON.stringify(payload)
+          headers: this.getS2SHeaders(true),
+          body: JSON.stringify(a8Event)
         });
 
         if (!response.ok) {
@@ -1471,7 +1506,7 @@ export class TelemetryClient {
       }
     }
 
-    // Exponential backoff for next retry
+    // Exponential backoff for next retry (silent)
     if (this.commandCenterQueue.length > 0 && this.ccRetryAttempts < this.ccMaxRetries) {
       const backoffMs = Math.min(1000 * Math.pow(2, this.ccRetryAttempts), 60000);
       setTimeout(() => this.flushCommandCenter(), backoffMs);
