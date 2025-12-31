@@ -44,7 +44,16 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 ## AGENT3 Ecosystem Integration
 - Student Pilot (A5) is part of an 8-app ecosystem, communicating via telemetry to A2 (scholarship_api) which feeds A8 (auto_com_center) Command Center UI.
 - Contributes to Command Center Tiles (Finance, B2C, SLO).
-- Supports UTM attribution from A3 (scholarship_agent) for campaign tracking.
+- Supports UTM attribution from A3 (scholarship_agent) and A7 (auto_page_maker) for campaign tracking.
+
+## UTM Attribution Flow (A7→A1→A5)
+- **Capture**: `useUtm.ts` captures UTM params from URL on page load and stores in localStorage (30-day TTL)
+- **Persistence**: localStorage survives OIDC redirects (A7→A1→A5) - this is a fundamental browser behavior
+- **Checkout**: `Billing.tsx` retrieves UTMs via `getUtmForCheckout()` and includes in `/api/billing/create-checkout` request
+- **Stripe Metadata**: Backend conditionally adds non-empty UTM params to Stripe checkout session metadata
+- **Webhook**: `checkout.session.completed` handler reads `session.metadata.utmSource` and includes in `payment_succeeded` telemetry
+- **Command Center**: A8 receives attributed revenue events with source/medium/campaign for ROI analysis
+- **Evidence**: Payment telemetry includes `utmSource` field when present; Command Center Finance tile can segment by source
 
 ## Graceful Degradation
 The application is designed to continue operating when external services are unavailable, with fallbacks for Scholar Auth, Agent Bridge, Telemetry, Neon Database, and M2M Tokens.

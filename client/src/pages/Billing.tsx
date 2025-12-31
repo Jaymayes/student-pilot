@@ -176,17 +176,26 @@ export default function Billing() {
       // Track checkout initiation BEFORE calling API
       markCheckoutStarted(packageCode);
       
+      // Get UTM parameters for attribution (survives OIDC redirect via localStorage)
+      const { getUtmForCheckout } = await import('@/hooks/useUtm');
+      const utmParams = getUtmForCheckout();
+      
       // Emit checkout_initiated event to backend for A8 telemetry
       try {
         await apiRequest('POST', '/api/telemetry/checkout-initiated', { 
           packageCode,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          ...utmParams
         });
       } catch {
         // Non-blocking - continue even if telemetry fails
       }
       
-      const response = await apiRequest('POST', '/api/billing/create-checkout', { packageCode });
+      // Include UTM params for Stripe checkout session metadata (closes attribution loop)
+      const response = await apiRequest('POST', '/api/billing/create-checkout', { 
+        packageCode,
+        ...utmParams
+      });
       return response.json() as Promise<{ url: string; sessionId: string; purchaseId: string }>;
     },
     onSuccess: (data) => {

@@ -2619,14 +2619,17 @@ Allow: /apply/`;
         return res.status(401).json({ error: "User ID not found" });
       }
 
-      // Validate package code (must match CREDIT_PACKAGES keys)
+      // Validate package code and UTM params
       const CheckoutSchema = z.object({
         packageCode: z.enum(['starter', 'professional', 'enterprise'], {
           errorMap: () => ({ message: "Invalid package code. Must be 'starter', 'professional', or 'enterprise'" })
-        })
+        }),
+        utmSource: z.string().optional(),
+        utmMedium: z.string().optional(),
+        utmCampaign: z.string().optional()
       });
       
-      const { packageCode } = CheckoutSchema.parse(req.body);
+      const { packageCode, utmSource, utmMedium, utmCampaign } = CheckoutSchema.parse(req.body);
 
       const packageData = CREDIT_PACKAGES[packageCode as keyof typeof CREDIT_PACKAGES];
 
@@ -2669,6 +2672,9 @@ Allow: /apply/`;
           purchaseId: purchase.id,
           userId: userId,
           packageCode: packageCode,
+          ...(utmSource && { utmSource }),
+          ...(utmMedium && { utmMedium }),
+          ...(utmCampaign && { utmCampaign }),
         },
       });
 

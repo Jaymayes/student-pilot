@@ -529,7 +529,7 @@ export function registerTemporaryCreditEndpoints(app: Express) {
     const requestId = crypto.randomUUID();
     
     try {
-      const { packageCode, userId, userEmail } = req.body;
+      const { packageCode, userId, userEmail, utmSource, utmMedium, utmCampaign } = req.body;
       
       if (!packageCode) {
         metricsCollector.recordPurchase(false);
@@ -587,6 +587,9 @@ export function registerTemporaryCreditEndpoints(app: Express) {
         metadata: {
           userId: userId || 'anonymous',
           packageCode: packageCode,
+          ...(utmSource && { utmSource }),
+          ...(utmMedium && { utmMedium }),
+          ...(utmCampaign && { utmCampaign }),
         },
       });
       
