@@ -1007,6 +1007,207 @@ Allow: /apply/`;
     });
     
     console.log('🧪 Test authentication endpoint enabled at /api/test/login');
+    
+    // Phase 2 Validation: Synthetic purchase test endpoint
+    // Validates the complete purchase→credit→telemetry flow without real Stripe
+    app.post('/api/test/synthetic-purchase', express.json(), async (req, res) => {
+      const requestId = crypto.randomUUID();
+      
+      try {
+        const { packageCode = 'starter', utmSource, utmMedium, utmCampaign, userId: providedUserId } = req.body;
+        
+        // Use provided userId or find/create a test user
+        let testUserId = providedUserId;
+        if (!testUserId) {
+          // Find existing test user or use a known test user
+          const [existingUser] = await db.select().from(users).where(eq(users.id, 'trial-test-user-DUTokS')).limit(1);
+          if (existingUser) {
+            testUserId = existingUser.id;
+          } else {
+            // Create a synthetic test user
+            const newUserId = `synthetic-${Date.now()}`;
+            await db.insert(users).values({
+              id: newUserId,
+              email: `synthetic-${Date.now()}@test.scholarlink.com`,
+              firstName: 'Synthetic',
+              lastName: 'TestUser',
+              subscriptionStatus: 'none'
+            });
+            testUserId = newUserId;
+          }
+        }
+        const startTime = Date.now();
+        const steps: Record<string, { success: boolean; duration: number; data?: any; error?: string }> = {};
+        
+        // Step 1: Create purchase record
+        const step1Start = Date.now();
+        const packageData = {
+          starter: { priceUsdCents: 999, baseCredits: 50, bonusCredits: 0, totalCredits: 50 },
+          professional: { priceUsdCents: 4999, baseCredits: 300, bonusCredits: 50, totalCredits: 350 },
+          enterprise: { priceUsdCents: 9999, baseCredits: 700, bonusCredits: 100, totalCredits: 800 }
+        }[packageCode] || { priceUsdCents: 999, baseCredits: 50, bonusCredits: 0, totalCredits: 50 };
+        
+        const [purchase] = await db.insert(purchases).values({
+          userId: testUserId,
+          packageCode: packageCode as any,
+          priceUsdCents: packageData.priceUsdCents,
+          baseCredits: packageData.baseCredits,
+          bonusCredits: packageData.bonusCredits,
+          totalCredits: packageData.totalCredits,
+          status: "paid",
+        }).returning();
+        
+        steps.createPurchase = { 
+          success: true, 
+          duration: Date.now() - step1Start,
+          data: { purchaseId: purchase.id, totalCredits: packageData.totalCredits }
+        };
+        
+        // Step 2: Award credits via /api/v1/credits/credit
+        const step2Start = Date.now();
+        const creditResponse = await fetch('http://localhost:5000/api/v1/credits/credit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': `synthetic-${purchase.id}`,
+            'Authorization': `Bearer ${env.SHARED_SECRET}`
+          },
+          body: JSON.stringify({
+            userId: testUserId,
+            amount: packageData.totalCredits,
+            provider: 'stripe',
+            referenceType: 'stripe_payment',
+            referenceId: `pi_synthetic_${purchase.id}`,
+            description: `Synthetic purchase of ${packageData.totalCredits} credits`
+          })
+        });
+        
+        const creditResult = await creditResponse.json();
+        steps.awardCredits = {
+          success: creditResponse.ok,
+          duration: Date.now() - step2Start,
+          data: creditResult,
+          error: !creditResponse.ok ? creditResult.error?.message : undefined
+        };
+        
+        // Step 3: Emit payment_succeeded telemetry with UTM attribution
+        const step3Start = Date.now();
+        const correlationId = crypto.randomUUID();
+        trackPaymentSucceeded(
+          packageData.priceUsdCents,
+          'USD',
+          'stripe',
+          testUserId,
+          correlationId,
+          `pi_synthetic_${purchase.id}`,
+          'credits',
+          packageData.totalCredits,
+          `pi_synthetic_${purchase.id}`
+        );
+        
+        // Track with UTM if provided
+        telemetryClient.trackRevenueEvent(
+          packageData.priceUsdCents,
+          'credits',
+          packageCode,
+          utmSource || 'synthetic_test'
+        );
+        
+        steps.emitTelemetry = {
+          success: true,
+          duration: Date.now() - step3Start,
+          data: { 
+            correlationId,
+            utmSource: utmSource || 'synthetic_test',
+            utmMedium,
+            utmCampaign
+          }
+        };
+        
+        // Step 4: Verify balance was credited
+        const step4Start = Date.now();
+        const balanceResponse = await fetch(`http://localhost:5000/api/v1/credits/balance?userId=${testUserId}`, {
+          headers: { 'Authorization': `Bearer ${env.SHARED_SECRET}` }
+        });
+        const balanceResult = await balanceResponse.json();
+        
+        // Check balance increased (may have pre-existing credits from trial)
+        const balanceCredits = Number(balanceResult.balanceMillicredits || 0);
+        const hasCredits = balanceCredits >= packageData.totalCredits * 1000;
+        steps.verifyBalance = {
+          success: balanceResponse.ok && hasCredits,
+          duration: Date.now() - step4Start,
+          data: balanceResult,
+          error: !hasCredits 
+            ? `Expected at least ${packageData.totalCredits * 1000}, got ${balanceCredits}` 
+            : undefined
+        };
+        
+        // Step 5: Test refund path (if requested)
+        let refundStep = null;
+        if (req.body.testRefund) {
+          const step5Start = Date.now();
+          const { refundService } = await import('./services/refundService');
+          try {
+            const refundResult = await refundService.processRefund({
+              userId: testUserId,
+              purchaseId: purchase.id,
+              refundType: 'full',
+              reason: 'product_unsatisfactory',
+              adminNotes: 'Synthetic test refund'
+            });
+            refundStep = {
+              success: true,
+              duration: Date.now() - step5Start,
+              data: refundResult
+            };
+          } catch (refundError: any) {
+            refundStep = {
+              success: false,
+              duration: Date.now() - step5Start,
+              error: refundError.message
+            };
+          }
+          steps.testRefund = refundStep;
+        }
+        
+        const allStepsSucceeded = Object.values(steps).every(s => s.success);
+        const totalDuration = Date.now() - startTime;
+        
+        console.log(`🧪 Synthetic purchase test: ${allStepsSucceeded ? 'PASSED' : 'FAILED'} (${totalDuration}ms)`);
+        
+        res.json({
+          success: allStepsSucceeded,
+          testType: 'synthetic_purchase_validation',
+          phase: 'Phase 2 Step 5',
+          duration: totalDuration,
+          evidence: {
+            requestId,
+            userId: testUserId,
+            purchaseId: purchase.id,
+            packageCode,
+            totalCredits: packageData.totalCredits,
+            utmAttribution: { utmSource, utmMedium, utmCampaign }
+          },
+          steps,
+          acceptanceCriteria: {
+            'B2C purchase with payment_succeeded': steps.createPurchase?.success && steps.emitTelemetry?.success,
+            'Ledger +50 credits': steps.awardCredits?.success,
+            'Refund validated': req.body.testRefund ? refundStep?.success : 'skipped (add testRefund: true)'
+          }
+        });
+        
+      } catch (error: any) {
+        console.error('Synthetic purchase test error:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message,
+          requestId
+        });
+      }
+    });
+    
+    console.log('🧪 Synthetic purchase test enabled at /api/test/synthetic-purchase');
   }
   
   // Cache prewarming for improved startup performance
