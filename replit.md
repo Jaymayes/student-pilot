@@ -55,6 +55,16 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **Command Center**: A8 receives attributed revenue events with source/medium/campaign for ROI analysis
 - **Evidence**: Payment telemetry includes `utmSource` field when present; Command Center Finance tile can segment by source
 
+## Learning Loop (Phase 3 - Won Deal Automation)
+- **Service**: `server/services/learningLoop.ts` - singleton service for closed-loop learning
+- **Trigger**: `triggerWonDeal()` called on every successful payment (fire-and-forget with error logging)
+- **Lead Elevation**: Calls A3 `/api/leads/won-deal` to elevate lead_score to 100 and move user to Customer segment
+- **Revenue by Page**: Calls A7 `/api/revenue-by-page` with UTM/pageSlug data for SEO ROI analysis
+- **LTV Tracking**: In-memory calculation of totalSpentCents, totalCredits, purchaseCount, ARPU
+- **Telemetry Events**: `won_deal`, `ltv_updated`, `lead_score_elevated`, `revenue_by_page_updated`
+- **A8 Automation**: POST to `/api/automations/won-deal` for Command Center workflow triggers
+- **Graceful Degradation**: All external calls wrapped in try/catch - payment flow never blocked on learning loop failures
+
 ## Graceful Degradation
 The application is designed to continue operating when external services are unavailable, with fallbacks for Scholar Auth, Agent Bridge, Telemetry, Neon Database, and M2M Tokens.
 
