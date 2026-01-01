@@ -36,6 +36,7 @@ import { applicationAutofillService } from "./services/applicationAutofill";
 import { enhancedEssayAssistanceService } from "./services/enhancedEssayAssistance";
 import { refundService } from "./services/refundService";
 import { paymentKpiService } from "./services/paymentKpiService";
+import { learningLoopService } from "./services/learningLoop";
 import { responseCache } from "./cache/responseCache";
 import { jwtCache, cachedJWTMiddleware } from "./jwtCache";
 import { pilotDashboard } from "./monitoring/pilotDashboard";
@@ -1112,6 +1113,18 @@ Allow: /apply/`;
           packageCode,
           utmSource || 'synthetic_test'
         );
+        
+        // Phase 3: Trigger Won Deal automation (learning loop)
+        await learningLoopService.triggerWonDeal({
+          userId: testUserId,
+          amountCents: packageData.priceUsdCents,
+          credits: packageData.totalCredits,
+          packageCode,
+          utmSource: utmSource || 'synthetic_test',
+          utmMedium,
+          utmCampaign,
+          correlationId
+        });
         
         steps.emitTelemetry = {
           success: true,
@@ -3078,6 +3091,19 @@ Allow: /apply/`;
         
         // Protocol v3.4.1: Emit purchase funnel event
         telemetryClient.trackPurchaseFunnel(revenueUsd, { userId, product: packageCode });
+        
+        // Phase 3: Won Deal automation - elevate lead, update revenue by page, track LTV
+        learningLoopService.triggerWonDeal({
+          userId,
+          amountCents,
+          credits: creditsAmount,
+          packageCode,
+          utmSource: session.metadata?.utmSource,
+          utmMedium: session.metadata?.utmMedium,
+          utmCampaign: session.metadata?.utmCampaign,
+          pageSlug: session.metadata?.pageSlug,
+          correlationId
+        }).catch((err) => console.warn('⚠️ Learning Loop: Won Deal async error:', err));
         
         console.log(`✅ Purchase ${purchaseId} completed and credits awarded`);
       }
