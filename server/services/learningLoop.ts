@@ -74,47 +74,80 @@ export class LearningLoopService {
   }
 
   private async elevateLeadScore(payload: WonDealPayload): Promise<void> {
-    try {
-      const response = await fetch(`${this.a3BaseUrl}/api/leads/won-deal`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${env.SHARED_SECRET}`,
-          'X-Correlation-ID': payload.correlationId,
-          'X-Source-App': 'student_pilot'
-        },
-        body: JSON.stringify({
-          userId: payload.userId,
-          action: 'elevate_to_customer',
-          leadScore: 100,
-          segment: 'Customer',
-          suppressReacquisition: true,
-          purchaseData: {
-            amountCents: payload.amountCents,
-            credits: payload.credits,
-            packageCode: payload.packageCode
-          },
-          utmAttribution: {
-            source: payload.utmSource,
-            medium: payload.utmMedium,
-            campaign: payload.utmCampaign
-          }
-        })
-      });
+    const automationPayload = {
+      lead_id: payload.userId,
+      user_id: payload.userId,
+      new_score: 100,
+      reason: 'payment_succeeded',
+      purchase_data: {
+        amount_cents: payload.amountCents,
+        credits: payload.credits,
+        package_code: payload.packageCode
+      },
+      utm_attribution: {
+        source: payload.utmSource,
+        medium: payload.utmMedium,
+        campaign: payload.utmCampaign
+      },
+      correlation_id: payload.correlationId
+    };
 
-      if (response.ok) {
-        console.log(`✅ A3: Lead score elevated for user ${payload.userId}`);
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.SHARED_SECRET}`,
+      'X-Correlation-ID': payload.correlationId,
+      'X-Source-App': 'student_pilot'
+    };
+
+    try {
+      const [elevateRes, moveRes, upsellRes] = await Promise.allSettled([
+        fetch(`${this.a3BaseUrl}/api/automation/elevate_lead_score`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(automationPayload)
+        }),
+        fetch(`${this.a3BaseUrl}/api/automation/move_to_customer_segment`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            user_id: payload.userId,
+            new_segment: 'Customer',
+            suppress_reacquisition: true,
+            correlation_id: payload.correlationId
+          })
+        }),
+        fetch(`${this.a3BaseUrl}/api/automation/enroll_upsell_sequence`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            user_id: payload.userId,
+            current_package: payload.packageCode,
+            credits_purchased: payload.credits,
+            correlation_id: payload.correlationId
+          })
+        })
+      ]);
+
+      const elevateOk = elevateRes.status === 'fulfilled' && elevateRes.value.ok;
+      const moveOk = moveRes.status === 'fulfilled' && moveRes.value.ok;
+      const upsellOk = upsellRes.status === 'fulfilled' && upsellRes.value.ok;
+
+      if (elevateOk || moveOk || upsellOk) {
+        console.log(`✅ A3: Automation calls completed (elevate:${elevateOk}, move:${moveOk}, upsell:${upsellOk})`);
         telemetryClient.track('lead_score_elevated', {
           userId: payload.userId,
           newSegment: 'Customer',
           source: 'won_deal',
+          automationResults: { elevate: elevateOk, move: moveOk, upsell: upsellOk },
           correlationId: payload.correlationId
         });
       } else {
-        console.warn(`⚠️ A3: Lead elevation failed (${response.status}) - continuing gracefully`);
+        const elevateStatus = elevateRes.status === 'fulfilled' ? elevateRes.value.status : 'failed';
+        const moveStatus = moveRes.status === 'fulfilled' ? moveRes.value.status : 'failed';
+        console.warn(`⚠️ A3: Automation endpoints not ready (elevate:${elevateStatus}, move:${moveStatus}) - continuing gracefully`);
       }
     } catch (error) {
-      console.warn('⚠️ A3: Lead score elevation unavailable - continuing gracefully');
+      console.warn('⚠️ A3: Automation endpoints unavailable - continuing gracefully');
     }
   }
 
