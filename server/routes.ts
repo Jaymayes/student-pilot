@@ -539,6 +539,36 @@ Allow: /apply/`;
       }
     });
   });
+
+  app.get('/api/slo/probe', async (req, res) => {
+    const start = Date.now();
+    const checks: Record<string, { status: string; latency_ms: number }> = {};
+    
+    try {
+      const dbStart = Date.now();
+      await db.execute(sql`SELECT 1`);
+      checks.database = { status: 'ok', latency_ms: Date.now() - dbStart };
+    } catch {
+      checks.database = { status: 'error', latency_ms: Date.now() - start };
+    }
+    
+    const sessionStart = Date.now();
+    const sessionCheck = req.session ? 'ok' : 'no_session';
+    checks.session = { status: sessionCheck, latency_ms: Date.now() - sessionStart };
+    
+    const totalLatency = Date.now() - start;
+    const sloMet = totalLatency <= 120;
+    
+    res.status(200).json({
+      status: 'ok',
+      probe: 'login_path',
+      latency_ms: totalLatency,
+      slo_target_ms: 120,
+      slo_met: sloMet,
+      checks,
+      timestamp: new Date().toISOString()
+    });
+  });
   
   app.get('/api/metrics/basic', (req, res) => {
     const httpStats = metricsCollector.getHttpMetrics();
