@@ -231,6 +231,7 @@ export async function setupAuth(app: Express) {
       callbackURL: domain.includes('localhost') 
         ? `http://${domain}:5000/api/callback`
         : `https://${domain}/api/callback`,
+      // Note: openid-client v6 automatically handles PKCE S256 based on server discovery
     };
     
     // Add client authentication for Scholar Auth
