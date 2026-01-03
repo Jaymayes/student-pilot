@@ -153,8 +153,8 @@ export interface TelemetryStatus {
   primary_endpoint: string;
   fallback_endpoint: string;
   auth_configured: boolean;
-  protocol: 'ONE_TRUTH';
-  version: 'v1.2';
+  protocol: string;
+  version: string;
 }
 
 export class TelemetryClient {
@@ -203,11 +203,11 @@ export class TelemetryClient {
       last_error: this.lastError,
       last_error_ts: this.lastErrorTs,
       failed_attempts: this.failedAttempts,
-      primary_endpoint: TELEMETRY_WRITE_URL,
+      primary_endpoint: TELEMETRY_EVENTS_URL,
       fallback_endpoint: TELEMETRY_FALLBACK_URL,
-      auth_configured: !!SHARED_SECRET || !!this.authToken,
-      protocol: 'ONE_TRUTH',
-      version: 'v1.2'
+      auth_configured: !!SHARED_SECRET || !!this.authToken || !!S2S_API_KEY,
+      protocol: 'v3.5.1',
+      version: PROTOCOL_VERSION
     };
   }
 
@@ -329,9 +329,14 @@ export class TelemetryClient {
     this.emit(event);
   }
 
-  private getS2SHeaders(forA8: boolean = true): Record<string, string> {
+  private getS2SHeaders(forA8: boolean = true, eventId?: string): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      // Protocol v3.5.1 REQUIRED headers
+      'x-scholar-protocol': PROTOCOL_VERSION,
+      'x-app-label': APP_LABEL,
+      'x-event-id': eventId || crypto.randomUUID(),
+      // Legacy headers for backward compatibility
       'X-App-Id': APP_ID,
       'X-Source-App': APP_NAME,
       'X-Request-Type': 'S2S',
@@ -339,24 +344,32 @@ export class TelemetryClient {
       'X-Idempotency-Key': crypto.randomUUID()
     };
     
-    // S2S Authentication varies by destination:
-    // - A8 (Command Center): Uses S2S_API_KEY directly
-    // - A2/A4 (fallback): Uses per-app format: <app_id>:<secret>
+    // Protocol v3.5.1 S2S Authentication
+    // Required: X-API-Token (for API access) and X-Service-Auth (for service identity)
     if (forA8) {
       // A8 Command Center: Use S2S_API_KEY (Master Go-Live Prompt)
       if (S2S_API_KEY) {
+        headers['X-API-Token'] = S2S_API_KEY;
+        headers['X-Service-Auth'] = `${APP_ID}:${S2S_API_KEY}`;
         headers['Authorization'] = `Bearer ${S2S_API_KEY}`;
       } else if (this.authToken) {
+        headers['X-API-Token'] = this.authToken;
+        headers['X-Service-Auth'] = `${APP_ID}:${this.authToken}`;
         headers['Authorization'] = `Bearer ${this.authToken}`;
       } else if (SHARED_SECRET) {
-        // Fallback to per-app format if no S2S_API_KEY
+        headers['X-API-Token'] = SHARED_SECRET;
+        headers['X-Service-Auth'] = `${APP_ID}:${SHARED_SECRET}`;
         headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
       }
     } else {
-      // A2/A4: Per-app secret format required
+      // A2/A4 fallback: Per-app secret format
       if (this.authToken) {
+        headers['X-API-Token'] = this.authToken;
+        headers['X-Service-Auth'] = `${APP_ID}:${this.authToken}`;
         headers['Authorization'] = `Bearer ${this.authToken}`;
       } else if (SHARED_SECRET) {
+        headers['X-API-Token'] = SHARED_SECRET;
+        headers['X-Service-Auth'] = `${APP_ID}:${SHARED_SECRET}`;
         headers['Authorization'] = `Bearer ${APP_ID}:${SHARED_SECRET}`;
       }
     }
@@ -404,8 +417,9 @@ export class TelemetryClient {
       return;
     }
 
-    // LOUD LOGGING: Make S2S failures visible for debugging
-    console.log(`📊 Telemetry: Attempting to flush ${eventsToSend.length} events to ${TELEMETRY_WRITE_URL}`);
+    // Protocol v3.5.1: Use /events endpoint (not legacy /ingest)
+    const primaryEndpoint = TELEMETRY_EVENTS_URL;
+    console.log(`📊 Telemetry v3.5.1: Attempting to flush ${eventsToSend.length} events to ${primaryEndpoint}`);
     
     // Debug logging (only when TELEMETRY_DEBUG env var is set)
     if (process.env.TELEMETRY_DEBUG === 'true') {
@@ -436,9 +450,9 @@ export class TelemetryClient {
           _meta: event._meta
         };
         
-        const response = await fetch(TELEMETRY_WRITE_URL, {
+        const response = await fetch(primaryEndpoint, {
           method: 'POST',
-          headers: this.getS2SHeaders(true), // A8 uses S2S_API_KEY
+          headers: this.getS2SHeaders(true, event.id), // A8 uses S2S_API_KEY with v3.5.1 headers
           body: JSON.stringify(a8Payload)
         });
 
