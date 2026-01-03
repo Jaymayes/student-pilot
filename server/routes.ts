@@ -526,6 +526,9 @@ Allow: /apply/`;
     const rolloutPct = env.BILLING_ROLLOUT_PERCENTAGE || 0;
     const stripeMode = rolloutPct >= 100 ? 'live_mode' : (rolloutPct > 0 ? 'mixed_mode' : 'test_mode');
     
+    res.setHeader('X-System-Identity', `A5 ${appName}`);
+    res.setHeader('X-App-Base-URL', appBaseUrl);
+    
     res.status(200).json({ 
       status: 'ok',
       app: appName,
@@ -940,6 +943,11 @@ Allow: /apply/`;
   });
   
   app.get('/status', (req, res) => {
+    const appName = process.env.APP_NAME || 'student_pilot';
+    const appBaseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
+    res.setHeader('X-System-Identity', `A5 ${appName}`);
+    res.setHeader('X-App-Base-URL', appBaseUrl);
+    
     res.status(200).json({ 
       status: 'healthy',
       uptime: process.uptime(),
@@ -949,8 +957,13 @@ Allow: /apply/`;
   });
   
   app.get('/api/status', (req, res) => {
+    const appName = process.env.APP_NAME || 'student_pilot';
+    const appBaseUrl = process.env.APP_BASE_URL || 'https://student-pilot-jamarrlmayes.replit.app';
     const rolloutPct = env.BILLING_ROLLOUT_PERCENTAGE || 0;
     const stripeMode = rolloutPct >= 100 ? 'live_mode' : (rolloutPct > 0 ? 'mixed_mode' : 'test_mode');
+    
+    res.setHeader('X-System-Identity', `A5 ${appName}`);
+    res.setHeader('X-App-Base-URL', appBaseUrl);
     
     res.status(200).json({ 
       status: 'operational',
