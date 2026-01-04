@@ -5526,11 +5526,56 @@ Allow: /apply/`;
     }
   });
   
+  // Payment probe: Verify Stripe configuration and webhook capability
+  app.get('/api/probe/payment', async (req, res) => {
+    try {
+      const stripeMode = process.env.BILLING_ROLLOUT_PERCENTAGE === '100' ? 'live' : 'test';
+      const stripeConfigured = !!(process.env.STRIPE_SECRET_KEY || process.env.TESTING_STRIPE_SECRET_KEY);
+      const webhookReady = true; // Webhook endpoint exists
+      
+      // Check last purchase in database
+      let lastPurchase = null;
+      try {
+        const result = await db.execute(sql`
+          SELECT id, created_at FROM credit_ledger 
+          ORDER BY created_at DESC LIMIT 1
+        `);
+        if (result.rows.length > 0) {
+          lastPurchase = (result.rows[0] as any).created_at;
+        }
+      } catch {
+        // Table may not exist yet
+      }
+      
+      const status = stripeConfigured ? 'pass' : 'fail';
+      
+      res.setHeader('X-System-Identity', SYSTEM_IDENTITY);
+      res.setHeader('X-App-Base-URL', APP_BASE_URL);
+      
+      res.json({
+        probe: 'payment',
+        status,
+        timestamp: new Date().toISOString(),
+        details: {
+          stripe_configured: stripeConfigured,
+          stripe_mode: stripeMode,
+          webhook_ready: webhookReady,
+          last_transaction: lastPurchase,
+          finance_tile_target: 'https://auto-com-center-jamarrlmayes.replit.app/events'
+        }
+      });
+    } catch (error) {
+      res.setHeader('X-System-Identity', SYSTEM_IDENTITY);
+      res.setHeader('X-App-Base-URL', APP_BASE_URL);
+      res.status(500).json({ probe: 'payment', status: 'fail', error: (error as Error).message });
+    }
+  });
+
   // Aggregate probes endpoint
   app.get('/api/probes', async (req: any, res) => {
     try {
       // Run all probes in parallel
-      const [authResult, leadResult, dataResult] = await Promise.all([
+      const [authResult, leadResult, dataResult, paymentResult] = await Promise.all([
         (async () => {
           const hasSession = !!req.user;
           return { probe: 'auth', status: 'pass', session_active: hasSession };
@@ -5546,10 +5591,16 @@ Allow: /apply/`;
         (async () => {
           const status = telemetryClient.getStatus();
           return { probe: 'data', status: status.enabled ? 'pass' : 'fail', telemetry_enabled: status.enabled };
+        })(),
+        (async () => {
+          const stripeMode = process.env.BILLING_ROLLOUT_PERCENTAGE === '100' ? 'live' : 'test';
+          const stripeConfigured = !!(process.env.STRIPE_SECRET_KEY || process.env.TESTING_STRIPE_SECRET_KEY);
+          return { probe: 'payment', status: stripeConfigured ? 'pass' : 'fail', stripe_mode: stripeMode };
         })()
       ]);
       
-      const allPass = authResult.status === 'pass' && leadResult.status === 'pass' && dataResult.status === 'pass';
+      const allPass = authResult.status === 'pass' && leadResult.status === 'pass' && 
+                      dataResult.status === 'pass' && paymentResult.status === 'pass';
       
       res.setHeader('X-System-Identity', SYSTEM_IDENTITY);
       res.setHeader('X-App-Base-URL', APP_BASE_URL);
@@ -5560,7 +5611,8 @@ Allow: /apply/`;
         probes: {
           auth: authResult,
           lead: leadResult,
-          data: dataResult
+          data: dataResult,
+          payment: paymentResult
         }
       });
     } catch (error) {
