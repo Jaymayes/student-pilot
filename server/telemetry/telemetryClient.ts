@@ -29,15 +29,16 @@ function getEnvValue(): 'prod' | 'staging' | 'dev' {
 
 // Protocol v3.5.1: PRIMARY telemetry endpoint (A8 Command Center)
 const COMMAND_CENTER_URL = process.env.AUTO_COM_CENTER_BASE_URL || 'https://auto-com-center-jamarrlmayes.replit.app';
-// v3.5.1: POST to /events (primary), /api/events as fallback
+// v3.5.1: POST to /events (primary), /api/events as fallback - NO LEGACY /ingest
 const TELEMETRY_EVENTS_URL = `${COMMAND_CENTER_URL}/events`;
 const TELEMETRY_EVENTS_URL_ALIAS = `${COMMAND_CENTER_URL}/api/events`;
-const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${COMMAND_CENTER_URL}/ingest`;
-const TELEMETRY_WRITE_URL_ALIAS = `${COMMAND_CENTER_URL}/api/ingest`;
-// Protocol v3.4.1: FALLBACK telemetry endpoint (A2 scholarship_api)
-const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || `${SCHOLARSHIP_API_BASE}/telemetry/ingest`;
-// Command Center reporting endpoint (legacy - keep for backward compatibility)
-const COMMAND_CENTER_REPORT_URL = `${COMMAND_CENTER_URL}/api/report`;
+// v3.5.1: All endpoints now use /events (legacy /ingest removed per MAX AUTONOMOUS fix)
+const TELEMETRY_WRITE_URL = process.env.TELEMETRY_WRITE_URL || `${COMMAND_CENTER_URL}/events`;
+const TELEMETRY_WRITE_URL_ALIAS = `${COMMAND_CENTER_URL}/api/events`;
+// Protocol v3.5.1: FALLBACK telemetry endpoint (A2 scholarship_api) - use /events
+const TELEMETRY_FALLBACK_URL = process.env.TELEMETRY_FALLBACK_URL || `${SCHOLARSHIP_API_BASE}/events`;
+// Command Center reporting endpoint (v3.5.1 - use /events for all)
+const COMMAND_CENTER_REPORT_URL = `${COMMAND_CENTER_URL}/events`;
 const FLUSH_INTERVAL_MS = parseInt(process.env.TELEMETRY_FLUSH_INTERVAL_MS || '10000');
 const BATCH_MAX = parseInt(process.env.TELEMETRY_BATCH_MAX || '100');
 // Master System Prompt intervals
@@ -261,7 +262,7 @@ export class TelemetryClient {
       tile?: string;
     } = {}
   ): TelemetryEvent {
-    // Protocol v3.3.1: Include app_label in all events
+    // Protocol v3.5.1: Include app_label in all events
     const enrichedData: Record<string, unknown> = {
       ...properties,
       app_base_url: APP_BASE_URL,
@@ -273,17 +274,17 @@ export class TelemetryClient {
     const timestamp = new Date().toISOString();
     const eventUuid = crypto.randomUUID();
 
-    // Protocol v3.3.1 DUAL-FIELD envelope per Master Prompt:
-    // - v3.3.1: app_id (A5), app_name (student_pilot), app_base_url, app_label
+    // Protocol v3.5.1 DUAL-FIELD envelope per Master Prompt:
+    // - v3.5.1: app_id (A5), app_name (student_pilot), app_base_url, app_label
     // - Legacy duplicates: app_id, event_type, ts, properties, event_id
     return {
-      // v3.3.1 canonical fields (per Master Prompt specification)
-      id: eventUuid, // v3.3.1: canonical uuid
-      app: APP_NAME, // v3.3.1: student_pilot (for Protocol ONE_TRUTH compatibility)
-      event_name: eventType, // v3.3.1: Master Prompt canonical field
-      ts_iso: timestamp, // v3.3.1: Master Prompt canonical field (ISO-8601)
-      data: enrichedData, // v3.3.1: canonical data field
-      schema_version: PROTOCOL_VERSION, // v3.3.1: schema version identifier
+      // v3.5.1 canonical fields (per Master Prompt specification)
+      id: eventUuid, // v3.5.1: canonical uuid
+      app: APP_NAME, // v3.5.1: student_pilot (for Protocol ONE_TRUTH compatibility)
+      event_name: eventType, // v3.5.1: Master Prompt canonical field
+      ts_iso: timestamp, // v3.5.1: Master Prompt canonical field (ISO-8601)
+      data: enrichedData, // v3.5.1: canonical data field
+      schema_version: PROTOCOL_VERSION, // v3.5.1: schema version identifier
       // Legacy duplicate fields (backward compatibility with deployed endpoints)
       event_id: eventUuid, // Legacy: duplicate of id
       event_type: eventType, // Legacy: endpoints expect "event_type"
@@ -480,7 +481,7 @@ export class TelemetryClient {
 
     if (successCount > 0) {
       this.recordSuccess();
-      console.log(`✅ Telemetry: Successfully sent ${successCount}/${eventsToSend.length} events to A8 Command Center (/ingest)`);
+      console.log(`✅ Telemetry v3.5.1: Successfully sent ${successCount}/${eventsToSend.length} events to A8 Command Center (/events)`);
     }
     
     // Retry failed events with fallback
@@ -500,8 +501,8 @@ export class TelemetryClient {
       timestamp: new Date().toISOString()
     });
 
-    // Protocol v3.3.1: Try alias URL first (/api/ingest), then fallback to A2
-    console.log(`📊 Telemetry: Trying alias endpoint ${TELEMETRY_WRITE_URL_ALIAS}`);
+    // Protocol v3.5.1: Try alias URL first (/api/events), then fallback to A2
+    console.log(`📊 Telemetry v3.5.1: Trying alias endpoint ${TELEMETRY_WRITE_URL_ALIAS}`);
     try {
       const aliasResponse = await fetch(TELEMETRY_WRITE_URL_ALIAS, {
         method: 'POST',
@@ -511,16 +512,16 @@ export class TelemetryClient {
 
       if (aliasResponse.ok) {
         this.recordSuccess();
-        console.log(`✅ Telemetry: Flushed ${events.length} events to A8 alias (/api/ingest)`);
+        console.log(`✅ Telemetry v3.5.1: Flushed ${events.length} events to A8 alias (/api/events)`);
         return;
       }
-      console.log(`📊 Telemetry: Alias returned ${aliasResponse.status}, trying A2 fallback`);
+      console.log(`📊 Telemetry v3.5.1: Alias returned ${aliasResponse.status}, trying A2 fallback`);
     } catch (aliasError) {
-      console.log(`📊 Telemetry: Alias failed, trying A2 fallback`);
+      console.log(`📊 Telemetry v3.5.1: Alias failed, trying A2 fallback`);
     }
 
-    // Fallback to A2 (/telemetry/ingest)
-    console.log(`📊 Telemetry: Trying fallback endpoint ${TELEMETRY_FALLBACK_URL}`);
+    // Fallback to A2 (/events) - v3.5.1 compliant
+    console.log(`📊 Telemetry v3.5.1: Trying fallback endpoint ${TELEMETRY_FALLBACK_URL}`);
     try {
       const response = await fetch(TELEMETRY_FALLBACK_URL, {
         method: 'POST',
@@ -530,7 +531,7 @@ export class TelemetryClient {
 
       if (response.ok) {
         this.recordSuccess();
-        console.log(`✅ Telemetry: Flushed ${events.length} events to A2 fallback (/telemetry/ingest)`);
+        console.log(`✅ Telemetry v3.5.1: Flushed ${events.length} events to A2 fallback (/events)`);
         return;
       }
 
@@ -1353,11 +1354,11 @@ export class TelemetryClient {
   }
 
   // Report to Command Center (A8) with exponential backoff retry
-  // Uses /ingest endpoint with same S2S auth that works for telemetry
+  // Uses /events endpoint (v3.5.1) with S2S auth
   async reportToCommandCenter(payload: CommandCenterPayload): Promise<void> {
     if (!this.enabled) return;
 
-    // Convert CommandCenterPayload to A8-compatible event format (same as /ingest)
+    // Convert CommandCenterPayload to A8-compatible event format (/events v3.5.1)
     const a8Event = {
       event_type: payload.event_type.toLowerCase(),
       app_name: APP_NAME,
@@ -1381,7 +1382,7 @@ export class TelemetryClient {
     };
 
     try {
-      // Use same working S2S headers and /ingest endpoint
+      // Use S2S headers with /events endpoint (v3.5.1)
       const response = await fetch(TELEMETRY_WRITE_URL, {
         method: 'POST',
         headers: this.getS2SHeaders(true),
@@ -1470,7 +1471,7 @@ export class TelemetryClient {
   }
 
   // Flush queued Command Center events with exponential backoff
-  // Uses /ingest endpoint with same S2S auth that works for telemetry
+  // Uses /events endpoint (v3.5.1) with S2S auth
   async flushCommandCenter(): Promise<void> {
     if (this.commandCenterQueue.length === 0) return;
 

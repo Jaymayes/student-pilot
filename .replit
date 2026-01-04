@@ -47,4 +47,4 @@ integrations = ["javascript_openai:1.0.0", "javascript_object_storage:1.0.0", "j
 [userenv.shared]
 APP_BASE_URL = "https://student-pilot-jamarrlmayes.replit.app"
 APP_NAME = "student_pilot"
-BILLING_ROLLOUT_PERCENTAGE = "1"
+BILLING_ROLLOUT_PERCENTAGE = "100"
