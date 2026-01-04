@@ -5529,25 +5529,50 @@ Allow: /apply/`;
   // Payment probe: Verify Stripe configuration and webhook capability
   app.get('/api/probe/payment', async (req, res) => {
     try {
-      const stripeMode = process.env.BILLING_ROLLOUT_PERCENTAGE === '100' ? 'live' : 'test';
-      const stripeConfigured = !!(process.env.STRIPE_SECRET_KEY || process.env.TESTING_STRIPE_SECRET_KEY);
-      const webhookReady = true; // Webhook endpoint exists
+      const rolloutPct = parseInt(process.env.BILLING_ROLLOUT_PERCENTAGE || '0', 10);
+      const isLiveMode = rolloutPct === 100;
+      const stripeMode = isLiveMode ? 'live' : 'test';
       
-      // Check last purchase in database
-      let lastPurchase = null;
+      // Check if correct keys are present for the mode
+      const hasLiveKey = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_live_');
+      const hasTestKey = !!process.env.TESTING_STRIPE_SECRET_KEY && process.env.TESTING_STRIPE_SECRET_KEY.startsWith('sk_test_');
+      
+      // Determine if Stripe is properly configured for current mode
+      const stripeConfigured = isLiveMode ? hasLiveKey : hasTestKey;
+      const hasAnyKey = hasLiveKey || hasTestKey;
+      
+      // Check webhook endpoint exists (we have billing routes registered)
+      const webhookEndpointExists = true; // /api/billing/webhook is registered in billing.ts
+      
+      // Check last transaction in database using correct column name
+      let lastTransaction = null;
+      let transactionCount = 0;
+      let ledgerAccessible = false;
       try {
         const result = await db.execute(sql`
-          SELECT id, created_at FROM credit_ledger 
-          ORDER BY created_at DESC LIMIT 1
+          SELECT "created_at", id FROM credit_ledger 
+          ORDER BY "created_at" DESC LIMIT 1
         `);
+        ledgerAccessible = true;
         if (result.rows.length > 0) {
-          lastPurchase = (result.rows[0] as any).created_at;
+          lastTransaction = (result.rows[0] as any).created_at;
         }
+        const countResult = await db.execute(sql`SELECT COUNT(*) as count FROM credit_ledger`);
+        transactionCount = Number((countResult.rows[0] as any)?.count || 0);
       } catch {
-        // Table may not exist yet
+        // Table may not exist yet - this is a failure condition
+        ledgerAccessible = false;
       }
       
-      const status = stripeConfigured ? 'pass' : 'fail';
+      // Probe passes only if: correct key for mode AND ledger accessible
+      const status = (stripeConfigured && ledgerAccessible) ? 'pass' : 'fail';
+      const failureReasons: string[] = [];
+      if (!stripeConfigured) {
+        failureReasons.push(isLiveMode ? 'Missing live Stripe key (sk_live_*)' : 'Missing test Stripe key (sk_test_*)');
+      }
+      if (!ledgerAccessible) {
+        failureReasons.push('Credit ledger table not accessible');
+      }
       
       res.setHeader('X-System-Identity', SYSTEM_IDENTITY);
       res.setHeader('X-App-Base-URL', APP_BASE_URL);
@@ -5559,9 +5584,14 @@ Allow: /apply/`;
         details: {
           stripe_configured: stripeConfigured,
           stripe_mode: stripeMode,
-          webhook_ready: webhookReady,
-          last_transaction: lastPurchase,
-          finance_tile_target: 'https://auto-com-center-jamarrlmayes.replit.app/events'
+          has_live_key: hasLiveKey,
+          has_test_key: hasTestKey,
+          webhook_endpoint_exists: webhookEndpointExists,
+          ledger_accessible: ledgerAccessible,
+          transaction_count: transactionCount,
+          last_transaction: lastTransaction,
+          finance_tile_target: 'https://auto-com-center-jamarrlmayes.replit.app/events',
+          failure_reasons: failureReasons.length > 0 ? failureReasons : undefined
         }
       });
     } catch (error) {
@@ -5574,7 +5604,7 @@ Allow: /apply/`;
   // Aggregate probes endpoint
   app.get('/api/probes', async (req: any, res) => {
     try {
-      // Run all probes in parallel
+      // Run all probes in parallel with proper checks (same logic as individual probe endpoints)
       const [authResult, leadResult, dataResult, paymentResult] = await Promise.all([
         (async () => {
           const hasSession = !!req.user;
@@ -5593,9 +5623,26 @@ Allow: /apply/`;
           return { probe: 'data', status: status.enabled ? 'pass' : 'fail', telemetry_enabled: status.enabled };
         })(),
         (async () => {
-          const stripeMode = process.env.BILLING_ROLLOUT_PERCENTAGE === '100' ? 'live' : 'test';
-          const stripeConfigured = !!(process.env.STRIPE_SECRET_KEY || process.env.TESTING_STRIPE_SECRET_KEY);
-          return { probe: 'payment', status: stripeConfigured ? 'pass' : 'fail', stripe_mode: stripeMode };
+          // Mirror the /api/probe/payment logic for consistency
+          const rolloutPct = parseInt(process.env.BILLING_ROLLOUT_PERCENTAGE || '0', 10);
+          const isLiveMode = rolloutPct === 100;
+          const stripeMode = isLiveMode ? 'live' : 'test';
+          
+          const hasLiveKey = !!process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_live_');
+          const hasTestKey = !!process.env.TESTING_STRIPE_SECRET_KEY && process.env.TESTING_STRIPE_SECRET_KEY.startsWith('sk_test_');
+          const stripeConfigured = isLiveMode ? hasLiveKey : hasTestKey;
+          
+          // Check ledger accessibility
+          let ledgerAccessible = false;
+          try {
+            await db.execute(sql`SELECT 1 FROM credit_ledger LIMIT 1`);
+            ledgerAccessible = true;
+          } catch {
+            ledgerAccessible = false;
+          }
+          
+          const status = (stripeConfigured && ledgerAccessible) ? 'pass' : 'fail';
+          return { probe: 'payment', status, stripe_mode: stripeMode, ledger_accessible: ledgerAccessible };
         })()
       ]);
       

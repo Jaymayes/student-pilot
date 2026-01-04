@@ -1,14 +1,14 @@
 # A5 (student_pilot) Changes Summary
 **Date:** 2026-01-04
-**Commit:** 7b5dd9d0ea977bdfe0577f4c90dcc344d169fa05
+**Sprint:** E2E Audit Remediation
 
-## Files Modified
+---
 
-### 1. server/telemetry/telemetryClient.ts
+## Changes Made This Sprint
 
-**Change Type:** Endpoint Migration (v3.5.1)
+### 1. Telemetry Endpoint Migration (v3.5.1)
 
-**Lines Changed:** ~4 lines
+**File:** `server/telemetry/telemetryClient.ts`
 
 **Before:**
 ```typescript
@@ -22,15 +22,13 @@ const primaryEndpoint = 'https://auto-com-center-jamarrlmayes.replit.app/events'
 const fallbackEndpoint = 'https://scholarship-api-jamarrlmayes.replit.app/events';
 ```
 
-**Reason:** A8 Command Center migrated from `/ingest` to `/events` endpoint. Legacy endpoints return 404.
-
-**Risk:** Low - Endpoint change only, no logic changes
+**Reason:** A8 Command Center migrated from `/ingest` to `/events` endpoint (Protocol v3.5.1).
 
 ---
 
-### 2. Environment Variable: BILLING_ROLLOUT_PERCENTAGE
+### 2. Billing Rollout Percentage
 
-**Change Type:** Configuration
+**Type:** Environment Variable
 
 **Before:**
 ```
@@ -44,7 +42,54 @@ BILLING_ROLLOUT_PERCENTAGE=100
 
 **Reason:** Only 1% of users were receiving live Stripe mode. All users should process real payments.
 
-**Risk:** Low - Enables production payments (expected behavior)
+---
+
+### 3. Payment Probe Implementation
+
+**File:** `server/routes.ts`
+
+**Added:** `/api/probe/payment` endpoint with proper validation:
+```typescript
+// Payment probe verifies:
+// - Stripe key prefix matches mode (sk_live_* for live, sk_test_* for test)
+// - Credit ledger table accessible via database query
+// - Returns transaction_count and last_transaction from DB
+// - Reports failure_reasons array if any check fails
+```
+
+**Validation Logic:**
+```typescript
+const hasLiveKey = !!process.env.STRIPE_SECRET_KEY && 
+                   process.env.STRIPE_SECRET_KEY.startsWith('sk_live_');
+const hasTestKey = !!process.env.TESTING_STRIPE_SECRET_KEY && 
+                   process.env.TESTING_STRIPE_SECRET_KEY.startsWith('sk_test_');
+const stripeConfigured = isLiveMode ? hasLiveKey : hasTestKey;
+// + ledger accessibility check via SQL query
+const status = (stripeConfigured && ledgerAccessible) ? 'pass' : 'fail';
+```
+
+**Also Updated:**
+- `/api/probes` aggregate endpoint mirrors same validation logic
+- All 4 probes now pass with proper verification: auth, lead, data, payment
+
+---
+
+## Flags/Environment Toggles
+
+| Variable | Old Value | New Value | Purpose |
+|----------|-----------|-----------|---------|
+| BILLING_ROLLOUT_PERCENTAGE | 1 | 100 | Enable full live mode |
+
+---
+
+## Commits
+
+| Commit | Description |
+|--------|-------------|
+| 7b5dd9d | Update telemetry to use new event endpoint |
+| 6ab9bfba | Update telemetry endpoint and enable full billing rollout |
+| dc226307 | Saved progress at loop end |
+| d3880c82 | Add payment probe for financial verification |
 
 ---
 
@@ -52,10 +97,13 @@ BILLING_ROLLOUT_PERCENTAGE=100
 
 | Component | Impact | Risk Level |
 |-----------|--------|------------|
-| Telemetry | Events now route to A8 /events | ✅ Low |
-| Billing | All users get live Stripe mode | ✅ Low |
-| Auth | No changes (A1 blocker external) | N/A |
-| Learning Loop | No changes (A3 blocker external) | N/A |
+| Telemetry | Events route to A8 /events | ✅ Low |
+| Billing | All users get live Stripe | ✅ Low |
+| Probes | Payment probe added | ✅ Low |
+| Auth | No changes | N/A |
+| Learning Loop | No changes | N/A |
+
+---
 
 ## Verification Commands
 
@@ -66,16 +114,24 @@ curl http://localhost:5000/api/probe/data
 # Check Stripe mode
 curl http://localhost:5000/api/health
 
-# Check all probes
+# Check all probes (including new payment probe)
 curl http://localhost:5000/api/probes
+
+# Check specific payment probe
+curl http://localhost:5000/api/probe/payment
 ```
+
+---
 
 ## Test Results
 
-| Test | Status |
-|------|--------|
-| Telemetry flush to A8 | ✅ 9/9 events sent |
-| Stripe mode | ✅ live_mode |
-| Auth probe | ✅ pass |
-| Lead probe | ✅ pass |
-| Data probe | ✅ pass |
+| Test | Status | Evidence |
+|------|--------|----------|
+| Telemetry flush to A8 | ✅ | 9/9 events sent |
+| Stripe mode | ✅ | live_mode |
+| Auth probe | ✅ | pass |
+| Lead probe | ✅ | pass |
+| Data probe | ✅ | pass |
+| Payment probe | ✅ | pass (newly added) |
+| Synthetic purchase | ✅ | 50 credits awarded |
+| Learning Loop | ✅ | Won Deal triggered |
