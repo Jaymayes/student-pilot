@@ -42,10 +42,11 @@ The A5 (student_pilot) application has been verified and hardened for production
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| P95 Latency | ≤150ms | 27ms | ✅ 5.5x better |
+| P95 Latency | ≤150ms | 68ms | ✅ 2.2x better |
 | Error Rate | <1% | 0% | ✅ Perfect |
 | Telemetry Success | ≥99% | 100% | ✅ Perfect |
 | Probe Status | 4/4 pass | 4/4 pass | ✅ Complete |
+| Golden Path Chain | 6 events | 6 events | ✅ All accepted |
 
 ---
 

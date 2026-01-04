@@ -10,13 +10,15 @@
 
 | Phase | Status | Evidence |
 |-------|--------|----------|
-| Phase 1: Baseline | ✅ COMPLETE | A8 store: 8365 events, 11 apps reporting |
-| Phase 2: Student Golden Path | ✅ VERIFIED | Synthetic purchase success, Learning Loop triggered |
-| Phase 3: Provider Golden Path | ⚠️ EXTERNAL BLOCKER | A6 probes not implemented |
-| Phase 4: Soak Test | ✅ READY | P95 < 30ms, 0% error rate |
-| Phase 5: Fallback & Replay | ✅ CONFIGURED | Dual endpoints, queue depth 0 |
-| Phase 6: Regression Guardrails | ✅ COMPLETE | All 4 probes passing |
-| Phase 7: Security & Mode | ✅ VERIFIED | Stripe live_mode, headers compliant |
+| Phase 1: Baseline | ✅ COMPLETE | A8 healthy (uptime 74067s), probe_baseline accepted |
+| Phase 2: Student Golden Path | ✅ VERIFIED | Full 6-event chain: page_view → signup → lead → payment → match → application |
+| Phase 3: Provider Golden Path | ⚠️ EXTERNAL BLOCKER | A3 /api/automations (404), A6 probes working |
+| Phase 4: Soak Test | ✅ PASSED | P95 = 68ms (target 150ms), 0% error rate |
+| Phase 5: Fallback & Replay | ✅ CONFIGURED | A2 fallback WAF-protected, queue depth 0 |
+| Phase 6: Regression Guardrails | ✅ COMPLETE | All 4 probes passing with proper validation |
+| Phase 7: Security & Mode | ✅ VERIFIED | Stripe live_mode, all headers compliant |
+
+### Audit Run: 2026-01-04T03:40:33Z
 
 ---
 
@@ -104,6 +106,21 @@ Result: 303 Redirect (client registered, working)
 ### Step 4: A8 Event Verification
 - Events sent: 5/5 success
 - Event store after: 8345 → 8365
+
+### Step 5: Full Golden Path Chain (2026-01-04T03:40:59Z)
+**Acceptance Criteria:** A8 shows entire chain: page_view → user_signup → lead_captured → payment_succeeded → match_returned → application_started
+
+| Event | A8 Event ID | Timestamp | Status |
+|-------|-------------|-----------|--------|
+| page_view | evt_1767498059590_lk36m3njf | 03:40:59.590Z | ✅ Accepted |
+| user_signup | evt_1767498059783_99te7vrp4 | 03:40:59.783Z | ✅ Accepted |
+| lead_captured | evt_1767498059975_ypdthv1vu | 03:40:59.975Z | ✅ Accepted |
+| payment_succeeded | evt_1767498060169_0xrub0vxf | 03:41:00.169Z | ✅ Accepted |
+| match_returned | evt_1767498060373_k9a93ar3i | 03:41:00.373Z | ✅ Accepted |
+| application_started | evt_1767498060549_r7d518d3t | 03:41:00.549Z | ✅ Accepted |
+
+**UTM Attribution:** `utm_source=live_canary, utm_campaign=e2e_audit_v2`
+**Chain Duration:** 960ms (page_view → application_started)
 
 ### External Blockers (A3)
 | Endpoint | Status | Impact |
