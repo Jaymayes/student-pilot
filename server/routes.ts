@@ -4472,6 +4472,7 @@ Allow: /apply/`;
   app.get("/api/recommendations", isAuthenticated, async (req, res) => {
     const correlationId = (req as any).correlationId;
     res.set('X-Correlation-ID', correlationId);
+    const startTime = Date.now();
     
     // Get authenticated user's ID from session (outside try for catch block access)
     const userId = req.user?.claims?.sub;
@@ -4485,6 +4486,13 @@ Allow: /apply/`;
         }
       });
     }
+    
+    // SRE Fix Pack v3.5.1: Emit match_requested event
+    telemetryClient.track('match_requested', {
+      userId,
+      correlationId,
+      timestamp: new Date().toISOString()
+    });
     
     try {
       const { 
@@ -4503,6 +4511,18 @@ Allow: /apply/`;
         }
       );
 
+      const latencyMs = Date.now() - startTime;
+      
+      // SRE Fix Pack v3.5.1: Emit match_returned event with latency metrics
+      telemetryClient.track('match_returned', {
+        userId,
+        correlationId,
+        success: true,
+        matchCount: recommendations.length,
+        latency_ms: latencyMs,
+        timestamp: new Date().toISOString()
+      });
+
       res.json({
         studentId: userId,
         recommendations,
@@ -4515,6 +4535,18 @@ Allow: /apply/`;
     } catch (error) {
       console.error("Recommendation generation error:", error);
       const requestId = (req as any).id || crypto.randomUUID();
+      const latencyMs = Date.now() - startTime;
+      
+      // SRE Fix Pack v3.5.1: Emit match_returned failure event
+      telemetryClient.track('match_returned', {
+        userId,
+        correlationId,
+        success: false,
+        matchCount: 0,
+        latency_ms: latencyMs,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
       
       // Handle student profile not found gracefully
       if (error instanceof Error && error.message.includes('Student profile not found')) {
