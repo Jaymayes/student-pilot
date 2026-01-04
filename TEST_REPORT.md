@@ -329,6 +329,105 @@ Learning Loop successfully reported to:
 
 ---
 
+## SRE Fix Pack v3.5.1 Canary Test
+
+**Executed:** 2026-01-04T23:35:01Z
+**Directive:** Remediation and Proof
+
+### Mandatory Event Emissions
+
+| Event | HTTP Status | accepted | persisted | A8 Event ID |
+|-------|-------------|----------|-----------|-------------|
+| NewLead | 200 | ✅ true | ✅ true | evt_1767569701461_wci2ijqf6 |
+| NewUser | 200 | ✅ true | ✅ true | evt_1767569701731_2523mw0sd |
+| PaymentSuccess | 200 | ✅ true | ✅ true | evt_1767569701976_qpzw8021v |
+
+### Event Payloads Sent
+
+**NewLead:**
+```json
+{
+  "event_type": "NewLead",
+  "source_app_id": "a5_student_pilot",
+  "timestamp": "2026-01-04T23:35:01.250Z",
+  "lead_id": "canary-test-lead-1767569701",
+  "email_hash": "sha256_canary_test",
+  "utm_source": "sre_canary",
+  "utm_campaign": "fleet_remediation"
+}
+```
+
+**NewUser:**
+```json
+{
+  "event_type": "NewUser",
+  "source_app_id": "a5_student_pilot",
+  "timestamp": "2026-01-04T23:35:01.731Z",
+  "user_id": "canary-test-user-1767569701",
+  "registration_source": "sre_canary_test"
+}
+```
+
+**PaymentSuccess:**
+```json
+{
+  "event_type": "PaymentSuccess",
+  "source_app_id": "a5_student_pilot",
+  "timestamp": "2026-01-04T23:35:01.976Z",
+  "amount_cents": 2999,
+  "currency": "usd",
+  "stripe_mode": "live",
+  "package": "professional",
+  "utm_source": "sre_canary"
+}
+```
+
+### Protocol Compliance (v3.5.1)
+
+| Header | Value | Status |
+|--------|-------|--------|
+| Content-Type | application/json | ✅ |
+| x-scholar-protocol | v3.5.1 | ✅ |
+| x-app-label | a5_student_pilot | ✅ |
+| x-event-id | canary-{type}-{timestamp} | ✅ |
+
+### Canary Result: ✅ PASS
+
+All 3 mandatory events accepted and persisted by A8 Command Center.
+
+---
+
+## External Blocker Evidence (2026-01-04T23:35:12Z)
+
+### A3 (scholarship_agent) - NOT READY
+
+| Endpoint | HTTP Status | Response |
+|----------|-------------|----------|
+| /api/automations/bootstrap-day1 | 404 | API_ENDPOINT_NOT_FOUND |
+| /api/automations/won-deal | 404 | API_ENDPOINT_NOT_FOUND |
+| /api/leads/won-deal | 404 | API_ENDPOINT_NOT_FOUND |
+
+**Impact:** Learning Loop Won Deal automation cannot trigger lead elevation
+
+### A6 (provider_register) - NOT ONLINE
+
+| Endpoint | HTTP Status | Response |
+|----------|-------------|----------|
+| /health | 500 | Internal Server Error |
+| /ready | 500 | Internal Server Error |
+| /stripe/webhook | 500 | Internal Server Error |
+
+**Impact:** B2B Stripe webhook not available; directive item 1 NOT COMPLETE
+
+### A8 (auto_com_center) - HEALTHY
+
+| Endpoint | HTTP Status | Response |
+|----------|-------------|----------|
+| /health | 200 | OK, uptime healthy |
+| /events | 200 | Events accepted and persisted |
+
+---
+
 ## Conclusion
 
 ### A5 Internal Status: ✅ PRODUCTION READY
@@ -337,15 +436,26 @@ Learning Loop successfully reported to:
 - Telemetry v3.5.1 operational
 - Security headers compliant
 - P95 = 68ms (target 150ms, 2.2x better)
+- SRE Fix Pack canary: 3/3 events persisted
 
 ### External Blockers Remaining
 | Severity | App | Issue | Revenue Impact |
 |----------|-----|-------|----------------|
+| RS-0 CRITICAL | A6 | Server 500 (not online) | B2B Stripe blocked |
 | RS-1 FATAL | A3 | /api/automations/* 404 | 15-25% LTV loss |
 | RS-3 MEDIUM | A3 | /api/orchestration/status 404 | Monitoring gap |
-| RS-3 MEDIUM | A6 | /api/probes 404 | B2B visibility gap |
+
+### Directive Compliance Status
+| Directive Item | Owner | Status |
+|----------------|-------|--------|
+| 1. Bring A6 online | DevOps | ❌ NOT STARTED (500 errors) |
+| 2. Standardize v3.5.1 (A5) | A5 Lead | ✅ COMPLETE |
+| 3. Run canary and record proof | A5 Lead | ✅ COMPLETE |
+| 4. Manual override with Auth | A5 Lead | ✅ TESTED |
+| 5. Close the loop | All | ⚠️ A5 READY, awaiting A3/A6 |
 
 ### Recommendations
-1. **Immediate:** A3 team implement automation endpoints
-2. **24hr:** A6 team implement business-logic probes
-3. **48hr:** Configure A8 Finance tile with Stripe integration
+1. **Immediate:** DevOps deploy A6 with proper Stripe configuration
+2. **Immediate:** A3 team implement /api/automations endpoints
+3. **24hr:** Configure A8 BUSINESS_EVENT_TYPES allowlist
+4. **48hr:** Full fleet canary retest after A3/A6 remediation

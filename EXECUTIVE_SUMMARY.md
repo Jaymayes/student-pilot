@@ -116,14 +116,45 @@ A6 (Provider Register) lacks:
 
 ---
 
+## SRE Fix Pack v3.5.1 Directive Compliance
+
+**Directive Received:** 2026-01-04T23:35:00Z  
+**Canary Executed:** 2026-01-04T23:35:01Z
+
+### A5 Directive Items
+
+| Item | Description | Status |
+|------|-------------|--------|
+| 2 | Standardize event contract v3.5.1 | ✅ COMPLETE |
+| 3 | Run canary and record proof | ✅ COMPLETE |
+| 4 | Manual override with Authorization | ✅ TESTED |
+| 5 | Close the loop | ⚠️ A5 READY |
+
+### Canary Results (3/3 Events Persisted)
+
+| Event | A8 Response | Status |
+|-------|-------------|--------|
+| NewLead | accepted:true, persisted:true | ✅ |
+| NewUser | accepted:true, persisted:true | ✅ |
+| PaymentSuccess | accepted:true, persisted:true | ✅ |
+
+### External Blockers (Not A5 Scope)
+
+| Item | Description | Owner | Status |
+|------|-------------|-------|--------|
+| 1 | Bring A6 online | DevOps | ❌ 500 errors |
+| 2 | A3 automation endpoints | A3 Team | ❌ 404 errors |
+
+---
+
 ## Recommended Actions
 
 | Priority | Action | Owner | Timeline |
 |----------|--------|-------|----------|
+| P0 | Deploy A6 with Stripe webhook | DevOps | Immediate |
 | P0 | Implement A3 automation endpoints | A3 Team | 24 hours |
 | P1 | Configure A8 Finance tile | A8 Team | 24 hours |
-| P2 | Implement A6 probes | A6 Team | 48 hours |
-| P2 | Monitor first live transaction | Ops Team | Immediate |
+| P2 | Full fleet canary retest | All Teams | 48 hours |
 
 ---
 
