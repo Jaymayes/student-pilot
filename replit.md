@@ -32,14 +32,15 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - Utilizes Stripe for checkout and webhooks to update subscription status.
 - Implements a trial credits system (5 trial credits on first signup) to drive activation.
 
-## Telemetry System (Protocol v3.5.0 + Command Center)
+## Telemetry System (Protocol v3.5.1 + Command Center)
 - **Client**: Singleton with batched event emission.
 - **Middleware**: Automatic `page_view` tracking.
 - **KPI Integration**: Dual-emits to telemetry and Agent Bridge.
 - **Primary Endpoint**: `https://auto-com-center-jamarrlmayes.replit.app/events` (A8 Command Center).
-- **Fallback Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/telemetry/ingest` (A2).
+- **Fallback Endpoint**: `https://scholarship-api-jamarrlmayes.replit.app/events` (A2).
 - Emits required events like `app_started`, `app_heartbeat`, and business events (e.g., `page_view`, `payment_succeeded`, `ai_assist_used`).
 - Events are stored locally and backfilled if external endpoints are unavailable.
+- **Last Updated**: 2026-01-04 - Migrated from /ingest to /events endpoints (v3.5.1).
 
 ## AGENT3 Ecosystem Integration
 - Student Pilot (A5) is part of an 8-app ecosystem, communicating via telemetry to A2 (scholarship_api) which feeds A8 (auto_com_center) Command Center UI.
