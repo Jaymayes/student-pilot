@@ -47,12 +47,30 @@ Each draft includes:
 
 ---
 
-## A5 Integration Work (Can Implement Directly)
+## A5 Integration Work (Implemented)
 
-| Integration | Description | Status |
-|-------------|-------------|--------|
-| A2 /ready fallback | Graceful handling when /ready unavailable | 📋 PLANNED |
-| A7 202 handling | Handle async responses from A7 | 📋 PLANNED |
-| A8 Demo Mode filter | Client-side demo mode state | 📋 PLANNED |
+| Integration | Description | Status | File |
+|-------------|-------------|--------|------|
+| A2 /ready fallback | Graceful handling when /ready unavailable | ✅ COMPLETE | `server/services/externalHealthClient.ts` |
+| A7 202 async handling | Handle async responses from A7 ingestion | ✅ COMPLETE | `server/services/externalHealthClient.ts` |
+| Enhanced /api/readyz | External dependency health monitoring | ✅ COMPLETE | `server/routes.ts` |
+| A7 health in readyz | A7 status exposed in readiness | ✅ COMPLETE | `server/routes.ts` |
 
-These can be implemented in A5 without external repo access.
+These integrations are now live in A5 development environment.
+
+---
+
+## Implementation Details
+
+### externalHealthClient.ts
+- `checkA2Health()`: Tries /ready, falls back to /health if 404
+- `checkA7Health()`: Health checks for auto_page_maker
+- `checkA8Health()`: Health checks for Command Center
+- `ingestToA7()`: POST with idempotency key, handles 202/200 responses
+- `pollA7EventStatus()`: Polls for event processing completion
+- Health caching with 30s TTL
+
+### /api/readyz Enhancement
+- Now reports A2, A7, A8 health with latencies
+- Shows fallback status when A2 /ready unavailable
+- Graceful degradation indicators for all external services
