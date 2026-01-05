@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-01-05T21:22:13.956Z",
+  "a8_command_center": {
+    "health": {
+      "status": "ok",
+      "system_identity": "auto_com_center",
+      "version": "1.0.0"
+    },
+    "events_endpoint": {
+      "url": "https://auto-com-center-jamarrlmayes.replit.app/events",
+      "accepts_events": true,
+      "persists_events": true
+    },
+    "test_event": {
+      "event_id": "evt_1767648133956_8zeh9w3iu",
+      "app_id": "student_pilot",
+      "event_type": "validation_test",
+      "namespace": "simulated_audit",
+      "accepted": true,
+      "persisted": true
+    }
+  },
+  "tiles_verification": {
+    "note": "Manual verification required via A8 dashboard",
+    "expected_tiles": [
+      "Finance",
+      "B2C Revenue",
+      "SLO Status",
+      "Ecosystem Health"
+    ]
+  },
+  "demo_mode_verification": {
+    "status": "pending_issue_d_implementation",
+    "expected_behavior": {
+      "toggle_visible": "when DEMO_MODE_ENABLED=true",
+      "test_data_shown": "when toggle ON",
+      "live_data_only": "when toggle OFF (default)"
+    }
+  },
+  "telemetry_flow": {
+    "source": "A5 student_pilot",
+    "destination": "A8 auto_com_center",
+    "protocol": "v3.5.1",
+    "endpoint": "/events",
+    "status": "verified"
+  }
+}

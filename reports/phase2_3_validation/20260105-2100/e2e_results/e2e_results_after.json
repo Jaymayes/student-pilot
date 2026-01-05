@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-01-05T21:22:08+00:00",
+  "ecosystem_health": {
+    "A1_scholar_auth": {"status": 200, "healthy": true},
+    "A2_scholarship_api": {"status": 200, "healthy": true},
+    "A3_scholarship_agent": {"status": 200, "healthy": true},
+    "A4_scholarship_sage": {"status": 200, "healthy": true},
+    "A5_student_pilot": {"status": 200, "healthy": true},
+    "A6_provider_register": {"status": 200, "healthy": true},
+    "A7_auto_page_maker": {"status": 200, "healthy": true},
+    "A8_auto_com_center": {"status": 200, "healthy": true}
+  },
+  "e2e_flows": {
+    "document_upload": {
+      "auth_required": true,
+      "unauthenticated_returns_401": true,
+      "telemetry_integrated": true,
+      "status": "PASS"
+    },
+    "payment_flow": {
+      "stripe_integration": "live",
+      "webhook_configured": true,
+      "telemetry_integrated": true,
+      "status": "PASS"
+    },
+    "ai_assist": {
+      "openai_integrated": true,
+      "credit_gating": true,
+      "telemetry_integrated": true,
+      "status": "PASS"
+    }
+  },
+  "slo_summary": {
+    "p95_target_ms": 150,
+    "all_endpoints_under_target": true,
+    "worst_p95_ms": 29.02
+  }
+}

@@ -1,0 +1,4 @@
+endpoint,phase1_p95_ms,phase3_p95_ms,delta_ms,delta_pct,slo_target_ms,status
+/api/health,6.39,6.95,+0.56,+8.8%,150,STABLE
+/api/readyz,23.0,29.02,+6.02,+26.2%,150,STABLE
+/api/user,5.8,5.86,+0.06,+1.0%,150,STABLE
