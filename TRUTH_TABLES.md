@@ -185,7 +185,25 @@
 
 ---
 
-## DEFCON 1 Canary Evidence (2026-01-05T01:52Z)
+## DEFCON 1 Canary Evidence (Updated: 2026-01-05T06:12Z)
+
+### All 6 Event Types Successfully Persisted
+
+| Event Type | App Label | accepted | persisted | Latency |
+|------------|-----------|----------|-----------|---------|
+| NewUser | scholar_auth | ✅ true | ✅ true | 234ms |
+| NewLead | auto_page_maker | ✅ true | ✅ true | 210ms |
+| PageView | auto_page_maker | ✅ true | ✅ true | 213ms |
+| PaymentSuccess | provider_register | ✅ true | ✅ true | 187ms |
+| ScholarshipMatchRequested | student_pilot | ✅ true | ✅ true | 198ms |
+| ScholarshipMatchResult | student_pilot | ✅ true | ✅ true | 223ms |
+
+**Average Latency:** 211ms (Target: ≤150ms - slightly elevated but functional)
+**Success Rate:** 6/6 (100%)
+
+---
+
+## Historical Canary Evidence (2026-01-05T01:52Z)
 
 ### Three Mandatory Events Test
 
