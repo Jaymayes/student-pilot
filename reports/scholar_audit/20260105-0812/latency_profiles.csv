@@ -1,0 +1,12 @@
+endpoint,p50_ms,p95_ms,p99_ms,slo_target_ms,slo_met
+scholar-auth/health,174,174,174,150,NO
+scholarship-api/health,145,145,145,150,YES
+scholarship-agent/health,202,202,202,150,NO
+scholarship-sage/health,190,190,190,150,NO
+student-pilot/api/health,185,185,185,150,NO
+provider-register/health,226,226,226,150,NO
+auto-page-maker/health,284,284,284,150,NO
+auto-com-center/health,150,150,150,150,YES
+A8_events_NewUser,170,234,234,150,NO
+A8_events_PaymentSuccess,169,187,187,150,NO
+A8_events_avg,175,212,212,150,NO

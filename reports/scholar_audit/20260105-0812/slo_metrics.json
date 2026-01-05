@@ -1,0 +1,35 @@
+{
+  "audit_timestamp": "2026-01-05T08:12:19Z",
+  "slo_targets": {
+    "uptime": "99.9%",
+    "p95_latency_ms": 150,
+    "error_rate": "≤1%"
+  },
+  "current_metrics": {
+    "all_apps_responding": true,
+    "apps_healthy": 8,
+    "apps_total": 8,
+    "health_check_results": [
+      {"app": "scholar-auth", "http": 200, "latency_ms": 174, "slo_met": false},
+      {"app": "scholarship-api", "http": 200, "latency_ms": 145, "slo_met": true},
+      {"app": "scholarship-agent", "http": 200, "latency_ms": 202, "slo_met": false},
+      {"app": "scholarship-sage", "http": 200, "latency_ms": 190, "slo_met": false},
+      {"app": "student-pilot", "http": 200, "latency_ms": 185, "slo_met": false},
+      {"app": "provider-register", "http": 200, "latency_ms": 226, "slo_met": false},
+      {"app": "auto-page-maker", "http": 200, "latency_ms": 284, "slo_met": false},
+      {"app": "auto-com-center", "http": 200, "latency_ms": 150, "slo_met": true}
+    ],
+    "connectivity": {
+      "A5_to_A1_oidc": {"http": 200, "latency_ms": 119},
+      "A5_to_A8_events": {"http": 200, "latency_ms": 120},
+      "A5_to_A2_health": {"http": 200, "latency_ms": 160},
+      "A5_to_A6_health": {"http": 200, "latency_ms": 152}
+    }
+  },
+  "summary": {
+    "uptime_current": "100%",
+    "avg_latency_ms": 194,
+    "p95_latency_ms": 284,
+    "slo_breaches": ["P95 latency 284ms > 150ms target"]
+  }
+}

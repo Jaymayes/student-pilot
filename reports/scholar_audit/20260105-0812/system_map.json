@@ -1,0 +1,109 @@
+{
+  "audit_timestamp": "2026-01-05T08:12:19Z",
+  "ecosystem": "ScholarLink",
+  "apps": [
+    {
+      "id": "A1",
+      "name": "scholar_auth",
+      "purpose": "Identity Provider (OIDC/PKCE)",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "inbound": ["A5", "A6", "A7"],
+      "outbound": ["A8"],
+      "auth_method": "OIDC",
+      "secrets": ["DATABASE_URL", "SESSION_SECRET", "OIDC_CLIENT_SECRET"],
+      "health_endpoint": "/health",
+      "status": "healthy"
+    },
+    {
+      "id": "A2",
+      "name": "scholarship_api",
+      "purpose": "Data Backbone (Scholarships, Matches)",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "inbound": ["A3", "A4", "A5"],
+      "outbound": ["A8"],
+      "auth_method": "Bearer Token",
+      "secrets": ["DATABASE_URL", "A8_URL", "A8_KEY"],
+      "health_endpoint": "/health",
+      "status": "healthy",
+      "issues": ["/ready endpoint missing (404)"]
+    },
+    {
+      "id": "A3",
+      "name": "scholarship_agent",
+      "purpose": "Logic/Learning Agent",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+      "inbound": ["A5", "A8"],
+      "outbound": ["A2", "A8"],
+      "auth_method": "Bearer Token",
+      "secrets": ["DATABASE_URL", "OPENAI_API_KEY", "A8_URL"],
+      "health_endpoint": "/health",
+      "status": "healthy",
+      "issues": ["/api/automations/* endpoints missing (404)"]
+    },
+    {
+      "id": "A4",
+      "name": "scholarship_sage",
+      "purpose": "AI Essay Assistance",
+      "url": "https://scholarship-sage-jamarrlmayes.replit.app",
+      "inbound": ["A5"],
+      "outbound": ["A8"],
+      "auth_method": "Bearer Token",
+      "secrets": ["OPENAI_API_KEY", "A8_URL"],
+      "health_endpoint": "/health",
+      "status": "healthy"
+    },
+    {
+      "id": "A5",
+      "name": "student_pilot",
+      "purpose": "User App + B2C Payments",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "inbound": ["users", "A1"],
+      "outbound": ["A1", "A2", "A3", "A4", "A6", "A8"],
+      "auth_method": "OIDC Session",
+      "secrets": ["DATABASE_URL", "STRIPE_SECRET_KEY", "OPENAI_API_KEY", "AUTH_ISSUER_URL"],
+      "health_endpoint": "/api/health",
+      "status": "healthy",
+      "probes": "4/4 passing"
+    },
+    {
+      "id": "A6",
+      "name": "provider_register",
+      "purpose": "B2B Revenue/Provider Onboarding",
+      "url": "https://provider-register-jamarrlmayes.replit.app",
+      "inbound": ["providers", "A1"],
+      "outbound": ["A8", "Stripe Connect"],
+      "auth_method": "OIDC + Stripe",
+      "secrets": ["DATABASE_URL", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+      "health_endpoint": "/health",
+      "status": "healthy",
+      "stripe_connect": "healthy"
+    },
+    {
+      "id": "A7",
+      "name": "auto_page_maker",
+      "purpose": "Marketing/SEO Landing Pages",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
+      "inbound": ["organic traffic"],
+      "outbound": ["A1", "A8"],
+      "auth_method": "None (public)",
+      "secrets": ["DATABASE_URL", "A8_URL"],
+      "health_endpoint": "/health",
+      "status": "healthy"
+    },
+    {
+      "id": "A8",
+      "name": "auto_com_center",
+      "purpose": "Command Center/Telemetry Hub",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "inbound": ["A1", "A2", "A3", "A4", "A5", "A6", "A7"],
+      "outbound": [],
+      "auth_method": "Bearer Token",
+      "secrets": ["DATABASE_URL"],
+      "health_endpoint": "/health",
+      "status": "healthy",
+      "issues": ["Dashboard heartbeat tracking stale (lastHeartbeat: 2025-11-29)"]
+    }
+  ],
+  "telemetry_protocol": "v3.5.1",
+  "primary_endpoint": "https://auto-com-center-jamarrlmayes.replit.app/events"
+}

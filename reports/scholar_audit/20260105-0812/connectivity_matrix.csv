@@ -1,0 +1,8 @@
+from,to,endpoint,http_code,latency_ms,auth_method,status
+A5,A1,/.well-known/openid-configuration,200,119,OIDC,PASS
+A5,A8,/events,200,120,Bearer,PASS
+A5,A2,/health,200,160,Bearer,PASS
+A5,A6,/health,200,152,OIDC,PASS
+A5,A3,/health,200,202,Bearer,PASS
+A5,A4,/health,200,190,Bearer,PASS
+A5,A7,/health,200,284,None,PASS
