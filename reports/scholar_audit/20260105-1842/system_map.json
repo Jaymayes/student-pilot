@@ -1,0 +1,69 @@
+{
+  "audit_timestamp": "2026-01-05T18:42:00Z",
+  "audit_version": "2.0",
+  "ecosystem": "ScholarLink",
+  "rate_limit": "2 QPS per service",
+  "services": [
+    {
+      "id": "A1", "name": "scholar_auth", "purpose": "OIDC Identity Provider",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "endpoints": ["/health", "/.well-known/openid-configuration", "/auth/login"],
+      "inbound": ["A5", "A6", "A7"], "outbound": ["A8"],
+      "auth": "OIDC/PKCE", "secrets": ["DATABASE_URL", "SESSION_SECRET"]
+    },
+    {
+      "id": "A2", "name": "scholarship_api", "purpose": "Data Backbone",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "endpoints": ["/health", "/ready", "/api/scholarships"],
+      "inbound": ["A3", "A4", "A5"], "outbound": ["A8"],
+      "auth": "Bearer Token", "secrets": ["DATABASE_URL"],
+      "conflict": "404 vs 200 on /ready - requires canonical verification"
+    },
+    {
+      "id": "A3", "name": "scholarship_agent", "purpose": "Orchestration/Learning Agent",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+      "endpoints": ["/health", "/api/automations/won-deal"],
+      "inbound": ["A5", "A8"], "outbound": ["A2", "A8"],
+      "auth": "Bearer Token", "secrets": ["DATABASE_URL", "OPENAI_API_KEY"]
+    },
+    {
+      "id": "A4", "name": "scholarship_sage", "purpose": "AI Essay Assistance",
+      "url": "https://scholarship-sage-jamarrlmayes.replit.app",
+      "endpoints": ["/health"],
+      "inbound": ["A5"], "outbound": ["A8"],
+      "auth": "Bearer Token", "secrets": ["OPENAI_API_KEY"]
+    },
+    {
+      "id": "A5", "name": "student_pilot", "purpose": "B2C Student Dashboard",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "endpoints": ["/api/health", "/api/billing/create-checkout"],
+      "inbound": ["users", "A1"], "outbound": ["A1", "A2", "A3", "A4", "A6", "A8"],
+      "auth": "OIDC Session", "secrets": ["DATABASE_URL", "STRIPE_SECRET_KEY", "OPENAI_API_KEY"],
+      "stripe_mode": "live"
+    },
+    {
+      "id": "A6", "name": "provider_register", "purpose": "B2B Provider Onboarding",
+      "url": "https://provider-register-jamarrlmayes.replit.app",
+      "endpoints": ["/health", "/ready", "/stripe/webhook"],
+      "inbound": ["providers", "A1"], "outbound": ["A8", "Stripe Connect"],
+      "auth": "OIDC + Stripe", "secrets": ["DATABASE_URL", "STRIPE_SECRET_KEY"],
+      "stripe_mode": "live"
+    },
+    {
+      "id": "A7", "name": "auto_page_maker", "purpose": "Marketing/SEO Landing Pages",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
+      "endpoints": ["/health", "/ingest"],
+      "inbound": ["organic traffic"], "outbound": ["A1", "A8", "SendGrid?"],
+      "auth": "None (public)", "secrets": ["DATABASE_URL"],
+      "conflict": "P95 216-559ms - SendGrid contribution unclear"
+    },
+    {
+      "id": "A8", "name": "auto_com_center", "purpose": "Command Center/Telemetry",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "endpoints": ["/health", "/events", "/api/system/status"],
+      "inbound": ["A1-A7"], "outbound": [],
+      "auth": "Bearer Token", "secrets": ["DATABASE_URL"],
+      "issues": ["stale banners", "$0 revenue (demo filter?)"]
+    }
+  ]
+}

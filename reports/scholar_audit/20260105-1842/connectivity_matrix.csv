@@ -1,0 +1,10 @@
+from,to,endpoint,success_rate,p95_latency_ms,auth_method,retry_count
+A5,A1,/.well-known/openid-configuration,100%,119,OIDC,1
+A5,A8,/events,100%,173,Bearer,3
+A5,A2,/health,100%,151,Bearer,1
+A5,A2,/ready,0%,176,Bearer,1
+A5,A3,/health,100%,178,Bearer,1
+A5,A3,/api/automations/won-deal,0%,N/A,Bearer,1
+A5,A6,/health,100%,169,OIDC,1
+A7,A8,/events,100%,178,Bearer,3
+A6,A8,/events,100%,166,Bearer,3

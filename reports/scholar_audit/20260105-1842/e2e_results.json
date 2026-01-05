@@ -1,0 +1,68 @@
+{
+  "audit_timestamp": "2026-01-05T18:42:00Z",
+  "namespace": "simulated_audit",
+  "ttl_days": 14,
+  "workflows": {
+    "marketing_seo": {
+      "description": "A7 sitemap → attribution events → A8",
+      "status": "PASS",
+      "evidence": {
+        "pageview_persisted": true,
+        "newlead_persisted": true,
+        "latency_ms": 178
+      },
+      "note": "Latency exceeds SLO but functional"
+    },
+    "lead_gen": {
+      "description": "A7 capture → A1 auth → CRM store",
+      "status": "PASS",
+      "evidence": {
+        "new_user_event": {"persisted": true, "latency_ms": 173},
+        "new_lead_event": {"persisted": true, "latency_ms": 158}
+      }
+    },
+    "b2c_revenue": {
+      "description": "A5 Student Payment → Stripe → A8",
+      "status": "PASS",
+      "evidence": {
+        "stripe_mode": "live",
+        "payment_event": {"persisted": true, "latency_ms": 157}
+      }
+    },
+    "b2b_revenue": {
+      "description": "A6 Provider Payment → Stripe Connect → A8",
+      "status": "PASS",
+      "evidence": {
+        "stripe_mode": "live",
+        "stripe_connect": "healthy",
+        "payment_event": {"persisted": true, "latency_ms": 166}
+      }
+    },
+    "learning": {
+      "description": "A5 → A3/A4 → Scholarship Matching",
+      "status": "PARTIAL",
+      "evidence": {
+        "match_requested": {"persisted": true, "latency_ms": 167},
+        "match_result": {"persisted": true, "latency_ms": 192}
+      },
+      "issues": ["A3 /api/automations/* endpoints 404"]
+    },
+    "telemetry_a8": {
+      "description": "All events land in A8 with correct schema",
+      "status": "PASS",
+      "evidence": {
+        "events_tested": 8,
+        "events_persisted": 8,
+        "success_rate": "100%",
+        "visible_in_recent_api": true
+      }
+    }
+  },
+  "summary": {
+    "total": 6,
+    "passed": 5,
+    "partial": 1,
+    "failed": 0,
+    "overall": "OPERATIONAL"
+  }
+}

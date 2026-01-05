@@ -1,0 +1,46 @@
+{
+  "audit_timestamp": "2026-01-05T18:42:00Z",
+  "audit_version": "2.0",
+  "sample_size": 30,
+  "rate_limit": "2 QPS",
+  "slo_targets": {
+    "uptime": "99.9%",
+    "p95_latency_ms": 150,
+    "error_rate_max": "1%"
+  },
+  "canonical_results": {
+    "A1_scholar_auth": {"success_rate": "100%", "p50": 98, "p95": 210, "p99": 217, "slo_met": false},
+    "A2_scholarship_api": {"success_rate": "100%", "p50": 126, "p95": 151, "p99": 207, "slo_met": false},
+    "A3_scholarship_agent": {"success_rate": "100%", "p50": 129, "p95": 178, "p99": 180, "slo_met": false},
+    "A4_scholarship_sage": {"success_rate": "100%", "p50": 133, "p95": 182, "p99": 213, "slo_met": false},
+    "A5_student_pilot": {"success_rate": "100%", "p50": 133, "p95": 184, "p99": 188, "slo_met": false},
+    "A6_provider_register": {"success_rate": "100%", "p50": 120, "p95": 169, "p99": 243, "slo_met": false},
+    "A7_auto_page_maker": {"success_rate": "100%", "p50": 255, "p95": 323, "p99": 366, "slo_met": false, "note": "Worst performer - needs async refactor"},
+    "A8_auto_com_center": {"success_rate": "100%", "p50": 118, "p95": 144, "p99": 147, "slo_met": true}
+  },
+  "conflict_resolutions": {
+    "A2_ready_endpoint": {
+      "prior_reports": "conflicting 404 vs 200",
+      "canonical_result": "404 (20/20 failures)",
+      "verdict": "ENDPOINT MISSING - requires PR Issue A"
+    },
+    "A7_latency": {
+      "prior_reports": "216-559ms",
+      "canonical_result": "P95=406ms (50 samples), P50=269ms",
+      "verdict": "CONFIRMED HIGH - requires PR Issue B",
+      "sendgrid_contribution": "UNKNOWN - requires code review"
+    }
+  },
+  "telemetry": {
+    "events_tested": 8,
+    "events_persisted": 8,
+    "success_rate": "100%",
+    "avg_latency_ms": 173
+  },
+  "summary": {
+    "uptime_current": "100%",
+    "apps_meeting_p95_slo": 1,
+    "apps_total": 8,
+    "overall_health": "OPERATIONAL with latency concerns"
+  }
+}

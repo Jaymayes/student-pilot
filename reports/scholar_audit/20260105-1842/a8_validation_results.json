@@ -1,0 +1,17 @@
+{"audit_timestamp":"2026-01-05T18:45:42Z","namespace":"simulated_audit","ttl_days":14,"events":[
+{"event_type":"NewUser","app":"A1","accepted":true,"persisted":true,"latency_ms":173,"status":"PASS"}
+,
+{"event_type":"NewLead","app":"A7","accepted":true,"persisted":true,"latency_ms":158,"status":"PASS"}
+,
+{"event_type":"PageView","app":"A7","accepted":true,"persisted":true,"latency_ms":178,"status":"PASS"}
+,
+{"event_type":"PaymentSuccess","app":"A5","accepted":true,"persisted":true,"latency_ms":157,"status":"PASS"}
+,
+{"event_type":"PaymentSuccess","app":"A6","accepted":true,"persisted":true,"latency_ms":166,"status":"PASS"}
+,
+{"event_type":"ScholarshipMatchRequested","app":"A5","accepted":true,"persisted":true,"latency_ms":167,"status":"PASS"}
+,
+{"event_type":"ScholarshipMatchResult","app":"A5","accepted":true,"persisted":true,"latency_ms":192,"status":"PASS"}
+,
+{"event_type":"heartbeat","app":"A5","accepted":true,"persisted":true,"latency_ms":191,"status":"PASS"}
+]}
