@@ -1,6 +1,6 @@
 # A5 (student_pilot) Changes Summary
-**Date:** 2026-01-04
-**Sprint:** E2E Audit Remediation
+**Date:** 2026-01-05
+**Sprint:** DEFCON 1 SRE Fix Pack + E2E Audit Remediation
 
 ---
 
@@ -44,7 +44,34 @@ BILLING_ROLLOUT_PERCENTAGE=100
 
 ---
 
-### 3. Payment Probe Implementation
+### 3. Match Telemetry Events (SRE Fix Pack v3.5.1)
+
+**File:** `server/routes.ts`
+
+**Added:** `match_requested` and `match_returned` telemetry events to `/api/recommendations` endpoint:
+```typescript
+// Before generateRecommendations():
+emitTelemetry({
+  event_type: 'match_requested',
+  actor_id: user?.id || 'anonymous',
+  source: '/api/recommendations',
+  payload: { profileId, timestamp }
+});
+
+// After generateRecommendations():
+emitTelemetry({
+  event_type: 'match_returned',
+  actor_id: user?.id || 'anonymous',
+  source: '/api/recommendations',
+  payload: { latency_ms, matchCount, success: true }
+});
+```
+
+**Reason:** Protocol v3.5.1 requires ScholarshipMatchRequested/ScholarshipMatchResult events with latency metrics.
+
+---
+
+### 4. Payment Probe Implementation
 
 **File:** `server/routes.ts`
 
@@ -90,6 +117,8 @@ const status = (stripeConfigured && ledgerAccessible) ? 'pass' : 'fail';
 | 6ab9bfba | Update telemetry endpoint and enable full billing rollout |
 | dc226307 | Saved progress at loop end |
 | d3880c82 | Add payment probe for financial verification |
+| 8fd1ed45 | Update audit report with critical system errors |
+| ca6d4629 | DEFCON 1 - A6 Ghost Ship documented |
 
 ---
 
