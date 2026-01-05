@@ -208,6 +208,29 @@ Events that occurred (or should occur) but did NOT reach A8:
 | /ready | 200 | 156ms | ✅ Deployment active |
 | /stripe/webhook | 200 | 162ms | ✅ Payment webhooks live |
 
+### A8 Split-Brain Issue: ⚠️ DASHBOARD STALE (Events Still Persisting)
+
+**Root Cause Identified (2026-01-05T06:41Z):**
+```json
+{
+  "lastHeartbeat": "2025-11-29T19:44:18.338Z",
+  "systemLag": 3149831735,
+  "heartbeatCount": 4,
+  "status": "stale"
+}
+```
+
+**Evidence:**
+- Events are being **accepted and persisted** (proven by canary tests)
+- But A8 dashboard shows "stale" status with 36+ day old heartbeat
+- Dashboard incident banners are FALSE POSITIVES
+
+**Impact:** Red incident banners on dashboard mislead operators into thinking system is down.
+
+**Resolution Required:** A8 team must fix heartbeat tracking mechanism. Events ARE flowing - dashboard is stale.
+
+---
+
 ### A2 scholarship_api: ⚠️ STILL 404 on /ready
 ```json
 {"error":{"code":"NOT_FOUND","message":"The requested resource '/ready' was not found"}}

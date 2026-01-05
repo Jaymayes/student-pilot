@@ -180,8 +180,19 @@
 | # | Risk | Revenue Impact | Mitigation |
 |---|------|----------------|------------|
 | 1 | ~~A6 GHOST SHIP~~ | ~~B2B BLOCKED~~ | ✅ **RESOLVED** - A6 online |
-| 2 | A3 /api/automations 404 | 15-25% LTV loss | A3 team implement endpoints |
-| 3 | A2 /ready endpoint 404 | LB health check issues | A2 team add /ready endpoint |
+| 2 | **A8 Stale Dashboard** | Misleading operators | A8 team fix heartbeat tracking |
+| 3 | A3 /api/automations 404 | 15-25% LTV loss | A3 team implement endpoints |
+
+### Split-Brain Analysis (2026-01-05T06:41Z)
+
+| Symptom | Root Cause | Status |
+|---------|------------|--------|
+| Red incident banners | A8 lastHeartbeat stuck at 2025-11-29 | ⚠️ FALSE POSITIVE |
+| "A1 DB unreachable" banner | A8 stale polling | A1 actually healthy |
+| "A3 revenue_blocker" banner | A8 stale polling | A3 actually healthy |
+| Events not visible | Dashboard stale | Events ARE persisted (proven) |
+
+**Evidence:** All canary events return `persisted:true` but dashboard shows stale data.
 
 ---
 
