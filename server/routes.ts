@@ -599,12 +599,13 @@ Allow: /apply/`;
 
   console.log('✅ Registering /api/readyz and /api/version endpoints...');
 
-  // Readiness endpoint - checks dependencies
+  // Readiness endpoint - checks dependencies with graceful degradation
+  // Implements Issue A: A2 /ready fallback (/ready -> /health when unavailable)
   app.get('/api/readyz', async (req, res) => {
-    const checks: Record<string, { status: string; latency_ms?: number; error?: string }> = {};
+    const checks: Record<string, { status: string; latency_ms?: number; error?: string; fallback?: boolean }> = {};
     let allReady = true;
 
-    // Check database
+    // Check database (critical)
     try {
       const dbStart = Date.now();
       await db.execute(sql`SELECT 1`);
@@ -614,7 +615,7 @@ Allow: /apply/`;
       checks.database = { status: 'not_ready', error: String(error) };
     }
 
-    // Check Stripe
+    // Check Stripe (critical)
     try {
       checks.stripe = { status: 'ready', latency_ms: 0 };
     } catch (error) {
@@ -622,18 +623,75 @@ Allow: /apply/`;
       checks.stripe = { status: 'not_ready', error: String(error) };
     }
 
-    // Check upstream dependencies (optional - these may not be available in development)
-    const optionalDeps = {
-      scholar_auth: env.AUTH_ISSUER_URL || 'not_configured',
-      scholarship_api: env.SCHOLARSHIP_API_BASE_URL || 'not_configured',
-      auto_com_center: env.AUTO_COM_CENTER_BASE_URL || 'not_configured'
-    };
+    // Check external dependencies with graceful degradation (non-blocking)
+    // These use cached results and fallback patterns
+    const externalDeps: Record<string, { url: string; healthy?: boolean; latency_ms?: number; fallback?: boolean }> = {};
+    
+    // A2 (scholarship_api) - uses /ready -> /health fallback per Issue A
+    if (env.SCHOLARSHIP_API_BASE_URL) {
+      try {
+        const { checkA2Health } = await import('./services/externalHealthClient');
+        const a2Result = await checkA2Health();
+        externalDeps.scholarship_api = {
+          url: env.SCHOLARSHIP_API_BASE_URL,
+          healthy: a2Result.healthy,
+          latency_ms: a2Result.latencyMs,
+          fallback: a2Result.fallback
+        };
+      } catch {
+        externalDeps.scholarship_api = { url: env.SCHOLARSHIP_API_BASE_URL, healthy: false };
+      }
+    } else {
+      externalDeps.scholarship_api = { url: 'not_configured' };
+    }
+    
+    // A8 (auto_com_center) - telemetry destination
+    if (env.AUTO_COM_CENTER_BASE_URL) {
+      try {
+        const { checkA8Health } = await import('./services/externalHealthClient');
+        const a8Result = await checkA8Health();
+        externalDeps.auto_com_center = {
+          url: env.AUTO_COM_CENTER_BASE_URL,
+          healthy: a8Result.healthy,
+          latency_ms: a8Result.latencyMs
+        };
+      } catch {
+        externalDeps.auto_com_center = { url: env.AUTO_COM_CENTER_BASE_URL, healthy: false };
+      }
+    } else {
+      externalDeps.auto_com_center = { url: 'not_configured' };
+    }
+    
+    // A7 (auto_page_maker) - async ingestion target
+    if (env.AUTO_PAGE_MAKER_BASE_URL) {
+      try {
+        const { checkA7Health } = await import('./services/externalHealthClient');
+        const a7Result = await checkA7Health();
+        externalDeps.auto_page_maker = {
+          url: env.AUTO_PAGE_MAKER_BASE_URL,
+          healthy: a7Result.healthy,
+          latency_ms: a7Result.latencyMs
+        };
+      } catch {
+        externalDeps.auto_page_maker = { url: env.AUTO_PAGE_MAKER_BASE_URL, healthy: false };
+      }
+    } else {
+      externalDeps.auto_page_maker = { url: 'not_configured' };
+    }
+    
+    // A1 (scholar_auth)
+    externalDeps.scholar_auth = { url: env.AUTH_ISSUER_URL || 'not_configured' };
 
     res.status(allReady ? 200 : 503).json({
       status: allReady ? 'ready' : 'not_ready',
       timestamp: new Date().toISOString(),
       checks,
-      optional_dependencies: optionalDeps
+      external_dependencies: externalDeps,
+      graceful_degradation: {
+        a2_ready_fallback: 'enabled',
+        a7_async_handling: 'enabled',
+        telemetry_buffering: 'enabled'
+      }
     });
   });
 
