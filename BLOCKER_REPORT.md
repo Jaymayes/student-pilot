@@ -177,9 +177,40 @@ Events that occurred (or should occur) but did NOT reach A8:
 | 2026-01-05T01:52:33Z | Canary events sent | 3/3 accepted by A8 |
 | 2026-01-05T02:23:28Z | Phase 1-4 revalidation | A6 still 500, A3 still 404 |
 | 2026-01-05T02:23:30Z | A8 system_probe | accepted:true, persisted:true |
+| 2026-01-05T02:50:43Z | DEFCON 1 comprehensive re-audit | Status unchanged |
+| 2026-01-05T02:50:45Z | 3x canary events to A8 | All persisted:true, avg 206ms |
 
 ---
 
-**Report Generated:** 2026-01-05T02:24:00Z
+## Latest Probe Evidence (2026-01-05T02:50:43Z)
+
+### A6 provider_register: ❌ STILL 500
+| Endpoint | HTTP | Latency |
+|----------|------|---------|
+| /health | 500 | 160ms |
+| /ready | 500 | 169ms |
+| /stripe/webhook | 500 | 152ms |
+
+### A2 scholarship_api: ❌ STILL 404 on /ready
+```json
+{"error":{"code":"NOT_FOUND","message":"The requested resource '/ready' was not found"}}
+```
+
+### A3 scholarship_agent: ❌ STILL 404 on automations
+- POST /api/automations/won-deal → 404
+- POST /api/leads/won-deal → 404
+
+### A8 Canary Results: ✅ ALL PERSISTED
+| Event | accepted | persisted | Latency |
+|-------|----------|-----------|---------|
+| NewUser | true | true | 214ms |
+| NewLead | true | true | 203ms |
+| PaymentSuccess | true | true | 203ms |
+
+**Average Latency:** 206ms (Target: ≤150ms)
+
+---
+
+**Report Updated:** 2026-01-05T02:51:00Z
 **Auditor:** A5 SRE System (student_pilot)
-**Next Audit:** After A6 remediation
+**Next Audit:** After A6 remediation by DevOps
