@@ -1,0 +1,85 @@
+{
+  "audit_timestamp": "2026-01-06T18:55Z",
+  "service": "A8 auto_com_center",
+  "url": "https://auto-com-center-jamarrlmayes.replit.app",
+  "health_status": "healthy",
+  "protocol_version": "v3.5.1",
+  "validations": {
+    "events_endpoint": {
+      "url": "/events",
+      "method": "POST",
+      "status": "PASS",
+      "test_event": {
+        "event_type": "test_probe",
+        "source": "audit",
+        "namespace": "simulated_audit"
+      },
+      "response": {
+        "accepted": true,
+        "event_id": "evt_1767725723319_2ia314xv7",
+        "persisted": true
+      }
+    },
+    "health_endpoint": {
+      "url": "/api/health",
+      "method": "GET",
+      "status": "PASS",
+      "response": {
+        "status": "healthy",
+        "db_status": "healthy",
+        "db_latency_ms": 226,
+        "uptime_seconds": 54608
+      }
+    },
+    "tiles": {
+      "finance": {
+        "status": "DEGRADED",
+        "data": "$0 revenue",
+        "reason": "No revenue events (A6 down, A3 blocked)"
+      },
+      "b2b_supply": {
+        "status": "BLOCKED",
+        "reason": "A6 provider registration down"
+      },
+      "seo": {
+        "status": "PASS",
+        "data": "Events from A7 visible"
+      },
+      "slo": {
+        "status": "PASS",
+        "data": "Health metrics populating"
+      }
+    },
+    "demo_mode": {
+      "status": "NOT_CONFIGURED",
+      "recommendation": "Enable via feature flag for safe demonstrations"
+    },
+    "read_only_mode": {
+      "status": "UNKNOWN",
+      "notes": "Events accepted and persisted - may not be in read-only"
+    }
+  },
+  "data_quality": {
+    "event_persistence": "PASS",
+    "schema_compliance": "PASS",
+    "namespace_isolation": "PASS",
+    "timestamp_accuracy": "PASS"
+  },
+  "issues": [
+    {
+      "id": "A8-001",
+      "severity": "HIGH",
+      "description": "Finance Tile showing $0 revenue",
+      "root_cause": "No revenue events from A3 or A6",
+      "remediation": "Fix A6, unblock A3 revenue pathway"
+    },
+    {
+      "id": "A8-002",
+      "severity": "MEDIUM",
+      "description": "Stale ARR Data alerts",
+      "root_cause": "usage_events and ledger_entries not updating",
+      "remediation": "Investigate ARR monitoring thresholds"
+    }
+  ],
+  "overall_status": "DEGRADED"
+}

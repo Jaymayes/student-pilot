@@ -1,0 +1,80 @@
+{
+  "audit_timestamp": "2026-01-06T18:55Z",
+  "namespace": "simulated_audit",
+  "overall_status": "PARTIAL",
+  "workflows": {
+    "marketing_seo": {
+      "service": "A7",
+      "status": "PASS",
+      "tests": [
+        {"name": "Health Check", "status": "PASS", "latency_ms": 161},
+        {"name": "Async Mode Enabled", "status": "PASS"},
+        {"name": "SendGrid Cached", "status": "PASS"},
+        {"name": "JWKS Verification", "status": "PASS"}
+      ]
+    },
+    "lead_gen": {
+      "service": "A3",
+      "status": "PASS",
+      "tests": [
+        {"name": "Health Check", "status": "PASS", "latency_ms": 182},
+        {"name": "API Health", "status": "PASS"}
+      ],
+      "notes": "Lead scoring operational"
+    },
+    "revenue_b2c": {
+      "service": "A5",
+      "status": "PASS",
+      "tests": [
+        {"name": "Health Check", "status": "PASS", "latency_ms": 117},
+        {"name": "Stripe Mode", "status": "PASS", "mode": "live_mode"},
+        {"name": "Database", "status": "PASS"},
+        {"name": "Telemetry to A8", "status": "PASS"}
+      ]
+    },
+    "revenue_b2b": {
+      "service": "A6",
+      "status": "FAIL",
+      "tests": [
+        {"name": "Health Check", "status": "FAIL", "error": "500 Internal Server Error"},
+        {"name": "Provider Registration", "status": "BLOCKED", "reason": "Service down"}
+      ],
+      "notes": "CRITICAL: A6 completely unavailable"
+    },
+    "learning": {
+      "service": "A2",
+      "status": "DEGRADED",
+      "tests": [
+        {"name": "Health Check", "status": "PASS"},
+        {"name": "Readiness Probe", "status": "FAIL", "error": "404 Not Found"}
+      ],
+      "notes": "/ready endpoint missing (Issue A)"
+    },
+    "telemetry": {
+      "service": "A8",
+      "status": "PASS",
+      "tests": [
+        {"name": "Health Check", "status": "PASS", "latency_ms": 313},
+        {"name": "Event Ingestion", "status": "PASS", "event_id": "evt_1767725723319_2ia314xv7"},
+        {"name": "Event Persistence", "status": "PASS"}
+      ]
+    },
+    "authentication": {
+      "service": "A1",
+      "status": "PASS",
+      "tests": [
+        {"name": "OIDC Discovery", "status": "PASS"},
+        {"name": "JWKS Endpoint", "status": "PASS"},
+        {"name": "API Health", "status": "PASS"}
+      ],
+      "notes": "Some end-user flows report Session Expired - needs investigation"
+    }
+  },
+  "summary": {
+    "total_workflows": 7,
+    "passing": 5,
+    "degraded": 1,
+    "failing": 1,
+    "pass_rate": "71.4%"
+  }
+}
