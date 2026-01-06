@@ -1,0 +1,148 @@
+{
+  "audit_timestamp": "2026-01-06T18:53Z",
+  "ecosystem_version": "3.5.1",
+  "services": {
+    "A1": {
+      "name": "scholar_auth",
+      "purpose": "OIDC Authentication Provider",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "status": "healthy",
+      "latency_ms": 125,
+      "endpoints": {
+        "health": "/api/health (200)",
+        "oidc_discovery": "/.well-known/openid-configuration (200)",
+        "jwks": "/oidc/jwks (200)"
+      },
+      "auth_method": "OIDC Provider (RS256)",
+      "inbound_apis": ["A5 login", "A6 login", "A7 login"],
+      "outbound_apis": [],
+      "data_sinks": []
+    },
+    "A2": {
+      "name": "scholarship_api",
+      "purpose": "Core Scholarship Data API",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "status": "degraded",
+      "latency_ms": 127,
+      "endpoints": {
+        "health": "/health (200)",
+        "api_health": "/api/health (200)",
+        "ready": "/ready (404 - MISSING)"
+      },
+      "auth_method": "JWT Bearer (A1)",
+      "inbound_apis": ["A5", "A3"],
+      "outbound_apis": ["A8 telemetry"],
+      "data_sinks": ["A8"],
+      "issues": ["Issue A: /ready endpoint missing"]
+    },
+    "A3": {
+      "name": "scholarship_agent",
+      "purpose": "AI Agent for Lead Scoring & Revenue",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+      "status": "healthy",
+      "latency_ms": 182,
+      "endpoints": {
+        "health": "/health (200)",
+        "api_health": "/api/health (200)"
+      },
+      "auth_method": "API Key / JWT",
+      "inbound_apis": ["A7 leads", "A2 data"],
+      "outbound_apis": ["A8 telemetry", "A2 updates"],
+      "data_sinks": ["A8"],
+      "issues": ["REVENUE BLOCKED reported - needs investigation"]
+    },
+    "A5": {
+      "name": "student_pilot",
+      "purpose": "B2C Student Dashboard",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "status": "healthy",
+      "latency_ms": 117,
+      "endpoints": {
+        "health": "/api/health (200)",
+        "readyz": "/api/readyz (200)"
+      },
+      "auth_method": "OIDC via A1",
+      "inbound_apis": ["Students"],
+      "outbound_apis": ["A1 auth", "A2 scholarships", "A8 telemetry"],
+      "data_sinks": ["A8"],
+      "dependencies": {
+        "A2": "unhealthy (ready check fails)",
+        "A8": "healthy",
+        "A7": "not_configured"
+      }
+    },
+    "A6": {
+      "name": "provider_register",
+      "purpose": "B2B Provider Portal",
+      "url": "https://provider-register-jamarrlmayes.replit.app",
+      "status": "DOWN",
+      "latency_ms": 91,
+      "endpoints": {
+        "health": "/api/health (500)",
+        "root": "/ (500)"
+      },
+      "auth_method": "OIDC via A1",
+      "inbound_apis": ["Providers"],
+      "outbound_apis": ["A1 auth", "A2 data", "A8 telemetry"],
+      "data_sinks": ["A8"],
+      "issues": ["CRITICAL: 500 Internal Server Error on all endpoints"]
+    },
+    "A7": {
+      "name": "auto_page_maker",
+      "purpose": "SEO/Marketing Landing Pages",
+      "url": "https://scholaraiadvisor.com",
+      "status": "healthy",
+      "latency_ms": 161,
+      "endpoints": {
+        "health": "/api/health (200)"
+      },
+      "auth_method": "JWKS (A1)",
+      "inbound_apis": ["Public traffic"],
+      "outbound_apis": ["A3 leads", "A8 telemetry"],
+      "data_sinks": ["A8"],
+      "features": {
+        "async_mode": true,
+        "sendgrid_cached": true
+      }
+    },
+    "A8": {
+      "name": "auto_com_center",
+      "purpose": "Command Center & Telemetry Hub",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "status": "healthy",
+      "latency_ms": 313,
+      "endpoints": {
+        "health": "/api/health (200)",
+        "events": "/events (POST)"
+      },
+      "auth_method": "API Key",
+      "inbound_apis": ["A2", "A3", "A5", "A6", "A7 telemetry"],
+      "outbound_apis": [],
+      "data_sinks": ["PostgreSQL"],
+      "issues": ["Read-only mode reported", "Revenue Funnel = $0"]
+    }
+  },
+  "critical_issues": [
+    {
+      "id": "CRIT-001",
+      "service": "A6",
+      "severity": "P0",
+      "description": "500 Internal Server Error on all endpoints",
+      "impact": "B2B Provider portal completely unavailable"
+    },
+    {
+      "id": "CRIT-002",
+      "service": "A2",
+      "severity": "P1",
+      "description": "/ready endpoint missing (404)",
+      "impact": "Health checks fail, dependency monitoring broken"
+    },
+    {
+      "id": "CRIT-003",
+      "service": "A3/A8",
+      "severity": "P1",
+      "description": "REVENUE BLOCKED - Revenue Funnel = $0",
+      "impact": "No revenue tracking or B2B monetization"
+    }
+  ]
+}

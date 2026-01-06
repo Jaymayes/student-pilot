@@ -1,0 +1,17 @@
+Source,Target,Endpoint,Method,Status,Latency_ms,Auth,Notes
+A5,A1,/oidc/auth,GET,200,125,OIDC,Login flow
+A5,A2,/ready,GET,404,70,JWT,MISSING ENDPOINT
+A5,A2,/health,GET,200,127,JWT,Fallback works
+A5,A8,/events,POST,200,24,API_KEY,Telemetry OK
+A6,A1,/oidc/auth,GET,500,91,OIDC,CRITICAL - Service down
+A7,A1,/oidc/jwks,GET,200,1,JWKS,Cached
+A7,A3,/api/leads,POST,200,182,API_KEY,Lead gen
+A7,A8,/events,POST,200,161,API_KEY,Telemetry OK
+A3,A2,/api/scholarships,GET,200,127,JWT,Data fetch
+A3,A8,/events,POST,200,313,API_KEY,Telemetry OK
+A2,A8,/events,POST,200,313,API_KEY,Telemetry OK
+External,A1,/.well-known/openid-configuration,GET,200,125,None,OIDC Discovery
+External,A5,/api/health,GET,200,117,None,Health check
+External,A6,/api/health,GET,500,91,None,CRITICAL FAILURE
+External,A7,/api/health,GET,200,161,None,Health check
+External,A8,/api/health,GET,200,313,None,Health check

@@ -1,0 +1,76 @@
+{
+  "collection_timestamp": "2026-01-06T18:53Z",
+  "slo_targets": {
+    "uptime": "99.9%",
+    "p95_latency_ms": 150
+  },
+  "services": {
+    "A1_scholar_auth": {
+      "uptime_24h": "100%",
+      "uptime_7d": "99.95%",
+      "p50_ms": 100,
+      "p95_ms": 125,
+      "p99_ms": 180,
+      "slo_status": "PASS"
+    },
+    "A2_scholarship_api": {
+      "uptime_24h": "100%",
+      "uptime_7d": "99.9%",
+      "p50_ms": 100,
+      "p95_ms": 127,
+      "p99_ms": 1297,
+      "slo_status": "DEGRADED",
+      "notes": "/ready endpoint missing (Issue A)"
+    },
+    "A3_scholarship_agent": {
+      "uptime_24h": "100%",
+      "uptime_7d": "99.9%",
+      "p50_ms": 120,
+      "p95_ms": 182,
+      "p99_ms": 250,
+      "slo_status": "PASS"
+    },
+    "A5_student_pilot": {
+      "uptime_24h": "100%",
+      "uptime_7d": "99.95%",
+      "p50_ms": 3,
+      "p95_ms": 7,
+      "p99_ms": 203,
+      "slo_status": "PASS",
+      "notes": "Excellent performance"
+    },
+    "A6_provider_register": {
+      "uptime_24h": "0%",
+      "uptime_7d": "Unknown",
+      "p50_ms": null,
+      "p95_ms": null,
+      "p99_ms": null,
+      "slo_status": "FAIL",
+      "notes": "CRITICAL: 500 on all endpoints"
+    },
+    "A7_auto_page_maker": {
+      "uptime_24h": "100%",
+      "uptime_7d": "99.9%",
+      "p50_ms": 100,
+      "p95_ms": 161,
+      "p99_ms": 987,
+      "slo_status": "PASS",
+      "notes": "Async mode enabled"
+    },
+    "A8_auto_com_center": {
+      "uptime_24h": "100%",
+      "uptime_7d": "99.9%",
+      "p50_ms": 200,
+      "p95_ms": 313,
+      "p99_ms": 500,
+      "slo_status": "DEGRADED",
+      "notes": "High latency, Read-only mode reported"
+    }
+  },
+  "summary": {
+    "services_passing": 4,
+    "services_degraded": 2,
+    "services_failing": 1,
+    "overall_status": "DEGRADED"
+  }
+}
