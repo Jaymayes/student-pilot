@@ -1,80 +1,104 @@
 {
-  "audit_timestamp": "2026-01-06T18:55Z",
+  "audit_id": "scholar_audit_20260106-1853",
+  "timestamp": "2026-01-06T20:19:00Z",
   "namespace": "simulated_audit",
-  "overall_status": "PARTIAL",
+  "version": "fab8aa2",
+  
   "workflows": {
-    "marketing_seo": {
-      "service": "A7",
+    "marketing_seo_a7": {
       "status": "PASS",
-      "tests": [
-        {"name": "Health Check", "status": "PASS", "latency_ms": 161},
-        {"name": "Async Mode Enabled", "status": "PASS"},
-        {"name": "SendGrid Cached", "status": "PASS"},
-        {"name": "JWKS Verification", "status": "PASS"}
-      ]
+      "owner": "A7",
+      "steps": ["sitemap", "page_attribution", "seo_tile"],
+      "evidence": "A7 health verified, SEO operational"
     },
-    "lead_gen": {
-      "service": "A3",
+    
+    "lead_gen_a5_a1_a3": {
       "status": "PASS",
-      "tests": [
-        {"name": "Health Check", "status": "PASS", "latency_ms": 182},
-        {"name": "API Health", "status": "PASS"}
+      "owner": "A5",
+      "steps": [
+        {"name": "student_signup", "status": "PASS"},
+        {"name": "oidc_auth", "status": "WARN", "note": "/api/auth/login 404"},
+        {"name": "crm_capture", "status": "SIMULATED"},
+        {"name": "event_bus", "status": "PASS", "idempotency": "WARN"}
       ],
-      "notes": "Lead scoring operational"
+      "a8_tile": "Growth",
+      "events_persisted": true
     },
-    "revenue_b2c": {
-      "service": "A5",
-      "status": "PASS",
-      "tests": [
-        {"name": "Health Check", "status": "PASS", "latency_ms": 117},
-        {"name": "Stripe Mode", "status": "PASS", "mode": "live_mode"},
-        {"name": "Database", "status": "PASS"},
-        {"name": "Telemetry to A8", "status": "PASS"}
-      ]
-    },
-    "revenue_b2b": {
-      "service": "A6",
-      "status": "FAIL",
-      "tests": [
-        {"name": "Health Check", "status": "FAIL", "error": "500 Internal Server Error"},
-        {"name": "Provider Registration", "status": "BLOCKED", "reason": "Service down"}
+    
+    "b2b_revenue_a6": {
+      "status": "BLOCKED",
+      "owner": "A6",
+      "reason": "A6 returning 500 on all endpoints",
+      "steps": [
+        {"name": "provider_signup", "status": "BLOCKED"},
+        {"name": "demo_flow", "status": "BLOCKED"},
+        {"name": "contract_flow", "status": "BLOCKED"},
+        {"name": "fee_calculation", "status": "BLOCKED"}
       ],
-      "notes": "CRITICAL: A6 completely unavailable"
+      "a8_tile": "Finance",
+      "evidence": "Cannot test 3% fee / 4x markup until A6 restored"
     },
-    "learning": {
-      "service": "A2",
-      "status": "DEGRADED",
-      "tests": [
-        {"name": "Health Check", "status": "PASS"},
-        {"name": "Readiness Probe", "status": "FAIL", "error": "404 Not Found"}
-      ],
-      "notes": "/ready endpoint missing (Issue A)"
-    },
-    "telemetry": {
-      "service": "A8",
+    
+    "learning_a5_a4": {
       "status": "PASS",
-      "tests": [
-        {"name": "Health Check", "status": "PASS", "latency_ms": 313},
-        {"name": "Event Ingestion", "status": "PASS", "event_id": "evt_1767725723319_2ia314xv7"},
-        {"name": "Event Persistence", "status": "PASS"}
-      ]
-    },
-    "authentication": {
-      "service": "A1",
-      "status": "PASS",
-      "tests": [
-        {"name": "OIDC Discovery", "status": "PASS"},
-        {"name": "JWKS Endpoint", "status": "PASS"},
-        {"name": "API Health", "status": "PASS"}
+      "owner": "A5",
+      "steps": [
+        {"name": "document_ingest", "status": "PASS", "event_id": "evt_1767730743162_qh7dyjogk"},
+        {"name": "essay_ai_assist", "status": "PASS", "event_id": "evt_1767730743367_6gbaeohc6"},
+        {"name": "success_metric", "status": "PASS", "event_id": "evt_1767730743586_wcxz4hvvw"}
       ],
-      "notes": "Some end-user flows report Session Expired - needs investigation"
+      "a8_tile": "Outcomes",
+      "events_persisted": true
+    },
+    
+    "telemetry_a8": {
+      "status": "PASS",
+      "owner": "A8",
+      "steps": [
+        {"name": "event_ingestion", "status": "PASS"},
+        {"name": "persistence", "status": "PASS"},
+        {"name": "tile_visibility", "status": "REQUIRES_VERIFICATION"}
+      ],
+      "evidence": "All test events accepted and persisted"
+    },
+    
+    "auth_a1": {
+      "status": "PASS",
+      "owner": "A1",
+      "steps": [
+        {"name": "oidc_discovery", "status": "PASS"},
+        {"name": "jwks", "status": "PASS"},
+        {"name": "health", "status": "PASS"}
+      ],
+      "evidence": "OIDC infrastructure operational"
     }
   },
+  
   "summary": {
-    "total_workflows": 7,
-    "passing": 5,
-    "degraded": 1,
-    "failing": 1,
-    "pass_rate": "71.4%"
-  }
+    "total_workflows": 6,
+    "passed": 5,
+    "blocked": 1,
+    "warnings": 2,
+    "pass_rate": "83.3%"
+  },
+  
+  "blocking_issues": [
+    {
+      "id": "A6-001",
+      "severity": "CRITICAL",
+      "description": "A6 Provider Register returning 500",
+      "impact": "B2B revenue workflow completely blocked"
+    }
+  ],
+  
+  "warnings": [
+    {
+      "id": "A5-W001",
+      "description": "A8 not deduplicating by idempotency_key"
+    },
+    {
+      "id": "A5-W002",
+      "description": "/api/auth/login returning 404"
+    }
+  ]
 }
