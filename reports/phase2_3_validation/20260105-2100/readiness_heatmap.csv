@@ -1,0 +1,13 @@
+Category,Weight,Score,Level,Weighted_Score,Max_Weighted,Percentage
+Reliability & SLO Adherence,15,5,Optimized,75,75,100.0
+Performance & Scalability,10,4,Measured,40,50,80.0
+Security & Secrets Hygiene,15,4,Measured,60,75,80.0
+Data Protection & Compliance,10,4,Measured,40,50,80.0
+Observability & Telemetry Quality,10,4,Measured,40,50,80.0
+Resiliency & DR/BCP,10,4,Measured,40,50,80.0
+Release Engineering & Change Mgmt,8,4,Measured,32,40,80.0
+Test & Quality Engineering,6,3,Managed,18,30,60.0
+Runbooks & Operational Handover,6,4,Measured,24,30,80.0
+Cost Efficiency & Capacity,5,3,Managed,15,25,60.0
+Dependency & Integration Health,5,4,Measured,20,25,80.0
+TOTAL,100,-,-,404,500,80.8
