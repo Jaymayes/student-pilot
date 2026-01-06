@@ -189,12 +189,56 @@ Based on learnings, the following runbooks need updates:
 
 ---
 
+## Iteration 3: A5-001 Issue Resolution (2026-01-06T20:55Z)
+
+### Investigation: "/api/auth/login 404" Report
+**Source:** Error report in scratchpad
+
+**Investigation:**
+1. Searched routes.ts for login handlers
+2. Found correct endpoint: `/api/login` (not `/api/auth/login`)
+3. Tested `/api/login` → 401 Unauthorized (correct - auth required)
+4. Tested `/api/auth/login` → 404 Not Found (expected - doesn't exist)
+
+**Conclusion:** ✅ False alarm
+- `/api/auth/login` does not exist and never did
+- Correct auth endpoint is `/api/login`
+- 401 response is correct behavior for unauthenticated request
+
+**Learning:** 
+- Verify endpoint paths before classifying as bugs
+- 404 vs 401 distinction is critical for diagnosis
+
+---
+
+### Resolution: AUTO_PAGE_MAKER_BASE_URL Configuration
+**Action:** Set environment variable via set_env_vars tool
+
+**Before:**
+```json
+{"auto_page_maker": {"url": "not_configured"}}
+```
+
+**After:**
+```
+AUTO_PAGE_MAKER_BASE_URL=https://auto-page-maker-jamarrlmayes.replit.app
+```
+
+**Status:** Environment variable set; pending app restart to verify
+
+**Learning:** 
+- Env vars set at runtime require app restart to be picked up by Zod validation
+- /api/readyz shows real-time env state after restart
+
+---
+
 ## Next Iteration Focus
 
 1. Obtain A6 application logs for root cause
 2. Verify A5 AUTH_CLIENT_ID configuration
 3. Measure revenue flow after A6 restoration
 4. Update EGRS with improved scores post-remediation
+5. Confirm AUTO_PAGE_MAKER_BASE_URL reflected in /api/readyz after full restart
 
 ---
 

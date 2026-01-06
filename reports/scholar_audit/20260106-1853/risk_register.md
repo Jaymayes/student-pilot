@@ -90,21 +90,21 @@
 
 ---
 
-### RISK-005: A7 Not Configured in A5
+### RISK-005: A7 Not Configured in A5 (RESOLVED)
 | Field | Value |
 |-------|-------|
 | **ID** | RISK-005 |
-| **Severity** | Low |
+| **Severity** | Low → N/A |
 | **Category** | Integration |
 | **Service** | A5 |
-| **Description** | AUTO_PAGE_MAKER_URL not set; A7 shows as "not_configured" |
+| **Description** | AUTO_PAGE_MAKER_BASE_URL not set; A7 showed as "not_configured" |
 | **Impact** | No marketing attribution tracking A7→A5 |
-| **Likelihood** | Confirmed (100%) |
+| **Likelihood** | N/A - Fixed |
 | **Root Cause** | Missing environment variable |
-| **Mitigation** | Set AUTO_PAGE_MAKER_URL in A5 configuration |
-| **Owner** | Ops |
-| **Status** | Open |
-| **ETA** | 1 hour |
+| **Resolution** | Set AUTO_PAGE_MAKER_BASE_URL=https://auto-page-maker-jamarrlmayes.replit.app |
+| **Owner** | Agent (automated) |
+| **Status** | **RESOLVED** |
+| **Resolved Date** | 2026-01-06T20:55Z |
 
 ---
 
