@@ -237,3 +237,107 @@ The following actions require explicit approval:
 ---
 
 **Status:** Awaiting approval for remediation actions
+
+---
+
+## Addendum: Deep Diagnostic Results (2026-01-06T19:45Z)
+
+### A1 OIDC Full Flow Trace
+
+**Discovery Endpoint:** ✅ Working
+- All required endpoints present (authorization, token, userinfo, jwks)
+- RS256 signing algorithm supported
+- PKCE (S256) supported
+
+**Authorization Endpoint Test:**
+- Response: HTTP 400 (Bad Request)
+- Reason: Test used client_id="student_pilot" which is likely not registered
+- **Action Required:** Verify correct client_id from A5 AUTH_CLIENT_ID env var
+
+**JWKS Endpoint:** ✅ Valid
+- Key ID: `scholar-auth-prod-20251016-941d2235`
+- Algorithm: RS256
+- Key type: RSA
+
+**Cookie Configuration:**
+- GAESA cookie set by Google Frontend (Replit proxy)
+- Session cookie attributes need verification in actual auth flow
+
+**Root Cause Analysis for "Session Expired" Errors:**
+Most likely causes (ordered by probability):
+1. **Incorrect client_id** - Test showed 400 error for "student_pilot"
+2. **redirect_uri mismatch** - May not be in A1 allowlist
+3. **Clock skew** - JWT exp validation sensitive to time drift
+4. **Cookie SameSite issues** - Cross-domain auth requires SameSite=none
+
+### A6 Provider Register Diagnostic
+
+**Classification:** REACHABLE-BUT-FAILING
+
+**Evidence:**
+```
+TCP Connect: 17ms (SUCCESS)
+HTTP Response: 500 Internal Server Error
+Content-Type: text/plain
+Response Body: "Internal Server Error" (21 bytes)
+```
+
+**Analysis:**
+- Service is reachable (not network-down)
+- Application is starting but throwing unhandled exception
+- Generic error handler masking root cause
+- No stack trace exposed (security best practice, but hinders diagnosis)
+
+**Likely Causes (ordered by probability):**
+1. **Database connection failure** - Missing/invalid DATABASE_URL
+2. **Missing environment variables** - Required secrets not set
+3. **Schema migration failure** - Database tables not created
+4. **Dependency initialization failure** - A1 OIDC discovery or A2 connection failing
+
+**Required Access for Diagnosis:**
+- A6 application logs (Replit console or logging service)
+- A6 Replit Secrets panel to verify env vars
+- A6 database migration status
+
+### B2B Revenue Flow Test
+
+**Result:** BLOCKED (A6 down)
+
+**What was tested:**
+- A8 event ingestion: ✅ Working
+- Revenue test event: ✅ Persisted (evt_1767728711411_21y6mv9bp)
+- A6 provider registration: ❌ 500 error
+
+**Financial Logic (3% fee / 4x markup):**
+- Cannot be tested until A6 is operational
+- Test event included expected values for verification when A6 restored
+
+### Data Lineage Verification
+
+**Event ID:** `lineage_test_1767728719_d91ff167`
+
+**Lineage Chain:**
+```
+Source (audit_lineage_probe)
+    ↓ POST /events
+A8 Command Center
+    ↓ accepted=true
+A8 Raw Storage (evt_1767728719896_ve32c8slb)
+    ↓ persisted=true
+A8 Dashboard Tile
+    ↓ [Requires UI verification]
+```
+
+**Verification:**
+- ✅ Event accepted by A8
+- ✅ Event persisted to storage
+- ⚠️ Dashboard tile visibility requires manual verification
+
+---
+
+## Updated Remediation Priority
+
+1. **CRITICAL:** Diagnose A6 500 error via application logs
+2. **HIGH:** Verify A5 client_id matches A1 registered application
+3. **MEDIUM:** Implement A2 /ready endpoint
+4. **MEDIUM:** Verify A8 Finance Tile after A6 restoration
