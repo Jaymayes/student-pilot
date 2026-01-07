@@ -1,22 +1,25 @@
 # Readiness Attestation - A5 (student_pilot)
 
 **Generated:** 2026-01-07T06:53:00Z  
-**Protocol Version:** AGENT3_HANDSHAKE v7  
+**Updated:** 2026-01-07T19:41:00Z  
+**Protocol Version:** AGENT3_HANDSHAKE v8  
 **Namespace:** simulated_audit
 
 ---
 
-## Second-Confirmation Checklist
+## Second-Confirmation Protocol (v8)
 
-### (a) Liveness of Core Services
+Per v8 protocol, every claim requires **two independent evidence sources**.
 
-| Service | Endpoint | Status | Latency |
-|---------|----------|--------|---------|
-| A5 Health | `/api/health` | ✅ OK | <50ms |
-| A5 Login | `/api/login` | ✅ 302 | <100ms |
-| A8 Events | `/events` | ✅ Accepting | <100ms |
-| Database | PostgreSQL | ✅ Healthy | 32ms |
-| Stripe | Live Mode | ✅ Active | N/A |
+### (a) Liveness of Core Services (Dual-Source Verified)
+
+| Service | Source 1 | Source 2 | Status |
+|---------|----------|----------|--------|
+| A5 Health | HTTP `/api/health` → OK | A8 event evt_1767814913250 accepted | ✅ |
+| A5 Login | HTTP `/api/login` → 302 | OIDC redirect trace logged | ✅ |
+| A8 Events | POST `/events` → accepted | persisted=true in response | ✅ |
+| Database | HTTP checks.database → healthy | A8 event persisted successfully | ✅ |
+| Stripe | HTTP checks.stripe → live_mode | Stripe dashboard config | ✅ |
 
 ### (b) Autonomy with RL Loop Running
 
@@ -67,4 +70,5 @@
 
 **Signed:** AGENT3 Diagnostic Agent  
 **App:** A5 (student_pilot)  
-**Version:** e0ee1d99
+**Version:** 8c875f4b  
+**Protocol:** v8 (Second-Confirmation)
