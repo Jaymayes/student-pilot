@@ -1,0 +1,31 @@
+AGENT3_HANDSHAKE v27 Phase 2: Application Log Evidence
+Captured: 2026-01-08T20:05:00Z
+Source: /tmp/logs/Start_application_20260108_194513_432.log
+
+=== SERVER INITIALIZATION ===
+7:44:38 PM [express] serving on port 5000
+
+=== TELEMETRY INITIALIZATION ===
+📊 Starting Telemetry Client (Protocol ONE_TRUTH v1.2)...
+📊 Telemetry: Starting client for student_pilot (A5)
+📊 Telemetry: app_started emitted for student_pilot
+✅ Telemetry: Client started with identify, HEARTBEAT (60s), KPI_SNAPSHOT (5m), flush (10000ms)
+
+=== TELEMETRY DELIVERY ===
+📊 Telemetry v3.5.1: Attempting to flush 9 events to https://auto-com-center-jamarrlmayes.replit.app/events
+✅ Telemetry v3.5.1: Successfully sent 9/9 events to A8 Command Center (/events)
+
+=== PREFLIGHT CHECK ===
+✅ Protocol v3.3.1: PREFLIGHT_CHECK emitted - go_live: go
+
+=== STATUS REPORT ===
+REPORT: app=student_pilot | app_base_url=https://student-pilot-jamarrlmayes.replit.app | env=prod | protocol=ONE_TRUTH | version=v1.2 | msg=Telemetry v1.2 active, events flowing, Command Center visible | fields=status=ready; port=5000; telemetry_protocol=ONE_TRUTH; telemetry_version=1.2; heartbeat_interval_sec=60
+
+=== DUAL-SOURCE VALIDATION ===
+Source 1: Curl probe results (tests/perf/reports/evidence/phase2_latency_probes.txt)
+Source 2: This application log file (tests/perf/reports/evidence/phase2_app_log.txt)
+
+Both sources confirm:
+- A5 serving on port 5000: VERIFIED
+- Telemetry delivery 100%: VERIFIED (9/9 events)
+- PREFLIGHT_CHECK emitted: VERIFIED

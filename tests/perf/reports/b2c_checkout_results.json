@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-01-08T20:00:00Z",
+  "protocol": "AGENT3_HANDSHAKE v27",
+  "phase": "4-monetization",
+  "dual_source_evidence": {
+    "source_1": "tests/perf/reports/evidence/phase4_db_output.txt",
+    "source_2": "tests/perf/reports/evidence/phase4_stripe_log.txt"
+  },
+  "stripe_configuration": {
+    "live_mode": true,
+    "test_mode": true,
+    "rollout_percentage": 100,
+    "webhook_configured": true,
+    "secrets_verified": ["STRIPE_SECRET_KEY", "VITE_STRIPE_PUBLIC_KEY"]
+  },
+  "checkout_flow": {
+    "pricing_page": {
+      "endpoint": "/billing",
+      "status": "IMPLEMENTED"
+    },
+    "create_checkout": {
+      "endpoint": "/api/billing/create-checkout",
+      "status": "IMPLEMENTED"
+    },
+    "webhook": {
+      "endpoint": "/api/billing/webhook",
+      "event": "checkout.session.completed",
+      "status": "CONFIGURED"
+    }
+  },
+  "test_results": {
+    "test_mode_checkout": "NOT EXECUTED",
+    "reason": "Requires manual browser interaction or HITL approval",
+    "synthetic_purchases": 80,
+    "synthetic_user": "trial-test-user-DUTokS"
+  },
+  "credit_ledger_updates": {
+    "verified": true,
+    "total_purchases": 80,
+    "total_credits": 4000,
+    "evidence": "tests/perf/reports/evidence/phase4_db_output.txt"
+  },
+  "revenue_event_emission": {
+    "verified": false,
+    "reason": "All purchases are synthetic, no real Stripe transactions",
+    "expected_fields": ["revenue_event_id", "provider_fee_pct", "ai_markup_factor"]
+  },
+  "items_not_assessed": [
+    "Real Stripe checkout flow (requires HITL)",
+    "Webhook signature validation",
+    "Revenue event emission with lineage fields",
+    "Checkout conversion rate measurement"
+  ],
+  "status": "PARTIAL_PASS",
+  "validation_method": "DUAL_SOURCE"
+}

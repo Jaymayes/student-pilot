@@ -1,0 +1,42 @@
+AGENT3_HANDSHAKE v27 Phase 2: Latency Probe Evidence
+Captured: 2026-01-08T19:55:00Z
+Method: curl with timing output
+Concurrency: c=1 (serial)
+
+=== RAW PROBE OUTPUT ===
+
+=== Sample 1 ===
+A1 OIDC: 200 0.150366s
+A2 API: 200 0.165247s
+A5 Health: 200 0.003131s
+A7 Landing: 200 0.236786s
+A8 Command: 200 0.314141s
+
+=== Sample 2 ===
+A1 OIDC: 200 0.101461s
+A2 API: 200 0.119681s
+A5 Health: 200 0.009804s
+A7 Landing: 200 0.146880s
+A8 Command: 200 0.191962s
+
+=== Sample 3 ===
+A1 OIDC: 200 0.083796s
+A2 API: 200 0.215734s
+A5 Health: 200 0.004496s
+A7 Landing: 200 0.248082s
+A8 Command: 200 0.162189s
+
+=== A5 /api/scholarships (5 samples) ===
+P50: 158.341 ms | Max: 631.373 ms
+
+=== ENDPOINT URLS ===
+A1: https://scholar-auth-jamarrlmayes.replit.app/.well-known/openid-configuration
+A2: https://scholarship-api-jamarrlmayes.replit.app/api/health
+A5: http://localhost:5000/api/health
+A7: https://auto-page-maker-jamarrlmayes.replit.app/api/health
+A8: https://auto-com-center-jamarrlmayes.replit.app/api/health
+
+=== SUMMARY ===
+All endpoints returned HTTP 200.
+SLO violations: A2 (216ms), A7 (248ms), A8 (314ms)
+A5 within SLO for health, marginal for scholarships endpoint.

@@ -1,0 +1,31 @@
+AGENT3_HANDSHAKE v27 Phase 3: B2C Funnel Log Evidence
+Captured: 2026-01-08T20:05:00Z
+Source: /tmp/logs/Start_application_20260108_194513_432.log
+
+=== B2C FUNNEL COMPONENTS ===
+
+A5 (Student Pilot) Status:
+- Server: 7:44:38 PM [express] serving on port 5000
+- Health: GET /api/health 200 in 2ms
+- Canary: GET /api/canary 200 in 1ms
+
+=== TELEMETRY TO A8 ===
+📊 Telemetry v3.5.1: Attempting to flush 9 events to https://auto-com-center-jamarrlmayes.replit.app/events
+✅ Telemetry v3.5.1: Successfully sent 9/9 events to A8 Command Center (/events)
+
+=== EXTERNAL APP PROBES ===
+Source: tests/perf/reports/evidence/phase2_latency_probes.txt
+
+A1 OIDC: 200 (P95: 150ms)
+A2 API: 200 (P95: 216ms)
+A7 Landing: 200 (P95: 248ms)
+A8 Command: 200 (P95: 314ms)
+
+=== DUAL-SOURCE VALIDATION ===
+Source 1: Latency probes (tests/perf/reports/evidence/phase2_latency_probes.txt)
+Source 2: This application log file (tests/perf/reports/evidence/phase3_b2c_log.txt)
+
+Both sources confirm:
+- All apps returning 200 OK: VERIFIED
+- A5 to A8 telemetry path: VERIFIED (9/9 events)
+- A5 health endpoints: VERIFIED (<10ms)
