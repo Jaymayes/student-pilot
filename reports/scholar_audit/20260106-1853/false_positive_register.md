@@ -53,6 +53,20 @@ This register documents alerts and findings that were triaged as false positives
 
 ---
 
+### FP-004: "Agent Bridge Registration 404"
+
+| Field | Value |
+|-------|-------|
+| **Alert Type** | Registration Failure |
+| **Endpoint** | `/orchestrator/register` → 404 |
+| **Classification** | ✅ FALSE POSITIVE (Expected) |
+| **Evidence** | Telemetry continues at 100% via `/events`; code has explicit fallback |
+| **Root Cause** | A8 orchestrator endpoints are optional; not implemented on Command Center |
+| **Resolution** | Graceful degradation to "local-only mode" works as designed |
+| **Impact** | None - telemetry, KPI_SNAPSHOT, and all critical flows unaffected |
+
+---
+
 ## Confirmed Issues (Not False Positives)
 
 | ID | Issue | Status |
@@ -67,11 +81,11 @@ This register documents alerts and findings that were triaged as false positives
 
 | Classification | Count |
 |----------------|-------|
-| False Positive | 3 |
+| False Positive | 4 |
 | Partially False Positive | 0 |
 | Confirmed | 3 |
 
-**False Positive Rate:** 50% of triaged alerts
+**False Positive Rate:** 57% of triaged alerts
 
 ---
 
