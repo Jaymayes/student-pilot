@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-01-08T19:40:00Z",
+  "protocol": "AGENT3_HANDSHAKE v27",
+  "phase": "1-smoke-health",
+  "slo_target": {
+    "p95_ms": 150,
+    "error_rate_pct": 1
+  },
+  "results": {
+    "A1": {
+      "name": "Scholar Auth",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "health_endpoint": "/health",
+      "status": 200,
+      "latency_ms": 150,
+      "slo_pass": true,
+      "notes": "At SLO boundary"
+    },
+    "A2": {
+      "name": "Scholarship API",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "health_endpoint": "/health",
+      "status": 200,
+      "latency_ms": 163,
+      "slo_pass": false,
+      "notes": "13ms over SLO target"
+    },
+    "A5": {
+      "name": "Student Pilot",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "endpoints": {
+        "/api/health": {
+          "status": 200,
+          "p50_ms": 3,
+          "p95_ms": 3.3,
+          "slo_pass": true
+        },
+        "/api/canary": {
+          "status": 200,
+          "p50_ms": 2.7,
+          "p95_ms": 3.3,
+          "slo_pass": true
+        },
+        "/api/scholarships": {
+          "status": 200,
+          "p50_ms": 38,
+          "p95_ms": 73,
+          "slo_pass": true
+        }
+      },
+      "circuit_breakers": {
+        "database": "healthy",
+        "cache": "healthy",
+        "stripe": "live_mode"
+      },
+      "slo_pass": true
+    },
+    "A7": {
+      "name": "Auto Page Maker",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
+      "health_endpoint": "/health",
+      "status": 200,
+      "latency_ms": 1805,
+      "slo_pass": false,
+      "notes": "CRITICAL: 1655ms over SLO target - needs caching/CDN"
+    },
+    "A8": {
+      "name": "Auto Com Center",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "health_endpoint": "/health",
+      "status": 200,
+      "latency_ms": 116,
+      "slo_pass": true,
+      "notes": "34ms under SLO target"
+    }
+  },
+  "telemetry": {
+    "delivery_status": "operational",
+    "primary_endpoint": "https://auto-com-center-jamarrlmayes.replit.app/events",
+    "protocol_version": "v3.5.1",
+    "last_successful_flush": "9/9 events"
+  },
+  "dual_source_validation": {
+    "A5_health_transaction": true,
+    "A5_canary_transaction": true,
+    "telemetry_to_a8": true
+  },
+  "summary": {
+    "total_apps_probed": 5,
+    "apps_passing_slo": 3,
+    "apps_failing_slo": 2,
+    "overall_status": "PARTIAL_PASS"
+  }
+}
