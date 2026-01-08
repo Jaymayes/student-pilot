@@ -1,0 +1,54 @@
+AGENT3_HANDSHAKE v27 Phase 5: Telemetry Evidence
+Captured: 2026-01-08T19:44:48Z
+Source: /tmp/logs/Start_application_20260108_194513_432.log
+
+=== APP INITIALIZATION ===
+✅ Development mode: 2/7 microservice URLs configured (optional)
+✅ Environment validation passed (Scholar Auth enabled)
+🔒 Stripe LIVE initialized (rollout: 100%)
+✅ Enterprise alerting system initialized with throttled event handlers
+
+=== IDENTITY CONFIRMATION ===
+IDENTIFY: APP=student_pilot | APP_BASE_URL=https://student-pilot-jamarrlmayes.replit.app | ROLE=Student App + Payments | ENV=prod
+APP_IDENTITY: A5 student_pilot https://student-pilot-jamarrlmayes.replit.app protocol=v3.5.1
+
+=== TELEMETRY INITIALIZATION ===
+📊 Starting Telemetry Client (Protocol ONE_TRUTH v1.2)...
+📊 Telemetry: Starting client for student_pilot (A5)
+   Primary endpoint: https://auto-com-center-jamarrlmayes.replit.app/events
+   Fallback endpoint: https://scholarship-api-jamarrlmayes.replit.app/events
+   Flush interval: 10000ms, Batch max: 100
+
+=== TELEMETRY SUCCESS EVIDENCE ===
+📊 Telemetry v3.5.1: Attempting to flush 9 events to https://auto-com-center-jamarrlmayes.replit.app/events
+✅ Telemetry v3.5.1: Successfully sent 9/9 events to A8 Command Center (/events)
+
+=== EVENTS EMITTED ===
+✅ Protocol v3.3.1: APP_ONLINE emitted for A5 student_pilot
+📊 Telemetry: app_started emitted for student_pilot
+✅ Protocol v3.3.1: PREFLIGHT_CHECK emitted - go_live: go
+📊 Protocol v3.3.1: KPI_SNAPSHOT emitted
+
+=== HEARTBEAT CONFIGURATION ===
+✅ Command Center: Heartbeat started (300s interval)
+✅ Telemetry: Client started with identify, HEARTBEAT (60s), KPI_SNAPSHOT (5m), flush (10000ms)
+✅ Command Center: Reporting enabled to https://auto-com-center-jamarrlmayes.replit.app/events
+
+=== HEALTH ENDPOINTS ===
+7:44:38 PM [express] serving on port 5000
+7:44:39 PM [express] GET /api/health 200 in 2ms
+7:44:41 PM [express] GET /api/canary 200 in 1ms
+
+=== SYSTEM READY ===
+========================================
+SYSTEM INITIALIZED
+IDENTITY CONFIRMED: A5
+BASE URL: https://student-pilot-jamarrlmayes.replit.app
+MODE: Operational
+TARGET: Launch, Revenue, Traffic, Reporting
+========================================
+
+DUAL-SOURCE VALIDATION:
+- Source 1: Application logs (above)
+- Source 2: HTTP 200 on /og-image.png (634190 bytes)
+- OG Image verified: curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/og-image.png returns 200

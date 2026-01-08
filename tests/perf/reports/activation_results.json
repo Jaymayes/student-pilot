@@ -3,6 +3,12 @@
   "protocol": "AGENT3_HANDSHAKE v27",
   "phase": "5-activation-growth",
   "app": "student_pilot",
+  "dual_source_evidence": {
+    "source_1": "tests/perf/reports/evidence/phase5_telemetry_log.txt",
+    "source_2": "HTTP verification: curl returns 200 for /og-image.png",
+    "source_1_type": "Application startup logs",
+    "source_2_type": "HTTP response code and size verification"
+  },
   "seo_fixes": {
     "og_image_added": true,
     "og_image_url": "https://student-pilot-jamarrlmayes.replit.app/og-image.png",
@@ -45,6 +51,12 @@
     "checkout_conv_rate": null,
     "ttfv_min": null
   },
+  "items_not_assessed": [
+    "TTFV measurement (requires real user signups)",
+    "Sitemap.xml generation (not verified)",
+    "Onboarding wizard impact (not implemented yet)",
+    "Testimonials section (not present)"
+  ],
   "pending_items": [
     "Implement guided onboarding wizard to first AI usage",
     "Add TTFV event emission on first credit usage",
@@ -58,5 +70,11 @@
     "Added twitter:image:alt meta tag",
     "Created og-image.png asset (634KB, 1200x630)"
   ],
-  "status": "PARTIAL_PASS"
+  "status": "PARTIAL_PASS",
+  "validation_method": "DUAL_SOURCE",
+  "evidence_sources": [
+    "tests/perf/reports/evidence/phase5_telemetry_log.txt",
+    "HTTP 200 on /og-image.png with 634190 bytes",
+    "client/index.html meta tag inspection"
+  ]
 }

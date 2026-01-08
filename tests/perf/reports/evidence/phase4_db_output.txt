@@ -1,0 +1,60 @@
+AGENT3_HANDSHAKE v27 Phase 4: Database Query Evidence
+Captured: 2026-01-08T19:50:00Z
+Tool: execute_sql_tool
+Database: PostgreSQL (Neon Development)
+
+=== QUERY 1: Credit Ledger Summary ===
+SQL: SELECT type, COUNT(*) as count, SUM(amount_millicredits) as total FROM credit_ledger GROUP BY type;
+
+RAW OUTPUT:
+type,count,total
+purchase,80,4000000
+adjustment,1,5000
+refund,2,100000
+
+=== QUERY 2: Unique Users with Credit Activity ===
+SQL: SELECT DISTINCT user_id FROM credit_ledger;
+
+RAW OUTPUT:
+user_id
+trial-test-user-DUTokS
+
+=== QUERY 3: User Count and Stripe Links ===
+SQL: SELECT COUNT(*) as total_users, COUNT(CASE WHEN stripe_customer_id IS NOT NULL THEN 1 END) as with_stripe FROM users;
+
+RAW OUTPUT:
+total_users,with_stripe
+7,0
+
+=== QUERY 4: User Details ===
+SQL: SELECT id, email, subscription_status, stripe_customer_id, created_at FROM users ORDER BY created_at DESC LIMIT 10;
+
+RAW OUTPUT:
+id,email,subscription_status,stripe_customer_id,created_at
+trial-test-user-DUTokS,newstudent-fmN4Eb@example.com,inactive,,2025-12-17 01:35:57.615975
+visual-check-user,realuser@scholarlink.com,inactive,,2025-12-16 21:07:09.462405
+ui-validation-user,validation@real-user.com,inactive,,2025-12-16 20:37:11.786898
+e2e-success,success@scholarlink.app,inactive,,2025-10-17 14:45:38.159423
+e2e-final-validated,validated@scholarlink.app,inactive,,2025-10-17 14:18:58.167733
+nwiKs-,final-_YRd_@canary.prod,inactive,,2025-10-08 17:37:39.292082
+42600777,jamarrlmayes@gmail.com,inactive,,2025-08-19 13:49:41.685263
+
+=== QUERY 5: Credit Ledger Recent Entries ===
+SQL: SELECT * FROM credit_ledger ORDER BY created_at DESC LIMIT 10;
+
+RAW OUTPUT:
+id,user_id,type,amount_millicredits,balance_after_millicredits,reference_type,reference_id,metadata,created_at
+55c70d59-943c-45d2-ac76-de1009dabc47,trial-test-user-DUTokS,purchase,50000,4105000,stripe,pi_synthetic_0c5c7970-1f0f-43a5-9213-e9e6fdacce4b,"{""provider"": ""stripe"", ""description"": ""Synthetic purchase of 50 credits"", ""originalReferenceType"": ""stripe_payment""}",2026-01-04 01:14:36.255
+945614cf-2a64-4f64-9926-b6c419b87ef0,trial-test-user-DUTokS,purchase,50000,4055000,stripe,pi_synthetic_3046127c-8054-455a-b112-8fda0f8e1250,"{""provider"": ""stripe"", ""description"": ""Synthetic purchase of 50 credits"", ""originalReferenceType"": ""stripe_payment""}",2026-01-03 19:57:49.236
+...truncated for brevity...
+
+=== SUMMARY ===
+- Total users: 7
+- Users with stripe_customer_id: 0
+- Real users: 1 (42600777/jamarrlmayes@gmail.com)
+- Test users: 6
+- Total purchase records: 80
+- Total credits purchased: 4,000 credits
+- Total refunds: 2 (100 credits)
+- Total debits (AI usage): 0
+- All activity from: trial-test-user-DUTokS (synthetic test user)
