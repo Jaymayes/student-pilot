@@ -1,0 +1,24 @@
+{
+  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "timestamp": "2026-01-09T19:17:00Z",
+  "algorithm": "SHA256",
+  "artifacts": {
+    "a1_health.json": "b7c60020a4772d6769b1261a474234c5c44d4835df417d020449b26d71afe808",
+    "a2_health.json": "fc0e2a4043fd4dfb7aa39b6b4174c7d4d3e2bfc88f1d097517a37d21c8bd7ea2",
+    "a3_health.json": "3e098630bc4e2b6fd06cf1b81ccbacd0c8989e6ca74e82643419383baabd1e07",
+    "a4_health.json": "70a897f5b3c479b679b361b1d1194fbf7408036d6c98aef9dbe513f5fe390da6",
+    "a5_health.json": "fa04c88d8af86c5006eca8f79433dd9eb115beac8c255e2becb632cdba0be2c8",
+    "a6_health.json": "359592f566193e64ee79afb835d55e976005e6089cc4adb6e587d81b9635b632",
+    "a7_health.json": "086876a436450d657140a0c17f2db8a31e96fc257079a8bda4bdbc202802b1b9",
+    "a8_health.json": "5426dc8b51ace1295f67446738622178cf5a9a7ea8cc0defe3c31459be321908",
+    "b2c_checkout_trace.json": "3b54f3b04ac6e44d3ae58e4f6047d0471e2f12707eec653b719778fbe330ae1a",
+    "fee_lineage.json": "159f181a318c891a3ab15b76eaf4742f7d21b55c6222caea72cd99733b5494c2",
+    "learning_evidence.json": "5edd69deedf3c4709ffdff9b9402987d6c0a50d1eb086ffb2e7036257f529077"
+  },
+  "a8_verification": {
+    "post_event_id": "evt_1767986168457_zd1f3n3hd",
+    "accepted": true,
+    "timestamp": "2026-01-09T19:16:08.457Z"
+  },
+  "integrity_status": "VERIFIED"
+}

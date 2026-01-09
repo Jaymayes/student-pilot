@@ -1,0 +1,38 @@
+{
+  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "protocol": "AGENT3_HANDSHAKE v27",
+  "timestamp": "2026-01-09T19:17:13Z",
+  "trace_type": "b2c_checkout",
+  "execution_status": "EXECUTED",
+  "trace_id": "CEOSPRINT-20260109-1915-004658.b2c",
+  "idempotency_key": "b2c-checkout-CEOSPRINT-20260109-1915-004658",
+  "synthetic_identity": {
+    "student_id": "test_student_e2e_01",
+    "tags": {
+      "test_run": true,
+      "source": "qa",
+      "env": "prod_observe",
+      "campaign": "v27_fresh_sprint"
+    }
+  },
+  "executed_transaction": {
+    "user_id": "test_student_e2e_01",
+    "purchase_id": "ea5e8bdf-af16-43b1-9bd3-85a9a7b49285",
+    "ledger_id": "ledger_v27_e5a57925-1382-4939-ad73-f2cbf6427578",
+    "package_code": "starter",
+    "price_usd_cents": 999,
+    "credits_awarded": 50,
+    "millicredits_balance": 50000,
+    "stripe_mode": "LIVE",
+    "auto_refund": "within_24h"
+  },
+  "a8_verification": {
+    "post_accepted": true,
+    "event_id": "evt_1767986168457_zd1f3n3hd"
+  },
+  "verdict": "PASS",
+  "dual_source": {
+    "source_1": "Stripe checkout session created",
+    "source_2": "Credit ledger entry confirmed"
+  }
+}

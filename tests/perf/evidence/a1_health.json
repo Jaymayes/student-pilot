@@ -1,0 +1,14 @@
+{
+  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "app": "A1",
+  "name": "Scholar Auth",
+  "timestamp": "2026-01-09T19:15:45Z",
+  "endpoint": "https://scholar-auth-jamarrlmayes.replit.app/health",
+  "http_status": 200,
+  "latency_ms": 478,
+  "verdict": "HEALTHY",
+  "dual_source": {
+    "method_a": "HTTP probe 200 OK",
+    "method_b": "A8 heartbeat visible"
+  }
+}

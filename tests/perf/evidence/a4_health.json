@@ -1,0 +1,15 @@
+{
+  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "app": "A4",
+  "name": "AI Service",
+  "timestamp": "2026-01-09T19:15:45Z",
+  "endpoint": "https://ai-service-jamarrlmayes.replit.app/health",
+  "http_status": 404,
+  "latency_ms": 223,
+  "verdict": "DEGRADED",
+  "dual_source": {
+    "method_a": "HTTP 404 - endpoint not exposed",
+    "method_b": "No telemetry heartbeat"
+  },
+  "notes": "Health endpoint not implemented"
+}

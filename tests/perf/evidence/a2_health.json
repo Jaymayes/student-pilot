@@ -1,0 +1,15 @@
+{
+  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "app": "A2",
+  "name": "Scholarship API",
+  "timestamp": "2026-01-09T19:15:45Z",
+  "endpoint": "https://scholarship-api-jamarrlmayes.replit.app/health",
+  "http_status": 0,
+  "latency_ms": 8002,
+  "verdict": "TIMEOUT",
+  "dual_source": {
+    "method_a": "HTTP probe timeout",
+    "method_b": "Cold start suspected"
+  },
+  "notes": "Retry recommended after cold start"
+}

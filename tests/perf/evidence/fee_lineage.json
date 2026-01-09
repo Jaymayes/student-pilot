@@ -1,0 +1,31 @@
+{
+  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "protocol": "AGENT3_HANDSHAKE v27",
+  "timestamp": "2026-01-09T19:17:21Z",
+  "lineage_type": "b2b_fee_structure",
+  "trace_id": "CEOSPRINT-20260109-1915-004658.b2b",
+  "finance_config": {
+    "provider_fee_pct": 3,
+    "ai_markup_factor": 4.0,
+    "verification_status": "CONFIGURED",
+    "source": "system_map.json"
+  },
+  "fee_calculation_example": {
+    "base_ai_cost_usd": 0.01,
+    "markup_factor": 4.0,
+    "student_price_usd": 0.04,
+    "provider_fee_pct": 3,
+    "provider_fee_usd": 0.0012,
+    "net_to_platform_usd": 0.0288
+  },
+  "a6_verification": {
+    "endpoint": "https://provider-dashboard-jamarrlmayes.replit.app/health",
+    "status": 404,
+    "lineage_accessible": false
+  },
+  "verdict": "CONFIGURED_PENDING_A6_ACCESS",
+  "dual_source": {
+    "source_1": "system_map.json finance_lineage section",
+    "source_2": "A8 telemetry events schema"
+  }
+}
