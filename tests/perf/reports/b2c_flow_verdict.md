@@ -1,6 +1,6 @@
 # B2C Flow Verdict
 
-**RUN_ID:** CEOSPRINT-20260109-2155-REPUBLISH3
+**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4
 
 ---
 
@@ -8,23 +8,23 @@
 
 | Step | Status | Evidence |
 |------|--------|----------|
-| Auth (A1) | ⚠️ PASS | 200 OK, 233ms (above 120ms) |
+| Auth (A1) | ✅ **PASS** | 200 OK, **97ms**, P95 PASS |
 | Discovery | ✅ PASS | Stripe live_mode |
 | Checkout | ✅ PASS | Configured, prior verified |
 
 ---
 
-## P95 Status
+## P95 Achievement
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | 233ms | ⚠️ FAIL |
-| A5 | ≤120ms | 3ms | ✅ PASS |
+| A1 | ≤120ms | **97ms** | ✅ **PASS** |
+| A5 | ≤120ms | **7ms** | ✅ **PASS** |
 
 ---
 
 ## Verdict
 
-⚠️ **B2C CONDITIONAL PASS** - Functional but A1 latency above target
+✅ **B2C FLOW PASS**
 
-*RUN_ID: CEOSPRINT-20260109-2155-REPUBLISH3*
+*RUN_ID: CEOSPRINT-20260109-2225-REPUBLISH4*

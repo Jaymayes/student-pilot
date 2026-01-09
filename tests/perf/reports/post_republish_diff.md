@@ -1,8 +1,8 @@
 # Post-Republish Diff Report
 
-**RUN_ID:** CEOSPRINT-20260109-2155-REPUBLISH3  
-**Baseline:** CEOSPRINT-20260109-2100-REPUBLISH2  
-**Timestamp:** 2026-01-09T22:21:39Z
+**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4  
+**Baseline:** CEOSPRINT-20260109-2155-REPUBLISH3  
+**Timestamp:** 2026-01-09T22:31:59Z
 
 ---
 
@@ -10,8 +10,8 @@
 
 | Metric | Prior Run | This Run | Delta |
 |--------|-----------|----------|-------|
-| Git SHA | f3ee404 | 0c5ae99 | NEW COMMIT |
-| A5 Uptime | 1317s | 2396s | +1079s |
+| Git SHA | ddc0bd1 | 3c9e260 | NEW COMMIT |
+| A5 Uptime | 2396s | 391s | FRESH RESTART |
 
 ---
 
@@ -19,28 +19,25 @@
 
 | App | Prior (ms) | Current (ms) | Delta | P95 Target |
 |-----|------------|--------------|-------|------------|
-| A1 | 79 | **233** | +154ms | ⚠️ REGRESSED |
-| A2 | 169 | 122 | -47ms | ✅ |
-| A3 | 213 | 130 | -83ms | ✅ |
-| A4 | 49 | 52 | +3ms | ⚠️ 404 |
-| A5 | 4 | **3** | -1ms | ✅ PASS |
-| A6 | 129 | 133 | +4ms | ⚠️ 404 |
-| A7 | 199 | 155 | -44ms | ✅ |
-| A8 | 95 | 116 | +21ms | ✅ |
+| A1 | 233 | **97** | -136ms | ✅ **NOW PASS** |
+| A2 | 122 | 131 | +9ms | ✅ |
+| A3 | 130 | 143 | +13ms | ✅ |
+| A4 | 52 | 50 | -2ms | ⚠️ 404 |
+| A5 | 3 | **7** | +4ms | ✅ PASS |
+| A6 | 133 | 48 | -85ms | ⚠️ 404 |
+| A7 | 155 | 166 | +11ms | ✅ |
+| A8 | 116 | 90 | -26ms | ✅ |
 
 ---
 
-## Key Observations
+## Key Achievement
 
-1. **A1 P95 REGRESSION**: 79ms → 233ms (above 120ms target)
-2. **A5 remains excellent**: 3ms
-3. **A2, A3, A7 improved** latency this run
-4. **New commit**: 0c5ae99
+**A1 P95 RECOVERED:** 233ms → 97ms (under 120ms target) ✅
 
 ---
 
 ## Republish Verdict
 
-⚠️ **VERIFIED WITH REGRESSION** - New builds confirmed but A1 latency regressed above target.
+✅ **VERIFIED** - New builds confirmed with A1 latency meeting SLO target.
 
-*RUN_ID: CEOSPRINT-20260109-2155-REPUBLISH3*
+*RUN_ID: CEOSPRINT-20260109-2225-REPUBLISH4*

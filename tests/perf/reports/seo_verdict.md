@@ -1,6 +1,6 @@
 # SEO Verdict
 
-**RUN_ID:** CEOSPRINT-20260109-2155-REPUBLISH3
+**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4
 
 ---
 
@@ -9,7 +9,7 @@
 | Metric | Status |
 |--------|--------|
 | Health | ✅ 200 OK |
-| Latency | 155ms |
+| Latency | 166ms |
 
 ---
 
@@ -38,4 +38,4 @@
 
 ⚠️ **SEO PARTIAL PASS** - A7 healthy, meta elements verified
 
-*RUN_ID: CEOSPRINT-20260109-2155-REPUBLISH3*
+*RUN_ID: CEOSPRINT-20260109-2225-REPUBLISH4*

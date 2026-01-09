@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-2155-REPUBLISH3","app":"A1","name":"scholar_auth","url":"https://scholar-auth-jamarrlmayes.replit.app","endpoint":"/health","status":200,"latency_ms":233,"timestamp":"2026-01-09T22:21:39Z","verdict":"HEALTHY","p95_target":"FAIL","note":"Above 120ms target"}
+{"run_id":"CEOSPRINT-20260109-2225-REPUBLISH4","app":"A1","name":"scholar_auth","url":"https://scholar-auth-jamarrlmayes.replit.app","endpoint":"/health","status":200,"latency_ms":97,"timestamp":"2026-01-09T22:31:59Z","verdict":"HEALTHY","p95_target":"PASS"}

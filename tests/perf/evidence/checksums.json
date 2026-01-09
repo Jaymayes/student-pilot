@@ -1,25 +1,25 @@
 {
-  "run_id": "CEOSPRINT-20260109-2155-REPUBLISH3",
-  "timestamp": "2026-01-09T22:24:09Z",
+  "run_id": "CEOSPRINT-20260109-2225-REPUBLISH4",
+  "timestamp": "2026-01-09T22:34:18Z",
   "algorithm": "SHA256",
   "artifacts": {
-    "a1_health.json": "2523c575487acf44b9f03b2b2a9d6187387aa9cd2f65738efaa128cebad21891",
-    "a2_health.json": "73f8cb4f08a9e82cff5ef51c5f15d84f7526e35b7ce0241ca922f12470b795a4",
-    "a3_health.json": "130a67528e1eb5fe1049d3dac927191316ec5cbb4e78acf2b65b5069ac06713f",
-    "a4_health.json": "a8527b55296e4dfd371742b7ab0e646a2c7cb7f2418815e6a0d96740b69acfbc",
-    "a5_health.json": "203f00c08845a1fa0ea24c1a488bc95a15ff67e09b7d699d1fb5be9181e1cb1f",
-    "a6_health.json": "25d807b12b4c2581170da85af0b165d816e94bae8399e1ccc7a390cb422dabec",
-    "a7_health.json": "d983a27f6302aa67561ab049e86c46af20be3e18a92775fbc708088fb1c470f2",
-    "a8_health.json": "ca32f7bb5cbebc17ff1f0e71552d153fcdaf540581a97f82ddac74829cc8d504",
-    "version_manifest.json": "80e8bfb7014d4fc383702a1d50a9f3243039490f3db2c86ea5b182e78701118f",
-    "b2c_checkout_trace.json": "f1bd3e85f1646dd4e1cd59989dc0181d8256883b51a5317d45095a716f7cbdb3",
-    "fee_lineage.json": "0419a232f34da6ada89b9bd505faa301e0583e83d83e2aebc61ae359cf0e2f68",
-    "learning_evidence.json": "fa0a38c685d9604580b1e8de04c6fadf09d4a658564f35be404c4885ffd81340"
+    "a1_health.json": "28ed2401804ce32f5c6ab37f22169722fa29d6805bb1571cc39af4c35d8827b7",
+    "a2_health.json": "6ddca023a9cf2f54e44693a585a3e94292f9a9921da671d83818169289cc632f",
+    "a3_health.json": "ed7e57fe19e0eb8a29c31f49adb377816fbe65620deb3c108cbf55c497565d4c",
+    "a4_health.json": "1cf835043cd88081fd2391c4a17fc99b9709506b60796c393bf22c3272e0f8ed",
+    "a5_health.json": "fa8231c0939835703a0d751774104090e8228fa7c0b169734e3e37a8047aa40c",
+    "a6_health.json": "4dff3a0f4dae0e2e21468e1dc9560605da41d370ecace0d8bca6779e7f91fe0a",
+    "a7_health.json": "5c397c5384e19a84ee2376c8ade23556e3271b907ec60a22101bf2b61eae96c7",
+    "a8_health.json": "b385f9279265185e3da7f15c03575749daf17af2a2335a990f14b61e4325cd0b",
+    "version_manifest.json": "12a8012c164ee494c10c1709d08f131ba599f79866f4ebcbf8a075fd6303cd44",
+    "b2c_checkout_trace.json": "cc76b4a385fbe635b2c3afd32236bd2c757cd339af068b8f31853291194c6570",
+    "fee_lineage.json": "fae2d3c69436f1265693d8f21dd82ad4aa2fb8b6037d523ac995617cc3cc9c9a",
+    "learning_evidence.json": "3b36c8c3ba41377c53cf175a951ea6ddb9f48a5335d32d44b25e0509824d28d8"
   },
   "a8_events": {
-    "sprint_start": "evt_1767997290499_fkv6cvl3r",
-    "wiring_test": "evt_1767997367408_uvklnam8l"
+    "sprint_start": "evt_1767997910382_s1r3iyk1h",
+    "wiring_test": "evt_1767997986297_lxkru86ag"
   },
   "fleet_health": "75%",
-  "slo_status": {"a1_p95":"FAIL_233ms","a5_p95":"PASS_3ms"}
+  "slo_status": {"a1_p95":"PASS_97ms","a5_p95":"PASS_7ms"}
 }
