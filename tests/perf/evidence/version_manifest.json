@@ -1,101 +1,18 @@
 {
-  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
-  "timestamp": "2026-01-09T21:08:23Z",
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH2",
+  "timestamp": "2026-01-09T21:37:07Z",
   "collector": "A5",
   "apps": {
-    "A1": {
-      "name": "scholar_auth",
-      "url": "https://scholar-auth-jamarrlmayes.replit.app",
-      "version": "1.0.0",
-      "commit": "unknown",
-      "build_time": "2026-01-09T21:08:27.562Z",
-      "env": "production",
-      "health_status": 200,
-      "latency_ms": 209
-    },
-    "A2": {
-      "name": "scholarship_api",
-      "url": "https://scholarship-api-jamarrlmayes.replit.app",
-      "version": "unknown",
-      "commit": "unknown",
-      "build_time": "unknown",
-      "env": "production",
-      "health_status": 200,
-      "latency_ms": 218,
-      "note": "No /api/version endpoint"
-    },
-    "A3": {
-      "name": "scholarship_agent",
-      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
-      "version": "unknown",
-      "commit": "unknown",
-      "build_time": "unknown",
-      "env": "production",
-      "health_status": 200,
-      "latency_ms": 198,
-      "note": "No /api/version endpoint"
-    },
-    "A4": {
-      "name": "scholarship_ai",
-      "url": "https://scholarship-ai-jamarrlmayes.replit.app",
-      "version": "unknown",
-      "commit": "unknown",
-      "build_time": "unknown",
-      "env": "unknown",
-      "health_status": 404,
-      "latency_ms": 72,
-      "note": "Health endpoint not exposed"
-    },
-    "A5": {
-      "name": "student_pilot",
-      "url": "https://student-pilot-jamarrlmayes.replit.app",
-      "version": "2.7.0",
-      "commit": "abd96ff",
-      "build_time": "2026-01-09T21:08:28.000Z",
-      "env": "development",
-      "health_status": 200,
-      "latency_ms": 3,
-      "node_version": "v20.19.3",
-      "uptime_seconds": 2674
-    },
-    "A6": {
-      "name": "scholarship_admin",
-      "url": "https://scholarship-admin-jamarrlmayes.replit.app",
-      "version": "unknown",
-      "commit": "unknown",
-      "build_time": "unknown",
-      "env": "unknown",
-      "health_status": 404,
-      "latency_ms": 134,
-      "note": "Health endpoint not exposed"
-    },
-    "A7": {
-      "name": "auto_page_maker",
-      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
-      "version": "unknown",
-      "commit": "unknown",
-      "build_time": "unknown",
-      "env": "production",
-      "health_status": 200,
-      "latency_ms": 192,
-      "note": "SPA - no /api/version endpoint"
-    },
-    "A8": {
-      "name": "auto_com_center",
-      "url": "https://auto-com-center-jamarrlmayes.replit.app",
-      "version": "unknown",
-      "commit": "unknown",
-      "build_time": "unknown",
-      "env": "production",
-      "health_status": 200,
-      "latency_ms": 73,
-      "note": "No /api/version endpoint"
-    }
+    "A1": {"name":"scholar_auth","version":"1.0.0","commit":"unknown","build_time":"2026-01-09T21:37:10Z","health_status":200,"latency_ms":79},
+    "A2": {"name":"scholarship_api","version":"unknown","health_status":200,"latency_ms":169},
+    "A3": {"name":"scholarship_agent","version":"unknown","health_status":200,"latency_ms":213},
+    "A4": {"name":"scholarship_ai","version":"unknown","health_status":404,"latency_ms":49},
+    "A5": {"name":"student_pilot","version":"2.7.0","commit":"e71bb9b","build_time":"2026-01-09T21:37:10Z","health_status":200,"latency_ms":4,"uptime_seconds":1317},
+    "A6": {"name":"scholarship_admin","version":"unknown","health_status":404,"latency_ms":129},
+    "A7": {"name":"auto_page_maker","version":"unknown","health_status":200,"latency_ms":199},
+    "A8": {"name":"auto_com_center","version":"unknown","health_status":200,"latency_ms":95}
   },
-  "fleet_summary": {
-    "total_apps": 8,
-    "healthy": 6,
-    "degraded": 2,
-    "health_percentage": "75%"
-  }
+  "fleet_summary": {"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},
+  "git_sha": "e71bb9b",
+  "baseline_comparison": {"prior_run":"CEOSPRINT-20260109-2100-REPUBLISH","prior_git":"abd96ff"}
 }

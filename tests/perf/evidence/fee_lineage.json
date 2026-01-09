@@ -1,25 +1,9 @@
 {
-  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
-  "timestamp": "2026-01-09T21:10:00Z",
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH2",
+  "timestamp": "2026-01-09T21:38:00Z",
   "funnel": "B2B",
-  "provider_onboarding": {
-    "endpoint": "A6 (scholarship_admin)",
-    "status": "BLOCKED",
-    "health_status": 404,
-    "note": "Health endpoint not exposed - cannot verify B2B flow"
-  },
-  "fee_structure": {
-    "platform_fee": "3%",
-    "ai_markup": "4x",
-    "configured_in": "A5 (student_pilot)",
-    "verified": false,
-    "reason": "A6 inaccessible for end-to-end verification"
-  },
-  "lineage": {
-    "source": "A5 fee configuration",
-    "destination": "A6 provider portal",
-    "status": "CONFIGURED_ONLY"
-  },
+  "provider_onboarding": {"endpoint":"A6","status":"BLOCKED","health_status":404},
+  "fee_structure": {"platform_fee":"3%","ai_markup":"4x","verified":false},
   "verdict": "BLOCKED",
-  "remediation": "Requires A6 team to expose /health endpoint"
+  "remediation": "A6 health endpoint required"
 }

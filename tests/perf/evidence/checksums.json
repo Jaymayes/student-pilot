@@ -1,37 +1,25 @@
 {
-  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
-  "timestamp": "2026-01-09T21:12:43Z",
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH2",
+  "timestamp": "2026-01-09T21:39:44Z",
   "algorithm": "SHA256",
   "artifacts": {
-    "evidence/a1_health.json": "c60b75a7a3d11a065eb1197803b3d3c459ec76871e0ff0df1191d692e2d49ace",
-    "evidence/a2_health.json": "fd83c549cd4331df39fba70780bf59df3341d7ca3e91e4b6a6eaea63fb000255",
-    "evidence/a3_health.json": "fc93b8d420e0305698954febc1a46cd09c20dca12634f2ab04d0d8fc6bde50f2",
-    "evidence/a4_health.json": "175c84c0ebfc1cce5ed9b6c2ddd14cf7edd86b5cc6f90fb6b13724df5ef41bd8",
-    "evidence/a5_health.json": "a83d707201a8d544626c49e23a8943e683e9917ca4a6b0111c0513cc31c40a87",
-    "evidence/a6_health.json": "36504761d01957fcccf19218d11766718945a8b0cda3e0283cbe2168c36076ba",
-    "evidence/a7_health.json": "639d3689beb42a9660039a0d7012a30322391a0f877aa5283c7f961e77b96356",
-    "evidence/a8_health.json": "ce8fcff7de67a7ca3615374b03cf71357fe3afe02d36727206066cf3a8f23730",
-    "evidence/b2c_checkout_trace.json": "7abb63decade527f6f9fffd9a62598b85f448b8b0285cc9212a6e6d9c263a092",
-    "evidence/fee_lineage.json": "0cf4161b4eef6025925e60fb2124d45a5eb607f5f85a7e443c766ec8a36eb3c4",
-    "evidence/learning_evidence.json": "2ecf9cae223c795b9e5b2cf64a30840913c33b4df27a12f6108d585ed6d00b9f",
-    "evidence/version_manifest.json": "e7d6b0a439b1bfb8a6ac67042010f300480dce04ad7c0eed7ba223a881f0bc83",
-    "reports/a3_resiliency_report.md": "2ec20f793980a8f0cfdf6c27808a6cc665b605bb4f91fb9e8d75a80d212d6385",
-    "reports/a8_wiring_verdict.md": "35dfb693796aeb50246fbb3aeb09a26973de70b4f35c9bc795ef3bb688be87a0",
-    "reports/b2b_flow_verdict.md": "67d05c6a625e9537b41e05c85f5ce5688fa8b5f2c97eb069456001bdd61dbb21",
-    "reports/b2c_flow_verdict.md": "a0e003f1de5d76358f4a1b29f4540270db200726f9d92a7bf5570d48fe9d9b88",
-    "reports/ecosystem_double_confirm.md": "0099cbe122136adc051db1198c12c59de1ec678a9ab440145bb716cf3bad9e65",
-    "reports/idempotency_validation.md": "905d83ebf170232afedede8dc17fd8054b442abb7444f9b5f4dbf65548a6b79a",
-    "reports/perf_summary.md": "1edebc3aa321c2e91d927a150d4a3eacddce59a9faf915aead04ca266fe3d863",
-    "reports/post_republish_diff.md": "21cf76543de6a527e7d6cff4c30bd7c5f6938ca5b9ea0fa1b1c95d629a2455ba",
-    "reports/seo_verdict.md": "6f242d688c55c5c79e46b1cedf72201005382faae9ec148bba67055c84578d0d",
-    "reports/system_map.json": "4469e261c9052da87b364a7b9f75a3c9601dc67ce442d70b2140397d56a7ce2e"
+    "a1_health.json": "ee0d6d0eafcf6c479f4c732b9a86e66ecbfbd055da8d133afe8c3a8d2d33a056",
+    "a2_health.json": "929d4182c42863b2aaa3d229b8ba58f11af76b608bb23d4d3d940bea890f88b5",
+    "a3_health.json": "34cf12f663841a9f12c6f58def12ca68def39779bf6fe65cb97f1e06283bfc7e",
+    "a4_health.json": "c023d0f4eeb550d3ca06cb9f485a129e5d675cae6ef9fb9066f96da4711afe3f",
+    "a5_health.json": "eea203680999f1ef6515ef76a4d506abdb1dfdcf4672de3acc49f64bef4409cb",
+    "a6_health.json": "c6379c472a9f77257d2d17e2c4bfeab2f7167334b9bc115b3e8fe3a66c829863",
+    "a7_health.json": "0e9715c4818ffc51ca3a906edb9cf2da0d2a42d6592c809086f53a11f2d58873",
+    "a8_health.json": "c09b2aff31bf3cbd7a6100fe78108cb304a639c5920a95fac3de937c96f19966",
+    "version_manifest.json": "8f45b403e27c6e34aef0c03a7fefbe227eaaaa40e74d0478796d95bbaa5fdfee",
+    "b2c_checkout_trace.json": "9cf03736733d47e830848855c605798063473782624e74c2673625d5f43eca57",
+    "fee_lineage.json": "2ad9d9feababf2a58f7d500bb1b39f7defcb336862fa99e691f754ec8cbae1f8",
+    "learning_evidence.json": "39d6dbc27ef2a897166a9f44d50121754c28572d07fd48a9a80c6123b7265e56"
   },
   "a8_events": {
-    "sprint_start": "evt_1767992885212_ogtpe447f",
-    "wiring_test": "evt_1767993032474_jnxpidb61"
+    "sprint_start": "evt_1767994617913_8k1dg7q5t",
+    "wiring_test": "evt_1767994694348_lpel4xr17"
   },
   "fleet_health": "75%",
-  "healthy_apps": ["A1", "A2", "A3", "A5", "A7", "A8"],
-  "degraded_apps": ["A4", "A6"],
-  "integrity_status": "VERIFIED"
+  "slo_status": {"a1_p95":"PASS_79ms","a5_p95":"PASS_4ms"}
 }

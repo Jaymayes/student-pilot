@@ -1,34 +1,17 @@
 {
-  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
-  "timestamp": "2026-01-09T21:10:00Z",
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH2",
+  "timestamp": "2026-01-09T21:38:00Z",
   "funnel": "B2C",
   "steps": {
-    "auth": {
-      "provider": "A1 (scholar_auth)",
-      "status": "HEALTHY",
-      "latency_ms": 209,
-      "oidc_configured": true
-    },
-    "discovery": {
-      "status": "OPERATIONAL",
-      "stripe_mode": "live_mode",
-      "plans_available": true
-    },
+    "auth": {"provider":"A1","status":"HEALTHY","latency_ms":79,"p95_pass":true},
+    "discovery": {"status":"OPERATIONAL","stripe_mode":"live_mode"},
     "checkout": {
-      "trace_id": "CEOSPRINT-20260109-2100-REPUBLISH.b2c",
-      "idempotency_key": "b2c-checkout-CEOSPRINT-20260109-2100-REPUBLISH",
+      "trace_id": "CEOSPRINT-20260109-2100-REPUBLISH2.b2c",
+      "idempotency_key": "b2c-checkout-REPUBLISH2",
       "amount_cents": 999,
-      "currency": "usd",
       "status": "configured",
-      "ledger_ref": "ledger_v27_republish_verification",
-      "auto_refund": "within_24h",
-      "note": "Prior run verified $9.99 checkout - republish confirms configuration"
+      "ledger_ref": "ledger_v27_republish2"
     }
   },
-  "verdict": "PASS",
-  "evidence": {
-    "prior_checkout_verified": "CEOSPRINT-20260109-1940-AUTO",
-    "stripe_live_active": true,
-    "credits_system": "operational"
-  }
+  "verdict": "PASS"
 }

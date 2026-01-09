@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH","app":"A6","name":"scholarship_admin","url":"https://scholarship-admin-jamarrlmayes.replit.app","endpoint":"/health","status":404,"latency_ms":134,"timestamp":"2026-01-09T21:08:23Z","verdict":"DEGRADED","note":"Health endpoint not exposed"}
+{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH2","app":"A6","name":"scholarship_admin","url":"https://scholarship-admin-jamarrlmayes.replit.app","endpoint":"/health","status":404,"latency_ms":129,"timestamp":"2026-01-09T21:37:07Z","verdict":"DEGRADED","note":"Health endpoint not exposed"}

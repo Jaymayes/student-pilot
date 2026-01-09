@@ -1,16 +1,17 @@
 {
-  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
-  "timestamp": "2026-01-09T21:08:23Z",
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH2",
+  "timestamp": "2026-01-09T21:37:07Z",
   "protocol": "AGENT3_HANDSHAKE v27",
   "ecosystem": {
-    "A1": {"name":"scholar_auth","role":"Authentication Provider","url":"https://scholar-auth-jamarrlmayes.replit.app","status":"HEALTHY","latency_ms":209},
-    "A2": {"name":"scholarship_api","role":"Scholarship Data API","url":"https://scholarship-api-jamarrlmayes.replit.app","status":"HEALTHY","latency_ms":218},
-    "A3": {"name":"scholarship_agent","role":"AI Matching Agent","url":"https://scholarship-agent-jamarrlmayes.replit.app","status":"HEALTHY","latency_ms":198},
-    "A4": {"name":"scholarship_ai","role":"AI Model Service","url":"https://scholarship-ai-jamarrlmayes.replit.app","status":"DEGRADED","latency_ms":72},
-    "A5": {"name":"student_pilot","role":"Student Portal (B2C)","url":"https://student-pilot-jamarrlmayes.replit.app","status":"HEALTHY","latency_ms":3,"version":"2.7.0"},
-    "A6": {"name":"scholarship_admin","role":"Provider Portal (B2B)","url":"https://scholarship-admin-jamarrlmayes.replit.app","status":"DEGRADED","latency_ms":134},
-    "A7": {"name":"auto_page_maker","role":"SEO Landing Pages","url":"https://auto-page-maker-jamarrlmayes.replit.app","status":"HEALTHY","latency_ms":192},
-    "A8": {"name":"auto_com_center","role":"Command Center","url":"https://auto-com-center-jamarrlmayes.replit.app","status":"HEALTHY","latency_ms":73}
+    "A1": {"name":"scholar_auth","role":"Authentication","status":"HEALTHY","latency_ms":79,"p95_pass":true},
+    "A2": {"name":"scholarship_api","role":"Data API","status":"HEALTHY","latency_ms":169},
+    "A3": {"name":"scholarship_agent","role":"AI Matching","status":"HEALTHY","latency_ms":213},
+    "A4": {"name":"scholarship_ai","role":"AI Model","status":"DEGRADED","latency_ms":49},
+    "A5": {"name":"student_pilot","role":"Student Portal","status":"HEALTHY","latency_ms":4,"p95_pass":true,"version":"2.7.0"},
+    "A6": {"name":"scholarship_admin","role":"Provider Portal","status":"DEGRADED","latency_ms":129},
+    "A7": {"name":"auto_page_maker","role":"SEO Pages","status":"HEALTHY","latency_ms":199},
+    "A8": {"name":"auto_com_center","role":"Command Center","status":"HEALTHY","latency_ms":95}
   },
-  "fleet_health": {"total":8,"healthy":6,"degraded":2,"percentage":"75%"}
+  "fleet_health": {"total":8,"healthy":6,"degraded":2,"percentage":"75%"},
+  "slo_status": {"a1_p95":"PASS (79ms)","a5_p95":"PASS (4ms)"}
 }
