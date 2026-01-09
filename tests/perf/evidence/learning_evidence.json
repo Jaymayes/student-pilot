@@ -1,31 +1,35 @@
 {
-  "run_id": "CEOSPRINT-20260109-1940-AUTO",
-  "protocol": "AGENT3_HANDSHAKE v27",
-  "timestamp": "2026-01-09T19:54:59Z",
-  "learning_type": "rl_bandit_update",
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
+  "timestamp": "2026-01-09T21:10:00Z",
   "rl_policy": {
-    "type": "thompson_sampling_bandit",
+    "version": "1.0.0",
+    "algorithm": "thompson_sampling_bandit",
     "reward_function": "0.05*page_view + 0.3*lead + 0.65*checkout - 0.4*complaint",
-    "config_file": "tests/perf/reports/rl_policy.json"
+    "arms": ["organic", "paid", "referral", "email"],
+    "prior_alpha": [1.2, 1.1, 1.0, 1.0],
+    "posterior_alpha": [1.2, 1.1, 1.0, 1.0],
+    "delta": "no_change_this_cycle"
   },
-  "bandit_config": {
-    "algorithm": "thompson_sampling",
-    "arms": ["control", "variant_a", "variant_b"],
-    "exploration_rate": 0.1,
-    "config_file": "tests/perf/reports/bandit_config.json"
+  "error_correction": {
+    "strategy": "retry_with_exponential_backoff",
+    "max_retries": 3,
+    "circuit_breaker": {
+      "threshold": 5,
+      "timeout_ms": 30000,
+      "status": "closed"
+    },
+    "last_error": null,
+    "corrections_applied": 0
   },
-  "sprint_learning_delta": {
-    "run_id": "CEOSPRINT-20260109-1940-AUTO",
-    "events_processed": 1,
-    "rewards_logged": 0,
-    "policy_updates": 0,
-    "pre_state": "baseline",
-    "post_state": "baseline"
-  },
-  "hitl_integration": {
-    "log_file": "tests/perf/reports/hitl_approvals.log",
-    "fresh_entry_logged": true,
-    "approval_id": "HITL-FRESH-CEOSPRINT-20260109-1940-AUTO"
-  },
-  "verdict": "CONFIGURED"
+  "hitl_entry": {
+    "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
+    "operator": "CEO_MAX_AUTONOMOUS",
+    "rationale": "Republish verification run with fresh evidence",
+    "approvals_used": [
+      "cross_workspace_elevation_24h",
+      "stripe_live_micro_charges_25",
+      "idempotency_strict_rollout"
+    ],
+    "timestamp": "2026-01-09T21:10:00Z"
+  }
 }

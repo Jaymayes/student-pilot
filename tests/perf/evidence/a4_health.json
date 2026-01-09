@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A4","name":"Scholar Copilot","url":"https://scholar-copilot-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":404,"latency_ms":80,"verdict":"DEGRADED","dual_source":{"http":"404 Not Found","telemetry":"No health endpoint exposed"}}
+{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH","app":"A4","name":"scholarship_ai","url":"https://scholarship-ai-jamarrlmayes.replit.app","endpoint":"/health","status":404,"latency_ms":72,"timestamp":"2026-01-09T21:08:23Z","verdict":"DEGRADED","note":"Health endpoint not exposed"}

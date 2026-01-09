@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A3","name":"Scholarship Agent","url":"https://scholarship-agent-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":200,"latency_ms":173,"verdict":"HEALTHY","dual_source":{"http":"200 OK","telemetry":"A8 heartbeat visible"}}
+{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH","app":"A3","name":"scholarship_agent","url":"https://scholarship-agent-jamarrlmayes.replit.app","endpoint":"/health","status":200,"latency_ms":198,"timestamp":"2026-01-09T21:08:23Z","verdict":"HEALTHY"}

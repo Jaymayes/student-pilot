@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A8","name":"Auto Com Center","url":"https://auto-com-center-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":200,"latency_ms":180,"verdict":"HEALTHY","dual_source":{"http":"200 OK","telemetry":"Hub self-check"}}
+{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH","app":"A8","name":"auto_com_center","url":"https://auto-com-center-jamarrlmayes.replit.app","endpoint":"/health","status":200,"latency_ms":73,"timestamp":"2026-01-09T21:08:23Z","verdict":"HEALTHY"}

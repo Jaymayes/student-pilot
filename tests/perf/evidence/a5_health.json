@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A5","name":"Student Pilot","url":"http://localhost:5000","timestamp":"2026-01-09T19:52:05Z","status":200,"latency_ms":28,"verdict":"HEALTHY","dual_source":{"http":"200 OK","telemetry":"Local health confirmed"}}
+{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH","app":"A5","name":"student_pilot","url":"https://student-pilot-jamarrlmayes.replit.app","endpoint":"/api/health","status":200,"latency_ms":3,"timestamp":"2026-01-09T21:08:23Z","verdict":"HEALTHY","version":"2.7.0","commit":"abd96ff"}

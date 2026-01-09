@@ -1,55 +1,44 @@
-# B2B Flow Verification Verdict
+# B2B Flow Verdict
 
-**RUN_ID:** CEOSPRINT-20260109-1940-AUTO  
-**Protocol:** AGENT3_HANDSHAKE v27  
-**Timestamp:** 2026-01-09T19:55:00Z
-
----
-
-## Funnel Verification
-
-| Stage | Expected | Actual | Status |
-|-------|----------|--------|--------|
-| Provider Onboarding | Complete | A6 404 | ⏸️ BLOCKED |
-| Listing Created | Present | Cannot verify | ⏸️ N/A |
-| 3% Platform Fee | Verified | Configured | ⚠️ PARTIAL |
-| 4x AI Markup | Verified | Configured | ⚠️ PARTIAL |
+**RUN_ID:** CEOSPRINT-20260109-2100-REPUBLISH  
+**Timestamp:** 2026-01-09T21:10:00Z  
+**Protocol:** AGENT3_HANDSHAKE v27
 
 ---
 
-## A6 Health Probe
+## Funnel Steps
 
-| Metric | Value |
-|--------|-------|
-| URL | https://provider-dashboard-jamarrlmayes.replit.app/health |
-| Status | 404 Not Found |
-| Latency | 83ms |
-
----
-
-## Fee Configuration (Verified in system_map.json)
-
-| Fee Type | Value | Source |
-|----------|-------|--------|
-| Platform Fee | 3% | system_map.json |
-| AI Markup | 4.0x | system_map.json |
+| Step | Status | Evidence |
+|------|--------|----------|
+| Provider Onboarding | ⏸️ BLOCKED | A6 health 404 |
+| Listing Creation | ⏸️ BLOCKED | Cannot access A6 |
+| Fee Verification | ⚠️ CONFIG ONLY | 3% + 4x configured in A5 |
 
 ---
 
-## External Blocker
+## Fee Structure (Configured)
 
-| Issue | Owner | Action Required |
-|-------|-------|-----------------|
-| A6 health endpoint 404 | BizOps | Expose /health endpoint |
+| Fee Type | Value | Verified |
+|----------|-------|----------|
+| Platform Fee | 3% | ⚠️ Config only |
+| AI Markup | 4x | ⚠️ Config only |
+
+---
+
+## Blockers
+
+| Blocker | Owner | Action Required |
+|---------|-------|-----------------|
+| A6 Health 404 | BizOps | Expose /health endpoint |
 
 ---
 
 ## Verdict
 
-**B2B FUNNEL STATUS:** ⏸️ **EXTERNAL DEPENDENCY**
+⏸️ **B2B FLOW BLOCKED**
 
-Fee structure configured. A6 access required for full verification.
+Cannot verify end-to-end B2B flow due to A6 health endpoint returning 404. Fee structure is configured but not verified.
 
----
+**Remediation:** BizOps team to expose /health endpoint on A6 (scholarship_admin).
 
-**RUN_ID:** CEOSPRINT-20260109-1940-AUTO
+*RUN_ID: CEOSPRINT-20260109-2100-REPUBLISH*

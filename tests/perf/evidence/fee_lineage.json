@@ -1,16 +1,25 @@
 {
-  "run_id": "CEOSPRINT-20260109-1940-AUTO",
-  "protocol": "AGENT3_HANDSHAKE v27",
-  "timestamp": "2026-01-09T19:54:59Z",
-  "lineage_type": "b2b_fee_structure",
-  "trace_id": "CEOSPRINT-20260109-1940-AUTO.b2b",
-  "finance_config": {
-    "provider_fee_pct": 3,
-    "ai_markup_factor": 4.0,
-    "verification_status": "CONFIGURED",
-    "source": "system_map.json"
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
+  "timestamp": "2026-01-09T21:10:00Z",
+  "funnel": "B2B",
+  "provider_onboarding": {
+    "endpoint": "A6 (scholarship_admin)",
+    "status": "BLOCKED",
+    "health_status": 404,
+    "note": "Health endpoint not exposed - cannot verify B2B flow"
   },
-  "a6_verification": {"endpoint": "https://provider-dashboard-jamarrlmayes.replit.app/health", "status": 404, "lineage_accessible": false},
-  "verdict": "CONFIGURED_PENDING_A6_ACCESS",
-  "dual_source": {"source_1": "system_map.json finance config", "source_2": "A8 telemetry schema"}
+  "fee_structure": {
+    "platform_fee": "3%",
+    "ai_markup": "4x",
+    "configured_in": "A5 (student_pilot)",
+    "verified": false,
+    "reason": "A6 inaccessible for end-to-end verification"
+  },
+  "lineage": {
+    "source": "A5 fee configuration",
+    "destination": "A6 provider portal",
+    "status": "CONFIGURED_ONLY"
+  },
+  "verdict": "BLOCKED",
+  "remediation": "Requires A6 team to expose /health endpoint"
 }

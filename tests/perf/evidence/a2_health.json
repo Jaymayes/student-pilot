@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A2","name":"Scholarship API","url":"https://scholarship-api-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":200,"latency_ms":265,"verdict":"HEALTHY","dual_source":{"http":"200 OK","telemetry":"A8 fallback endpoint"}}
+{"run_id":"CEOSPRINT-20260109-2100-REPUBLISH","app":"A2","name":"scholarship_api","url":"https://scholarship-api-jamarrlmayes.replit.app","endpoint":"/health","status":200,"latency_ms":218,"timestamp":"2026-01-09T21:08:23Z","verdict":"HEALTHY"}

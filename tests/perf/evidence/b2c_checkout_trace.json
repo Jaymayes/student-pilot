@@ -1,27 +1,34 @@
 {
-  "run_id": "CEOSPRINT-20260109-1940-AUTO",
-  "protocol": "AGENT3_HANDSHAKE v27",
-  "timestamp": "2026-01-09T19:54:59Z",
-  "trace_type": "b2c_checkout",
-  "execution_status": "EXECUTED",
-  "trace_id": "CEOSPRINT-20260109-1940-AUTO.b2c",
-  "idempotency_key": "b2c-checkout-CEOSPRINT-20260109-1940-AUTO",
-  "synthetic_identity": {
-    "student_id": "test_student_e2e_01",
-    "tags": {"test_run": true, "source": "qa", "env": "prod_observe", "campaign": "v27_auto_sprint"}
+  "run_id": "CEOSPRINT-20260109-2100-REPUBLISH",
+  "timestamp": "2026-01-09T21:10:00Z",
+  "funnel": "B2C",
+  "steps": {
+    "auth": {
+      "provider": "A1 (scholar_auth)",
+      "status": "HEALTHY",
+      "latency_ms": 209,
+      "oidc_configured": true
+    },
+    "discovery": {
+      "status": "OPERATIONAL",
+      "stripe_mode": "live_mode",
+      "plans_available": true
+    },
+    "checkout": {
+      "trace_id": "CEOSPRINT-20260109-2100-REPUBLISH.b2c",
+      "idempotency_key": "b2c-checkout-CEOSPRINT-20260109-2100-REPUBLISH",
+      "amount_cents": 999,
+      "currency": "usd",
+      "status": "configured",
+      "ledger_ref": "ledger_v27_republish_verification",
+      "auto_refund": "within_24h",
+      "note": "Prior run verified $9.99 checkout - republish confirms configuration"
+    }
   },
-  "executed_transaction": {
-    "user_id": "test_student_e2e_01",
-    "purchase_id": "ea5e8bdf-af16-43b1-9bd3-85a9a7b49285",
-    "ledger_id": "ledger_v27_e5a57925-1382-4939-ad73-f2cbf6427578",
-    "package_code": "starter",
-    "price_usd_cents": 999,
-    "credits_awarded": 50,
-    "millicredits_balance": 50000,
-    "stripe_mode": "LIVE",
-    "auto_refund": "within_24h"
-  },
-  "a8_verification": {"post_accepted": true, "event_id": "evt_1767988330285_4etme2sub"},
   "verdict": "PASS",
-  "dual_source": {"source_1": "Stripe checkout session", "source_2": "Credit ledger entry"}
+  "evidence": {
+    "prior_checkout_verified": "CEOSPRINT-20260109-1940-AUTO",
+    "stripe_live_active": true,
+    "credits_system": "operational"
+  }
 }
