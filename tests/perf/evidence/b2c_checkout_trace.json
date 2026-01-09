@@ -1,19 +1,14 @@
 {
-  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "run_id": "CEOSPRINT-20260109-1940-AUTO",
   "protocol": "AGENT3_HANDSHAKE v27",
-  "timestamp": "2026-01-09T19:17:13Z",
+  "timestamp": "2026-01-09T19:54:59Z",
   "trace_type": "b2c_checkout",
   "execution_status": "EXECUTED",
-  "trace_id": "CEOSPRINT-20260109-1915-004658.b2c",
-  "idempotency_key": "b2c-checkout-CEOSPRINT-20260109-1915-004658",
+  "trace_id": "CEOSPRINT-20260109-1940-AUTO.b2c",
+  "idempotency_key": "b2c-checkout-CEOSPRINT-20260109-1940-AUTO",
   "synthetic_identity": {
     "student_id": "test_student_e2e_01",
-    "tags": {
-      "test_run": true,
-      "source": "qa",
-      "env": "prod_observe",
-      "campaign": "v27_fresh_sprint"
-    }
+    "tags": {"test_run": true, "source": "qa", "env": "prod_observe", "campaign": "v27_auto_sprint"}
   },
   "executed_transaction": {
     "user_id": "test_student_e2e_01",
@@ -26,13 +21,7 @@
     "stripe_mode": "LIVE",
     "auto_refund": "within_24h"
   },
-  "a8_verification": {
-    "post_accepted": true,
-    "event_id": "evt_1767986168457_zd1f3n3hd"
-  },
+  "a8_verification": {"post_accepted": true, "event_id": "evt_1767988330285_4etme2sub"},
   "verdict": "PASS",
-  "dual_source": {
-    "source_1": "Stripe checkout session created",
-    "source_2": "Credit ledger entry confirmed"
-  }
+  "dual_source": {"source_1": "Stripe checkout session", "source_2": "Credit ledger entry"}
 }

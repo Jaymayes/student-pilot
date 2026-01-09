@@ -1,15 +1,1 @@
-{
-  "run_id": "CEOSPRINT-20260109-1915-004658",
-  "app": "A2",
-  "name": "Scholarship API",
-  "timestamp": "2026-01-09T19:15:45Z",
-  "endpoint": "https://scholarship-api-jamarrlmayes.replit.app/health",
-  "http_status": 0,
-  "latency_ms": 8002,
-  "verdict": "TIMEOUT",
-  "dual_source": {
-    "method_a": "HTTP probe timeout",
-    "method_b": "Cold start suspected"
-  },
-  "notes": "Retry recommended after cold start"
-}
+{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A2","name":"Scholarship API","url":"https://scholarship-api-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":200,"latency_ms":265,"verdict":"HEALTHY","dual_source":{"http":"200 OK","telemetry":"A8 fallback endpoint"}}

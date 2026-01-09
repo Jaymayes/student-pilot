@@ -1,14 +1,1 @@
-{
-  "run_id": "CEOSPRINT-20260109-1915-004658",
-  "app": "A8",
-  "name": "Auto Com Center",
-  "timestamp": "2026-01-09T19:15:55Z",
-  "endpoint": "https://auto-com-center-jamarrlmayes.replit.app/health",
-  "http_status": 200,
-  "latency_ms": 139,
-  "verdict": "HEALTHY",
-  "dual_source": {
-    "method_a": "HTTP probe 200 OK",
-    "method_b": "Self (telemetry hub)"
-  }
-}
+{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A8","name":"Auto Com Center","url":"https://auto-com-center-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":200,"latency_ms":180,"verdict":"HEALTHY","dual_source":{"http":"200 OK","telemetry":"Hub self-check"}}

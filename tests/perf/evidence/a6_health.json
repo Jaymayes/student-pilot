@@ -1,15 +1,1 @@
-{
-  "run_id": "CEOSPRINT-20260109-1915-004658",
-  "app": "A6",
-  "name": "Provider Dashboard",
-  "timestamp": "2026-01-09T19:15:55Z",
-  "endpoint": "https://provider-dashboard-jamarrlmayes.replit.app/health",
-  "http_status": 404,
-  "latency_ms": 56,
-  "verdict": "DEGRADED",
-  "dual_source": {
-    "method_a": "HTTP 404 - endpoint not exposed",
-    "method_b": "No telemetry heartbeat"
-  },
-  "notes": "Health endpoint not implemented"
-}
+{"run_id":"CEOSPRINT-20260109-1940-AUTO","app_id":"A6","name":"Provider Dashboard","url":"https://provider-dashboard-jamarrlmayes.replit.app","timestamp":"2026-01-09T19:52:05Z","status":404,"latency_ms":83,"verdict":"DEGRADED","dual_source":{"http":"404 Not Found","telemetry":"No health endpoint exposed"}}

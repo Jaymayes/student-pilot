@@ -1,7 +1,7 @@
 {
-  "run_id": "CEOSPRINT-20260109-1915-004658",
+  "run_id": "CEOSPRINT-20260109-1940-AUTO",
   "protocol": "AGENT3_HANDSHAKE v27",
-  "timestamp": "2026-01-09T19:17:30Z",
+  "timestamp": "2026-01-09T19:54:59Z",
   "learning_type": "rl_bandit_update",
   "rl_policy": {
     "type": "thompson_sampling_bandit",
@@ -15,7 +15,7 @@
     "config_file": "tests/perf/reports/bandit_config.json"
   },
   "sprint_learning_delta": {
-    "run_id": "CEOSPRINT-20260109-1915-004658",
+    "run_id": "CEOSPRINT-20260109-1940-AUTO",
     "events_processed": 1,
     "rewards_logged": 0,
     "policy_updates": 0,
@@ -25,11 +25,7 @@
   "hitl_integration": {
     "log_file": "tests/perf/reports/hitl_approvals.log",
     "fresh_entry_logged": true,
-    "approval_id": "HITL-FRESH-CEOSPRINT-20260109-1915-004658"
+    "approval_id": "HITL-FRESH-CEOSPRINT-20260109-1940-AUTO"
   },
-  "verdict": "CONFIGURED",
-  "dual_source": {
-    "source_1": "rl_policy.json exists",
-    "source_2": "bandit_config.json exists"
-  }
+  "verdict": "CONFIGURED"
 }
