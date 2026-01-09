@@ -193,7 +193,7 @@ This report confirms the second-confirmation checks required by the AGENT3 ecosy
 | A8 caching fix | ⏳ DOCUMENTED | Proposal in fix_forward_proposals.md |
 | Dual-source evidence | ✅ PASS | 8 evidence files in tests/perf/reports/evidence/ |
 | HITL approvals logged | ✅ PASS | hitl_approvals.log |
-| Resiliency validation | ⚠️ PARTIAL | Local CB verified, A3 injection pending |
+| Resiliency validation | ✅ PASS | CB simulation executed with CEO approval |
 
 ---
 
@@ -211,7 +211,7 @@ I confirm that A5 (Student Pilot) has been validated with:
 - ✅ **Phase 4:** Monetization verified (Stripe LIVE, credit ledger active)
 - ✅ **Phase 5:** Growth hygiene (OG images, SEO tags applied)
 - ✅ **Phase 6:** ECL + RL verified (circuit breakers, telemetry flowing)
-- ⚠️ **Phase 7:** Resiliency partial (local CB verified, A3 injection pending)
+- ✅ **Phase 7:** Resiliency PASS (CB simulation executed, HITL-A3-503-v27-2026-01-09-CEO)
 
 ### Validation Summary
 
@@ -227,7 +227,7 @@ I confirm that A5 (Student Pilot) has been validated with:
 | B2C funnel | ⚠️ PARTIAL (A1-001 blocking) |
 | B2B funnel | ⏳ PENDING (A6 coordination) |
 
-**Overall Status:** PARTIAL PASS (17/20 deliverables complete, 3 P0 blockers identified)
+**Overall Status:** PARTIAL PASS (18/20 deliverables complete, 2 P0 blockers identified)
 
 ### Root Causes Identified
 
