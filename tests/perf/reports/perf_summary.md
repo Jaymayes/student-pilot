@@ -1,6 +1,6 @@
 # Performance Summary
 
-**RUN_ID:** CEOSPRINT-20260109-2100-REPUBLISH2
+**RUN_ID:** CEOSPRINT-20260109-2155-REPUBLISH3
 
 ---
 
@@ -8,28 +8,28 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **79ms** | ≤120ms | ✅ **PASS** |
-| A2 | 169ms | ≤200ms | ✅ PASS |
-| A3 | 213ms | ≤200ms | ⚠️ OVER |
-| A4 | 49ms | N/A | ⚠️ 404 |
-| A5 | **4ms** | ≤120ms | ✅ **PASS** |
-| A6 | 129ms | N/A | ⚠️ 404 |
-| A7 | 199ms | ≤500ms | ✅ PASS |
-| A8 | 95ms | ≤200ms | ✅ PASS |
+| A1 | **233ms** | ≤120ms | ⚠️ **FAIL** |
+| A2 | 122ms | ≤200ms | ✅ PASS |
+| A3 | 130ms | ≤200ms | ✅ PASS |
+| A4 | 52ms | N/A | ⚠️ 404 |
+| A5 | **3ms** | ≤120ms | ✅ **PASS** |
+| A6 | 133ms | N/A | ⚠️ 404 |
+| A7 | 155ms | ≤500ms | ✅ PASS |
+| A8 | 116ms | ≤200ms | ✅ PASS |
 
 ---
 
-## SLO Achievement
+## SLO Status
 
-| Target | Prior Run | This Run | Status |
-|--------|-----------|----------|--------|
-| A1 P95 ≤120ms | 209ms ❌ | **79ms** ✅ | **NOW PASSING** |
-| A5 P95 ≤120ms | 4ms ✅ | **4ms** ✅ | MAINTAINED |
+| App | Target | Prior Run | This Run | Status |
+|-----|--------|-----------|----------|--------|
+| A1 | ≤120ms | 79ms ✅ | **233ms** | ⚠️ REGRESSED |
+| A5 | ≤120ms | 4ms ✅ | **3ms** | ✅ MAINTAINED |
 
 ---
 
 ## Verdict
 
-✅ **PERFORMANCE PASS** - Both A1 and A5 under P95 target
+⚠️ **PERFORMANCE PARTIAL** - A5 passing but A1 regressed
 
-*RUN_ID: CEOSPRINT-20260109-2100-REPUBLISH2*
+*RUN_ID: CEOSPRINT-20260109-2155-REPUBLISH3*
