@@ -190,6 +190,52 @@ This ensures:
 
 ---
 
+---
+
+## 9. CEO-Approved Progressive Rollout Plan
+
+**Approval ID:** HITL-CEO-SPRINT-v27-2026-01-09  
+**Approved:** 2026-01-09T18:31:00Z
+
+### Rollout Schedule
+
+| Phase | Coverage | Duration | Criteria |
+|-------|----------|----------|----------|
+| Canary | 5% | 0-12 hours | Baseline error rate |
+| Expansion | 25% | 12-24 hours | No regressions |
+| Full | 100% | 24-48 hours | All systems nominal |
+
+### Automatic Fallback Triggers
+
+| Trigger | Threshold | Action |
+|---------|-----------|--------|
+| 428 Error Rate | >0.5% for 10 minutes | Fallback to warn-mode |
+| Client Errors | >1% attributable to 428 | Pause rollout |
+| Latency Impact | >50ms increase | Review and adjust |
+
+### Legacy Client Allowlist
+
+| Client | Reason | Expiry |
+|--------|--------|--------|
+| (none documented) | - | - |
+
+**Note:** Document any legacy clients requiring exemption from 428 enforcement here.
+
+### Monitoring Dashboards
+
+- A8 Command Center: Error rate by response code
+- A5 Metrics: `/api/metrics/prometheus` endpoint
+- HITL Log: `tests/perf/reports/hitl_approvals.log`
+
+### Rollout Status
+
+| Date | Phase | Status | Notes |
+|------|-------|--------|-------|
+| 2026-01-09 | Canary (5%) | ⏸️ PENDING | Requires deployment |
+
+---
+
 **Document Hash:** SHA256 of content for audit trail  
 **Prepared By:** Agent3 (A5 student_pilot)  
-**Protocol Version:** AGENT3_HANDSHAKE v27
+**Protocol Version:** AGENT3_HANDSHAKE v27  
+**Last Updated:** 2026-01-09T18:33:00Z
