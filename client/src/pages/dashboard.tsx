@@ -31,6 +31,7 @@ import { useTtvTracking } from "@/hooks/useTtvTracking";
 import { LegalFooter } from "@/pages/legal";
 import { getAbandonedCheckout, dismissAbandonedCheckout, markCheckoutCompleted } from "@/pages/Billing";
 import { TrialNudge } from "@/components/TrialNudge";
+import { ActivationWizard, useActivationWizard } from "@/components/ActivationWizard";
 
 interface DashboardStats {
   activeApplications: number;
@@ -92,6 +93,9 @@ export default function Dashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { trackFirstMatchViewed } = useTtvTracking();
+  
+  // Activation wizard for first AI usage (Phase 5 TTFV)
+  const { showWizard, closeWizard } = useActivationWizard();
   
   // Checkout abandonment recovery state
   const [abandonedCheckout, setAbandonedCheckout] = useState<{ packageCode: string; startedAt: string } | null>(null);
@@ -293,6 +297,9 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background-gray">
       <Navigation />
+      
+      {/* Activation Wizard for first AI usage (Phase 5 TTFV) */}
+      {showWizard && <ActivationWizard onClose={closeWizard} />}
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-6">
         {/* Checkout Abandonment Nudge Banner */}

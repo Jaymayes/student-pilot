@@ -4368,6 +4368,126 @@ Allow: /apply/`;
     }
   });
 
+  // ========== ACTIVATION WIZARD ENDPOINTS (Phase 5 TTFV) ==========
+
+  // Get user's activation status (has used AI, credits, etc.)
+  app.get("/api/activation/status", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      // Check if user has any deduction entries (AI usage)
+      const [deductionCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(creditLedger)
+        .where(and(
+          eq(creditLedger.userId, userId),
+          eq(creditLedger.type, 'deduction')
+        ));
+
+      const hasUsedAI = (deductionCount?.count || 0) > 0;
+
+      // Get credit balance
+      const balance = await billingService.getUserBalance(userId);
+      const creditsBalance = balance ? millicreditsToCredits(balance.balanceMillicredits || BigInt(0)) : 0;
+      const hasCredits = creditsBalance > 0;
+
+      // Get first AI usage timestamp from TTV milestones
+      const [milestone] = await db
+        .select({ 
+          firstAiUsageAt: sql<string>`first_ai_usage_at`,
+          signupAt: sql<string>`signup_at`
+        })
+        .from(sql`ttv_milestones`)
+        .where(sql`user_id = ${userId}`)
+        .limit(1);
+
+      let ttfvMinutes: number | null = null;
+      if (milestone?.firstAiUsageAt && milestone?.signupAt) {
+        const firstUse = new Date(milestone.firstAiUsageAt);
+        const signup = new Date(milestone.signupAt);
+        ttfvMinutes = Math.round((firstUse.getTime() - signup.getTime()) / 60000);
+      }
+
+      res.json({
+        hasUsedAI,
+        hasCredits,
+        creditsBalance,
+        firstAiUseAt: milestone?.firstAiUsageAt || null,
+        ttfvMinutes,
+      });
+    } catch (error) {
+      console.error("Get activation status error:", error);
+      res.status(500).json({ error: "Failed to get activation status" });
+    }
+  });
+
+  // Track activation wizard events (for TTFV analytics)
+  app.post("/api/activation/track", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      const { action, step, metadata } = req.body;
+
+      // Track telemetry event
+      telemetryClient.track('activation_wizard', {
+        userId,
+        action,
+        step,
+        ...metadata,
+        correlationId,
+      });
+
+      // Log for debugging
+      console.log(`📊 Activation event: ${action} (step ${step}) for user ${userId}`);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Track activation event error:", error);
+      res.status(500).json({ error: "Failed to track activation event" });
+    }
+  });
+
+  // Dismiss activation wizard (user chose to skip)
+  app.post("/api/activation/dismiss", isAuthenticated, async (req, res) => {
+    const correlationId = (req as any).correlationId;
+    res.set('X-Correlation-ID', correlationId);
+    
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User ID not found" });
+      }
+
+      // Track dismissal for analytics
+      telemetryClient.track('activation_wizard_dismissed', {
+        userId,
+        correlationId,
+      });
+
+      console.log(`⏭️  Activation wizard dismissed for user ${userId}`);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Dismiss activation wizard error:", error);
+      res.status(500).json({ error: "Failed to dismiss activation wizard" });
+    }
+  });
+
   // ========== COPPA AGE VERIFICATION ENDPOINTS ==========
 
   // Get user's age verification status
