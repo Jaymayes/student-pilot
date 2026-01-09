@@ -1,0 +1,62 @@
+{
+  "protocol": "AGENT3_HANDSHAKE v27",
+  "phase": "A",
+  "timestamp": "2026-01-09T07:45:00Z",
+  "app": {
+    "id": "A4",
+    "name": "AI Service",
+    "url": "https://ai-service-jamarrlmayes.replit.app",
+    "role": "Chat Completions & AI"
+  },
+  "health_probe": {
+    "endpoint": "/health",
+    "method": "GET",
+    "status_code": 404,
+    "status_text": "Not Found",
+    "latency_ms": null,
+    "healthy": false
+  },
+  "slo_compliance": {
+    "p95_target_ms": 120,
+    "p95_actual_ms": null,
+    "within_target": null,
+    "error_rate_target_pct": 1,
+    "error_rate_actual_pct": null,
+    "error_rate_pass": null
+  },
+  "dual_source_evidence": {
+    "method_a": {
+      "type": "HTTP Health Probe",
+      "result": "404 Not Found",
+      "latency_ms": null,
+      "timestamp": "2026-01-09T07:45:00Z"
+    },
+    "method_b": {
+      "type": "Telemetry Corroboration",
+      "source": "A8 Auto Com Center",
+      "last_heartbeat": null,
+      "telemetry_status": "unknown"
+    }
+  },
+  "stability_window": {
+    "duration_minutes": 15,
+    "start": "2026-01-09T07:30:00Z",
+    "end": "2026-01-09T07:45:00Z",
+    "samples": 0,
+    "failures": null,
+    "uptime_pct": null
+  },
+  "wilson_95_ci": {
+    "successes": null,
+    "total": null,
+    "lower_bound": null,
+    "upper_bound": null,
+    "confidence": null
+  },
+  "verdict": {
+    "status": "degraded",
+    "health_pass": false,
+    "latency_pass": null,
+    "notes": "Health endpoint not exposed. Service returned 404. Unable to verify health status via standard probe."
+  }
+}

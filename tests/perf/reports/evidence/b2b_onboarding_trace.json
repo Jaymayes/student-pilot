@@ -1,0 +1,72 @@
+{
+  "protocol": "AGENT3_HANDSHAKE v27",
+  "timestamp": "2026-01-09T07:45:00Z",
+  "trace_type": "b2b_onboarding",
+  "synthetic_identity": {
+    "provider_id": "test_provider_e2e_01",
+    "tags": {
+      "test_run": true,
+      "source": "qa",
+      "env": "prod_observe"
+    }
+  },
+  "assessment_status": "NOT_EXECUTED",
+  "reason": "A6 Provider Pilot health endpoint returns 404 - external app requires separate probe execution",
+  "flow_steps": [
+    {
+      "step": 1,
+      "name": "A6 Provider Registration",
+      "endpoint": "https://provider-pilot-jamarrlmayes.replit.app/register",
+      "status": "not_probed",
+      "notes": "A6 health check returned 404 - endpoint not accessible"
+    },
+    {
+      "step": 2,
+      "name": "A7 Listing Publication",
+      "endpoint": "https://auto-page-maker-jamarrlmayes.replit.app/api/listings",
+      "status": "healthy",
+      "latency_ms": 115,
+      "notes": "A7 operational, can receive listings"
+    },
+    {
+      "step": 3,
+      "name": "A2 Fee Calculation",
+      "endpoint": "https://scholarship-api-jamarrlmayes.replit.app/api/fees",
+      "status": "healthy",
+      "latency_ms": 126,
+      "notes": "3% platform fee configured"
+    },
+    {
+      "step": 4,
+      "name": "4x Markup Lineage",
+      "status": "not_verified",
+      "notes": "Requires A6 → A7 → A2 data flow verification"
+    },
+    {
+      "step": 5,
+      "name": "A8 Finance Tile",
+      "endpoint": "https://auto-com-center-jamarrlmayes.replit.app/health",
+      "status": "healthy",
+      "latency_ms": 105,
+      "notes": "A8 operational, finance tile visibility pending B2B flow"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "A6-HEALTH-404",
+      "severity": "P0",
+      "description": "A6 Provider Pilot does not expose /health endpoint",
+      "impact": "Cannot verify B2B onboarding flow end-to-end"
+    }
+  ],
+  "next_steps": [
+    "Request A6 team to expose /health endpoint",
+    "Create K6 script for A6 registration flow",
+    "Probe A6 → A7 → A2 data lineage when accessible"
+  ],
+  "verdict": "NOT_ASSESSED",
+  "evidence_files": [
+    "tests/perf/reports/b2b_funnel_results.json",
+    "tests/perf/reports/evidence/phase3_b2b_probe.txt"
+  ]
+}
