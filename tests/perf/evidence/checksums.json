@@ -1,27 +1,24 @@
 {
-  "run_id": "CEOSPRINT-20260110-0910-REPUBLISH-ZT3B",
-  "timestamp": "2026-01-10T09:23:05Z",
+  "run_id": "CEOSPRINT-20260110-0945-REPUBLISH-ZT3B",
+  "timestamp": "2026-01-10T09:46:58Z",
   "algorithm": "SHA256",
   "artifacts": {
-    "a1_health.json": "245a671af48b211b33c2f1dc825f756029010a3e042b1500e49640bf943dfc58",
-    "a2_health.json": "5870e67a246df08df75e0f039b659037a3b49d6ec2616622f6ef976e606ad9ce",
-    "a3_health.json": "bbb88fb8891c7051cb026b6f889d2957aa6d1f3d9ca895707e9185d087641590",
-    "a4_health.json": "7cdd022a79a4c5a0782dba9e0d2f987a8f7f4cf67b3c3d79c4468056ee29b3f5",
-    "a5_health.json": "ae19ad574ad7b401df533e2466bb14573a5649e76e046890f3803a87d92e6ef9",
-    "a6_health.json": "959e575b11f2cf2997286806f27defdfdd9716b9d5df175441fcc63bd3c699cc",
-    "a7_health.json": "316862bc828378e2f973c94c9842797ae1be94952cc1bfc7c8a3931047e90d57",
-    "a8_health.json": "2d3068ac16ba80e7f40eb085f7928f38dc22dd74a72b7a5f90aa48ef4f30f39e",
-    "version_manifest.json": "7868cb1acf837104db487917df138fa94ec4066aaabe0c823e0d0e0e35ed648c",
-    "b2c_checkout_trace.json": "523161f5a8a1126f0ea9930750d713acc7b28f1f351dc9526c53ccf0929ab548",
-    "fee_lineage.json": "32f94ba06170a3d602a33664422f8bacef840218a588b78edc301965da3e86f2",
-    "learning_evidence.json": "ed2515477e022468aa117e8b00772911a2b347a249efe45941cd983068c6b539",
-    "cta_event_trace.json": "0e979fb92fe16d9b6f1cbe394a4e165251a768990f5b4855d11c4e820f4d38e5",
-    "page_build_trace.json": "45b706ee3add9ad4c28bfa030254b28c9fd9d0d922f7bab33c3b3e78402e1c3b"
+    "a1_health.json": "f78adb0132e1a72c1545c2a1c6a5a723803c57b39100e38f5040196f5e9c5e1a",
+    "a2_health.json": "afa39f1b35274f84e5fef28fe5a78247f1dcfd3d187f5a2ab54de3919a65b6ec",
+    "a3_health.json": "89626d9d90644d6060171cf05ea61ef0636368bf5920f0fcbbdf3fe3339715fa",
+    "a4_health.json": "8e2e57832912c90f8df78b83e01dea96b92054ac27b73540d4e7d8728be248e2",
+    "a5_health.json": "2b7a3090a82aa4a9c5d643e1a9ef7247ef223cc8ddb9d54ddce2b8ed9a502984",
+    "a6_health.json": "25bea7b16a2be75ac36b929872045f7e673d762fd1a3dd1877b57ef092420c86",
+    "a7_health.json": "c60d82cd526c23e25e80ec6f6633eba2abadaadc94daba2268be0ac71634e1b0",
+    "a8_health.json": "8e3dc68afdf0839885b0c3971372bc29e129384bc8a822298ac38365e18a51a9",
+    "version_manifest.json": "a40f8689c2634a83417314d45444440b8b4e45ca9487b2505849353f34d7c2a4",
+    "b2c_checkout_trace.json": "9ede12c49dfccb7ae95860c463d4ea160551596179081e3a278d7bdf9f176db8",
+    "fee_lineage.json": "f22635992b45674cb9a0ccf2b4b37f6f0567d26e92c31ac29980a523b2d9cc56",
+    "learning_evidence.json": "7a59318e94bc2b3d659bfc61dfb449e316307fe8599f9f565289f5e3ecbb0c80",
+    "cta_event_trace.json": "1a7a2d0119f414b359d7119f589ca8269d83606e8b37eb3b803abbe7b03928b2",
+    "page_build_trace.json": "ea7fc0075bee84111f9283c1225dea1bc514ef137635aa2569c7f88cbc8335d0"
   },
-  "a8_events": {
-    "sprint_start": "evt_1768036853166_h85gvrjpj",
-    "wiring_test": "evt_1768036918500_pzsliuu1c"
-  },
+  "a8_events": {"sprint_start":"evt_1768038288726_obpanx4x6","wiring_test":"evt_1768038353007_rl288e7ec"},
   "fleet_health": "75%",
-  "slo_status": {"a1_p95":"cold_start_289ms","a5_p95":"PASS_3ms","a3_p95":"PASS_194ms"}
+  "slo_status": {"a1_p95":"cold_start_254ms","a5_p95":"PASS_4ms","a3_p95":"EXCELLENT_132ms"}
 }

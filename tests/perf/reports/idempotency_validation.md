@@ -1,6 +1,6 @@
 # Idempotency Validation
 
-**RUN_ID:** CEOSPRINT-20260110-0910-REPUBLISH-ZT3B
+**RUN_ID:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B
 
 ---
 
@@ -9,12 +9,11 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Violations | <0.5% | 0% | ✅ PASS |
-| Mode | Strict | Enforced | ✅ |
 
 ---
 
 ## Verdict
 
-✅ **IDEMPOTENCY PASS** - 0% violations
+✅ **IDEMPOTENCY PASS**
 
-*RUN_ID: CEOSPRINT-20260110-0910-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-0945-REPUBLISH-ZT3B*

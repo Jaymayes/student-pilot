@@ -1,17 +1,1 @@
-{
-  "run_id": "CEOSPRINT-20260110-0910-REPUBLISH-ZT3B",
-  "timestamp": "2026-01-10T09:21:00Z",
-  "collector": "A5",
-  "apps": {
-    "A1": {"name":"scholar_auth","health_status":200,"latency_ms":289,"note":"cold_start"},
-    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":136},
-    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":194,"readiness":"100%","p95_target":"PASS"},
-    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":48},
-    "A5": {"name":"student_pilot","version":"2.7.0","commit":"e05bc10","health_status":200,"latency_ms":3,"p95_target":"PASS"},
-    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":97},
-    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":187},
-    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":124}
-  },
-  "fleet_summary": {"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},
-  "git_sha": "e05bc10"
-}
+{"run_id":"CEOSPRINT-20260110-0945-REPUBLISH-ZT3B","timestamp":"2026-01-10T09:45:00Z","collector":"A5","apps":{"A1":{"name":"scholar_auth","health_status":200,"latency_ms":254,"note":"cold_start"},"A2":{"name":"scholarship_api","health_status":200,"latency_ms":131},"A3":{"name":"scholarship_agent","health_status":200,"latency_ms":132,"readiness":"100%","p95_target":"PASS"},"A4":{"name":"scholarship_ai","health_status":404,"latency_ms":74},"A5":{"name":"student_pilot","version":"2.7.0","commit":"f183f85","health_status":200,"latency_ms":4,"p95_target":"PASS"},"A6":{"name":"scholarship_admin","health_status":404,"latency_ms":40},"A7":{"name":"auto_page_maker","health_status":200,"latency_ms":163},"A8":{"name":"auto_com_center","health_status":200,"latency_ms":77}},"fleet_summary":{"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},"git_sha":"f183f85"}
