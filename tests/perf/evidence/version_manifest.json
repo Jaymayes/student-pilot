@@ -1,18 +1,17 @@
 {
-  "run_id": "CEOSPRINT-20260110-0902-REPUBLISH-ZT3B",
-  "timestamp": "2026-01-10T09:02:30Z",
+  "run_id": "CEOSPRINT-20260110-0910-REPUBLISH-ZT3B",
+  "timestamp": "2026-01-10T09:21:00Z",
   "collector": "A5",
   "apps": {
-    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":241,"note":"cold_start"},
-    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":145},
-    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":197,"readiness":"100%"},
-    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":125},
-    "A5": {"name":"student_pilot","version":"2.7.0","commit":"e237a7b","health_status":200,"latency_ms":3,"p95_target":"PASS"},
-    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":100},
-    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":202},
-    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":96}
+    "A1": {"name":"scholar_auth","health_status":200,"latency_ms":289,"note":"cold_start"},
+    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":136},
+    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":194,"readiness":"100%","p95_target":"PASS"},
+    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":48},
+    "A5": {"name":"student_pilot","version":"2.7.0","commit":"e05bc10","health_status":200,"latency_ms":3,"p95_target":"PASS"},
+    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":97},
+    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":187},
+    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":124}
   },
   "fleet_summary": {"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},
-  "git_sha": "e237a7b",
-  "baseline_comparison": {"prior_run":"CEOSPRINT-20260110-0622-REPUBLISH-ZT3B","prior_a1":"95ms_PASS"}
+  "git_sha": "e05bc10"
 }

@@ -1,6 +1,6 @@
 # A3 Resiliency Report
 
-**RUN_ID:** CEOSPRINT-20260110-0902-REPUBLISH-ZT3B
+**RUN_ID:** CEOSPRINT-20260110-0910-REPUBLISH-ZT3B
 
 ---
 
@@ -9,24 +9,24 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | ≤200ms | **197ms** | ✅ PASS |
+| Latency | ≤200ms | **194ms** | ✅ **PASS** |
 | Readiness | 100% | **100%** | ✅ PASS |
 | Error Rate | <1% | 0% | ✅ PASS |
 
 ---
 
-## Improvement Trend
+## Trend
 
 | Sprint | A3 Latency | Status |
 |--------|------------|--------|
-| ZT3 | 1477ms | ⚠️ Slow |
-| Prior ZT3B | 166ms | ✅ |
-| **This ZT3B** | **197ms** | ✅ PASS |
+| ZT3 | 1477ms | ⚠️ |
+| Prior ZT3B | 197ms | ✅ |
+| **This ZT3B** | **194ms** | ✅ **PASS** |
 
 ---
 
 ## Verdict
 
-✅ **A3 RESILIENCY PASS** - Healthy at 197ms
+✅ **A3 RESILIENCY PASS** - Healthy at 194ms
 
-*RUN_ID: CEOSPRINT-20260110-0902-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-0910-REPUBLISH-ZT3B*

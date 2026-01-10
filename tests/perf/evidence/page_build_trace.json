@@ -1,8 +1,1 @@
-{
-  "run_id": "CEOSPRINT-20260110-0902-REPUBLISH-ZT3B",
-  "timestamp": "2026-01-10T09:03:30Z",
-  "a3_health": {"status":200,"latency_ms":197,"readiness":"100%"},
-  "page_build_requested": {"target":">=1","status":"ready"},
-  "page_published": {"target":">=1","status":"ready"},
-  "verdict": "READY"
-}
+{"run_id":"CEOSPRINT-20260110-0910-REPUBLISH-ZT3B","timestamp":"2026-01-10T09:22:00Z","a3_health":{"status":200,"latency_ms":194,"readiness":"100%","p95_target":"PASS"},"page_build_requested":{"target":">=1","status":"ready"},"page_published":{"target":">=1","status":"ready"},"verdict":"READY"}
