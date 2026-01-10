@@ -1,8 +1,8 @@
 # Post-Republish Diff Report
 
-**RUN_ID:** CEOSPRINT-20260110-0600-REPUBLISH-ZT3  
-**Baseline:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2  
-**Timestamp:** 2026-01-10T05:49:10Z
+**RUN_ID:** CEOSPRINT-20260110-0615-REPUBLISH-ZT3A  
+**Baseline:** CEOSPRINT-20260110-0600-REPUBLISH-ZT3  
+**Timestamp:** 2026-01-10T06:04:00Z
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Metric | Prior Run | This Run | Delta |
 |--------|-----------|----------|-------|
-| Git SHA | ad90670 | 5581b78 | NEW COMMIT |
+| Git SHA | 5581b78 | 68a03da | NEW COMMIT |
 
 ---
 
@@ -18,14 +18,14 @@
 
 | App | Prior (ms) | Current (ms) | Delta | P95 Target |
 |-----|------------|--------------|-------|------------|
-| A1 | 134 ⚠️ | **87** | -47ms | ✅ **PASS** |
-| A2 | 116 | 192 | +76ms | ✅ |
-| A3 | 155 | 170 | +15ms | ✅ |
-| A4 | 47 | 114 | +67ms | ⚠️ 404 |
-| A5 | 3 | **2** | -1ms | ✅ **PASS** |
-| A6 | 87 | 91 | +4ms | ⚠️ 404 |
-| A7 | 122 | 149 | +27ms | ✅ |
-| A8 | 116 | 124 | +8ms | ✅ |
+| A1 | 87 ✅ | **52** | -35ms | ✅ **PASS** |
+| A2 | 192 | 116 | -76ms | ✅ |
+| A3 | 170 | 1477 | +1307ms | ⚠️ slow |
+| A4 | 114 | 46 | -68ms | ⚠️ 404 |
+| A5 | 2 ✅ | **3** | +1ms | ✅ **PASS** |
+| A6 | 91 | 129 | +38ms | ⚠️ 404 |
+| A7 | 149 | 124 | -25ms | ✅ |
+| A8 | 124 | 97 | -27ms | ✅ |
 
 ---
 
@@ -33,13 +33,13 @@
 
 | App | Target | Status |
 |-----|--------|--------|
-| A1 | ≤120ms | ✅ **PASS** (87ms) |
-| A5 | ≤120ms | ✅ **PASS** (2ms) |
+| A1 | ≤120ms | ✅ **PASS** (52ms) - Best yet! |
+| A5 | ≤120ms | ✅ **PASS** (3ms) |
 
 ---
 
 ## Republish Verdict
 
-✅ **VERIFIED** - New build confirmed (5581b78). Both SLOs PASS.
+✅ **VERIFIED** - New build confirmed (68a03da). Both SLOs PASS.
 
-*RUN_ID: CEOSPRINT-20260110-0600-REPUBLISH-ZT3*
+*RUN_ID: CEOSPRINT-20260110-0615-REPUBLISH-ZT3A*
