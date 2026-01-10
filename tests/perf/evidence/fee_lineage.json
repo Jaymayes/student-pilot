@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260110-1200-REPUBLISH-ZT3C","timestamp":"2026-01-10T19:18:00Z","funnel":"B2B","provider_onboarding":{"endpoint":"A6","status":"BLOCKED","health_status":404},"fee_structure":{"platform_fee":"3%","ai_markup":"4x","verified":false},"verdict":"BLOCKED"}
+{"run_id":"CEOSPRINT-20260110-2030-REPUBLISH-ZT3D","timestamp":"2026-01-10T20:42:00Z","funnel":"B2B","provider_onboarding":{"endpoint":"A6","status":"BLOCKED","health_status":404},"fee_structure":{"platform_fee":"3%","ai_markup":"4x","verified":false},"verdict":"BLOCKED"}
