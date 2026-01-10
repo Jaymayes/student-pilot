@@ -1,8 +1,8 @@
 # Post-Republish Diff Report
 
-**RUN_ID:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B  
-**Baseline:** CEOSPRINT-20260110-0910-REPUBLISH-ZT3B  
-**Timestamp:** 2026-01-10T09:45:00Z
+**RUN_ID:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B  
+**Baseline:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B  
+**Timestamp:** 2026-01-10T10:10:00Z
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Metric | Prior Run | This Run | Delta |
 |--------|-----------|----------|-------|
-| Git SHA | e05bc10 | **f183f85** | NEW COMMIT |
+| Git SHA | f183f85 | **c43a0b5** | NEW COMMIT |
 
 ---
 
@@ -18,20 +18,21 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | 254ms | ⚠️ Cold start |
-| A5 | ≤120ms | **4ms** | ✅ **PASS** |
-| A3 | ≤200ms | **132ms** | ✅ **EXCELLENT** |
+| A1 | ≤120ms | 134ms | ⚠️ Warm (14ms over) |
+| A5 | ≤120ms | **6ms** | ✅ **PASS** |
+| A3 | ≤200ms | **137ms** | ✅ **PASS** |
 
 ---
 
 ## Key Achievement
 
-**A3 at 132ms** - Best performance this session (well under 200ms target)
+**A1 at 134ms** - Warm state (near target, only 14ms over)
+**A3 at 137ms** - Second best this session
 
 ---
 
 ## Verdict
 
-✅ **VERIFIED** - New build (f183f85). A5 PASS, A3 EXCELLENT.
+✅ **VERIFIED** - New build (c43a0b5). A5 PASS, A3 PASS.
 
-*RUN_ID: CEOSPRINT-20260110-0945-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-1010-REPUBLISH-ZT3B*

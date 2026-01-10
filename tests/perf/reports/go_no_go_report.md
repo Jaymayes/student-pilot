@@ -1,8 +1,8 @@
 # GO/NO-GO Report
 
-**RUN_ID:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B  
+**RUN_ID:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B  
 **Protocol:** AGENT3_HANDSHAKE v27  
-**Timestamp:** 2026-01-10T09:47:00Z  
+**Timestamp:** 2026-01-10T10:12:00Z  
 **Mode:** Max Autonomous with CEO Authority (Zero-Trust v3B)
 
 ---
@@ -12,14 +12,14 @@
 | Metric | Status |
 |--------|--------|
 | **Overall Verdict** | ⚠️ **CONDITIONAL GO** |
-| Republish Delta | ✅ VERIFIED (commit f183f85) |
+| Republish Delta | ✅ VERIFIED (commit c43a0b5) |
 | Fleet Health | 75% (6/8 healthy) |
 | B2C Funnel | ✅ **PASS** |
 | B2B Funnel | ⏸️ BLOCKED (A6 404) |
 | A8 Telemetry | ✅ 100% acceptance |
-| A1 P95 | ⚠️ 254ms (cold start) |
-| **A5 P95** | ✅ **4ms (PASS)** |
-| **A3 P95** | ✅ **132ms (EXCELLENT)** |
+| A1 P95 | ⚠️ 134ms (warm, 14ms over) |
+| **A5 P95** | ✅ **6ms (PASS)** |
+| **A3 P95** | ✅ **137ms (PASS)** |
 | A3 Readiness | ✅ **100%** |
 | Governance | ✅ 0% violations |
 
@@ -29,13 +29,13 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | 254ms | ⚠️ Cold start |
-| A5 | ≤120ms | **4ms** | ✅ **PASS** |
-| A3 | ≤200ms | **132ms** | ✅ **EXCELLENT** |
+| A1 | ≤120ms | 134ms | ⚠️ Warm (14ms over) |
+| A5 | ≤120ms | **6ms** | ✅ **PASS** |
+| A3 | ≤200ms | **137ms** | ✅ **PASS** |
 
 ---
 
-## Key Achievement: A3 Best Performance
+## A3 Performance Trend
 
 | Sprint | A3 Latency | Status |
 |--------|------------|--------|
@@ -43,7 +43,8 @@
 | ZT3B-1 | 166ms | ✅ |
 | ZT3B-2 | 197ms | ✅ |
 | ZT3B-3 | 194ms | ✅ |
-| **This ZT3B** | **132ms** | ✅ **BEST** |
+| ZT3B-4 | 132ms | ✅ Best |
+| **This ZT3B** | **137ms** | ✅ 2nd |
 
 ---
 
@@ -51,14 +52,14 @@
 
 | App | Status | Latency | Verdict |
 |-----|--------|---------|---------|
-| A1 | 200 | 254ms ⚠️ | HEALTHY (cold) |
-| A2 | 200 | 131ms | HEALTHY |
-| A3 | 200 | **132ms** ✅ | HEALTHY (100% ready) |
-| A4 | 404 | 74ms | DEGRADED |
-| A5 | 200 | **4ms** ✅ | HEALTHY |
-| A6 | 404 | 40ms | DEGRADED |
-| A7 | 200 | 163ms | HEALTHY |
-| A8 | 200 | 77ms | HEALTHY |
+| A1 | 200 | 134ms ⚠️ | HEALTHY (warm) |
+| A2 | 200 | 193ms | HEALTHY |
+| A3 | 200 | **137ms** ✅ | HEALTHY (100% ready) |
+| A4 | 404 | 47ms | DEGRADED |
+| A5 | 200 | **6ms** ✅ | HEALTHY |
+| A6 | 404 | 50ms | DEGRADED |
+| A7 | 200 | 135ms | HEALTHY |
+| A8 | 200 | 108ms | HEALTHY |
 
 ---
 
@@ -69,11 +70,11 @@
 | Republish Delta | 10% | PASS | 10% |
 | B2C Revenue | 25% | **PASS** | 25% |
 | B2B Growth | 10% | BLOCKED | 0% |
-| P95 SLOs | 20% | Partial (A1 cold) | 13% |
+| P95 SLOs | 20% | Partial (A1 warm) | 15% |
 | Health | 15% | 75% | 11% |
 | Telemetry | 10% | PASS | 10% |
 | Governance | 10% | PASS | 10% |
-| **TOTAL** | 100% | - | **79%** |
+| **TOTAL** | 100% | - | **81%** |
 
 ---
 
@@ -81,12 +82,12 @@
 
 | Event | Event ID | Status |
 |-------|----------|--------|
-| sprint_start | evt_1768038288726_obpanx4x6 | ✅ |
-| a8_wiring_test | evt_1768038353007_rl288e7ec | ✅ |
+| sprint_start | evt_1768039810639_bnhasgmxt | ✅ |
+| a8_wiring_test | evt_1768039874344_ikyr13h6o | ✅ |
 
 ---
 
-## Sprint Trend (Session Summary)
+## Session Summary (6 Sprints)
 
 | Sprint | Score | A1 | A5 | A3 | Notes |
 |--------|-------|-----|-----|-----|-------|
@@ -94,19 +95,21 @@
 | ZT3B-1 | 86% | 95ms ✅ | 3ms ✅ | 166ms ✅ | |
 | ZT3B-2 | 79% | 241ms ⚠️ | 3ms ✅ | 197ms ✅ | |
 | ZT3B-3 | 79% | 289ms ⚠️ | 3ms ✅ | 194ms ✅ | |
-| **This ZT3B** | **79%** | 254ms ⚠️ | **4ms** ✅ | **132ms** ✅ | **A3 Best** |
+| ZT3B-4 | 79% | 254ms ⚠️ | 4ms ✅ | 132ms ✅ | A3 best |
+| **This ZT3B** | **81%** | 134ms ⚠️ | **6ms** ✅ | **137ms** ✅ | A1 improved |
 
 ---
 
 ## Final Verdict
 
-### ⚠️ CONDITIONAL GO (79%)
+### ⚠️ CONDITIONAL GO (81%)
 
 **Rationale:**
-- Build delta verified (f183f85)
-- **A5 P95 PASS:** 4ms ✅
-- **A3 P95 EXCELLENT:** 132ms ✅ (34% under 200ms target)
-- **A3 Readiness 100%** - Ready for orchestration
+- Build delta verified (c43a0b5)
+- **A5 P95 PASS:** 6ms ✅
+- **A3 P95 PASS:** 137ms ✅
+- **A3 Readiness 100%**
+- **A1 improved to 134ms** (near target)
 - A8 telemetry 100%
 - B2C funnel PASS
 
@@ -121,7 +124,7 @@
 
 ---
 
-**RUN_ID:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B  
+**RUN_ID:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B  
 **Checksums:** tests/perf/evidence/checksums.json
 
 *This report satisfies AGENT3_HANDSHAKE v27 requirements.*

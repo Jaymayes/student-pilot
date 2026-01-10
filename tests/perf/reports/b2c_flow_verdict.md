@@ -1,6 +1,6 @@
 # B2C Flow Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B
+**RUN_ID:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Step | Status |
 |------|--------|
-| Auth (A1) | ✅ PASS (254ms cold) |
+| Auth (A1) | ✅ PASS (134ms warm) |
 | Discovery | ✅ PASS (Stripe live) |
 | Checkout | ✅ Configured |
 
@@ -18,8 +18,8 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A5 | ≤120ms | **4ms** | ✅ **PASS** |
-| A3 | ≤200ms | **132ms** | ✅ **EXCELLENT** |
+| A5 | ≤120ms | **6ms** | ✅ **PASS** |
+| A3 | ≤200ms | **137ms** | ✅ **PASS** |
 
 ---
 
@@ -27,4 +27,4 @@
 
 ✅ **B2C PASS**
 
-*RUN_ID: CEOSPRINT-20260110-0945-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-1010-REPUBLISH-ZT3B*
