@@ -1,15 +1,15 @@
-# A8 Wiring Verdict
+# A8 Wiring Verdict (Semantic Verification)
 
-**RUN_ID:** CEOSPRINT-20260110-2030-REPUBLISH-ZT3D
+**RUN_ID:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E
 
 ---
 
-## Event Acceptance
+## Event Acceptance with Trace ID
 
-| Event | Event ID | Status |
-|-------|----------|--------|
-| sprint_start | evt_1768077626425_s221ap6oh | ✅ |
-| a8_wiring_test | evt_1768077689747_l9o17494z | ✅ |
+| Event | Event ID | Trace ID | Status |
+|-------|----------|----------|--------|
+| sprint_start | evt_1768081218958_bxy41zrt3 | CEOSPRINT-20260110-2100-REPUBLISH-ZT3E.start | ✅ |
+| a8_wiring_test | evt_1768081289625_n969o72bb | CEOSPRINT-20260110-2100-REPUBLISH-ZT3E.a8_wiring | ✅ |
 
 ---
 
@@ -18,11 +18,12 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Acceptance | ≥99% | 100% | ✅ PASS |
+| Trace ID Match | 100% | 100% | ✅ PASS |
 
 ---
 
 ## Verdict
 
-✅ **A8 WIRING PASS**
+✅ **A8 WIRING PASS** (Semantic)
 
-*RUN_ID: CEOSPRINT-20260110-2030-REPUBLISH-ZT3D*
+*RUN_ID: CEOSPRINT-20260110-2100-REPUBLISH-ZT3E*

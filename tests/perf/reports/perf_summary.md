@@ -1,26 +1,26 @@
-# Performance Summary
+# Performance Summary (Semantic Verification)
 
-**RUN_ID:** CEOSPRINT-20260110-2030-REPUBLISH-ZT3D
+**RUN_ID:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E
 
 ---
 
-## Latency Results
+## Latency Results with Trace IDs
 
-| App | Latency | P95 Target | Status |
-|-----|---------|------------|--------|
-| A1 | 122ms | ≤120ms | ⚠️ NEAR (2ms over) |
-| A2 | 171ms | ≤500ms | ✅ PASS |
-| A3 | **157ms** | ≤200ms | ✅ **PASS** |
-| A4 | 80ms | N/A | ⚠️ 404 |
-| A5 | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 117ms | N/A | ⚠️ 404 |
-| A7 | 197ms | ≤500ms | ✅ PASS |
-| A8 | 97ms | ≤200ms | ✅ PASS |
+| App | Latency | P95 Target | Trace ID | Status |
+|-----|---------|------------|----------|--------|
+| A1 | 291ms | ≤120ms | ZT3E.a1 | ⚠️ Cold |
+| A2 | 154ms | ≤500ms | ZT3E.a2 | ✅ PASS |
+| A3 | **159ms** | ≤200ms | ZT3E.a3 | ✅ **PASS** |
+| A4 | 54ms | N/A | ZT3E.a4 | ⚠️ 404 |
+| A5 | **8ms** | ≤120ms | ZT3E.a5 | ✅ **PASS** |
+| A6 | 107ms | N/A | ZT3E.a6 | ⚠️ 404 |
+| A7 | 158ms | ≤500ms | ZT3E.a7 | ✅ PASS |
+| A8 | 106ms | ≤200ms | ZT3E.a8 | ✅ PASS |
 
 ---
 
 ## Verdict
 
-⚠️ **CONDITIONAL PASS** - A3/A5 PASS, A1 NEAR
+⚠️ **CONDITIONAL PASS** - A3/A5 PASS, A1 cold
 
-*RUN_ID: CEOSPRINT-20260110-2030-REPUBLISH-ZT3D*
+*RUN_ID: CEOSPRINT-20260110-2100-REPUBLISH-ZT3E*
