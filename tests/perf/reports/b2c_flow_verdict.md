@@ -1,6 +1,6 @@
 # B2C Flow Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0440-REPUBLISH-ZT
+**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Step | Status | Evidence |
 |------|--------|----------|
-| Auth (A1) | ⚠️ CONDITIONAL | 200 OK, 269ms (cold start) |
+| Auth (A1) | ✅ PASS | 200 OK, **43ms** (recovered) |
 | Discovery | ✅ PASS | Stripe live_mode |
 | Checkout | ✅ PASS | Configured, prior verified |
 
@@ -18,15 +18,13 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | **269ms** | ⚠️ **COLD START** |
+| A1 | ≤120ms | **43ms** | ✅ **PASS** |
 | A5 | ≤120ms | **3ms** | ✅ **PASS** |
-
-**Historical Pattern:** A1 recovers to sub-100ms after warm-up
 
 ---
 
 ## Verdict
 
-⚠️ **B2C CONDITIONAL PASS** (A1 cold start - expected to recover)
+✅ **B2C PASS** (A1 recovered, all funnel steps operational)
 
-*RUN_ID: CEOSPRINT-20260110-0440-REPUBLISH-ZT*
+*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*

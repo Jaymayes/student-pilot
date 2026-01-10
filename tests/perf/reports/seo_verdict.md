@@ -1,6 +1,6 @@
 # SEO Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0440-REPUBLISH-ZT
+**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP
 
 ---
 
@@ -9,7 +9,7 @@
 | Metric | Status |
 |--------|--------|
 | Health | ✅ 200 OK |
-| Latency | 163ms |
+| Latency | 143ms |
 
 ---
 
@@ -38,4 +38,4 @@
 
 ⚠️ **SEO PARTIAL PASS** - A7 healthy, meta elements verified
 
-*RUN_ID: CEOSPRINT-20260110-0440-REPUBLISH-ZT*
+*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*

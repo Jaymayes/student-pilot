@@ -1,7 +1,7 @@
 # A8 Wiring Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0440-REPUBLISH-ZT  
-**Timestamp:** 2026-01-10T04:55:33Z
+**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP  
+**Timestamp:** 2026-01-10T05:19:09Z
 
 ---
 
@@ -9,8 +9,8 @@
 
 | Event | Event ID | Status |
 |-------|----------|--------|
-| sprint_start | evt_1768020854735_7ym3jg3d2 | ✅ Accepted |
-| a8_wiring_test | evt_1768020933861_828ulj4ui | ✅ Accepted |
+| sprint_start | evt_1768022262924_808ou5vf5 | ✅ Accepted |
+| a8_wiring_test | evt_1768022349523_hzu6hin9w | ✅ Accepted |
 
 ---
 
@@ -18,8 +18,8 @@
 
 | Header | Present | Value |
 |--------|---------|-------|
-| X-Trace-Id | ✅ | CEOSPRINT-20260110-0440-REPUBLISH-ZT.* |
-| X-Idempotency-Key | ✅ | a8-wiring-CEOSPRINT-20260110-0440-REPUBLISH-ZT-1768020933 |
+| X-Trace-Id | ✅ | CEOSPRINT-20260110-0520-WARMUP.* |
+| X-Idempotency-Key | ✅ | a8-wiring-CEOSPRINT-20260110-0520-WARMUP-1768022349 |
 
 ---
 
@@ -36,4 +36,4 @@
 
 ✅ **A8 WIRING PASS**
 
-*RUN_ID: CEOSPRINT-20260110-0440-REPUBLISH-ZT*
+*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*

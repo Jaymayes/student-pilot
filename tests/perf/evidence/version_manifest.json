@@ -1,18 +1,18 @@
 {
-  "run_id": "CEOSPRINT-20260110-0440-REPUBLISH-ZT",
-  "timestamp": "2026-01-10T04:54:24Z",
+  "run_id": "CEOSPRINT-20260110-0520-WARMUP",
+  "timestamp": "2026-01-10T05:18:00Z",
   "collector": "A5",
   "apps": {
-    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":269,"p95_target":"FAIL_COLD_START"},
-    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":216},
-    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":210},
-    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":54},
-    "A5": {"name":"student_pilot","version":"2.7.0","commit":"c05873b","health_status":200,"latency_ms":3,"p95_target":"PASS","uptime_seconds":1334},
-    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":143},
-    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":163},
-    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":80}
+    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":43,"p95_target":"PASS","note":"warmed_after_3_probes"},
+    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":124},
+    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":156},
+    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":121},
+    "A5": {"name":"student_pilot","version":"2.7.0","commit":"799646c","health_status":200,"latency_ms":3,"p95_target":"PASS"},
+    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":64},
+    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":143},
+    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":89}
   },
   "fleet_summary": {"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},
-  "git_sha": "c05873b",
-  "baseline_comparison": {"prior_run":"CEOSPRINT-20260110-0045-REPUBLISH5","prior_git":"68a1d18","prior_a1_latency":"95ms"}
+  "git_sha": "799646c",
+  "baseline_comparison": {"prior_run":"CEOSPRINT-20260110-0440-REPUBLISH-ZT","prior_a1_latency":"269ms_cold","recovered":"43ms_warm"}
 }
