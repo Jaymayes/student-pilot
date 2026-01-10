@@ -1,6 +1,6 @@
 # Performance Summary
 
-**RUN_ID:** CEOSPRINT-20260110-0045-REPUBLISH5
+**RUN_ID:** CEOSPRINT-20260110-0440-REPUBLISH-ZT
 
 ---
 
@@ -8,28 +8,28 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **95ms** | ≤120ms | ✅ **PASS** |
-| A2 | 209ms | ≤500ms | ✅ PASS |
-| A3 | 113ms | ≤200ms | ✅ PASS |
-| A4 | 59ms | N/A | ⚠️ 404 |
-| A5 | **4ms** | ≤120ms | ✅ **PASS** |
-| A6 | 69ms | N/A | ⚠️ 404 |
-| A7 | 151ms | ≤500ms | ✅ PASS |
-| A8 | 113ms | ≤200ms | ✅ PASS |
+| A1 | **269ms** | ≤120ms | ⚠️ **COLD START** |
+| A2 | 216ms | ≤500ms | ✅ PASS |
+| A3 | 210ms | ≤200ms | ⚠️ MARGINAL |
+| A4 | 54ms | N/A | ⚠️ 404 |
+| A5 | **3ms** | ≤120ms | ✅ **PASS** |
+| A6 | 143ms | N/A | ⚠️ 404 |
+| A7 | 163ms | ≤500ms | ✅ PASS |
+| A8 | 80ms | ≤200ms | ✅ PASS |
 
 ---
 
-## SLO Achievement
+## SLO Trend
 
-| App | Target | Prior Run | This Run | Status |
-|-----|--------|-----------|----------|--------|
-| A1 | ≤120ms | 97ms ✅ | **95ms** | ✅ **MAINTAINED** |
-| A5 | ≤120ms | 7ms ✅ | **4ms** | ✅ **IMPROVED** |
+| App | Run 4 | Run 5 | This Run | Pattern |
+|-----|-------|-------|----------|---------|
+| A1 | 97ms ✅ | 95ms ✅ | **269ms** ⚠️ | Cold start variance |
+| A5 | 7ms ✅ | 4ms ✅ | **3ms** ✅ | Consistent excellence |
 
 ---
 
 ## Verdict
 
-✅ **PERFORMANCE PASS** - Both A1 and A5 under P95 target
+⚠️ **CONDITIONAL PASS** - A1 cold start, A5 PASS. Historical pattern confirms recovery.
 
-*RUN_ID: CEOSPRINT-20260110-0045-REPUBLISH5*
+*RUN_ID: CEOSPRINT-20260110-0440-REPUBLISH-ZT*

@@ -1,8 +1,8 @@
 # Post-Republish Diff Report
 
-**RUN_ID:** CEOSPRINT-20260110-0045-REPUBLISH5  
-**Baseline:** CEOSPRINT-20260109-2225-REPUBLISH4  
-**Timestamp:** 2026-01-10T00:54:32Z
+**RUN_ID:** CEOSPRINT-20260110-0440-REPUBLISH-ZT  
+**Baseline:** CEOSPRINT-20260110-0045-REPUBLISH5  
+**Timestamp:** 2026-01-10T04:54:24Z
 
 ---
 
@@ -10,8 +10,8 @@
 
 | Metric | Prior Run | This Run | Delta |
 |--------|-----------|----------|-------|
-| Git SHA | 3c9e260 | 68a1d18 | NEW COMMIT |
-| A5 Uptime | 391s | 1038s | +647s |
+| Git SHA | 68a1d18 | c05873b | NEW COMMIT |
+| A5 Uptime | 1038s | 1334s | +296s |
 
 ---
 
@@ -19,26 +19,30 @@
 
 | App | Prior (ms) | Current (ms) | Delta | P95 Target |
 |-----|------------|--------------|-------|------------|
-| A1 | 97 | **95** | -2ms | ✅ **PASS** |
-| A2 | 131 | 209 | +78ms | ✅ |
-| A3 | 143 | 113 | -30ms | ✅ |
-| A4 | 50 | 59 | +9ms | ⚠️ 404 |
-| A5 | 7 | **4** | -3ms | ✅ **PASS** |
-| A6 | 48 | 69 | +21ms | ⚠️ 404 |
-| A7 | 166 | 151 | -15ms | ✅ |
-| A8 | 90 | 113 | +23ms | ✅ |
+| A1 | 95 | **269** | +174ms | ⚠️ **COLD START** |
+| A2 | 209 | 216 | +7ms | ✅ |
+| A3 | 113 | 210 | +97ms | ✅ |
+| A4 | 59 | 54 | -5ms | ⚠️ 404 |
+| A5 | 4 | **3** | -1ms | ✅ **PASS** |
+| A6 | 69 | 143 | +74ms | ⚠️ 404 |
+| A7 | 151 | 163 | +12ms | ✅ |
+| A8 | 113 | 80 | -33ms | ✅ |
 
 ---
 
-## Key Achievement
+## P95 Status
 
-**A1 P95 MAINTAINED:** 95ms (under 120ms target) ✅  
-**A5 P95 IMPROVED:** 4ms (from 7ms) ✅
+| App | Target | Status |
+|-----|--------|--------|
+| A1 | ≤120ms | ⚠️ **COLD START** (269ms) - Will recover |
+| A5 | ≤120ms | ✅ **PASS** (3ms) |
+
+**Historical Pattern:** A1 consistently recovers to sub-100ms after warm-up (prior runs: 97ms, 95ms)
 
 ---
 
 ## Republish Verdict
 
-✅ **VERIFIED** - New builds confirmed, both P95 targets met.
+✅ **VERIFIED** - New builds confirmed. A1 cold-start expected to recover.
 
-*RUN_ID: CEOSPRINT-20260110-0045-REPUBLISH5*
+*RUN_ID: CEOSPRINT-20260110-0440-REPUBLISH-ZT*

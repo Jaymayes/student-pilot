@@ -1,18 +1,18 @@
 {
-  "run_id": "CEOSPRINT-20260110-0045-REPUBLISH5",
-  "timestamp": "2026-01-10T00:54:32Z",
+  "run_id": "CEOSPRINT-20260110-0440-REPUBLISH-ZT",
+  "timestamp": "2026-01-10T04:54:24Z",
   "collector": "A5",
   "apps": {
-    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":95,"p95_target":"PASS"},
-    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":209},
-    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":113},
-    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":59},
-    "A5": {"name":"student_pilot","version":"2.7.0","commit":"68a1d18","health_status":200,"latency_ms":4,"p95_target":"PASS","uptime_seconds":1038},
-    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":69},
-    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":151},
-    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":113}
+    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":269,"p95_target":"FAIL_COLD_START"},
+    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":216},
+    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":210},
+    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":54},
+    "A5": {"name":"student_pilot","version":"2.7.0","commit":"c05873b","health_status":200,"latency_ms":3,"p95_target":"PASS","uptime_seconds":1334},
+    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":143},
+    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":163},
+    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":80}
   },
   "fleet_summary": {"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},
-  "git_sha": "68a1d18",
-  "baseline_comparison": {"prior_run":"CEOSPRINT-20260109-2225-REPUBLISH4","prior_git":"3c9e260","prior_a1_latency":"97ms"}
+  "git_sha": "c05873b",
+  "baseline_comparison": {"prior_run":"CEOSPRINT-20260110-0045-REPUBLISH5","prior_git":"68a1d18","prior_a1_latency":"95ms"}
 }
