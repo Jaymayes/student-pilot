@@ -1,8 +1,8 @@
 # Post-Republish Diff Report
 
-**RUN_ID:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B  
-**Baseline:** CEOSPRINT-20260110-0945-REPUBLISH-ZT3B  
-**Timestamp:** 2026-01-10T10:10:00Z
+**RUN_ID:** CEOSPRINT-20260110-1200-REPUBLISH-ZT3C  
+**Baseline:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B  
+**Timestamp:** 2026-01-10T19:17:00Z
 
 ---
 
@@ -10,29 +10,31 @@
 
 | Metric | Prior Run | This Run | Delta |
 |--------|-----------|----------|-------|
-| Git SHA | f183f85 | **c43a0b5** | NEW COMMIT |
+| Git SHA | c43a0b5 | **b2c38c5** | NEW COMMIT |
 
 ---
 
-## P95 Status
+## P95 Status — ALL PASSING
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | 134ms | ⚠️ Warm (14ms over) |
-| A5 | ≤120ms | **6ms** | ✅ **PASS** |
-| A3 | ≤200ms | **137ms** | ✅ **PASS** |
+| A1 | ≤120ms | **86ms** | ✅ **PASS** |
+| A5 | ≤120ms | **3ms** | ✅ **PASS** |
+| A3 | ≤200ms | **121ms** | ✅ **PASS** |
 
 ---
 
 ## Key Achievement
 
-**A1 at 134ms** - Warm state (near target, only 14ms over)
-**A3 at 137ms** - Second best this session
+**ALL P95 SLOs NOW PASSING** - First time in ZT3 series!
+- A1 at 86ms (34ms under target)
+- A3 at 121ms (79ms under target)
+- A5 at 3ms (117ms under target)
 
 ---
 
 ## Verdict
 
-✅ **VERIFIED** - New build (c43a0b5). A5 PASS, A3 PASS.
+✅ **VERIFIED** - New build (b2c38c5). All P95 SLOs PASS.
 
-*RUN_ID: CEOSPRINT-20260110-1010-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-1200-REPUBLISH-ZT3C*

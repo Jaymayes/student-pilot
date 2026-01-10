@@ -1,6 +1,6 @@
 # A8 Wiring Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-1010-REPUBLISH-ZT3B
+**RUN_ID:** CEOSPRINT-20260110-1200-REPUBLISH-ZT3C
 
 ---
 
@@ -8,8 +8,8 @@
 
 | Event | Event ID | Status |
 |-------|----------|--------|
-| sprint_start | evt_1768039810639_bnhasgmxt | ✅ |
-| a8_wiring_test | evt_1768039874344_ikyr13h6o | ✅ |
+| sprint_start | evt_1768072606964_zsf8m3qbb | ✅ |
+| a8_wiring_test | evt_1768072673255_uenhuzwsi | ✅ |
 
 ---
 
@@ -25,4 +25,4 @@
 
 ✅ **A8 WIRING PASS**
 
-*RUN_ID: CEOSPRINT-20260110-1010-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-1200-REPUBLISH-ZT3C*
