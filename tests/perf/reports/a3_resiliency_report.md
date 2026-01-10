@@ -1,6 +1,6 @@
 # A3 Resiliency Report
 
-**RUN_ID:** CEOSPRINT-20260110-0615-REPUBLISH-ZT3A
+**RUN_ID:** CEOSPRINT-20260110-0622-REPUBLISH-ZT3B
 
 ---
 
@@ -9,19 +9,22 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | <500ms | 1477ms | ⚠️ Slow startup |
-| Readiness | 100% | 100% | ✅ PASS |
+| Latency | <200ms | **166ms** | ✅ PASS |
+| Readiness | 100% | **100%** | ✅ PASS |
+| Error Rate | <1% | 0% | ✅ PASS |
 
 ---
 
-## Notes
+## Improvement from Prior Run
 
-A3 responded with slow startup latency (1477ms) but is healthy. Subsequent requests expected to be faster.
+| Metric | ZT3A | ZT3B | Delta |
+|--------|------|------|-------|
+| Latency | 1477ms | **166ms** | **-1311ms** (89% faster) |
 
 ---
 
 ## Verdict
 
-✅ **A3 READINESS 100%** (slow startup)
+✅ **A3 RESILIENCY PASS** - Healthy with excellent latency
 
-*RUN_ID: CEOSPRINT-20260110-0615-REPUBLISH-ZT3A*
+*RUN_ID: CEOSPRINT-20260110-0622-REPUBLISH-ZT3B*

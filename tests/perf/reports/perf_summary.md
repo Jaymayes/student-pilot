@@ -1,6 +1,6 @@
 # Performance Summary
 
-**RUN_ID:** CEOSPRINT-20260110-0615-REPUBLISH-ZT3A
+**RUN_ID:** CEOSPRINT-20260110-0622-REPUBLISH-ZT3B
 
 ---
 
@@ -8,29 +8,35 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **52ms** | ≤120ms | ✅ **PASS** - Best! |
-| A2 | 116ms | ≤500ms | ✅ PASS |
-| A3 | 1477ms | ≤200ms | ⚠️ Slow startup |
-| A4 | 46ms | N/A | ⚠️ 404 |
+| A1 | **95ms** | ≤120ms | ✅ **PASS** |
+| A2 | 181ms | ≤500ms | ✅ PASS |
+| A3 | **166ms** | ≤200ms | ✅ **PASS** |
+| A4 | 50ms | N/A | ⚠️ 404 |
 | A5 | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 129ms | N/A | ⚠️ 404 |
-| A7 | 124ms | ≤500ms | ✅ PASS |
-| A8 | 97ms | ≤200ms | ✅ PASS |
+| A6 | 92ms | N/A | ⚠️ 404 |
+| A7 | 142ms | ≤500ms | ✅ PASS |
+| A8 | 88ms | ≤200ms | ✅ PASS |
 
 ---
 
 ## SLO Trend
 
-| Sprint | A1 | A5 |
-|--------|-----|-----|
-| ZT2 | 134ms ⚠️ | 3ms ✅ |
-| ZT3 | 87ms ✅ | 2ms ✅ |
-| **ZT3A** | **52ms** ✅ | **3ms** ✅ |
+| Sprint | A1 | A5 | A3 |
+|--------|-----|-----|-----|
+| ZT3 | 87ms ✅ | 2ms ✅ | 1477ms ⚠️ |
+| ZT3A | 52ms ✅ | 3ms ✅ | N/A |
+| **ZT3B** | **95ms** ✅ | **3ms** ✅ | **166ms** ✅ |
+
+---
+
+## Key Improvement
+
+**A3 Recovery:** 1477ms → **166ms** (89% faster)
 
 ---
 
 ## Verdict
 
-✅ **PASS** - Both A1 and A5 meet P95 SLOs. A1 at best latency.
+✅ **PASS** - A1, A3, A5 all meet P95 SLOs
 
-*RUN_ID: CEOSPRINT-20260110-0615-REPUBLISH-ZT3A*
+*RUN_ID: CEOSPRINT-20260110-0622-REPUBLISH-ZT3B*

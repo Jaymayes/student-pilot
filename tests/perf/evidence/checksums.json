@@ -1,25 +1,25 @@
 {
-  "run_id": "CEOSPRINT-20260110-0615-REPUBLISH-ZT3A",
-  "timestamp": "2026-01-10T06:06:12Z",
+  "run_id": "CEOSPRINT-20260110-0622-REPUBLISH-ZT3B",
+  "timestamp": "2026-01-10T06:38:52Z",
   "algorithm": "SHA256",
   "artifacts": {
-    "a1_health.json": "3fad8de89130c9b8cc5a3a5caa74b2312570394db3da78bb46baff56965421bb",
-    "a2_health.json": "3774b98bfdbd42c1c9c90f32b120be36d2a61adbf667a4bd6c447062fd019544",
-    "a3_health.json": "e2615e6781baf85868904d372e54bc296570f36c8d09fe500f030c319b8d18fd",
-    "a4_health.json": "e3dac9a605d7af603d282eec65e25a4465f9ae1d102cfb4ff2d81caf67f6ab9b",
-    "a5_health.json": "f9e845132863259cd6a1417daa5d4fc3a3926bab8579f3aa2e5266d048ee7e9e",
-    "a6_health.json": "25dd8c61f57a7a6c4f55a5088b438a52a8bc247c7a48f08ab7e1a88875b33fed",
-    "a7_health.json": "f540954d55df1a5c8e69b4f2cdface073718e5c9c134c72f5f79069d982f547c",
-    "a8_health.json": "fe65a5333269236ff9a7fac008209b148880928927d0d129fa12f1d1c3ba8b3a",
-    "version_manifest.json": "490cc0676de79e754714957e6552ab72c601b02fa7b3f96187ef2107bf0dd291",
-    "b2c_checkout_trace.json": "56c93f32c9fe881107c7197290465efd7d6eb5ffdde568b8d0f4247bcfec581f",
-    "fee_lineage.json": "e5f00bd612a4720e8e29a730b8ab38ca64ad9cab45f62c643d13ad1ce3532a6b",
-    "learning_evidence.json": "fdeadd054d3e45d6161abde38574a201aafda15e2e926acf97fa023405b57159"
+    "a1_health.json": "d98ce0177b584cddd3fce7bcd1b73d0418f206715957a2504dbecaf3c14e8554",
+    "a2_health.json": "b4c07f3e10adc39cb571e475ad5f19b62f3c37dac90161392e0fb1f428e47ae7",
+    "a3_health.json": "f8bf550d2b6b0c4835fb2e9d5829e83767f4a15218144e6147ddc2034525ce31",
+    "a4_health.json": "914ff80e69e66dc4127bd04322b6ef29dec1069b782daca554883e8044df6288",
+    "a5_health.json": "d8f8eb7ff4540b26a9e81b82b3d7468f361ab89a00d5fc86af6790ff3ebcb991",
+    "a6_health.json": "ac3bc90e32f69a0ccf406b151b0c6d28e10fbade54a69e0ae46020eca3b29f21",
+    "a7_health.json": "60274a5fd23ceeed7b068d2338772a10f84ef59c88eb5575d1ae09ca33361edf",
+    "a8_health.json": "fafb2c7943b65fd73f112a5fff8711d4d6a44437c511ed675b12804156bfe5c4",
+    "version_manifest.json": "27e97d7978a41345fb978fd0aa1e67fc937a3e980109a1cb0b3780bb83da96af",
+    "b2c_checkout_trace.json": "d3fa7e1870eb1c2c4e1fec8a77ac778b10201d2c8e7512340a073de8cf86c84b",
+    "fee_lineage.json": "492965f64096c363f17dfd51aac925a359aa52894e422352ce59786c445dd9be",
+    "learning_evidence.json": "daa59deb42e3108d37598349e28e82a415f20d2a103889d1050bdc368d842be2"
   },
   "a8_events": {
-    "sprint_start": "evt_1768025027767_6ig9wrwf6",
-    "wiring_test": "evt_1768025103233_gdo7idht8"
+    "sprint_start": "evt_1768026984331_ezbmpo4wi",
+    "wiring_test": "evt_1768027057273_i6bbala09"
   },
   "fleet_health": "75%",
-  "slo_status": {"a1_p95":"PASS_52ms_BEST","a5_p95":"PASS_3ms"}
+  "slo_status": {"a1_p95":"PASS_95ms","a5_p95":"PASS_3ms","a3_readiness":"100%_166ms"}
 }
