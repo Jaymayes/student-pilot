@@ -1,16 +1,16 @@
-# B2C Flow Verdict (Semantic Verification)
+# B2C Flow Verdict (Semantic+)
 
-**RUN_ID:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E
+**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS
 
 ---
 
-## Funnel Steps with Trace ID
+## Funnel Steps
 
 | Step | Status | Trace ID |
 |------|--------|----------|
-| Auth (A1) | ⚠️ Cold (291ms) | ZT3E.a1 |
-| Discovery | ✅ PASS | ZT3E.discovery |
-| Checkout | ✅ Configured | ZT3E.b2c |
+| Auth (A1) | ⚠️ Cold (264ms) | ZT3EPLUS.a1 |
+| Discovery | ✅ PASS | ZT3EPLUS.discovery |
+| Checkout | ✅ Configured | ZT3EPLUS.b2c |
 
 ---
 
@@ -18,13 +18,13 @@
 
 | Metric | Value |
 |--------|-------|
-| Used | 15/25 |
-| Remaining | 10 |
+| Used | 16/25 |
+| Remaining | 9 |
 
 ---
 
 ## Verdict
 
-✅ **B2C PASS** (Semantic)
+✅ **B2C PASS** (Semantic+)
 
-*RUN_ID: CEOSPRINT-20260110-2100-REPUBLISH-ZT3E*
+*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*

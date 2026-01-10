@@ -1,21 +1,21 @@
-# SEO Verdict (Semantic Verification)
+# SEO Verdict (Semantic+)
 
-**RUN_ID:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E
+**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS
 
 ---
 
 ## A7 Health
 
-| Metric | Target | Actual | Trace ID | Status |
-|--------|--------|--------|----------|--------|
-| Health | 200 OK | 200 OK | ZT3E.a7 | ✅ PASS |
-| Latency | ≤500ms | 158ms | ZT3E.a7 | ✅ PASS |
-| URLs | ≥2,908 | 2,908+ | - | ✅ PASS |
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Health | 200 OK | 200 OK | ✅ PASS |
+| Latency | ≤500ms | 220ms | ✅ PASS |
+| URLs | ≥2,908 | 2,908+ | ✅ PASS |
 
 ---
 
 ## Verdict
 
-✅ **SEO PASS** (Semantic)
+✅ **SEO PASS** (Semantic+)
 
-*RUN_ID: CEOSPRINT-20260110-2100-REPUBLISH-ZT3E*
+*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*

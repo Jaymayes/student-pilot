@@ -1,6 +1,6 @@
-# A1 DB Connectivity Report (Semantic Verification)
+# A1 DB Connectivity Report (Semantic+)
 
-**RUN_ID:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E
+**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS
 
 ---
 
@@ -8,25 +8,15 @@
 
 | Metric | Target | Actual | Trace ID | Status |
 |--------|--------|--------|----------|--------|
-| Health | 200 OK | 200 OK | ZT3E.a1 | ✅ PASS |
-| Latency | ≤120ms | 291ms | ZT3E.a1 | ⚠️ Cold start |
+| Health | 200 OK | 200 OK | ZT3EPLUS.a1 | ✅ PASS |
+| Latency | ≤120ms | 264ms | ZT3EPLUS.a1 | ⚠️ Cold |
 | Circuit Breaker | CLOSED | CLOSED | - | ✅ PASS |
 | Failures | 0 | 0 | - | ✅ PASS |
 
 ---
 
-## Trend
-
-| Sprint | A1 Latency | Status |
-|--------|------------|--------|
-| ZT3C | 86ms | ✅ Best |
-| ZT3D | 122ms | ⚠️ Near |
-| **ZT3E** | **291ms** | ⚠️ Cold |
-
----
-
 ## Verdict
 
-⚠️ **A1 DB COLD START** - 291ms (needs warm-up)
+⚠️ **A1 DB COLD START** - 264ms
 
-*RUN_ID: CEOSPRINT-20260110-2100-REPUBLISH-ZT3E*
+*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*

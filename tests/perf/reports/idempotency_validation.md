@@ -1,6 +1,6 @@
-# Idempotency Validation (Semantic Verification)
+# Idempotency Validation (Semantic+)
 
-**RUN_ID:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E
+**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS
 
 ---
 
@@ -14,6 +14,6 @@
 
 ## Verdict
 
-✅ **IDEMPOTENCY PASS** (Semantic)
+✅ **IDEMPOTENCY PASS** (Semantic+)
 
-*RUN_ID: CEOSPRINT-20260110-2100-REPUBLISH-ZT3E*
+*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*
