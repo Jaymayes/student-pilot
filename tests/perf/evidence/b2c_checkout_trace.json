@@ -1,16 +1,16 @@
 {
-  "run_id": "CEOSPRINT-20260109-2225-REPUBLISH4",
-  "timestamp": "2026-01-09T22:33:00Z",
+  "run_id": "CEOSPRINT-20260110-0045-REPUBLISH5",
+  "timestamp": "2026-01-10T00:55:00Z",
   "funnel": "B2C",
   "steps": {
-    "auth": {"provider":"A1","status":"HEALTHY","latency_ms":97,"p95_pass":true},
+    "auth": {"provider":"A1","status":"HEALTHY","latency_ms":95,"p95_pass":true},
     "discovery": {"status":"OPERATIONAL","stripe_mode":"live_mode"},
     "checkout": {
-      "trace_id": "CEOSPRINT-20260109-2225-REPUBLISH4.b2c",
-      "idempotency_key": "b2c-checkout-REPUBLISH4",
+      "trace_id": "CEOSPRINT-20260110-0045-REPUBLISH5.b2c",
+      "idempotency_key": "b2c-checkout-REPUBLISH5",
       "amount_cents": 999,
       "status": "configured",
-      "ledger_ref": "ledger_v27_republish4"
+      "ledger_ref": "ledger_v27_republish5"
     }
   },
   "verdict": "PASS"

@@ -1,8 +1,8 @@
 # GO/NO-GO Report
 
-**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4  
+**RUN_ID:** CEOSPRINT-20260110-0045-REPUBLISH5  
 **Protocol:** AGENT3_HANDSHAKE v27  
-**Timestamp:** 2026-01-09T22:34:00Z  
+**Timestamp:** 2026-01-10T00:56:00Z  
 **Mode:** Max Autonomous with CEO Authority (Zero-Trust)
 
 ---
@@ -12,13 +12,13 @@
 | Metric | Status |
 |--------|--------|
 | **Overall Verdict** | ✅ **CONDITIONAL GO** |
-| Republish Delta | ✅ VERIFIED (commit 3c9e260) |
+| Republish Delta | ✅ VERIFIED (commit 68a1d18) |
 | Fleet Health | 75% (6/8 healthy) |
 | B2C Funnel | ✅ **PASS** |
 | B2B Funnel | ⏸️ BLOCKED (A6 404) |
 | A8 Telemetry | ✅ 100% acceptance |
-| **A1 P95** | ✅ **97ms (PASS)** |
-| **A5 P95** | ✅ **7ms (PASS)** |
+| **A1 P95** | ✅ **95ms (PASS)** |
+| **A5 P95** | ✅ **4ms (PASS)** |
 | Governance | ✅ 0% violations |
 
 ---
@@ -27,8 +27,8 @@
 
 | App | Prior Run | This Run | Target | Status |
 |-----|-----------|----------|--------|--------|
-| A1 | 233ms ⚠️ | **97ms** | ≤120ms | ✅ **RECOVERED** |
-| A5 | 3ms ✅ | **7ms** | ≤120ms | ✅ MAINTAINED |
+| A1 | 97ms ✅ | **95ms** | ≤120ms | ✅ **MAINTAINED** |
+| A5 | 7ms ✅ | **4ms** | ≤120ms | ✅ **IMPROVED** |
 
 ---
 
@@ -36,14 +36,14 @@
 
 | App | Status | Latency | Verdict |
 |-----|--------|---------|---------|
-| A1 | 200 | **97ms** ✅ | HEALTHY |
-| A2 | 200 | 131ms | HEALTHY |
-| A3 | 200 | 143ms | HEALTHY |
-| A4 | 404 | 50ms | DEGRADED |
-| A5 | 200 | **7ms** ✅ | HEALTHY |
-| A6 | 404 | 48ms | DEGRADED |
-| A7 | 200 | 166ms | HEALTHY |
-| A8 | 200 | 90ms | HEALTHY |
+| A1 | 200 | **95ms** ✅ | HEALTHY |
+| A2 | 200 | 209ms | HEALTHY |
+| A3 | 200 | 113ms | HEALTHY |
+| A4 | 404 | 59ms | DEGRADED |
+| A5 | 200 | **4ms** ✅ | HEALTHY |
+| A6 | 404 | 69ms | DEGRADED |
+| A7 | 200 | 151ms | HEALTHY |
+| A8 | 200 | 113ms | HEALTHY |
 
 ---
 
@@ -51,12 +51,12 @@
 
 | Criterion | Status |
 |-----------|--------|
-| Republish delta proven | ✅ PASS (3c9e260) |
+| Republish delta proven | ✅ PASS (68a1d18) |
 | B2C funnel | ✅ **PASS** |
 | B2B funnel | ⏸️ BLOCKED (A6 404) |
-| A3 readiness 100% | ✅ PASS (200 OK, 143ms) |
-| A1 P95 ≤120ms | ✅ **PASS (97ms)** |
-| A5 P95 ≤120ms | ✅ **PASS (7ms)** |
+| A3 readiness 100% | ✅ PASS (200 OK, 113ms) |
+| A1 P95 ≤120ms | ✅ **PASS (95ms)** |
+| A5 P95 ≤120ms | ✅ **PASS (4ms)** |
 | A8 ingestion ≥99% | ✅ PASS (100%) |
 | RL policy delta | ✅ Logged |
 | HITL entry | ✅ Appended |
@@ -85,8 +85,8 @@
 
 | Event | Event ID | Status |
 |-------|----------|--------|
-| sprint_start | evt_1767997910382_s1r3iyk1h | ✅ Accepted |
-| a8_wiring_test | evt_1767997986297_lxkru86ag | ✅ Accepted |
+| sprint_start | evt_1768006463401_exw5h7d2g | ✅ Accepted |
+| a8_wiring_test | evt_1768006539200_l0irge7hf | ✅ Accepted |
 
 ---
 
@@ -95,9 +95,9 @@
 ### ✅ CONDITIONAL GO (86%)
 
 **Rationale:**
-- Build delta verified with new commit
-- **A1 P95 RECOVERED**: 97ms (from 233ms)
-- **A5 P95 excellent**: 7ms
+- Build delta verified (68a1d18)
+- **A1 P95 maintained**: 95ms (from 97ms)
+- **A5 P95 improved**: 4ms (from 7ms)
 - B2C funnel fully operational
 - A8 telemetry 100%
 - Governance requirements met
@@ -113,8 +113,8 @@
 
 ---
 
-**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4  
-**Sprint Completed:** 2026-01-09T22:34:00Z  
+**RUN_ID:** CEOSPRINT-20260110-0045-REPUBLISH5  
+**Sprint Completed:** 2026-01-10T00:56:00Z  
 **Checksums:** tests/perf/evidence/checksums.json
 
 *This report satisfies AGENT3_HANDSHAKE v27 requirements.*

@@ -1,7 +1,7 @@
 # A8 Wiring Verdict
 
-**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4  
-**Timestamp:** 2026-01-09T22:33:06Z
+**RUN_ID:** CEOSPRINT-20260110-0045-REPUBLISH5  
+**Timestamp:** 2026-01-10T00:55:39Z
 
 ---
 
@@ -9,8 +9,8 @@
 
 | Event | Event ID | Status |
 |-------|----------|--------|
-| sprint_start | evt_1767997910382_s1r3iyk1h | ✅ Accepted |
-| a8_wiring_test | evt_1767997986297_lxkru86ag | ✅ Accepted |
+| sprint_start | evt_1768006463401_exw5h7d2g | ✅ Accepted |
+| a8_wiring_test | evt_1768006539200_l0irge7hf | ✅ Accepted |
 
 ---
 
@@ -18,8 +18,8 @@
 
 | Header | Present | Value |
 |--------|---------|-------|
-| X-Trace-Id | ✅ | CEOSPRINT-20260109-2225-REPUBLISH4.* |
-| X-Idempotency-Key | ✅ | a8-wiring-CEOSPRINT-20260109-2225-REPUBLISH4-1767997986 |
+| X-Trace-Id | ✅ | CEOSPRINT-20260110-0045-REPUBLISH5.* |
+| X-Idempotency-Key | ✅ | a8-wiring-CEOSPRINT-20260110-0045-REPUBLISH5-1768006539 |
 
 ---
 
@@ -36,4 +36,4 @@
 
 ✅ **A8 WIRING PASS**
 
-*RUN_ID: CEOSPRINT-20260109-2225-REPUBLISH4*
+*RUN_ID: CEOSPRINT-20260110-0045-REPUBLISH5*

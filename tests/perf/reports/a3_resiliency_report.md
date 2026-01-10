@@ -1,6 +1,6 @@
 # A3 Resiliency Report
 
-**RUN_ID:** CEOSPRINT-20260109-2225-REPUBLISH4
+**RUN_ID:** CEOSPRINT-20260110-0045-REPUBLISH5
 
 ---
 
@@ -9,7 +9,7 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | <500ms | 143ms | ✅ PASS |
+| Latency | <500ms | 113ms | ✅ PASS |
 | Readiness | 100% | 100% | ✅ PASS |
 
 ---
@@ -19,7 +19,7 @@
 - Read-only probes: ✅
 - Canary rate: ≤1 RPS
 - Error rate: 0%
-- P95: 143ms (under 200ms abort)
+- P95: 113ms (under 200ms abort)
 
 ---
 
@@ -27,4 +27,4 @@
 
 ✅ **A3 READINESS 100%**
 
-*RUN_ID: CEOSPRINT-20260109-2225-REPUBLISH4*
+*RUN_ID: CEOSPRINT-20260110-0045-REPUBLISH5*

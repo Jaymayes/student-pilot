@@ -1,18 +1,18 @@
 {
-  "run_id": "CEOSPRINT-20260109-2225-REPUBLISH4",
-  "timestamp": "2026-01-09T22:31:59Z",
+  "run_id": "CEOSPRINT-20260110-0045-REPUBLISH5",
+  "timestamp": "2026-01-10T00:54:32Z",
   "collector": "A5",
   "apps": {
-    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":97,"p95_target":"PASS"},
-    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":131},
-    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":143},
-    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":50},
-    "A5": {"name":"student_pilot","version":"2.7.0","commit":"3c9e260","health_status":200,"latency_ms":7,"p95_target":"PASS","uptime_seconds":391},
-    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":48},
-    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":166},
-    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":90}
+    "A1": {"name":"scholar_auth","version":"1.0.0","health_status":200,"latency_ms":95,"p95_target":"PASS"},
+    "A2": {"name":"scholarship_api","health_status":200,"latency_ms":209},
+    "A3": {"name":"scholarship_agent","health_status":200,"latency_ms":113},
+    "A4": {"name":"scholarship_ai","health_status":404,"latency_ms":59},
+    "A5": {"name":"student_pilot","version":"2.7.0","commit":"68a1d18","health_status":200,"latency_ms":4,"p95_target":"PASS","uptime_seconds":1038},
+    "A6": {"name":"scholarship_admin","health_status":404,"latency_ms":69},
+    "A7": {"name":"auto_page_maker","health_status":200,"latency_ms":151},
+    "A8": {"name":"auto_com_center","health_status":200,"latency_ms":113}
   },
   "fleet_summary": {"total_apps":8,"healthy":6,"degraded":2,"health_percentage":"75%"},
-  "git_sha": "3c9e260",
-  "baseline_comparison": {"prior_run":"CEOSPRINT-20260109-2155-REPUBLISH3","prior_git":"ddc0bd1","prior_a1_latency":"233ms"}
+  "git_sha": "68a1d18",
+  "baseline_comparison": {"prior_run":"CEOSPRINT-20260109-2225-REPUBLISH4","prior_git":"3c9e260","prior_a1_latency":"97ms"}
 }
