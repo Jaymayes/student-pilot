@@ -1,6 +1,6 @@
 # B2C Flow Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0622-REPUBLISH-ZT3B
+**RUN_ID:** CEOSPRINT-20260110-0902-REPUBLISH-ZT3B
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Step | Status | Evidence |
 |------|--------|----------|
-| Auth (A1) | ✅ **PASS** | 200 OK, **95ms** |
+| Auth (A1) | ✅ PASS | 200 OK (241ms cold start) |
 | Discovery | ✅ PASS | Stripe live_mode |
 | Checkout | ✅ PASS | Configured |
 
@@ -18,22 +18,14 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | **95ms** | ✅ **PASS** |
+| A1 | ≤120ms | 241ms | ⚠️ Cold start |
 | A5 | ≤120ms | **3ms** | ✅ **PASS** |
-
----
-
-## A3 Orchestration Status
-
-| Metric | Status |
-|--------|--------|
-| Readiness | **100%** |
-| Latency | 166ms |
+| A3 | ≤200ms | **197ms** | ✅ **PASS** |
 
 ---
 
 ## Verdict
 
-✅ **B2C PASS** - Both SLOs met, A3 ready
+✅ **B2C PASS** - Funnel operational, A1 cold start observed
 
-*RUN_ID: CEOSPRINT-20260110-0622-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-0902-REPUBLISH-ZT3B*

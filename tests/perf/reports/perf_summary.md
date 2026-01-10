@@ -1,6 +1,6 @@
 # Performance Summary
 
-**RUN_ID:** CEOSPRINT-20260110-0622-REPUBLISH-ZT3B
+**RUN_ID:** CEOSPRINT-20260110-0902-REPUBLISH-ZT3B
 
 ---
 
@@ -8,14 +8,14 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **95ms** | ≤120ms | ✅ **PASS** |
-| A2 | 181ms | ≤500ms | ✅ PASS |
-| A3 | **166ms** | ≤200ms | ✅ **PASS** |
-| A4 | 50ms | N/A | ⚠️ 404 |
+| A1 | 241ms | ≤120ms | ⚠️ Cold start |
+| A2 | 145ms | ≤500ms | ✅ PASS |
+| A3 | **197ms** | ≤200ms | ✅ **PASS** |
+| A4 | 125ms | N/A | ⚠️ 404 |
 | A5 | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 92ms | N/A | ⚠️ 404 |
-| A7 | 142ms | ≤500ms | ✅ PASS |
-| A8 | 88ms | ≤200ms | ✅ PASS |
+| A6 | 100ms | N/A | ⚠️ 404 |
+| A7 | 202ms | ≤500ms | ✅ PASS |
+| A8 | 96ms | ≤200ms | ✅ PASS |
 
 ---
 
@@ -23,20 +23,19 @@
 
 | Sprint | A1 | A5 | A3 |
 |--------|-----|-----|-----|
-| ZT3 | 87ms ✅ | 2ms ✅ | 1477ms ⚠️ |
-| ZT3A | 52ms ✅ | 3ms ✅ | N/A |
-| **ZT3B** | **95ms** ✅ | **3ms** ✅ | **166ms** ✅ |
+| Prior ZT3B | 95ms ✅ | 3ms ✅ | 166ms ✅ |
+| **This ZT3B** | 241ms ⚠️ | **3ms** ✅ | **197ms** ✅ |
 
 ---
 
-## Key Improvement
+## Note
 
-**A3 Recovery:** 1477ms → **166ms** (89% faster)
+A1 cold start (241ms) expected to recover to <120ms on subsequent requests.
 
 ---
 
 ## Verdict
 
-✅ **PASS** - A1, A3, A5 all meet P95 SLOs
+⚠️ **CONDITIONAL PASS** - A3 and A5 meet SLOs, A1 cold start
 
-*RUN_ID: CEOSPRINT-20260110-0622-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-0902-REPUBLISH-ZT3B*

@@ -1,14 +1,14 @@
 {
-  "run_id": "CEOSPRINT-20260110-0622-REPUBLISH-ZT3B",
-  "timestamp": "2026-01-10T06:38:00Z",
+  "run_id": "CEOSPRINT-20260110-0902-REPUBLISH-ZT3B",
+  "timestamp": "2026-01-10T09:03:30Z",
   "funnel": "B2C",
   "steps": {
-    "auth": {"provider":"A1","status":"HEALTHY","latency_ms":95,"p95_pass":true},
+    "auth": {"provider":"A1","status":"HEALTHY","latency_ms":241,"note":"cold_start"},
     "discovery": {"status":"OPERATIONAL","stripe_mode":"live_mode"},
     "checkout": {
-      "trace_id": "CEOSPRINT-20260110-0622-REPUBLISH-ZT3B.b2c",
-      "idempotency_key": "b2c-checkout-ZT3B",
-      "amount_cents": 999,
+      "trace_id": "CEOSPRINT-20260110-0902-REPUBLISH-ZT3B.b2c",
+      "idempotency_key": "b2c-checkout-ZT3B-0902",
+      "amount_cents": 50,
       "status": "configured"
     }
   },

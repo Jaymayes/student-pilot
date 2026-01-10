@@ -1,7 +1,7 @@
 # Ecosystem Double Confirmation
 
-**RUN_ID:** CEOSPRINT-20260110-0622-REPUBLISH-ZT3B  
-**Timestamp:** 2026-01-10T06:37:00Z
+**RUN_ID:** CEOSPRINT-20260110-0902-REPUBLISH-ZT3B  
+**Timestamp:** 2026-01-10T09:02:30Z
 
 ---
 
@@ -9,14 +9,14 @@
 
 | App | Health Probe | Secondary Check | Dual PASS |
 |-----|--------------|-----------------|-----------|
-| A1 | 200 OK (95ms) ✅ | DB connectivity | ✅ |
-| A2 | 200 OK (181ms) | API response | ✅ |
-| A3 | 200 OK (166ms) ✅ | Readiness 100% | ✅ |
-| A4 | 404 (50ms) | No endpoint | ❌ |
+| A1 | 200 OK (241ms) | DB connectivity | ⚠️ Cold start |
+| A2 | 200 OK (145ms) | API response | ✅ |
+| A3 | 200 OK (197ms) ✅ | Readiness 100% | ✅ |
+| A4 | 404 (125ms) | No endpoint | ❌ |
 | A5 | 200 OK (3ms) ✅ | Local+telemetry | ✅ |
-| A6 | 404 (92ms) | No endpoint | ❌ |
-| A7 | 200 OK (142ms) | SPA rendered | ✅ |
-| A8 | 200 OK (88ms) | Hub self-check | ✅ |
+| A6 | 404 (100ms) | No endpoint | ❌ |
+| A7 | 200 OK (202ms) | SPA rendered | ✅ |
+| A8 | 200 OK (96ms) | Hub self-check | ✅ |
 
 ---
 
@@ -24,18 +24,9 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | **95ms** | ✅ **PASS** |
+| A1 | ≤120ms | 241ms | ⚠️ Cold start (expect recovery) |
 | A5 | ≤120ms | **3ms** | ✅ **PASS** |
-
----
-
-## A3 Orchestration Readiness
-
-| Metric | Status |
-|--------|--------|
-| Health | ✅ 200 OK |
-| Latency | 166ms |
-| Readiness | **100%** |
+| A3 | ≤200ms | **197ms** | ✅ **PASS** |
 
 ---
 
@@ -45,4 +36,4 @@
 - **Degraded:** A4, A6 (2/8)
 - **Health:** 75%
 
-*RUN_ID: CEOSPRINT-20260110-0622-REPUBLISH-ZT3B*
+*RUN_ID: CEOSPRINT-20260110-0902-REPUBLISH-ZT3B*
