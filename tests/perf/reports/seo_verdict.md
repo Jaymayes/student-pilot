@@ -1,6 +1,6 @@
 # SEO Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2
+**RUN_ID:** CEOSPRINT-20260110-0600-REPUBLISH-ZT3
 
 ---
 
@@ -9,12 +9,12 @@
 | Metric | Status |
 |--------|--------|
 | Health | ✅ 200 OK |
-| Latency | 122ms |
+| Latency | 149ms |
 
 ---
 
 ## Verdict
 
-⚠️ **SEO PARTIAL PASS** - A7 healthy
+⚠️ **SEO PARTIAL** - A7 healthy
 
-*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*
+*RUN_ID: CEOSPRINT-20260110-0600-REPUBLISH-ZT3*

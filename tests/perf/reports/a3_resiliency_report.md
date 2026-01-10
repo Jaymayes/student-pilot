@@ -1,6 +1,6 @@
 # A3 Resiliency Report
 
-**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2
+**RUN_ID:** CEOSPRINT-20260110-0600-REPUBLISH-ZT3
 
 ---
 
@@ -9,7 +9,7 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | <500ms | 155ms | ✅ PASS |
+| Latency | <500ms | 170ms | ✅ PASS |
 | Readiness | 100% | 100% | ✅ PASS |
 
 ---
@@ -18,4 +18,4 @@
 
 ✅ **A3 READINESS 100%**
 
-*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*
+*RUN_ID: CEOSPRINT-20260110-0600-REPUBLISH-ZT3*

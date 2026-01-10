@@ -1,6 +1,6 @@
 {
-  "run_id": "CEOSPRINT-20260110-0530-REPUBLISH-ZT2",
-  "timestamp": "2026-01-10T05:33:00Z",
+  "run_id": "CEOSPRINT-20260110-0600-REPUBLISH-ZT3",
+  "timestamp": "2026-01-10T05:50:00Z",
   "funnel": "B2B",
   "provider_onboarding": {"endpoint":"A6","status":"BLOCKED","health_status":404},
   "fee_structure": {"platform_fee":"3%","ai_markup":"4x","verified":false},
