@@ -1,16 +1,6 @@
 # B2B Flow Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP
-
----
-
-## Funnel Steps
-
-| Step | Status |
-|------|--------|
-| Provider Onboarding | ⏸️ A6 404 |
-| Listing | ⏸️ Blocked |
-| 3% Fee + 4x Markup | ⚠️ Config only |
+**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2
 
 ---
 
@@ -18,4 +8,4 @@
 
 ⏸️ **B2B BLOCKED** (A6 inaccessible)
 
-*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*
+*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*

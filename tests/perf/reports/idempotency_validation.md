@@ -1,15 +1,6 @@
 # Idempotency Validation
 
-**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP
-
----
-
-## Enforcement
-
-| Mode | Status |
-|------|--------|
-| Strict | ✅ Enabled |
-| Canary | 100% |
+**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2
 
 ---
 
@@ -18,12 +9,11 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Violations | <0.5% | 0% | ✅ PASS |
-| 428 Errors | 0 | 0 | ✅ PASS |
 
 ---
 
 ## Verdict
 
-✅ **IDEMPOTENCY PASS** - 0% violations
+✅ **IDEMPOTENCY PASS**
 
-*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*
+*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*

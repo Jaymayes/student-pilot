@@ -1,6 +1,6 @@
 # SEO Verdict
 
-**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP
+**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2
 
 ---
 
@@ -9,33 +9,12 @@
 | Metric | Status |
 |--------|--------|
 | Health | ✅ 200 OK |
-| Latency | 143ms |
-
----
-
-## SEO Elements
-
-| Element | Status |
-|---------|--------|
-| Title Tag | ✅ Present |
-| Meta Description | ✅ Present |
-| Open Graph | ✅ Complete |
-| JSON-LD | ✅ Schema.org |
-| Canonical | ✅ Set |
-
----
-
-## Sitemap
-
-| Check | Target | Status |
-|-------|--------|--------|
-| URLs | ≥2,908 | ⏸️ External access |
-| Robots.txt | Present | ⏸️ External access |
+| Latency | 122ms |
 
 ---
 
 ## Verdict
 
-⚠️ **SEO PARTIAL PASS** - A7 healthy, meta elements verified
+⚠️ **SEO PARTIAL PASS** - A7 healthy
 
-*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*
+*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*

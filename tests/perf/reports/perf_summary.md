@@ -1,6 +1,6 @@
 # Performance Summary
 
-**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP
+**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2
 
 ---
 
@@ -8,28 +8,28 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **43ms** | ≤120ms | ✅ **PASS** |
-| A2 | 124ms | ≤500ms | ✅ PASS |
-| A3 | 156ms | ≤200ms | ✅ PASS |
-| A4 | 121ms | N/A | ⚠️ 404 |
+| A1 | **134ms** | ≤120ms | ⚠️ **MARGINAL** |
+| A2 | 116ms | ≤500ms | ✅ PASS |
+| A3 | 155ms | ≤200ms | ✅ PASS |
+| A4 | 47ms | N/A | ⚠️ 404 |
 | A5 | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 64ms | N/A | ⚠️ 404 |
-| A7 | 143ms | ≤500ms | ✅ PASS |
-| A8 | 89ms | ≤200ms | ✅ PASS |
+| A6 | 87ms | N/A | ⚠️ 404 |
+| A7 | 122ms | ≤500ms | ✅ PASS |
+| A8 | 116ms | ≤200ms | ✅ PASS |
 
 ---
 
-## SLO Trend (Last 4 Runs)
+## SLO Trend
 
-| App | Run 4 | Run 5 | Run ZT | **WARMUP** |
-|-----|-------|-------|--------|------------|
-| A1 | 97ms ✅ | 95ms ✅ | 269ms ⚠️ | **43ms** ✅ |
-| A5 | 7ms ✅ | 4ms ✅ | 3ms ✅ | **3ms** ✅ |
+| Sprint | A1 | A5 |
+|--------|-----|-----|
+| WARMUP | **43ms** ✅ | 3ms ✅ |
+| **ZT2** | 134ms ⚠️ | **3ms** ✅ |
 
 ---
 
 ## Verdict
 
-✅ **PASS** - A1 and A5 both meet P95 targets.
+⚠️ **CONDITIONAL PASS** - A1 marginal, A5 PASS
 
-*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*
+*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*

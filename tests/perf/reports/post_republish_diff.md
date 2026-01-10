@@ -1,8 +1,8 @@
 # Post-Republish Diff Report
 
-**RUN_ID:** CEOSPRINT-20260110-0520-WARMUP  
-**Baseline:** CEOSPRINT-20260110-0440-REPUBLISH-ZT  
-**Timestamp:** 2026-01-10T05:18:00Z
+**RUN_ID:** CEOSPRINT-20260110-0530-REPUBLISH-ZT2  
+**Baseline:** CEOSPRINT-20260110-0520-WARMUP  
+**Timestamp:** 2026-01-10T05:32:10Z
 
 ---
 
@@ -10,22 +10,22 @@
 
 | Metric | Prior Run | This Run | Delta |
 |--------|-----------|----------|-------|
-| Git SHA | 576580d | 799646c | NEW COMMIT |
+| Git SHA | 799646c | ad90670 | NEW COMMIT |
 
 ---
 
-## Latency Comparison (Cold → Warm)
+## Latency Comparison
 
-| App | Cold (ZT) | Warm (Probe 3) | Delta | P95 Target |
-|-----|-----------|----------------|-------|------------|
-| A1 | 269ms ⚠️ | **43ms** | -226ms | ✅ **PASS** |
-| A2 | 216ms | 124ms | -92ms | ✅ |
-| A3 | 210ms | 156ms | -54ms | ✅ |
-| A4 | 54ms | 121ms | +67ms | ⚠️ 404 |
-| A5 | 3ms | **3ms** | 0ms | ✅ **PASS** |
-| A6 | 143ms | 64ms | -79ms | ⚠️ 404 |
-| A7 | 163ms | 143ms | -20ms | ✅ |
-| A8 | 80ms | 89ms | +9ms | ✅ |
+| App | Prior (ms) | Current (ms) | Delta | P95 Target |
+|-----|------------|--------------|-------|------------|
+| A1 | 43 ✅ | **134** | +91ms | ⚠️ **MARGINAL** |
+| A2 | 124 | 116 | -8ms | ✅ |
+| A3 | 156 | 155 | -1ms | ✅ |
+| A4 | 121 | 47 | -74ms | ⚠️ 404 |
+| A5 | 3 ✅ | **3** | 0ms | ✅ **PASS** |
+| A6 | 64 | 87 | +23ms | ⚠️ 404 |
+| A7 | 143 | 122 | -21ms | ✅ |
+| A8 | 89 | 116 | +27ms | ✅ |
 
 ---
 
@@ -33,13 +33,13 @@
 
 | App | Target | Status |
 |-----|--------|--------|
-| A1 | ≤120ms | ✅ **PASS** (43ms) |
+| A1 | ≤120ms | ⚠️ MARGINAL (134ms) |
 | A5 | ≤120ms | ✅ **PASS** (3ms) |
 
 ---
 
 ## Republish Verdict
 
-✅ **VERIFIED** - Warm probes confirm A1 recovery. Both P95 targets met.
+✅ **VERIFIED** - New build confirmed (ad90670). A1 near target.
 
-*RUN_ID: CEOSPRINT-20260110-0520-WARMUP*
+*RUN_ID: CEOSPRINT-20260110-0530-REPUBLISH-ZT2*
