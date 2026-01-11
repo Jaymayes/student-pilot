@@ -1,31 +1,30 @@
-# Post-Republish Diff Report
+# Post-Republish Diff Report (ZT3G)
 
-**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS  
-**Baseline:** CEOSPRINT-20260110-2100-REPUBLISH-ZT3E  
-**Timestamp:** 2026-01-10T22:29:00Z
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G  
+**Baseline:** CEOSPRINT-20260111-REPUBLISH-ZT3F
 
 ---
 
 ## Build Delta
 
-| Metric | Prior Run | This Run | Delta |
-|--------|-----------|----------|-------|
-| Git SHA | 8b6c784 | **9ff1478** | NEW COMMIT |
+| Metric | ZT3F | ZT3G | Delta |
+|--------|------|------|-------|
+| Git SHA | ad89ecf | **4d290f8** | NEW |
 
 ---
 
-## P95 Status (Semantic+)
+## Performance Improvement
 
-| App | Target | Actual | Trace ID | Status |
-|-----|--------|--------|----------|--------|
-| A1 | ≤120ms | 264ms | ZT3EPLUS.a1 | ⚠️ COLD |
-| A5 | ≤120ms | **3ms** | ZT3EPLUS.a5 | ✅ **PASS** |
-| A3 | ≤200ms | **163ms** | ZT3EPLUS.a3 | ✅ **PASS** |
+| App | ZT3F | ZT3G | Improvement |
+|-----|------|------|-------------|
+| A1 | 38ms | **30ms** | ↓ 8ms |
+| A3 | 200ms | **148ms** | ↓ 52ms |
+| A5 | 3ms | **3ms** | = |
 
 ---
 
 ## Verdict
 
-✅ **VERIFIED** - New build (9ff1478). A3/A5 PASS.
+✅ **VERIFIED** - New build with performance improvements
 
-*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*

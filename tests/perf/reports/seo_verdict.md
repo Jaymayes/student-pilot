@@ -1,6 +1,6 @@
-# SEO Verdict (ZT3F)
+# SEO Verdict (ZT3G)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
 
 ---
 
@@ -9,7 +9,7 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | ≤500ms | 158ms | ✅ PASS |
+| Latency | ≤500ms | 207ms | ✅ PASS |
 | URLs | ≥2,908 | 2,908+ | ✅ PASS |
 
 ---
@@ -21,7 +21,8 @@
 | Sitemap | ✅ Available |
 | Robots.txt | ✅ Available |
 | Canonical Tags | ✅ Configured |
-| Page Build Trigger | ✅ A3 → A7 flow active |
+| Fresh Page Build | ✅ Triggered |
+| A8 Ingestion | ✅ Confirmed |
 
 ---
 
@@ -29,4 +30,4 @@
 
 ✅ **SEO PASS**
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*

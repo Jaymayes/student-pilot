@@ -1,6 +1,6 @@
-# B2B Flow Verdict (ZT3F)
+# B2B Flow Verdict (ZT3G)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
 
 ---
 
@@ -8,9 +8,9 @@
 
 | Component | Status | Trace ID |
 |-----------|--------|----------|
-| A6 Provider Portal | ❌ 404 | ZT3F.a6 |
+| A6 Provider Portal | ❌ 404 | ZT3G.a6 |
 | Provider Onboarding | ⏸️ BLOCKED | - |
-| Fee Lineage | ⏸️ BLOCKED | - |
+| Fee Lineage (3% + 4x) | ⏸️ BLOCKED | - |
 
 ---
 
@@ -24,6 +24,6 @@
 
 ## Verdict
 
-⏸️ **B2B BLOCKED** (A6 health 404)
+⏸️ **B2B BLOCKED** (A6 health 404 - external dependency)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*

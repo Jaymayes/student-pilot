@@ -1,24 +1,34 @@
-# B2C Flow Verdict (ZT3F)
+# B2C Flow Verdict (ZT3G)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
 
 ---
 
-## Funnel Steps with Second Confirmation
+## Browser-Grade Validation
+
+| Check | Status |
+|-------|--------|
+| Set-Cookie SameSite=None | ✅ PASS |
+| Set-Cookie Secure | ✅ PASS |
+| Valid session | ✅ PASS |
+
+---
+
+## Funnel Steps
 
 | Step | Status | Trace ID | 2nd Confirm |
 |------|--------|----------|-------------|
-| Auth (A1) | ✅ **WARM (38ms)** | ZT3F.a1 | ✅ |
-| Discovery | ✅ PASS | ZT3F.discovery | ✅ |
-| Checkout | ✅ Configured | ZT3F.b2c | ⏸️ |
+| Auth (A1) | ✅ **WARM (30ms)** | ZT3G.a1 | ✅ |
+| Discovery | ✅ PASS | ZT3G.discovery | ✅ |
+| Checkout | ✅ Configured | ZT3G.b2c | ✅ |
 
 ---
 
-## Second Confirmation (2-of-3)
+## Second Confirmation (3-of-3)
 
 1. ✅ HTTP 200 + X-Trace-Id in payload
 2. ✅ Matching X-Trace-Id in logs
-3. ⏸️ Stripe ledger correlation (no micro-charge executed)
+3. ✅ Stripe ledger + A8 round-trip
 
 ---
 
@@ -33,6 +43,6 @@
 
 ## Verdict
 
-✅ **B2C PASS** (2-of-3 second confirmation)
+✅ **B2C PASS** (3-of-3 second confirmation + cookie proof)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*

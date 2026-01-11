@@ -1,6 +1,6 @@
-# A1 Cookie Validation (ZT3F)
+# A1 Cookie Validation (ZT3G)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
 
 ---
 
@@ -14,8 +14,18 @@
 
 ---
 
+## Browser-Grade Validation
+
+| Check | Status |
+|-------|--------|
+| Set-Cookie header present | ✅ |
+| SameSite=None | ✅ |
+| Secure flag | ✅ |
+
+---
+
 ## Verdict
 
 ✅ **A1 COOKIE PASS** - SameSite=None; Secure
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*

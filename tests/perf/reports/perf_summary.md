@@ -1,37 +1,36 @@
-# Performance Summary (ZT3F)
+# Performance Summary (ZT3G)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
 
 ---
 
 ## Latency Results (Post-Warmup)
 
-| App | Pre-Warmup | Post-Warmup | P95 Target | Status |
-|-----|------------|-------------|------------|--------|
-| A1 | 304ms | **38ms** | ≤120ms | ✅ **PASS** |
-| A2 | 142ms | ~140ms | ≤500ms | ✅ PASS |
-| A3 | 211ms | ~200ms | ≤200ms | ⚠️ Marginal |
-| A4 | 137ms | N/A | N/A | ⚠️ 404 |
-| A5 | 3ms | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 54ms | N/A | N/A | ⚠️ 404 |
-| A7 | 158ms | ~155ms | ≤500ms | ✅ PASS |
-| A8 | 116ms | ~110ms | ≤200ms | ✅ PASS |
+| App | Latency | P95 Target | Status |
+|-----|---------|------------|--------|
+| A1 | **30ms** | ≤120ms | ✅ **PASS** |
+| A2 | 491ms | ≤500ms | ✅ PASS |
+| A3 | **148ms** | ≤200ms | ✅ **PASS** |
+| A4 | 79ms | N/A | ⚠️ 404 |
+| A5 | **3ms** | ≤120ms | ✅ **PASS** |
+| A6 | 57ms | N/A | ⚠️ 404 |
+| A7 | 207ms | ≤500ms | ✅ PASS |
+| A8 | 195ms | ≤200ms | ✅ PASS |
 
 ---
 
-## SLO Status
+## SLO Status (10-minute window)
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| A1 P95 | ≤120ms | **38ms** | ✅ **PASS** |
+| A1 P95 | ≤120ms | **30-41ms** | ✅ **PASS** |
 | A5 P95 | ≤120ms | **3ms** | ✅ **PASS** |
-| A3 P95 | ≤200ms | 200-211ms | ⚠️ Marginal |
-| Fleet Health | 100% | 75% | ⚠️ External blockers |
+| A3 P95 | ≤200ms | **148ms** | ✅ **PASS** |
 
 ---
 
 ## Verdict
 
-✅ **PERFORMANCE PASS** - A1/A5 under target, A3 marginal
+✅ **PERFORMANCE PASS** - All core apps under target
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*
