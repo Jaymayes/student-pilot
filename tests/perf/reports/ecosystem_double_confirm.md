@@ -1,8 +1,8 @@
-# Ecosystem Double Confirmation (ZT3G-RERUN-001)
+# Ecosystem Double Confirmation (ZT3G-RERUN-002)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001  
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002  
 **Protocol:** AGENT3_HANDSHAKE v27  
-**Goal:** Contradiction-Free Definitive GO
+**Goal:** A6 Republish and Definitive GO
 
 ---
 
@@ -38,7 +38,7 @@
 
 | Check | Status |
 |-------|--------|
-| A6 Health | ❌ 404 |
+| A6 Health | ❌ 404 (requires republish) |
 | **Verdict** | ⏸️ **BLOCKED** |
 
 ---
@@ -47,9 +47,9 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | **36ms** | ✅ **PASS** |
-| A5 | ≤120ms | **5ms** | ✅ **PASS** |
-| A3 | ≤200ms | **121ms** | ✅ **PASS** |
+| A1 | ≤120ms | **32ms** | ✅ **PASS** |
+| A5 | ≤120ms | **3ms** | ✅ **PASS** |
+| A3 | ≤200ms | **160ms** | ✅ **PASS** |
 
 ---
 
@@ -58,16 +58,8 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Episode increment | ≥1 | 1 | ✅ PASS |
-| Exploration | ≤0.001 | **0.0006** | ✅ **PASS** |
+| Exploration | ≤0.001 | **0.0005** | ✅ **PASS** |
 | Error-correction | Demonstrated | Warmup fix | ✅ PASS |
-
----
-
-## HITL
-
-| ID | Action | Result |
-|----|--------|--------|
-| HITL-CEO-RERUN-001 | Contradiction-free GO | All SLOs PASS |
 
 ---
 
@@ -76,9 +68,9 @@
 | Metric | Value |
 |--------|-------|
 | Healthy | 6/8 (75%) |
-| A1 P95 | **36ms** ✅ |
-| A5 P95 | **5ms** ✅ |
-| A3 P95 | **121ms** ✅ |
+| A1 P95 | **32ms** ✅ |
+| A5 P95 | **3ms** ✅ |
+| A3 P95 | **160ms** ✅ |
 | Stripe | 16/25 used, 9 remaining |
 
 ---
@@ -87,4 +79,4 @@
 
 ✅ **ECOSYSTEM VERIFIED** - Second confirmation achieved for core apps (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*

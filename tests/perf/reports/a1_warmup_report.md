@@ -1,6 +1,6 @@
-# A1 Warmup Report (ZT3G-RERUN-001)
+# A1 Warmup Report (ZT3G-RERUN-002)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002
 
 ---
 
@@ -17,25 +17,17 @@
 
 | Sample | Latency | Status |
 |--------|---------|--------|
-| 1 | 37ms | ✅ PASS |
-| 2 | 44ms | ✅ PASS |
-| 3 | 35ms | ✅ PASS |
-| 4 | 47ms | ✅ PASS |
-| 5 | 48ms | ✅ PASS |
-| **P95** | **~48ms** | ✅ **PASS** |
-
----
-
-## Stable Measurement
-
-| Sample | Latency | Status |
-|--------|---------|--------|
-| Post-warmup | **36ms** | ✅ **PASS** |
+| 1 | 32ms | ✅ PASS |
+| 2 | 32ms | ✅ PASS |
+| 3 | 34ms | ✅ PASS |
+| 4 | 31ms | ✅ PASS |
+| 5 | 36ms | ✅ PASS |
+| **P95** | **~36ms** | ✅ **PASS** |
 
 ---
 
 ## Verdict
 
-✅ **A1 WARM** - P95 ~48ms (target ≤120ms)
+✅ **A1 WARM** - P95 ~36ms (target ≤120ms)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*

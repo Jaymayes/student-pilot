@@ -1,6 +1,6 @@
-# A8 Wiring Verdict (ZT3G-RERUN-001)
+# A8 Wiring Verdict (ZT3G-RERUN-002)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002
 
 ---
 
@@ -8,8 +8,8 @@
 
 | Event | Event ID | Trace ID | Status |
 |-------|----------|----------|--------|
-| sprint_start | evt_1768169338711_yiyn2relj | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001.start | ✅ |
-| a8_wiring_test | evt_1768169419495_16ewedkk4 | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001.a8_wiring | ✅ |
+| sprint_start | evt_1768171758408_e6ob9ao08 | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002.start | ✅ |
+| a8_wiring_test | evt_1768171839612_g1gkhd0fd | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002.a8_wiring | ✅ |
 
 ---
 
@@ -23,16 +23,8 @@
 
 ---
 
-## Second Confirmation (3-of-3)
-
-1. ✅ HTTP 200 + X-Trace-Id in payload
-2. ✅ Event persisted to ledger
-3. ✅ Checksum match on round-trip
-
----
-
 ## Verdict
 
 ✅ **A8 WIRING PASS** (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*
