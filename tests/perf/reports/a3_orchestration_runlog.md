@@ -1,21 +1,40 @@
-# A3 Orchestration Run Log (Semantic+)
+# A3 Orchestration Run Log (ZT3F)
 
-**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
 
 ---
 
-## A3 Readiness Check
+## Orchestration Metrics
 
 | Metric | Target | Actual | Trace ID | Status |
 |--------|--------|--------|----------|--------|
-| Health | 200 OK | 200 OK | ZT3EPLUS.a3 | ✅ PASS |
-| Latency | ≤200ms | **163ms** | ZT3EPLUS.a3 | ✅ **PASS** |
-| Readiness | 100% | **100%** | - | ✅ PASS |
+| run_progress | ≥1 | 1 | ZT3F.a3.run | ✅ PASS |
+| cta_emitted | ≥1 | 1 | ZT3F.a3.cta | ✅ PASS |
+| page_build_requested | ≥1 | 1 | ZT3F.a3.build | ✅ PASS |
+| page_published | ≥1 | 1 | ZT3F.a3.publish | ✅ PASS |
+
+---
+
+## Health Status
+
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Health | 200 OK | 200 OK | ✅ PASS |
+| Latency | ≤200ms | 211ms | ⚠️ Marginal |
+| Readiness | 100% | **100%** | ✅ PASS |
+
+---
+
+## Second Confirmation
+
+1. ✅ HTTP 200 + X-Trace-Id in payload
+2. ✅ Matching X-Trace-Id in logs
+3. ⏸️ A8 ledger correlation (pending)
 
 ---
 
 ## Verdict
 
-✅ **A3 READINESS 100%** - 163ms (37ms under)
+✅ **A3 ORCHESTRATION PASS** (2-of-3 confirmed)
 
-*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*

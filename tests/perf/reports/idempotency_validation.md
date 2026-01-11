@@ -1,19 +1,30 @@
-# Idempotency Validation (Semantic+)
+# Idempotency Validation (ZT3F)
 
-**RUN_ID:** CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3F
 
 ---
 
-## Violation Metrics
+## Canary Status
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Violations | <0.5% | 0% | ✅ PASS |
+| Phase | Target | Actual | Status |
+|-------|--------|--------|--------|
+| Current | 25% | 25% | ✅ Active |
+| 428 Errors | <0.5% | 0% | ✅ PASS |
+| Fallback | Not triggered | - | ✅ OK |
+
+---
+
+## Headers Enforced
+
+| Header | Required | Status |
+|--------|----------|--------|
+| X-Idempotency-Key | Yes | ✅ Enforced |
+| X-Trace-Id | Yes | ✅ Enforced |
 
 ---
 
 ## Verdict
 
-✅ **IDEMPOTENCY PASS** (Semantic+)
+✅ **IDEMPOTENCY PASS**
 
-*RUN_ID: CEOSPRINT-20260110-2230-REPUBLISH-ZT3EPLUS*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3F*
