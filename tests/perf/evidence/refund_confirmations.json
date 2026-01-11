@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002","timestamp":"2026-01-11T22:51:00Z","stripe_cap":{"total":25,"used":16,"remaining":9},"refunds":[],"note":"no_live_charges_this_sprint_stripe_remaining_9_above_threshold_5"}
+{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003","timestamp":"2026-01-11T23:25:00Z","stripe_safety":"ENFORCED","stripe_cap":{"total":25,"used":21,"remaining":4},"refunds":[],"note":"no_live_charges_stripe_safety_pause_enforced_remaining_4_below_threshold_5"}

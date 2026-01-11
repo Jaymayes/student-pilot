@@ -1,6 +1,6 @@
-# A8 Wiring Verdict (ZT3G-RERUN-002)
+# A8 Wiring Verdict (ZT3G-RERUN-003)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
 
 ---
 
@@ -8,8 +8,8 @@
 
 | Event | Event ID | Trace ID | Status |
 |-------|----------|----------|--------|
-| sprint_start | evt_1768171758408_e6ob9ao08 | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002.start | ✅ |
-| a8_wiring_test | evt_1768171839612_g1gkhd0fd | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002.a8_wiring | ✅ |
+| sprint_start | evt_1768173787323_xikvflzbm | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003.start | ✅ |
+| a8_wiring_test | evt_1768173875348_3a2cnv6b7 | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003.a8_wiring | ✅ |
 
 ---
 
@@ -27,4 +27,4 @@
 
 ✅ **A8 WIRING PASS** (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*

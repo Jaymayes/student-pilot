@@ -1,6 +1,14 @@
-# B2B Flow Verdict (ZT3G-RERUN-002)
+# B2B Flow Verdict (ZT3G-RERUN-003)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
+
+---
+
+## A6 Stability Gate
+
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Health | 200 OK | **404** | ❌ BLOCKED |
 
 ---
 
@@ -8,7 +16,7 @@
 
 | Component | Status | Trace ID |
 |-----------|--------|----------|
-| A6 Provider Portal | ❌ 404 | RERUN-002.a6 |
+| A6 Provider Portal | ❌ 404 | RERUN-003.a6 |
 | Provider Onboarding | ⏸️ BLOCKED | - |
 | Fee Lineage (3% + 4x) | ⏸️ BLOCKED | - |
 
@@ -17,7 +25,7 @@
 ## Blocker
 
 **A6 (scholarship_admin)** returns HTTP 404 on health endpoint.
-- **Root Cause:** Stale deployment / production 500 regression
+- **Root Cause:** Stale deployment / production regression
 - **Required Action:** BizOps team must republish A6
 - **CEO Approval:** Republish allowed and expected
 
@@ -27,4 +35,4 @@
 
 ⏸️ **B2B BLOCKED** (A6 requires external republish by BizOps)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*

@@ -1,30 +1,40 @@
-# Post-Republish Diff Report (ZT3G-RERUN-002)
+# Post-Republish Diff Report (ZT3G-RERUN-003)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002  
-**Baseline:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003  
+**Baseline:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002
 
 ---
 
 ## Build Delta
 
-| Metric | RERUN-001 | RERUN-002 | Delta |
+| Metric | RERUN-002 | RERUN-003 | Delta |
 |--------|-----------|-----------|-------|
-| Git SHA | aa74cf8 | **6dfb06e** | NEW |
+| Git SHA | 6dfb06e | **c5a4f73** | NEW |
 
 ---
 
 ## Performance Comparison
 
-| App | RERUN-001 | RERUN-002 | Status |
+| App | RERUN-002 | RERUN-003 | Status |
 |-----|-----------|-----------|--------|
-| A1 | 36ms | **32ms** | ↓ 4ms better |
-| A3 | 121ms | **160ms** | ↑ 39ms (still PASS) |
-| A5 | 5ms | **3ms** | ↓ 2ms better |
+| A1 | 32ms | **37-80ms** | ↑ Slight increase (still PASS) |
+| A3 | 160ms | **119ms** | ↓ 41ms better |
+| A5 | 3ms | **3ms** | No change |
+
+---
+
+## Stripe Safety
+
+| Metric | RERUN-002 | RERUN-003 | Status |
+|--------|-----------|-----------|--------|
+| Remaining | 9 | **4** | ⚠️ Safety Pause |
+| Threshold | 5 | 5 | - |
+| Status | Normal | **ENFORCED** | - |
 
 ---
 
 ## Verdict
 
-✅ **VERIFIED** - Consistent performance
+✅ **VERIFIED** - Consistent performance with Stripe Safety Pause
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*

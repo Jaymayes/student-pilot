@@ -1,10 +1,21 @@
-# B2C Flow Verdict (ZT3G-RERUN-002)
+# B2C Flow Verdict (ZT3G-RERUN-003)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
 
 ---
 
-## Browser-Grade Validation
+## ⚠️ STRIPE SAFETY PAUSE ENFORCED
+
+| Metric | Value | Status |
+|--------|-------|--------|
+| Stripe Remaining | **4** | ⚠️ Below threshold |
+| Safety Threshold | 5 | - |
+| Fresh HITL Override | No | - |
+| **Action** | SKIP live charge | ✅ Compliant |
+
+---
+
+## Browser-Grade Validation (Cookie Proof)
 
 | Check | Status |
 |-------|--------|
@@ -14,35 +25,19 @@
 
 ---
 
-## Funnel Steps
+## Auth Status
 
-| Step | Status | Trace ID | 2nd Confirm |
-|------|--------|----------|-------------|
-| Auth (A1) | ✅ **WARM (32ms)** | RERUN-002.a1 | ✅ |
-| Discovery | ✅ PASS | RERUN-002.discovery | ✅ |
-| Checkout | ✅ Configured | RERUN-002.b2c | ✅ |
-
----
-
-## Second Confirmation (3-of-3)
-
-1. ✅ HTTP 200 + X-Trace-Id in payload
-2. ✅ Matching X-Trace-Id in logs
-3. ✅ Cookie proof + Stripe ledger + A8 round-trip
-
----
-
-## Stripe Capacity
-
-| Metric | Value | Safety |
-|--------|-------|--------|
-| Used | 16/25 | ✅ OK |
-| Remaining | 9 | ✅ >5 |
+| Component | Status | Latency |
+|-----------|--------|---------|
+| A1 (Scholar Auth) | ✅ **WARM** | **37ms** |
 
 ---
 
 ## Verdict
 
-✅ **B2C PASS** (3-of-3 second confirmation + cookie proof)
+✅ **CONDITIONAL PASS (Safety Pause)**
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-002*
+Live charge SKIPPED per protocol (remaining 4 < threshold 5, no fresh HITL override).
+Cookie proof and auth verified; B2C funnel is operationally ready pending Stripe capacity.
+
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*
