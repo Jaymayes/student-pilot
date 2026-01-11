@@ -1,6 +1,6 @@
-# Performance Summary (ZT3G)
+# Performance Summary (ZT3G-RERUN-001)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
 
 ---
 
@@ -8,14 +8,14 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **30ms** | ≤120ms | ✅ **PASS** |
-| A2 | 491ms | ≤500ms | ✅ PASS |
-| A3 | **148ms** | ≤200ms | ✅ **PASS** |
-| A4 | 79ms | N/A | ⚠️ 404 |
-| A5 | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 57ms | N/A | ⚠️ 404 |
-| A7 | 207ms | ≤500ms | ✅ PASS |
-| A8 | 195ms | ≤200ms | ✅ PASS |
+| A1 | **36ms** | ≤120ms | ✅ **PASS** |
+| A2 | 124ms | ≤200ms | ✅ PASS |
+| A3 | **121ms** | ≤200ms | ✅ **PASS** |
+| A4 | 83ms | N/A | ⚠️ 404 |
+| A5 | **5ms** | ≤120ms | ✅ **PASS** |
+| A6 | 35ms | N/A | ⚠️ 404 |
+| A7 | 164ms | ≤200ms | ✅ PASS |
+| A8 | 88ms | ≤120ms | ✅ PASS |
 
 ---
 
@@ -23,9 +23,9 @@
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| A1 P95 | ≤120ms | **30-41ms** | ✅ **PASS** |
-| A5 P95 | ≤120ms | **3ms** | ✅ **PASS** |
-| A3 P95 | ≤200ms | **148ms** | ✅ **PASS** |
+| A1 P95 | ≤120ms | **36-48ms** | ✅ **PASS** |
+| A5 P95 | ≤120ms | **5ms** | ✅ **PASS** |
+| A3 P95 | ≤200ms | **121ms** | ✅ **PASS** |
 
 ---
 
@@ -33,4 +33,4 @@
 
 ✅ **PERFORMANCE PASS** - All core apps under target
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*

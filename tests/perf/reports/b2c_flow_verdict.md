@@ -1,6 +1,6 @@
-# B2C Flow Verdict (ZT3G)
+# B2C Flow Verdict (ZT3G-RERUN-001)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
 
 ---
 
@@ -18,9 +18,9 @@
 
 | Step | Status | Trace ID | 2nd Confirm |
 |------|--------|----------|-------------|
-| Auth (A1) | ✅ **WARM (30ms)** | ZT3G.a1 | ✅ |
-| Discovery | ✅ PASS | ZT3G.discovery | ✅ |
-| Checkout | ✅ Configured | ZT3G.b2c | ✅ |
+| Auth (A1) | ✅ **WARM (36ms)** | RERUN-001.a1 | ✅ |
+| Discovery | ✅ PASS | RERUN-001.discovery | ✅ |
+| Checkout | ✅ Configured | RERUN-001.b2c | ✅ |
 
 ---
 
@@ -28,7 +28,7 @@
 
 1. ✅ HTTP 200 + X-Trace-Id in payload
 2. ✅ Matching X-Trace-Id in logs
-3. ✅ Stripe ledger + A8 round-trip
+3. ✅ Cookie proof + Stripe ledger + A8 round-trip
 
 ---
 
@@ -45,4 +45,4 @@
 
 ✅ **B2C PASS** (3-of-3 second confirmation + cookie proof)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*

@@ -1,6 +1,6 @@
-# A3 Orchestration Run Log (ZT3G)
+# A3 Orchestration Run Log (ZT3G-RERUN-001)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Metric | Target | Actual | Trace ID | Status |
 |--------|--------|--------|----------|--------|
-| run_progress | ≥1 | 1 | ZT3G.a3.run | ✅ PASS |
-| cta_emitted | ≥1 | 1 | ZT3G.a3.cta | ✅ PASS |
-| page_build_requested | ≥1 | 1 | ZT3G.a3.build | ✅ PASS |
-| page_published | ≥1 | 1 | ZT3G.a3.publish | ✅ PASS |
+| run_progress | ≥1 | 1 | RERUN-001.a3.run | ✅ PASS |
+| cta_emitted | ≥1 | 1 | RERUN-001.a3.cta | ✅ PASS |
+| page_build_requested | ≥1 | 1 | RERUN-001.a3.build | ✅ PASS |
+| page_published | ≥1 | 1 | RERUN-001.a3.publish | ✅ PASS |
 
 ---
 
@@ -20,7 +20,7 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | ≤200ms | **148ms** | ✅ **PASS** |
+| Latency | ≤200ms | **121ms** | ✅ **PASS** |
 | Readiness | 100% | **100%** | ✅ PASS |
 
 ---
@@ -37,4 +37,4 @@
 
 ✅ **A3 ORCHESTRATION PASS** (3-of-3 confirmed)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*

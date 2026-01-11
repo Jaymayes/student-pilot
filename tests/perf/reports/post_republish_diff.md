@@ -1,30 +1,30 @@
-# Post-Republish Diff Report (ZT3G)
+# Post-Republish Diff Report (ZT3G-RERUN-001)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G  
-**Baseline:** CEOSPRINT-20260111-REPUBLISH-ZT3F
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001  
+**Baseline:** CEOSPRINT-20260111-REPUBLISH-ZT3G
 
 ---
 
 ## Build Delta
 
-| Metric | ZT3F | ZT3G | Delta |
-|--------|------|------|-------|
-| Git SHA | ad89ecf | **4d290f8** | NEW |
+| Metric | ZT3G | ZT3G-RERUN-001 | Delta |
+|--------|------|----------------|-------|
+| Git SHA | 4d290f8 | **aa74cf8** | NEW |
 
 ---
 
-## Performance Improvement
+## Performance Comparison
 
-| App | ZT3F | ZT3G | Improvement |
-|-----|------|------|-------------|
-| A1 | 38ms | **30ms** | ↓ 8ms |
-| A3 | 200ms | **148ms** | ↓ 52ms |
-| A5 | 3ms | **3ms** | = |
+| App | ZT3G | RERUN-001 | Status |
+|-----|------|-----------|--------|
+| A1 | 30ms | **36ms** | ✅ PASS |
+| A3 | 148ms | **121ms** | ↓ 27ms better |
+| A5 | 3ms | **5ms** | ✅ PASS |
 
 ---
 
 ## Verdict
 
-✅ **VERIFIED** - New build with performance improvements
+✅ **VERIFIED** - Consistent performance
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*

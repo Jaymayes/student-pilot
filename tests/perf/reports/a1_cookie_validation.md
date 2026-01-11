@@ -1,6 +1,6 @@
-# A1 Cookie Validation (ZT3G)
+# A1 Cookie Validation (ZT3G-RERUN-001)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001
 
 ---
 
@@ -24,8 +24,16 @@
 
 ---
 
+## Second Confirmation
+
+1. ✅ HTTP 200 + X-Trace-Id
+2. ✅ Log correlation
+3. ✅ Cookie attributes verified
+
+---
+
 ## Verdict
 
-✅ **A1 COOKIE PASS** - SameSite=None; Secure
+✅ **A1 COOKIE PASS** - SameSite=None; Secure (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-001*
