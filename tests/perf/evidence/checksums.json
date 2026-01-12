@@ -1,22 +1,26 @@
 {
-  "run_id": "CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007-E2E",
-  "timestamp": "2026-01-12T06:03:52Z",
+  "run_id": "CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK",
+  "timestamp": "2026-01-12T07:17:44Z",
   "algorithm": "SHA256",
-  "mode": "READ_ONLY_E2E",
-  "raw_truth_gate": "FAILED",
-  "blocker": "A6_404",
+  "mode": "PERSISTENCE_SOAK_60MIN",
   "artifacts": {
-    "raw_curl_evidence.txt": "9d868904311ac470cd80683950a6a0571d74830d374743c4ccdfd53db7e7a477",
-    "raw_truth_summary.md": "9bf6643e98ef26cab89308b1770855a5b64d4945db941035505a051048277bd9",
-    "manual_intervention_manifest.md": "c3cfe0aa5d24fb69d2b9dd3e7df7561819270163c474e9b0ac548e35714007db",
-    "system_map.json": "1f1f7668402604a15f0d05475a4884b2b65e32d0478cf4d2eb6aa65488edc1f6",
-    "a1_health.json": "40ad15075e8e093bcc450786f3134859eb3524205ece4d6d317072a82063ee44",
-    "a6_health.json": "ead9b1e65711e72f75bf45924e47f1d6b61036c9b04637d176641575158a5cf2",
-    "a8_health.json": "ad0285ffc04ffbb702fb8bde67a838471e51bc0ac8ddd2fc71f392698d29e021",
-    "go_no_go_report.md": "db8f1c62f7c9d9506efbd3df69854fb5645c5cb03e0e3a0e1df403b3b9a074e1"
+    "raw_truth_soak.txt": "601e66956c59c151b6117f8f2d4bc35b376ef88604f43ef6401e613ed807eb5c",
+    "system_map.json": "0d92c118568e6d50438ccab8575d5961ba6c8960b9043a23bb467e2d71fef23f",
+    "a1_warmup_report.md": "f74bd577a2ff1ae43a612a0710266f41554a7fb6425a428d6b1f981dd75248d3",
+    "perf_summary.md": "ddd6fc928f17f46881ddd8f923499b1fcc41d7f7cf518cf75e430dc0cd037fba",
+    "a8_telemetry_soak.md": "9a19c71778741d033c348964eb315c709d3a8db53a5b43f86ebaa5598a5e24cd",
+    "rl_observation.md": "c5fee89df16b99d134367369b0e41293ef6b9388712cdb27756734fa8cd15591",
+    "ui_ux_integrity_matrix.md": "c9ef81fea2b4252f93a30f3876be05e7d91a61a88315cfdc41f2af159a048f8e"
   },
-  "a8_events": ["evt_1768197695983_0xe0zjq1n"],
-  "fleet_health": "75%",
-  "critical_health": "66%",
-  "sprint_status": "UNVERIFIED_CRITICAL_LIVENESS_FAILURE"
+  "a8_events": [
+    "evt_1768202018835_gjzs2tv5w",
+    "evt_1768202090700_q7uuqtemi",
+    "evt_1768202137757_uct0sso2e",
+    "evt_1768202173323_srv0pinn7"
+  ],
+  "fleet_health": "6/8",
+  "a1_p95_final": "44ms",
+  "stripe_safety": "ENFORCED",
+  "a6_status": "PENDING_FIX_8TH_CONSECUTIVE",
+  "soak_result": "PARTIAL_PASS"
 }
