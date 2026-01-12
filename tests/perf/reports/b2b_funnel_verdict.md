@@ -1,6 +1,6 @@
-# B2B Funnel Verdict (Run 015)
+# B2B Funnel Verdict (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
@@ -27,11 +27,11 @@
 
 ## Discovery Pipeline
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| A7 (Page Maker) | ✅ 200 | SEO generation active |
-| A5 (Portal) | ✅ 200 | Listing visibility |
-| A8 (Command Center) | ✅ 200 | Telemetry correlation |
+| Component | HTTP | Content Verified | Notes |
+|-----------|------|------------------|-------|
+| A7 (Page Maker) | 200 | ✅ `version:v2.9` | SEO generation active |
+| A5 (Portal) | 200 | ✅ `status:ok` | Listing visibility |
+| A8 (Command Center) | 200 | ✅ `system_identity` | Telemetry correlation |
 
 ---
 
@@ -39,7 +39,7 @@
 
 | Function | A6 Required | Status |
 |----------|-------------|--------|
-| Provider dashboard | Yes | ❌ BLOCKED |
+| Provider dashboard | Yes | ❌ BLOCKED (404) |
 | Fee reports | Yes | ❌ BLOCKED |
 | Scholarship management | Yes | ❌ BLOCKED |
 
@@ -49,4 +49,4 @@
 
 ⚠️ **B2B FUNNEL: PARTIAL** - Fee structure verified (3-of-3), A6 admin blocked
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

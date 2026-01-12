@@ -1,6 +1,6 @@
-# RL Observation Report (Run 015)
+# RL Observation Report (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
@@ -18,23 +18,23 @@
 
 | Phase | Evidence |
 |-------|----------|
-| **Detection** | A6 404 detected in Raw Truth Gate |
-| **Documentation** | manual_intervention_manifest.md created |
+| **Detection** | A6 404 detected in Raw Truth Gate (12th consecutive) |
+| **Documentation** | manual_intervention_manifest.md updated |
 | **Escalation** | Fail-fast triggered, HITL pending |
-| **Retry/Backoff** | 11 consecutive probes, consistent detection |
-| **Learning** | No false positives, stable classification |
+| **Retry/Backoff** | 12 consecutive probes, consistent detection |
+| **Learning** | No false positives per Protocol v28 |
 
 **Closed Loop:** ✅ Demonstrated
 
 ---
 
-## A8 Integration
+## Protocol v28 Enhancements
 
-| Metric | Value |
-|--------|-------|
-| Events ingested | 7/7 (100%) |
-| Persistence | Confirmed |
-| Round-trip | ✅ Verified |
+| Enhancement | Status |
+|-------------|--------|
+| Cache-busting applied | ✅ |
+| Content marker verification | ✅ |
+| False-positive prevention | ✅ A6 correctly FAIL |
 
 ---
 
@@ -52,4 +52,4 @@
 
 ✅ **RL OBSERVATION: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

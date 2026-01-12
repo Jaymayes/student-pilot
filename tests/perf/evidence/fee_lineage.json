@@ -1,6 +1,7 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-015",
-  "timestamp": "2026-01-12T18:37:00Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-017",
+  "timestamp": "2026-01-12T19:09:00Z",
+  "protocol": "v28_strict",
   "fee_structure": {
     "platform_fee_percent": 3,
     "ai_markup_multiplier": 4,

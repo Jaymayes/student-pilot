@@ -1,10 +1,10 @@
-# A1 Cookie Validation Report (Run 015)
+# A1 Cookie Validation Report (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
-## A5 Session Cookie Configuration (Verified in Code)
+## A5 Session Cookie Configuration (Code Verified)
 
 | Attribute | Required | Actual | Status |
 |-----------|----------|--------|--------|
@@ -16,14 +16,14 @@
 
 ---
 
-## Evidence
+## Evidence (Code)
 
 ```javascript
-// server/replitAuth.ts lines 96-104
+// server/replitAuth.ts
 cookie: {
   httpOnly: true,
-  secure: true,
-  sameSite: 'none', // Required for cross-domain OIDC redirects
+  secure: true, // Always require HTTPS for cross-app auth
+  sameSite: 'none', // Required for cross-domain OIDC redirects (mitigated by httpOnly)
   maxAge: sessionTtl,
   domain: undefined,
   path: '/',
@@ -32,13 +32,13 @@ cookie: {
 
 ---
 
-## Proof (3-of-3)
+## Second Confirmation (3-of-3)
 
-| Proof | Status |
-|-------|--------|
-| 1. Code verification | ✅ |
-| 2. HTTP response headers | ✅ (Set-Cookie present) |
-| 3. Secure configuration | ✅ |
+| Proof | Evidence | Status |
+|-------|----------|--------|
+| Code verification | `server/replitAuth.ts` | ✅ |
+| HTTP response headers | Set-Cookie present | ✅ |
+| Secure configuration | sameSite=None; Secure | ✅ |
 
 **Result:** 3-of-3 ✅
 
@@ -46,6 +46,6 @@ cookie: {
 
 ## Verdict
 
-✅ **COOKIE VALIDATION: PASS**
+✅ **COOKIE VALIDATION: PASS** (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

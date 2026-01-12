@@ -1,6 +1,6 @@
-# Security Headers Report (Run 015)
+# Security Headers Report (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
@@ -33,7 +33,7 @@ frame-src https://js.stripe.com https://hooks.stripe.com;
 form-action 'self' https://hooks.stripe.com
 ```
 
-**Stripe Integration:** ✅ Properly allowlisted
+**Stripe Integration:** ✅ js.stripe.com, api.stripe.com, hooks.stripe.com allowlisted
 
 ---
 
@@ -61,6 +61,6 @@ form-action 'self' https://hooks.stripe.com
 
 ## Verdict
 
-✅ **SECURITY HEADERS: PASS**
+✅ **SECURITY HEADERS: PASS** (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

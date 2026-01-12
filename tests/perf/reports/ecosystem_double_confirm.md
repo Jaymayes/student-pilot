@@ -1,71 +1,84 @@
-# Ecosystem Double Confirmation (Run 015)
+# Ecosystem Double Confirmation (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015  
-**Protocol:** AGENT3_HANDSHAKE v27
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017  
+**Protocol:** AGENT3_HANDSHAKE v28 (Strict Mode)
 
 ---
 
-## Second Confirmation Summary
+## Second Confirmation Summary (with Content Verification)
 
 ### A1 (scholar_auth)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ✅ |
-| X-Trace-Id | ✅ |
-| P95 ≤120ms | ✅ (47ms) |
-**Result:** 3-of-3 ✅
+| HTTP 200 + Content Marker | `system_identity:scholar_auth` |
+| X-Trace-Id | Sent |
+| P95 <=120ms | 51ms |
+**Result:** 3-of-3 PASS
 
 ### A2 (scholarship_api)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ✅ |
-| X-Trace-Id | ✅ |
-| A8 correlation | ✅ |
-**Result:** 3-of-3 ✅
+| HTTP 200 + Content Marker | `status:healthy` |
+| X-Trace-Id | Sent |
+| A8 correlation | Confirmed |
+**Result:** 3-of-3 PASS
 
 ### A3 (scholarship_agent)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ✅ |
-| Raw curl captured | ✅ |
-| A8 correlation | ✅ |
-**Result:** 3-of-3 ✅
+| HTTP 200 + Content Marker | `status:healthy,version:1.0.0` |
+| Raw curl captured | In raw_curl_evidence.txt |
+| A8 correlation | Confirmed |
+**Result:** 3-of-3 PASS
 
 ### A4 (scholarship_ai)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ❌ (404) |
-**Result:** 0-of-3 ❌ DEGRADED
+| HTTP 200 | 404 |
+| Content Marker | NO_MARKER |
+**Result:** 0-of-3 DEGRADED
 
 ### A5 (student_pilot)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ✅ |
-| Security headers | ✅ |
-| Session cookie | ✅ |
-**Result:** 3-of-3 ✅
+| HTTP 200 + Content Marker | `status:ok` |
+| Security headers | All present |
+| Session cookie + Stripe.js | Verified |
+**Result:** 3-of-3 PASS
 
 ### A6 (scholarship_admin)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ❌ (404) |
-**Result:** 0-of-3 ❌ BLOCKED
+| HTTP 200 | 404 (12th consecutive) |
+| Content Marker | NO_MARKER |
+**Result:** 0-of-3 BLOCKED
 
 ### A7 (auto_page_maker)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ✅ |
-| SEO generation | ✅ |
-| A8 correlation | ✅ |
-**Result:** 3-of-3 ✅
+| HTTP 200 + Content Marker | `status:healthy,version:v2.9` |
+| SEO generation | Active |
+| A8 correlation | Confirmed |
+**Result:** 3-of-3 PASS
 
 ### A8 (auto_com_center)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | ✅ |
-| 7/7 events ingested | ✅ |
-| POST+GET round-trip | ✅ |
-**Result:** 3-of-3 ✅
+| HTTP 200 + Content Marker | `system_identity:auto_com_center` |
+| 7/7 events accepted+persisted | Confirmed |
+| POST+GET round-trip | Confirmed |
+**Result:** 3-of-3 PASS
+
+---
+
+## Protocol v28 Enhancements
+
+| Enhancement | Applied |
+|-------------|---------|
+| Cache-busting (`?t={epoch_ms}`) | YES |
+| Content marker verification | YES |
+| False-positive prevention | A6 correctly FAIL |
+| X-Idempotency-Key on mutations | YES |
 
 ---
 
@@ -83,6 +96,6 @@
 
 ## Verdict
 
-⚠️ **ECOSYSTEM: PARTIAL** (6/8 apps verified with 3-of-3)
+WARNING: **ECOSYSTEM: PARTIAL** (6/8 apps verified with 3-of-3 + content markers)
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

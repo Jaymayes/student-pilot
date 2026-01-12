@@ -1,6 +1,6 @@
-# SEO Verdict (Run 015)
+# SEO Verdict (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
@@ -22,13 +22,13 @@
 
 ---
 
-## A7 Integration
+## A7 Integration (with Content Verification)
 
-| Component | Status |
-|-----------|--------|
-| A7 health | ✅ 200 |
-| SEO generation | ✅ Active |
-| UTM attribution | ✅ Configured |
+| Component | HTTP | Content Marker | Status |
+|-----------|------|----------------|--------|
+| A7 health | 200 | `status:healthy,version:v2.9` | ✅ VERIFIED |
+| SEO generation | Active | - | ✅ |
+| UTM attribution | Configured | - | ✅ |
 
 ---
 
@@ -36,4 +36,4 @@
 
 ✅ **SEO: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

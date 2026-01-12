@@ -1,16 +1,16 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-015",
-  "timestamp": "2026-01-12T18:35:36Z",
-  "git_sha": "41fe341",
-  "protocol": "AGENT3_HANDSHAKE_v27",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-017",
+  "timestamp": "2026-01-12T19:07:27Z",
+  "git_sha": "e32c155",
+  "protocol": "AGENT3_HANDSHAKE_v28_STRICT",
   "apps": {
-    "A1": {"version": "1.0.0", "status": "HEALTHY"},
-    "A2": {"version": "1.0.0", "status": "HEALTHY"},
-    "A3": {"version": "1.0.0", "status": "HEALTHY"},
-    "A4": {"version": "unknown", "status": "DEGRADED"},
-    "A5": {"version": "1.0.0", "status": "HEALTHY"},
-    "A6": {"version": "unknown", "status": "BLOCKED"},
-    "A7": {"version": "1.0.0", "status": "HEALTHY"},
-    "A8": {"version": "1.0.0", "status": "HEALTHY"}
+    "A1": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
+    "A2": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
+    "A3": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
+    "A4": {"version": "unknown", "status": "DEGRADED", "content_verified": false},
+    "A5": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
+    "A6": {"version": "unknown", "status": "BLOCKED", "content_verified": false},
+    "A7": {"version": "v2.9", "status": "HEALTHY", "content_verified": true},
+    "A8": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true}
   }
 }

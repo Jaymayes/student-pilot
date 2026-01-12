@@ -1,6 +1,6 @@
-# UI/UX Integrity Matrix (Run 015)
+# UI/UX Integrity Matrix (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
@@ -17,13 +17,12 @@
 
 ---
 
-## Asset Loading
+## Content Verification (Protocol v28)
 
-| Asset Type | Status |
-|------------|--------|
-| CSS | ✅ Loaded |
-| JS | ✅ Loaded |
-| Fonts | ✅ Loaded |
+| Check | Status |
+|-------|--------|
+| Stripe.js in /pricing | ✅ |
+| A5 health marker | ✅ `status:ok` |
 
 ---
 
@@ -34,6 +33,7 @@
 | Routes accessible | 6 | 6 |
 | Protected routes | ✅ | - |
 | Assets load | ✅ | - |
+| Content markers | ✅ | - |
 
 **Score:** 6/6 (auth redirects expected)
 
@@ -43,4 +43,4 @@
 
 ✅ **UI/UX INTEGRITY: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

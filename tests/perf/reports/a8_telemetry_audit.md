@@ -1,20 +1,20 @@
-# A8 Telemetry Audit (Run 015)
+# A8 Telemetry Audit (Run 017 - Protocol v28)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
 
 ---
 
 ## Event Ingestion Test
 
-| # | Event ID | Status |
-|---|----------|--------|
-| 1 | evt_1768242904339_m7uhuo9t5 | ✅ |
-| 2 | evt_1768242904540_owh8k7dlv | ✅ |
-| 3 | evt_1768242904755_hinpwxo2e | ✅ |
-| 4 | evt_1768242904927_nbxx8yv2w | ✅ |
-| 5 | evt_1768242905129_ndgrozc0b | ✅ |
-| 6 | evt_1768242905315_seruz41z9 | ✅ |
-| 7 | evt_1768242905503_h8uxcf2br | ✅ |
+| # | Event ID | Accepted | Persisted | Status |
+|---|----------|----------|-----------|--------|
+| 1 | evt_1768244813798_lqkeo1ra8 | ✅ | ✅ | ✅ |
+| 2 | evt_1768244813980_jpaa6io2w | ✅ | ✅ | ✅ |
+| 3 | evt_1768244814167_i9k83o66n | ✅ | ✅ | ✅ |
+| 4 | evt_1768244814356_vmpdtan7n | ✅ | ✅ | ✅ |
+| 5 | evt_1768244814571_x9vsyfynq | ✅ | ✅ | ✅ |
+| 6 | evt_1768244814862_41ij7px10 | ✅ | ✅ | ✅ |
+| 7 | evt_1768244815121_xm9zayca7 | ✅ | ✅ | ✅ |
 
 ---
 
@@ -24,7 +24,19 @@
 |--------|--------|--------|--------|
 | Events Sent | 7 | 7 | ✅ |
 | Events Accepted | 7 | 7 | ✅ |
+| Events Persisted | 7 | 7 | ✅ |
 | **Ingestion Rate** | ≥99% | **100%** | ✅ PASS |
+
+---
+
+## Protocol v28 Compliance
+
+| Requirement | Status |
+|-------------|--------|
+| X-Idempotency-Key | ✅ Sent |
+| X-Trace-Id | ✅ Sent |
+| accepted:true | ✅ All events |
+| persisted:true | ✅ All events |
 
 ---
 
@@ -35,6 +47,7 @@
 | POST to /events | ✅ Accepted |
 | Event ID returned | ✅ Confirmed |
 | Persisted | ✅ true |
+| GET verification | ✅ Responded |
 
 ---
 
@@ -52,6 +65,6 @@
 
 ## Verdict
 
-✅ **A8 TELEMETRY: PASS** - 100% ingestion, 7/7 events
+✅ **A8 TELEMETRY: PASS** - 100% ingestion, 7/7 events, 3-of-3 proof
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*

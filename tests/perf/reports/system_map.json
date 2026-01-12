@@ -1,27 +1,28 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-015",
-  "timestamp": "2026-01-12T18:35:36Z",
-  "git_sha": "41fe341",
-  "protocol": "AGENT3_HANDSHAKE_v27",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-017",
+  "timestamp": "2026-01-12T19:07:27Z",
+  "git_sha": "e32c155",
+  "protocol": "AGENT3_HANDSHAKE_v28_STRICT",
+  "cache_bust": "1768244847480",
   "fleet": {
-    "A1": {"name": "scholar_auth", "status": 200, "latency_ms": 93, "verdict": "HEALTHY"},
-    "A2": {"name": "scholarship_api", "status": 200, "latency_ms": 112, "verdict": "HEALTHY"},
-    "A3": {"name": "scholarship_agent", "status": 200, "latency_ms": 92, "verdict": "HEALTHY"},
-    "A4": {"name": "scholarship_ai", "status": 404, "latency_ms": 51, "verdict": "DEGRADED"},
-    "A5": {"name": "student_pilot", "status": 200, "latency_ms": 159, "verdict": "HEALTHY"},
-    "A6": {"name": "scholarship_admin", "status": 404, "latency_ms": 36, "verdict": "BLOCKED"},
-    "A7": {"name": "auto_page_maker", "status": 200, "latency_ms": 138, "verdict": "HEALTHY"},
-    "A8": {"name": "auto_com_center", "status": 200, "latency_ms": 124, "verdict": "HEALTHY"}
+    "A1": {"name": "scholar_auth", "status": 200, "content_verified": true, "latency_ms": 72, "marker": "system_identity:scholar_auth", "verdict": "HEALTHY"},
+    "A2": {"name": "scholarship_api", "status": 200, "content_verified": true, "latency_ms": 103, "marker": "status:healthy", "verdict": "HEALTHY"},
+    "A3": {"name": "scholarship_agent", "status": 200, "content_verified": true, "latency_ms": 117, "marker": "status:healthy,version:1.0.0", "verdict": "HEALTHY"},
+    "A4": {"name": "scholarship_ai", "status": 404, "content_verified": false, "latency_ms": 47, "verdict": "DEGRADED"},
+    "A5": {"name": "student_pilot", "status": 200, "content_verified": true, "latency_ms": 163, "marker": "status:ok", "verdict": "HEALTHY"},
+    "A6": {"name": "scholarship_admin", "status": 404, "content_verified": false, "latency_ms": 45, "verdict": "BLOCKED"},
+    "A7": {"name": "auto_page_maker", "status": 200, "content_verified": true, "latency_ms": 150, "marker": "status:healthy,version:v2.9", "verdict": "HEALTHY"},
+    "A8": {"name": "auto_com_center", "status": 200, "content_verified": true, "latency_ms": 85, "marker": "system_identity:auto_com_center", "verdict": "HEALTHY"}
   },
   "fleet_health": "6/8",
-  "raw_truth_gate": {"a3": 200, "a6": 404, "a8": 200},
+  "raw_truth_gate": {"a3": {"status": 200, "marker": true}, "a6": {"status": 404, "marker": false}, "a8": {"status": 200, "marker": true}},
   "a8_events": [
-    "evt_1768242904339_m7uhuo9t5",
-    "evt_1768242904540_owh8k7dlv",
-    "evt_1768242904755_hinpwxo2e",
-    "evt_1768242904927_nbxx8yv2w",
-    "evt_1768242905129_ndgrozc0b",
-    "evt_1768242905315_seruz41z9",
-    "evt_1768242905503_h8uxcf2br"
+    "evt_1768244813798_lqkeo1ra8",
+    "evt_1768244813980_jpaa6io2w",
+    "evt_1768244814167_i9k83o66n",
+    "evt_1768244814356_vmpdtan7n",
+    "evt_1768244814571_x9vsyfynq",
+    "evt_1768244814862_41ij7px10",
+    "evt_1768244815121_xm9zayca7"
   ]
 }
