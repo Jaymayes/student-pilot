@@ -1,6 +1,6 @@
-# A8 Telemetry Audit (Run 012)
+# A8 Telemetry Audit (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
@@ -8,13 +8,13 @@
 
 | # | Event ID | Status |
 |---|----------|--------|
-| 1 | evt_1768240962334_c7o97kbeq | ✅ |
-| 2 | evt_1768240962562_7qf4k7f89 | ✅ |
-| 3 | evt_1768240962932_3yftpdisb | ✅ |
-| 4 | evt_1768240963225_b0yxca952 | ✅ |
-| 5 | evt_1768240963543_jwryojp7m | ✅ |
-| 6 | evt_1768240963801_2izrsyben | ✅ |
-| 7 | evt_1768240964179_jlwb9surv | ✅ |
+| 1 | evt_1768242904339_m7uhuo9t5 | ✅ |
+| 2 | evt_1768242904540_owh8k7dlv | ✅ |
+| 3 | evt_1768242904755_hinpwxo2e | ✅ |
+| 4 | evt_1768242904927_nbxx8yv2w | ✅ |
+| 5 | evt_1768242905129_ndgrozc0b | ✅ |
+| 6 | evt_1768242905315_seruz41z9 | ✅ |
+| 7 | evt_1768242905503_h8uxcf2br | ✅ |
 
 ---
 
@@ -54,4 +54,4 @@
 
 ✅ **A8 TELEMETRY: PASS** - 100% ingestion, 7/7 events
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

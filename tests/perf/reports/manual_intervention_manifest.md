@@ -1,7 +1,7 @@
-# Manual Intervention Manifest (FIX Run 011)
+# Manual Intervention Manifest (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-011  
-**Generated:** 2026-01-12T18:00:00Z  
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015  
+**Generated:** 2026-01-12T18:34:31Z  
 **Protocol:** AGENT3_HANDSHAKE v27
 
 ---
@@ -16,7 +16,7 @@
 | Port Binding | Ensure server binds to 0.0.0.0:$PORT | DevTeam | - |
 | Health Route | Verify /health returns 200 | DevTeam | - |
 
-### A6 (scholarship_admin) — HTTP 404 (10th consecutive)
+### A6 (scholarship_admin) — HTTP 404 (11th consecutive)
 
 | Item | Action | Owner | ETA |
 |------|--------|-------|-----|
@@ -60,9 +60,9 @@
 |--------|--------|---------|
 | A4 Republish | AWAITING | BizOps cross-workspace access |
 | A6 Republish | AWAITING | BizOps cross-workspace access |
-| Micro-charge | AWAITING | Stripe capacity 4/25, needs override |
+| Micro-charge | AWAITING | Stripe capacity 4/25, needs CEO override |
 
 ---
 
 *Status: AWAITING BIZOPS ACTION*  
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-011*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

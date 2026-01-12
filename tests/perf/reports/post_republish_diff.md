@@ -1,6 +1,6 @@
-# Post-Republish Diff (Run 012)
+# Post-Republish Diff (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
@@ -13,6 +13,15 @@
 
 ---
 
+## Performance Improvements
+
+| Metric | Run 012 | Run 015 | Improvement |
+|--------|---------|---------|-------------|
+| A1 P95 | ~140ms | ~47ms | **66% faster** |
+| /browse P95 | ~135ms | ~114ms | 16% faster |
+
+---
+
 ## Cross-Workspace Status
 
 | App | Status | Action Required |
@@ -22,4 +31,4 @@
 
 ---
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

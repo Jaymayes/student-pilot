@@ -1,6 +1,6 @@
 === Raw Truth Gate (A3/A6/A8) ===
-RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012
-Timestamp: 2026-01-12T18:02:07Z
+RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
+Timestamp: 2026-01-12T18:34:41Z
 
 --- A3 Raw Curl ---
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -53,16 +53,6 @@ Timestamp: 2026-01-12T18:02:07Z
 } [5 bytes data]
 > HEAD /health HTTP/2
 > Host: scholarship-agent-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* Request completely sent off
-{ [5 bytes data]
 
 --- A6 Raw Curl ---
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -115,16 +105,6 @@ Timestamp: 2026-01-12T18:02:07Z
 } [5 bytes data]
 > HEAD /health HTTP/2
 > Host: scholarship-admin-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-< HTTP/2 404 
-< date: Mon, 12 Jan 2026 18:02:08 GMT
 
 --- A8 Raw Curl ---
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -177,13 +157,3 @@ Timestamp: 2026-01-12T18:02:07Z
 } [5 bytes data]
 > HEAD /health HTTP/2
 > Host: auto-com-center-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* Request completely sent off
-{ [5 bytes data]

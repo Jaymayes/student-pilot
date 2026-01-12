@@ -1,7 +1,7 @@
 {
-  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-012",
-  "timestamp": "2026-01-12T18:04:59Z",
-  "git_sha": "2eafc18",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-015",
+  "timestamp": "2026-01-12T18:35:36Z",
+  "git_sha": "41fe341",
   "protocol": "AGENT3_HANDSHAKE_v27",
   "apps": {
     "A1": {"version": "1.0.0", "status": "HEALTHY"},

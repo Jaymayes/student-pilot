@@ -1,6 +1,6 @@
-# B2C Funnel Verdict (Run 012)
+# B2C Funnel Verdict (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
@@ -9,10 +9,11 @@
 | Component | Status |
 |-----------|--------|
 | Session creation | ✅ |
-| Cookie configuration | ✅ COMPLIANT |
+| Cookie configuration | ✅ COMPLIANT (SameSite=None; Secure; HttpOnly) |
 | Checkout path (/billing) | ✅ |
 | Stripe integration | ✅ Configured |
 | Credit packages | ✅ Defined |
+| CSP allowlist (Stripe) | ✅ |
 
 ---
 
@@ -33,6 +34,7 @@
 | HITL approval | ⏳ NOT OBTAINED |
 | Stripe capacity ≥5 | ❌ (4 remaining) |
 | A6 = 200 | ❌ (404) |
+| CEO override | ⏳ NOT REQUESTED |
 
 **Execution:** NOT AUTHORIZED
 
@@ -54,4 +56,4 @@
 
 ⚠️ **B2C FUNNEL: CONDITIONAL** - Ready, Safety Paused
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

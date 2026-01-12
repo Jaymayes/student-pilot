@@ -1,19 +1,29 @@
-# UI/UX Integrity Matrix (Run 012)
+# UI/UX Integrity Matrix (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
 ## Core Routes
 
-| Route | Status | Verdict |
-|-------|--------|---------|
-| / | 200 | ✅ PASS |
-| /pricing | 200 | ✅ PASS |
-| /browse | 200 | ✅ PASS |
-| /login | 200 | ✅ PASS |
-| /dashboard | 302 (auth) | ✅ PASS |
-| /billing | 302 (auth) | ✅ PASS |
+| Route | Status | Response | Verdict |
+|-------|--------|----------|---------|
+| / | 200 | HTML | ✅ PASS |
+| /pricing | 200 | HTML | ✅ PASS |
+| /browse | 200 | HTML | ✅ PASS |
+| /login | 200 | HTML | ✅ PASS |
+| /dashboard | 302 | Redirect (auth) | ✅ PASS |
+| /billing | 302 | Redirect (auth) | ✅ PASS |
+
+---
+
+## Asset Loading
+
+| Asset Type | Status |
+|------------|--------|
+| CSS | ✅ Loaded |
+| JS | ✅ Loaded |
+| Fonts | ✅ Loaded |
 
 ---
 
@@ -22,8 +32,8 @@
 | Criterion | Passed | Total |
 |-----------|--------|-------|
 | Routes accessible | 6 | 6 |
+| Protected routes | ✅ | - |
 | Assets load | ✅ | - |
-| HTML valid | ✅ | - |
 
 **Score:** 6/6 (auth redirects expected)
 
@@ -33,4 +43,4 @@
 
 ✅ **UI/UX INTEGRITY: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

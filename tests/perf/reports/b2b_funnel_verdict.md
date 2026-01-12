@@ -1,6 +1,6 @@
-# B2B Funnel Verdict (Run 012)
+# B2B Funnel Verdict (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
@@ -25,7 +25,17 @@
 
 ---
 
-## A6 Dependency
+## Discovery Pipeline
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| A7 (Page Maker) | ✅ 200 | SEO generation active |
+| A5 (Portal) | ✅ 200 | Listing visibility |
+| A8 (Command Center) | ✅ 200 | Telemetry correlation |
+
+---
+
+## A6 Dependency (Admin)
 
 | Function | A6 Required | Status |
 |----------|-------------|--------|
@@ -37,6 +47,6 @@
 
 ## Verdict
 
-⚠️ **B2B FUNNEL: PARTIAL** - Fee structure verified, A6 admin blocked
+⚠️ **B2B FUNNEL: PARTIAL** - Fee structure verified (3-of-3), A6 admin blocked
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

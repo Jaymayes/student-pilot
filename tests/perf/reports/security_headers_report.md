@@ -1,6 +1,6 @@
-# Security Headers Report (Run 012)
+# Security Headers Report (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Header | Expected | Present | Status |
 |--------|----------|---------|--------|
-| Strict-Transport-Security | max-age=... | ✅ max-age=63072000 | ✅ PASS |
+| Strict-Transport-Security | max-age≥15552000 | ✅ max-age=63072000 | ✅ PASS |
 | Content-Security-Policy | Configured | ✅ Self + Stripe | ✅ PASS |
 | X-Frame-Options | DENY | ✅ DENY | ✅ PASS |
 | X-Content-Type-Options | nosniff | ✅ nosniff | ✅ PASS |
@@ -33,7 +33,17 @@ frame-src https://js.stripe.com https://hooks.stripe.com;
 form-action 'self' https://hooks.stripe.com
 ```
 
-**Stripe Integration:** ✅ Allowlisted
+**Stripe Integration:** ✅ Properly allowlisted
+
+---
+
+## HSTS Compliance
+
+| Attribute | Required | Actual | Status |
+|-----------|----------|--------|--------|
+| max-age | ≥15552000 | 63072000 | ✅ PASS |
+| includeSubDomains | Yes | ✅ Yes | ✅ PASS |
+| preload | Recommended | ✅ Yes | ✅ PASS |
 
 ---
 
@@ -53,4 +63,4 @@ form-action 'self' https://hooks.stripe.com
 
 ✅ **SECURITY HEADERS: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

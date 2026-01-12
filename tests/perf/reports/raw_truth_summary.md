@@ -1,7 +1,7 @@
-# Raw Truth Summary (Run 012)
+# Raw Truth Summary (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012  
-**Timestamp:** 2026-01-12T18:02:07Z  
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015  
+**Timestamp:** 2026-01-12T18:34:31Z  
 **Protocol:** AGENT3_HANDSHAKE v27
 
 ---
@@ -18,7 +18,7 @@
 
 ## Fail-Fast Assessment
 
-**Trigger:** A6 ≠ 200  
+**Trigger:** A6 ≠ 200 (11th consecutive)  
 **Action:** Proceeding with partial verification
 
 ---
@@ -26,7 +26,7 @@
 ## Evidence
 
 - Raw curl output: `tests/perf/evidence/raw_curl_evidence.txt`
-- X-Trace-Id: CEOSPRINT-20260113-VERIFY-ZT3G-012.raw_truth
+- X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015.raw_truth
 
 ---
 
@@ -34,4 +34,4 @@
 
 ⚠️ **RAW TRUTH GATE: PARTIAL PASS** (A6 blocked)
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*

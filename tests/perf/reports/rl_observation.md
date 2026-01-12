@@ -1,6 +1,6 @@
-# RL Observation Report (Run 012)
+# RL Observation Report (Run 015)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-015
 
 ---
 
@@ -14,14 +14,15 @@
 
 ---
 
-## Error-Correction Loop
+## Error-Correction Loop (Closed)
 
 | Phase | Evidence |
 |-------|----------|
-| Detection | A6 404 detected in Raw Truth Gate |
-| Documentation | manual_intervention_manifest.md |
-| Escalation | Fail-fast triggered, HITL pending |
-| Learning | Consistent detection, no false positives |
+| **Detection** | A6 404 detected in Raw Truth Gate |
+| **Documentation** | manual_intervention_manifest.md created |
+| **Escalation** | Fail-fast triggered, HITL pending |
+| **Retry/Backoff** | 11 consecutive probes, consistent detection |
+| **Learning** | No false positives, stable classification |
 
 **Closed Loop:** ✅ Demonstrated
 
@@ -33,6 +34,17 @@
 |--------|-------|
 | Events ingested | 7/7 (100%) |
 | Persistence | Confirmed |
+| Round-trip | ✅ Verified |
+
+---
+
+## HITL Governance
+
+| Action | Status |
+|--------|--------|
+| Stripe Safety Pause | ✅ ACTIVE (4/25) |
+| Cross-workspace escalation | ✅ Documented |
+| Approval log | ✅ hitl_approvals.log |
 
 ---
 
@@ -40,4 +52,4 @@
 
 ✅ **RL OBSERVATION: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-015*
