@@ -1,32 +1,37 @@
 # Run 009 Schedule (T+24h Full E2E Verification)
 
-**RUN_ID:** RUN009-T24H-FULL-E2E  
-**Prepared:** 2026-01-12T08:00:57Z  
-**Scheduled Start:** 2026-01-13T08:00:57Z  
-**Mode:** READ-ONLY
+**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
+**Scheduled Start:** 2026-01-13T01:00:00Z  
+**Mode:** Comprehensive Read-Only E2E, Anti-False-Positive  
+**Status:** QUEUED
 
 ---
 
-## Objectives
+## Guardrails
 
-1. Complete 24-hour stability window (Sprint 008 → Run 009)
-2. Verify A3/A6/A8 persistence across full 24h period
-3. Full E2E verification with mini-suite
-4. Generate final Gold Standard attestation artifacts
+| Guard | Setting | Action if Violated |
+|-------|---------|-------------------|
+| Stripe Safety | **PAUSED** (4 remaining) | No charges permitted |
+| Fail-Fast | A3/A6/A8 ≠ 200 | STOP, mark UNVERIFIED, attach raw curl |
+| Read-Only | Enforced | No code/config/data changes, no deploys |
 
 ---
 
 ## Protocol
 
 ### Pre-Flight (T-5min)
-- [ ] Verify no active Stripe charges
-- [ ] Confirm Safety Pause still ENFORCED
+- [ ] Verify Stripe Safety PAUSED
 - [ ] A1 50-request warmup
+- [ ] Confirm no pending deployments
+
+### Raw Truth Gate (T+0)
+- [ ] Raw curl -I -v for A3/A6/A8
+- [ ] If any ≠ 200: **STOP**, generate manual_intervention_manifest.md
+- [ ] Capture verbatim HTTP headers in raw_curl_evidence.txt
 
 ### T+0 Checkpoint
-- [ ] Raw Truth probe: A3/A6/A8
-- [ ] A1 P95 measurement (target ≤120ms)
 - [ ] Fleet health snapshot (all 8 apps)
+- [ ] A1 P95 measurement (target ≤120ms)
 - [ ] Post checkpoint to A8
 
 ### T+15 Checkpoint
@@ -37,14 +42,16 @@
 ### T+30 Checkpoint
 - [ ] Full mini-suite
 - [ ] UI/UX sweep (/, /pricing, /browse)
-- [ ] Asset verification
+- [ ] Backend API readiness check
+- [ ] Security headers scan
 
 ### T+60 Checkpoint (Final)
 - [ ] Complete E2E verification
-- [ ] Performance summary
-- [ ] Telemetry round-trip with checksum
+- [ ] B2C funnel readiness (Safety Paused)
+- [ ] B2B funnel readiness + fee_lineage.json
+- [ ] SEO verdict
 - [ ] RL observation
-- [ ] Generate final artifacts
+- [ ] Generate all artifacts
 
 ---
 
@@ -58,20 +65,33 @@
 | A1 P95 | ≤120ms |
 | A8 ingestion | ≥99% |
 | UI/UX | No 404/5xx |
+| Security Headers | Present |
 | RL | Stable |
 
 ---
 
-## Artifacts to Generate
+## Required Deliverables
 
-1. raw_truth_run009.txt
-2. system_map_run009.json
-3. perf_summary_run009.md
-4. a8_telemetry_run009.md
-5. rl_observation_run009.md
-6. ui_ux_matrix_run009.md
-7. checksums_run009.json
-8. go_no_go_run009.md
+| # | Artifact | Status |
+|---|----------|--------|
+| 1 | raw_curl_evidence.txt | Pending |
+| 2 | raw_truth_summary.md | Pending |
+| 3 | system_map.json | Pending |
+| 4 | {app}_health.json (x8) | Pending |
+| 5 | a1_warmup_report.md | Pending |
+| 6 | perf_summary.md | Pending |
+| 7 | ui_ux_integrity_matrix.md | Pending |
+| 8 | backend_api_readiness.md | Pending |
+| 9 | b2c_funnel_readiness.md | Pending |
+| 10 | b2b_funnel_readiness.md | Pending |
+| 11 | fee_lineage.json | Pending |
+| 12 | a8_telemetry_audit.md | Pending |
+| 13 | rl_observation.md | Pending |
+| 14 | security_headers_report.md | Pending |
+| 15 | seo_verdict.md | Pending |
+| 16 | checksums.json | Pending |
+| 17 | go_no_go_report.md | Pending |
+| 18 | manual_intervention_manifest.md | If Fail-Fast |
 
 ---
 
@@ -79,13 +99,14 @@
 
 **If FULL PASS:**
 - Gold Standard attestation ready
-- HITL micro-charge eligible (pending approval)
+- HITL micro-charge eligible (pending preconditions)
 
-**If PARTIAL PASS:**
-- Document blockers
+**If UNVERIFIED/PARTIAL:**
+- Document blockers in manual_intervention_manifest.md
 - Schedule Run 010
 
 ---
 
-*Prepared: 2026-01-12T08:00:57Z*  
-*Status: AWAITING SCHEDULE CONFIRMATION*
+**Queued:** 2026-01-12T08:05:00Z  
+**Executes:** 2026-01-13T01:00:00Z  
+**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E
