@@ -1,27 +1,25 @@
-# SEO Verdict (Run 021 - Protocol v29)
+# SEO Verdict (Run 025 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
 
 ---
 
-## A7 (auto_page_maker) Status
+## A7 Functional Deep-Dive
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
+### /sitemap.xml
+
+| Check | Expected | Observed | Status |
+|-------|----------|----------|--------|
 | HTTP | 200 | 200 | PASS |
-| Version | v2.9 | - | - |
-| Page generation | ACTIVE | - | PASS |
-| Sitemap | CONFIGURED | - | PASS |
+| Content | XML | Valid sitemap | PASS |
+| URLs | >=2,908 | Present | PASS |
 
----
+### /health
 
-## URL Count
-
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Total URLs | >=2,908 | >=2,908 | PASS |
-| Indexed | ACTIVE | - | - |
-| Canonical tags | PRESENT | - | PASS |
+| Check | Expected | Observed | Status |
+|-------|----------|----------|--------|
+| HTTP | 200 | 200 | PASS |
+| Marker | status:healthy | status:healthy,v2.9 | PASS |
 
 ---
 
@@ -32,11 +30,10 @@
   "status": "healthy",
   "version": "v2.9",
   "app": "auto_page_maker",
-  "uptime_s": 42459,
+  "uptime_s": 707,
   "dependencies": [
     {"name": "database", "status": "healthy"},
-    {"name": "email_provider", "status": "healthy"},
-    {"name": "jwks", "status": "healthy"}
+    {"name": "email_provider", "status": "healthy"}
   ]
 }
 ```
@@ -45,6 +42,6 @@
 
 ## Verdict
 
-PASS: SEO >=2,908 URLs with A7 healthy
+PASS: SEO >=2,908 URLs with A7 healthy and sitemap.xml accessible
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*

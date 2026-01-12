@@ -1,1 +1,8 @@
-{"status":"healthy","trace_id":"0975726f-295b-4bf4-a698-440306b85b60"}
+{
+  "app": "A2",
+  "status": "healthy",
+  "http_code": 200,
+  "marker": "status:healthy",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
+  "timestamp": "2026-01-12T21:23:41Z"
+}

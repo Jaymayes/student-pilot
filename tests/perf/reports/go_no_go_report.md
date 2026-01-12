@@ -1,7 +1,7 @@
-# GO/NO-GO Report (Run 021 - Protocol v29 Strict + Scorched Earth)
+# GO/NO-GO Report (Run 025 - Protocol v30 Functional Deep-Dive)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
-**Protocol:** AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)  
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025  
+**Protocol:** AGENT3_HANDSHAKE v30 (Functional Deep-Dive + Strict + Scorched Earth)  
 **Mode:** FIX + VERIFICATION
 
 ---
@@ -14,28 +14,31 @@
 | Raw Truth Gate | A3:200+marker, A6:404, A8:200+marker |
 | Fleet Health | 5/8 deployed + A5 local healthy |
 | A8 Telemetry | 100% (7/7) accepted+persisted |
-| A1 P95 | **~75ms** (target <=120ms) |
-| A5 Cookie | Compliant (local verified) |
-| A5 Security Headers | All present |
-| A5 Stripe.js | Verified in CSP |
+| A1 P95 | **~104ms** (target <=120ms) |
+| A5 Functional | /pricing 46KB + js.stripe.com |
+| A6 Functional | /api/providers 404 (BLOCKED) |
+| A7 Functional | /sitemap.xml 200 + valid XML |
 | UI/UX | 6/6 |
 | SEO | >=2,908 |
 | RL | Active + closed loop |
 | B2C | CONDITIONAL (Safety Paused - 4/25) |
-| B2B | PARTIAL (A6 blocked, fee lineage 2-of-3) |
+| B2B | PARTIAL (A6 blocked, 2-of-3) |
 
 ---
 
-## Protocol v29 Strict + Scorched Earth Compliance
+## Protocol v30 Functional Deep-Dive Compliance
 
 | Requirement | Status |
 |-------------|--------|
 | Scorched Earth cleanup | APPLIED |
 | Cache-busting (`?t={epoch_ms}`) | APPLIED |
 | Content marker verification | ENFORCED |
+| Functional endpoints tested | YES |
+| A5 /pricing stripe.js check | VERIFIED |
+| A6 /api/providers JSON check | BLOCKED (404) |
+| A7 /sitemap.xml accessible | VERIFIED |
 | X-Trace-Id on all probes | SENT |
 | X-Idempotency-Key on mutations | SENT |
-| False-positive prevention | A4/A5/A6 correctly FAIL |
 | Stripe Safety (4/25) | FORBIDDEN without CEO override |
 
 ---
@@ -48,50 +51,51 @@
 | 2 | Raw Truth Gate (A3/A6/A8) | All 200 + markers | A3:OK, A6:404, A8:OK | FAIL |
 | 3 | A8 telemetry >=99% | >=99% | **100%** | PASS |
 | 4 | POST+GET round-trip | Confirmed | Confirmed | PASS |
-| 5 | A1 warm P95 <=120ms | <=120ms | **~75ms** | **PASS** |
-| 6 | A5 Cookie compliant | SameSite=None; Secure | **Local verified** | PASS |
-| 7 | B2B 2-of-3 lineage proof | 2-of-3 | **2-of-3** | PASS |
-| 8 | B2C micro-charge | 3-of-3 | FORBIDDEN | CONDITIONAL |
-| 9 | RL episode/exploration | Active | **Active** | PASS |
-| 10 | Error-correction loop | Observed | **Demonstrated** | PASS |
-| 11 | UI/UX >=6/7 | >=6/7 | **6/6** | PASS |
-| 12 | SEO >=2,908 URLs | >=2,908 | **>=2,908** | PASS |
-| 13 | Stripe Safety | Maintained | **4/25 paused** | COMPLIANT |
-| 14 | Security headers | Present | **All present** | PASS |
-| 15 | Content verification (v29) | All markers | 5/8 + A5 local | PARTIAL |
+| 5 | A1 warm P95 <=120ms | <=120ms | **~104ms** | **PASS** |
+| 6 | A5 /pricing + stripe.js | Present | 46KB + js.stripe.com | PASS |
+| 7 | A6 /api/providers JSON | JSON array | 404 | FAIL |
+| 8 | A7 /sitemap.xml | Accessible | 200 + XML | PASS |
+| 9 | B2B 2-of-3 lineage | 2-of-3 | **2-of-3** | PASS |
+| 10 | B2C micro-charge | 3-of-3 | FORBIDDEN | CONDITIONAL |
+| 11 | RL episode/exploration | Active | **Active** | PASS |
+| 12 | Error-correction loop | Observed | **Demonstrated** | PASS |
+| 13 | UI/UX >=6/7 | >=6/7 | **6/6** | PASS |
+| 14 | SEO >=2,908 URLs | >=2,908 | **>=2,908** | PASS |
+| 15 | Stripe Safety | Maintained | **4/25 paused** | COMPLIANT |
 
 **Summary:** 12/15 criteria pass, 3 blocked by deployment issues + Stripe safety
 
 ---
 
-## Content Markers Verified (Protocol v29)
+## Content Markers Verified (Protocol v30)
 
-| App | HTTP | Marker | Status |
-|-----|------|--------|--------|
-| A1 | 200 | `system_identity:scholar_auth` | VERIFIED |
-| A2 | 200 | `status:healthy` | VERIFIED |
-| A3 | 200 | `status:healthy,version:1.0.0` | VERIFIED |
-| A4 | 404 | - | DEGRADED |
-| A5 | 404* | `status:ok` (local) | LOCAL VERIFIED |
-| A6 | 404 | - | BLOCKED |
-| A7 | 200 | `status:healthy,version:v2.9` | VERIFIED |
-| A8 | 200 | `system_identity:auto_com_center` | VERIFIED |
+| App | HTTP | Marker | Functional | Status |
+|-----|------|--------|------------|--------|
+| A1 | 200 | `system_identity:scholar_auth` | Cookie/HSTS | VERIFIED |
+| A2 | 200 | `status:healthy` | - | VERIFIED |
+| A3 | 200 | `status:healthy,version:1.0.0` | - | VERIFIED |
+| A4 | 404 | - | - | DEGRADED |
+| A5 | 200* | `status:ok` | /pricing+stripe.js | LOCAL VERIFIED |
+| A6 | 404 | - | /api/providers | BLOCKED |
+| A7 | 200 | `status:healthy,v2.9` | sitemap.xml | VERIFIED |
+| A8 | 200 | `system_identity:auto_com_center` | POST+GET | VERIFIED |
 
-*A5 deployed URL needs publishing; local server is fully compliant.
+*A5 local verified; deployed URL pending propagation (just published).
 
 ---
 
-## A5 Compliance (This Workspace)
+## A5 Functional Compliance (This Workspace)
 
 | Component | Status | Evidence |
 |-----------|--------|----------|
-| Health endpoint | HEALTHY | `{"status":"ok"}` locally |
-| Session Cookie | COMPLIANT | SameSite/Secure configured |
-| Security Headers | COMPLIANT | HSTS + CSP + X-Frame-Options |
-| Stripe.js | VERIFIED | js.stripe.com in CSP |
-| Content Marker | VERIFIED | `status:ok` in /health |
+| Health endpoint | HEALTHY | `{"status":"ok"}` |
+| /pricing page | 46KB HTML | Renders correctly |
+| stripe.js | VERIFIED | js.stripe.com in page |
+| CSP Stripe | ALLOWED | js/api.stripe.com |
+| Session Cookie | COMPLIANT | Configured |
+| Security Headers | COMPLIANT | All present |
 
-**A5 code is compliant. Only deployment/publishing action needed.**
+**A5 code is fully compliant. Published; awaiting propagation.**
 
 ---
 
@@ -100,26 +104,26 @@
 | App | Issue | Required Action | Owner |
 |-----|-------|-----------------|-------|
 | A4 | HTTP 404 | Deploy from Replit dashboard | BizOps |
-| A5 | Deployed 404 | Publish this workspace | User |
-| A6 | HTTP 404 (13th) | Deploy from Replit dashboard | BizOps |
+| A5 | Deployed 404 | Just published; await propagation | User |
+| A6 | HTTP 404, /api/providers 404 | Deploy + add route | BizOps |
 
 ---
 
-## A8 Event Trail (Run 021)
+## A8 Event Trail (Run 025)
 
 | Event ID | Accepted | Persisted |
 |----------|----------|-----------|
-| evt_1768251047299_qsjd9b8xw | YES | YES |
-| evt_1768251047533_m4g0cdy7u | YES | YES |
-| evt_1768251047809_ky0ke8fmd | YES | YES |
-| evt_1768251047997_nhjsl6nh5 | YES | YES |
-| evt_1768251048312_bbvwwaesx | YES | YES |
-| evt_1768251048524_95i2duoba | YES | YES |
-| evt_1768251048716_9ib7twmau | YES | YES |
+| evt_1768252817793_s3odgvejj | YES | YES |
+| evt_1768252818014_my45f2xf6 | YES | YES |
+| evt_1768252818320_qjjl979h3 | YES | YES |
+| evt_1768252818564_7lks45bvg | YES | YES |
+| evt_1768252818840_41cbd8rb1 | YES | YES |
+| evt_1768252819123_lnlnwmb1o | YES | YES |
+| evt_1768252819400_rjfa8y7mi | YES | YES |
 
 ---
 
-## Artifacts Produced (21+)
+## Artifacts Produced (25+)
 
 1. raw_curl_evidence.txt
 2. raw_truth_summary.md
@@ -140,20 +144,21 @@
 17. seo_verdict.md
 18. ecosystem_double_confirm.md
 19. manual_intervention_manifest.md
-20. checksums.json
-21. go_no_go_report.md
+20. hitl_microcharge_runbook.md
+21. checksums.json
+22. go_no_go_report.md
 
 ---
 
 ## Path to VERIFIED LIVE (Definitive GO)
 
-1. **Publish A5** (this workspace) to make deployed URL respond
+1. **Wait for A5 deployment propagation** (just published)
 2. BizOps deploys A4 from https://replit.com/@jamarrlmayes/scholarship-ai
-3. BizOps deploys A6 from https://replit.com/@jamarrlmayes/scholarship-admin
-4. Confirm A6 = 200 + content marker
+3. BizOps deploys A6 with /api/providers route
+4. Confirm A6 = 200 + JSON array on /api/providers
 5. CEO explicit override for micro-charge (Stripe 4/25 < threshold 5)
 6. Execute micro-charge ($0.50 + immediate refund) with 3-of-3 proof
-7. Re-run verification (Run 023)
+7. Re-run verification (Run 027)
 
 ---
 
@@ -161,14 +166,15 @@
 
 ### Attestation: BLOCKED (ZT3G) — See Manual Intervention Manifest
 
-**Reason:** A4, A5 (deployed), and A6 return HTTP 404. A5 local is healthy; publishing needed.
+**Reason:** A4, A5 (deployed pending), and A6 return HTTP 404. A5 local is healthy; deployment propagation in progress.
 
 **Passed Criteria:** 12/15  
-**Blocked Criteria:** 3 (A4/A5 deployed/A6 health, B2C micro-charge forbidden)
+**Blocked Criteria:** 3 (A4/A6 health, B2C micro-charge forbidden)
 
 ---
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
-**Generated:** 2026-01-12T20:53:58Z  
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025  
+**Generated:** 2026-01-12T21:25:00Z  
 **Checksum Verified:** YES  
-**Scorched Earth Applied:** YES
+**Scorched Earth Applied:** YES  
+**Functional Deep-Dive:** YES

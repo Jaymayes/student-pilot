@@ -1,1 +1,8 @@
-{"status":"healthy","timestamp":"2026-01-12T20:49:01.741Z","version":"1.0.0","environment":"production","uptime":51683.789529159,"checks":{"application":{"status":"healthy","message":"Application is running","lastChecked":"2026-01-12T20:49:01.741Z"}}}
+{
+  "app": "A3",
+  "status": "healthy",
+  "http_code": 200,
+  "marker": "status:healthy,version:1.0.0",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
+  "timestamp": "2026-01-12T21:23:41Z"
+}

@@ -1,21 +1,28 @@
-# A1 Warmup Report (Run 021 - Protocol v29)
+# A1 Warmup Report (Run 025 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
-**Protocol:** AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025  
+**Protocol:** AGENT3_HANDSHAKE v30 (Functional Deep-Dive)
 
 ---
 
-## Warmup Results
+## Warmup Results (10 requests)
 
-| Request | Latency | Status |
-|---------|---------|--------|
-| 1 | 168ms | Cold start |
-| 2 | 97ms | Warming |
-| 3 | 82ms | Warm |
-| 4 | 75ms | Warm |
-| 5 | 37ms | Hot |
+| Request | Latency |
+|---------|---------|
+| 1 | 110ms |
+| 2 | 71ms |
+| 3 | 54ms |
+| 4 | 87ms |
+| 5 | 88ms |
+| 6 | 40ms |
+| 7 | 50ms |
+| 8 | 104ms |
+| 9 | 63ms |
+| 10 | 91ms |
 
-**P95 Estimate:** ~75ms (well below 120ms target)
+**Average:** ~76ms  
+**P95 Estimate:** ~104ms (target: <=120ms)  
+**Status:** PASS
 
 ---
 
@@ -26,14 +33,8 @@
   "status": "ok",
   "system_identity": "scholar_auth",
   "version": "1.0.0",
-  "uptime_s": 12710,
-  "dependencies": {
-    "auth_db": {"status": "slow", "circuitBreaker": {"state": "CLOSED"}},
-    "email_service": {"status": "healthy"},
-    "jwks_signer": {"status": "healthy"},
-    "oauth_provider": {"status": "healthy"},
-    "clerk": {"status": "healthy"}
-  }
+  "uptime_s": 803,
+  "cached": true
 }
 ```
 
@@ -41,6 +42,6 @@
 
 ## Verdict
 
-PASS: A1 warm P95 <= 120ms
+PASS: A1 warm P95 <= 120ms (~104ms observed)
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*

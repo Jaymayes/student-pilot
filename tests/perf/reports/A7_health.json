@@ -1,1 +1,8 @@
-{"status":"healthy","timestamp":"2026-01-12T20:49:02.609Z","version":"v2.9","app":"auto_page_maker","uptime_s":42459,"dependencies":[{"name":"database","status":"healthy","latency_ms":22,"details":{"type":"postgresql","provider":"neon"}},{"name":"email_provider","status":"healthy","latency_ms":598,"details":{"provider":"sendgrid","http_status":200},"cached":true,"cached_at":"2026-01-12T20:48:56.124Z"},{"name":"jwks","status":"healthy","latency_ms":1,"details":{"algorithm":"RS256","kid":"scholar-auth-2025-01","use":"sig"}}],"summary":{"total":3,"healthy":3,"degraded":0,"unhealthy":0},"async_mode":true}
+{
+  "app": "A7",
+  "status": "healthy",
+  "http_code": 200,
+  "marker": "status:healthy,version:v2.9",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
+  "timestamp": "2026-01-12T21:23:41Z"
+}

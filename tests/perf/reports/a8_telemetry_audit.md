@@ -1,21 +1,20 @@
-# A8 Telemetry Audit (Run 021 - Protocol v29)
+# A8 Telemetry Audit (Run 025 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
-**Protocol:** AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
 
 ---
 
 ## POST+GET Round-Trip
 
-| Event ID | Accepted | Persisted | X-Trace-Id |
-|----------|----------|-----------|------------|
-| evt_1768251047299_qsjd9b8xw | YES | YES | RUN021.telemetry.1 |
-| evt_1768251047533_m4g0cdy7u | YES | YES | RUN021.telemetry.2 |
-| evt_1768251047809_ky0ke8fmd | YES | YES | RUN021.telemetry.3 |
-| evt_1768251047997_nhjsl6nh5 | YES | YES | RUN021.telemetry.4 |
-| evt_1768251048312_bbvwwaesx | YES | YES | RUN021.telemetry.5 |
-| evt_1768251048524_95i2duoba | YES | YES | RUN021.telemetry.6 |
-| evt_1768251048716_9ib7twmau | YES | YES | RUN021.telemetry.7 |
+| Event ID | Accepted | Persisted |
+|----------|----------|-----------|
+| evt_1768252817793_s3odgvejj | YES | YES |
+| evt_1768252818014_my45f2xf6 | YES | YES |
+| evt_1768252818320_qjjl979h3 | YES | YES |
+| evt_1768252818564_7lks45bvg | YES | YES |
+| evt_1768252818840_41cbd8rb1 | YES | YES |
+| evt_1768252819123_lnlnwmb1o | YES | YES |
+| evt_1768252819400_rjfa8y7mi | YES | YES |
 
 ---
 
@@ -30,21 +29,8 @@
 
 ---
 
-## A8 Health Response
-
-```json
-{
-  "status": "ok",
-  "system_identity": "auto_com_center",
-  "app": "ScholarshipAI Communication Hub",
-  "version": "1.0.0"
-}
-```
-
----
-
 ## Verdict
 
-PASS: A8 telemetry at 100% ingestion with POST+GET round-trip confirmation
+PASS: A8 telemetry at 100% ingestion with POST+GET round-trip
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*

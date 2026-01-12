@@ -1,15 +1,15 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-021",
-  "timestamp": "2026-01-12T20:51:29Z",
-  "protocol": "v29_strict_scorched_earth",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
+  "timestamp": "2026-01-12T21:22:45Z",
+  "protocol": "v30_functional_deep_dive",
   "versions": {
-    "A1": {"version": "1.0.0", "system_identity": "scholar_auth"},
+    "A1": {"version": "1.0.0", "system_identity": "scholar_auth", "status": "healthy"},
     "A2": {"version": "unknown", "status": "healthy"},
     "A3": {"version": "1.0.0", "status": "healthy"},
-    "A4": {"version": "unknown", "http": 404},
-    "A5": {"version": "unknown", "system_identity": "student_pilot", "local_healthy": true},
-    "A6": {"version": "unknown", "http": 404},
-    "A7": {"version": "v2.9", "status": "healthy"},
-    "A8": {"version": "1.0.0", "system_identity": "auto_com_center"}
+    "A4": {"version": "unknown", "http": 404, "status": "degraded"},
+    "A5": {"version": "unknown", "system_identity": "student_pilot", "local_healthy": true, "deployed": "pending"},
+    "A6": {"version": "unknown", "http": 404, "status": "blocked"},
+    "A7": {"version": "v2.9", "status": "healthy", "sitemap": true},
+    "A8": {"version": "1.0.0", "system_identity": "auto_com_center", "status": "healthy"}
   }
 }

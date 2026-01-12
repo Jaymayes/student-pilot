@@ -1,1 +1,8 @@
-Not Found
+{
+  "app": "A6",
+  "status": "blocked",
+  "http_code": 404,
+  "marker": "none",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
+  "timestamp": "2026-01-12T21:23:41Z"
+}

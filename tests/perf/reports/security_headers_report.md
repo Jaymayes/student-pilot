@@ -1,6 +1,6 @@
-# Security Headers Report (Run 021 - Protocol v29)
+# Security Headers Report (Run 025 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
 
 ---
 
@@ -9,10 +9,9 @@
 | Header | Value | Status |
 |--------|-------|--------|
 | HSTS | max-age=63072000; includeSubDomains; preload | PASS |
-| CSP | Comprehensive | PASS |
+| CSP | Comprehensive (Stripe allowed) | PASS |
 | X-Content-Type-Options | nosniff | PASS |
-| X-Frame-Options | via CSP | PASS |
-| CORP | cross-origin | PASS |
+| X-Frame-Options | via CSP frame-ancestors | PASS |
 
 ## A5 (student_pilot) - Local
 
@@ -37,6 +36,6 @@
 
 ## Verdict
 
-ALL security headers compliant across A1 and A5.
+PASS: All security headers compliant across A1 and A5.
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*

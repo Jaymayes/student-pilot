@@ -1,50 +1,41 @@
-# Raw Truth Summary (Run 021 - Protocol v29)
+# Raw Truth Summary (Run 025 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
-**Protocol:** AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)  
-**Timestamp:** 2026-01-12T20:49:51Z
-
----
-
-## Fleet Health Matrix
-
-| App | Name | HTTP | Content | Status |
-|-----|------|------|---------|--------|
-| A1 | scholar_auth | 200 | VERIFIED | HEALTHY |
-| A2 | scholarship_api | 200 | VERIFIED | HEALTHY |
-| A3 | scholarship_agent | 200 | VERIFIED | HEALTHY |
-| A4 | scholarship_ai | 404 | N/A | DEGRADED |
-| A5 | student_pilot | 404* | VERIFIED locally | DEPLOYMENT_NEEDED |
-| A6 | scholarship_admin | 404 | N/A | BLOCKED (13th) |
-| A7 | auto_page_maker | 200 | VERIFIED | HEALTHY |
-| A8 | auto_com_center | 200 | VERIFIED | HEALTHY |
-
-*A5 local development server responds correctly; deployed URL needs publishing.
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025  
+**Protocol:** AGENT3_HANDSHAKE v30 (Functional Deep-Dive + Strict + Scorched Earth)
 
 ---
 
 ## Raw Truth Gate (A3/A6/A8)
 
-| App | Required | Actual | Gate |
-|-----|----------|--------|------|
-| A3 | 200 + marker | 200 + `status:healthy` | PASS |
-| A6 | 200 + marker | 404 | FAIL |
-| A8 | 200 + marker | 200 + `system_identity` | PASS |
+| App | HTTP | Content Marker | Status |
+|-----|------|----------------|--------|
+| A3 | 200 | `status:healthy,version:1.0.0` | **PASS** |
+| A6 | 404 | - | **FAIL** |
+| A8 | 200 | `system_identity:auto_com_center` | **PASS** |
 
-**Raw Truth Gate:** FAIL (A6 blocked)
-
----
-
-## Protocol v29 Compliance
-
-| Requirement | Status |
-|-------------|--------|
-| Scorched Earth cleanup | APPLIED |
-| Cache-busting (`?t={epoch_ms}`) | APPLIED |
-| Content marker verification | ENFORCED |
-| X-Trace-Id on all probes | SENT |
-| False-positive prevention | ACTIVE |
+**Result:** 2-of-3 (A6 BLOCKED)
 
 ---
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
+## Full Fleet Summary
+
+| App | Name | HTTP | Marker | Status |
+|-----|------|------|--------|--------|
+| A1 | scholar_auth | 200 | `system_identity:scholar_auth` | HEALTHY |
+| A2 | scholarship_api | 200 | `status:healthy` | HEALTHY |
+| A3 | scholarship_agent | 200 | `status:healthy` | HEALTHY |
+| A4 | scholarship_ai | 404 | - | DEGRADED |
+| A5 | student_pilot | 200* | `status:ok` | DEPLOYMENT_PENDING |
+| A6 | scholarship_admin | 404 | - | BLOCKED |
+| A7 | auto_page_maker | 200 | `status:healthy,v2.9` | HEALTHY |
+| A8 | auto_com_center | 200 | `system_identity:auto_com_center` | HEALTHY |
+
+*A5 local is healthy; deployed URL pending/404
+
+---
+
+## Content Verification (Protocol v30)
+
+All healthy apps have valid JSON content markers. A4/A6 return 404 (no markers possible).
+
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*

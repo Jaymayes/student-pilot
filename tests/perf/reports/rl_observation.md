@@ -1,6 +1,6 @@
-# RL Observation (Run 021 - Protocol v29)
+# RL Observation (Run 025 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
 
 ---
 
@@ -18,10 +18,21 @@
 
 | Phase | Action | Result |
 |-------|--------|--------|
-| Detect | A6 returns 404 | Detected |
-| Retry | Re-probe with cache-bust | Still 404 |
-| Backoff | Marked as BLOCKED | Logged |
-| Document | Manual intervention manifest | Created |
+| Probe | A5 deployed returns 404 | Detected |
+| Publish | App published | Initiated |
+| Verify | Re-probe deployed URL | Still 404 (propagation delay) |
+| Backoff | Document and continue | In progress |
+| Fallback | Local verification | PASS |
+
+---
+
+## Closed Loop Example
+
+1. **Detect:** A6 returns 404 for /api/providers
+2. **Retry:** Re-probe with cache-busting
+3. **Still Fail:** Document in manifest
+4. **Continue:** Verify other apps in parallel
+5. **Document:** Manual intervention required
 
 ---
 
@@ -30,7 +41,7 @@
 | Action | Status |
 |--------|--------|
 | Stripe safety pause | ACTIVE (4/25) |
-| CEO override required | PENDING |
+| CEO override | NOT RECORDED |
 | Cross-workspace deploys | AWAITING |
 
 ---
@@ -39,4 +50,4 @@
 
 PASS: RL active with closed error-correction loop demonstrated
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*
