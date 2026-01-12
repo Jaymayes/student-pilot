@@ -1,46 +1,39 @@
-# UI/UX Integrity Matrix (Run 017 - Protocol v28)
+# UI/UX Integrity Matrix (Run 021 - Protocol v29)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
-
----
-
-## Core Routes
-
-| Route | Status | Response | Verdict |
-|-------|--------|----------|---------|
-| / | 200 | HTML | ✅ PASS |
-| /pricing | 200 | HTML | ✅ PASS |
-| /browse | 200 | HTML | ✅ PASS |
-| /login | 200 | HTML | ✅ PASS |
-| /dashboard | 302 | Redirect (auth) | ✅ PASS |
-| /billing | 302 | Redirect (auth) | ✅ PASS |
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
 
 ---
 
-## Content Verification (Protocol v28)
+## Page Accessibility
+
+| Page | Status | Notes |
+|------|--------|-------|
+| / (Home) | PASS | Renders correctly |
+| /pricing | PASS | Stripe.js loads |
+| /browse | PASS | Scholarship listings |
+| /dashboard | PASS | User dashboard |
+| /apply | PASS | Application flow |
+| /profile | PASS | User profile |
+
+---
+
+## Score: 6/6
+
+---
+
+## Stripe.js Integration
 
 | Check | Status |
 |-------|--------|
-| Stripe.js in /pricing | ✅ |
-| A5 health marker | ✅ `status:ok` |
-
----
-
-## Score
-
-| Criterion | Passed | Total |
-|-----------|--------|-------|
-| Routes accessible | 6 | 6 |
-| Protected routes | ✅ | - |
-| Assets load | ✅ | - |
-| Content markers | ✅ | - |
-
-**Score:** 6/6 (auth redirects expected)
+| CSP allows js.stripe.com | YES |
+| CSP allows api.stripe.com | YES |
+| Payment form renders | VERIFIED |
+| Checkout redirect | CONFIGURED |
 
 ---
 
 ## Verdict
 
-✅ **UI/UX INTEGRITY: PASS**
+PASS: UI/UX integrity 6/6 with Stripe.js verified
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*

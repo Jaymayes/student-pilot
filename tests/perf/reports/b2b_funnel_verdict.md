@@ -1,52 +1,45 @@
-# B2B Funnel Verdict (Run 017 - Protocol v28)
+# B2B Funnel Verdict (Run 021 - Protocol v29)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
-
----
-
-## Fee Structure
-
-| Fee Type | Rate | Status |
-|----------|------|--------|
-| Platform Fee | 3% | ✅ Configured |
-| AI Markup | 4x | ✅ Configured |
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
 
 ---
 
-## Lineage Proof (3-of-3)
+## Fee Structure (3-of-3 Lineage)
 
-| Proof | Evidence | Status |
-|-------|----------|--------|
-| Schema exists | providers table | ✅ |
-| Fee logic | billing routes | ✅ |
-| A8 correlation | telemetry events | ✅ |
-
-**Result:** 3-of-3 ✅
+| Source | 3% Platform Fee | 4x AI Markup | Status |
+|--------|-----------------|--------------|--------|
+| A6 (admin) | Configured | Configured | BLOCKED (404) |
+| A7 (SEO) | Visible in listings | Visible | HEALTHY |
+| A8 (telemetry) | Tracked | Tracked | HEALTHY |
 
 ---
 
-## Discovery Pipeline
+## Fee Lineage Proof
 
-| Component | HTTP | Content Verified | Notes |
-|-----------|------|------------------|-------|
-| A7 (Page Maker) | 200 | ✅ `version:v2.9` | SEO generation active |
-| A5 (Portal) | 200 | ✅ `status:ok` | Listing visibility |
-| A8 (Command Center) | 200 | ✅ `system_identity` | Telemetry correlation |
+| Proof | Status |
+|-------|--------|
+| HTTP 200 + content | A6 BLOCKED |
+| Config in admin | A6 BLOCKED |
+| A8 correlation | CONFIRMED |
+
+**Result:** 2-of-3 (A6 blocked)
 
 ---
 
-## A6 Dependency (Admin)
+## B2B Pipeline
 
-| Function | A6 Required | Status |
-|----------|-------------|--------|
-| Provider dashboard | Yes | ❌ BLOCKED (404) |
-| Fee reports | Yes | ❌ BLOCKED |
-| Scholarship management | Yes | ❌ BLOCKED |
+| Stage | Status |
+|-------|--------|
+| Provider onboarding | A6 BLOCKED |
+| Listing creation | A7 HEALTHY |
+| Fee calculation | Defined (3% + 4x) |
+| Discoverability | A7 SEO active |
+| Visibility | A5 displays |
 
 ---
 
 ## Verdict
 
-⚠️ **B2B FUNNEL: PARTIAL** - Fee structure verified (3-of-3), A6 admin blocked
+PARTIAL: B2B funnel has 2-of-3 proof. A6 (scholarship_admin) deployment required for full 3-of-3.
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*

@@ -1,16 +1,15 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-017",
-  "timestamp": "2026-01-12T19:07:27Z",
-  "git_sha": "e32c155",
-  "protocol": "AGENT3_HANDSHAKE_v28_STRICT",
-  "apps": {
-    "A1": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
-    "A2": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
-    "A3": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
-    "A4": {"version": "unknown", "status": "DEGRADED", "content_verified": false},
-    "A5": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true},
-    "A6": {"version": "unknown", "status": "BLOCKED", "content_verified": false},
-    "A7": {"version": "v2.9", "status": "HEALTHY", "content_verified": true},
-    "A8": {"version": "1.0.0", "status": "HEALTHY", "content_verified": true}
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-021",
+  "timestamp": "2026-01-12T20:51:29Z",
+  "protocol": "v29_strict_scorched_earth",
+  "versions": {
+    "A1": {"version": "1.0.0", "system_identity": "scholar_auth"},
+    "A2": {"version": "unknown", "status": "healthy"},
+    "A3": {"version": "1.0.0", "status": "healthy"},
+    "A4": {"version": "unknown", "http": 404},
+    "A5": {"version": "unknown", "system_identity": "student_pilot", "local_healthy": true},
+    "A6": {"version": "unknown", "http": 404},
+    "A7": {"version": "v2.9", "status": "healthy"},
+    "A8": {"version": "1.0.0", "system_identity": "auto_com_center"}
   }
 }

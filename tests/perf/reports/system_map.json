@@ -1,28 +1,18 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-017",
-  "timestamp": "2026-01-12T19:07:27Z",
-  "git_sha": "e32c155",
-  "protocol": "AGENT3_HANDSHAKE_v28_STRICT",
-  "cache_bust": "1768244847480",
-  "fleet": {
-    "A1": {"name": "scholar_auth", "status": 200, "content_verified": true, "latency_ms": 72, "marker": "system_identity:scholar_auth", "verdict": "HEALTHY"},
-    "A2": {"name": "scholarship_api", "status": 200, "content_verified": true, "latency_ms": 103, "marker": "status:healthy", "verdict": "HEALTHY"},
-    "A3": {"name": "scholarship_agent", "status": 200, "content_verified": true, "latency_ms": 117, "marker": "status:healthy,version:1.0.0", "verdict": "HEALTHY"},
-    "A4": {"name": "scholarship_ai", "status": 404, "content_verified": false, "latency_ms": 47, "verdict": "DEGRADED"},
-    "A5": {"name": "student_pilot", "status": 200, "content_verified": true, "latency_ms": 163, "marker": "status:ok", "verdict": "HEALTHY"},
-    "A6": {"name": "scholarship_admin", "status": 404, "content_verified": false, "latency_ms": 45, "verdict": "BLOCKED"},
-    "A7": {"name": "auto_page_maker", "status": 200, "content_verified": true, "latency_ms": 150, "marker": "status:healthy,version:v2.9", "verdict": "HEALTHY"},
-    "A8": {"name": "auto_com_center", "status": 200, "content_verified": true, "latency_ms": 85, "marker": "system_identity:auto_com_center", "verdict": "HEALTHY"}
-  },
-  "fleet_health": "6/8",
-  "raw_truth_gate": {"a3": {"status": 200, "marker": true}, "a6": {"status": 404, "marker": false}, "a8": {"status": 200, "marker": true}},
-  "a8_events": [
-    "evt_1768244813798_lqkeo1ra8",
-    "evt_1768244813980_jpaa6io2w",
-    "evt_1768244814167_i9k83o66n",
-    "evt_1768244814356_vmpdtan7n",
-    "evt_1768244814571_x9vsyfynq",
-    "evt_1768244814862_41ij7px10",
-    "evt_1768244815121_xm9zayca7"
-  ]
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-021",
+  "timestamp": "2026-01-12T20:49:51Z",
+  "protocol": "AGENT3_HANDSHAKE_v29_STRICT_SCORCHED_EARTH",
+  "fleet": [
+    {"id": "A1", "name": "scholar_auth", "url": "https://scholar-auth-jamarrlmayes.replit.app", "http": 200, "content_verified": true, "status": "HEALTHY"},
+    {"id": "A2", "name": "scholarship_api", "url": "https://scholarship-api-jamarrlmayes.replit.app", "http": 200, "content_verified": true, "status": "HEALTHY"},
+    {"id": "A3", "name": "scholarship_agent", "url": "https://scholarship-agent-jamarrlmayes.replit.app", "http": 200, "content_verified": true, "status": "HEALTHY"},
+    {"id": "A4", "name": "scholarship_ai", "url": "https://scholarship-ai-jamarrlmayes.replit.app", "http": 404, "content_verified": false, "status": "DEGRADED"},
+    {"id": "A5", "name": "student_pilot", "url": "https://scholarlink-student-pilot-jamarrlmayes.replit.app", "http": 404, "content_verified": false, "status": "DEPLOYMENT_NEEDED", "local_status": "HEALTHY"},
+    {"id": "A6", "name": "scholarship_admin", "url": "https://scholarship-admin-jamarrlmayes.replit.app", "http": 404, "content_verified": false, "status": "BLOCKED"},
+    {"id": "A7", "name": "auto_page_maker", "url": "https://auto-page-maker-jamarrlmayes.replit.app", "http": 200, "content_verified": true, "status": "HEALTHY"},
+    {"id": "A8", "name": "auto_com_center", "url": "https://auto-com-center-jamarrlmayes.replit.app", "http": 200, "content_verified": true, "status": "HEALTHY"}
+  ],
+  "fleet_health": "5/8 deployed + 1 local healthy",
+  "blockers": ["A4:404", "A5:deployment_needed", "A6:404"],
+  "attestation": "BLOCKED"
 }

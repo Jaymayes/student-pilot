@@ -1,10 +1,69 @@
-=== Raw Truth Probe (Protocol v28) ===
-RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
-Cache-bust: 1768244780119
+# Raw Truth Probe (Run 021 - Protocol v29)
+RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
+Timestamp: 2026-01-12T20:49:01Z
+Protocol: AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)
 
---- A3 Raw Curl (with body) ---
-{"status":"healthy","timestamp":"2026-01-12T19:06:20.262Z","version":"1.0.0","environment":"production","uptime":45522.3101028,"checks":{"application":{"status":"healthy","message":"Application is running","lastChecked":"2026-01-12T19:06:20.262Z"}}}
---- A6 Raw Curl (with body) ---
-Not Found
---- A8 Raw Curl (with body) ---
-{"status":"ok","system_identity":"auto_com_center","base_url":"https://auto-com-center-jamarrlmayes.replit.app","app":"ScholarshipAI Communication Hub","version":"1.0.0"}
+=== A1 ===
+URL: https://scholar-auth-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A1.health
+HTTP_CODE: 200
+TIME: 0.140263s
+BODY: {"status":"ok","system_identity":"scholar_auth","base_url":"https://scholar-auth-jamarrlmayes.replit.app","version":"1.0.0","git_sha":"unknown","build_id":"1.0.0-unknown","uptime_s":12710,"timestamp":"2026-01-12T20:49:01.270Z","response_time_ms":0,"cached":true,"cache_age_ms":1162,"dependencies":{"auth_db":{"status":"slow","responseTime":125,"circuitBreaker":{"state":"CLOSED","failures":0,"lastFailureTime":null,"isHealthy":true}},"email_service":{"status":"healthy","provider":"postmark","configured":true},"jwks_signer":{"status":"healthy","cache_initialized":true,"etag":"\"jwks-f8ea99621ce480e1\""},"oauth_provider":{"status":"healthy","provider":"replit-oidc"},"clerk":{"status":"healthy","provider":"clerk","configured":true,"hasPublishableKey":true,"hasSecretKey":true}}}
+CONTENT_MARKER: VERIFIED
+
+=== A2 ===
+URL: https://scholarship-api-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A2.health
+HTTP_CODE: 200
+TIME: 0.125924s
+BODY: {"status":"healthy","trace_id":"0975726f-295b-4bf4-a698-440306b85b60"}
+CONTENT_MARKER: VERIFIED
+
+=== A3 ===
+URL: https://scholarship-agent-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A3.health
+HTTP_CODE: 200
+TIME: 0.131139s
+BODY: {"status":"healthy","timestamp":"2026-01-12T20:49:01.741Z","version":"1.0.0","environment":"production","uptime":51683.789529159,"checks":{"application":{"status":"healthy","message":"Application is running","lastChecked":"2026-01-12T20:49:01.741Z"}}}
+CONTENT_MARKER: VERIFIED
+
+=== A4 ===
+URL: https://scholarship-ai-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A4.health
+HTTP_CODE: 404
+TIME: 0.049863s
+BODY: Not Found
+CONTENT_MARKER: N/A (HTTP 404)
+
+=== A5 ===
+URL: https://scholarlink-student-pilot-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A5.health
+HTTP_CODE: 404
+TIME: 0.049064s
+BODY: Not Found
+CONTENT_MARKER: N/A (HTTP 404)
+
+=== A6 ===
+URL: https://scholarship-admin-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A6.health
+HTTP_CODE: 404
+TIME: 0.131325s
+BODY: Not Found
+CONTENT_MARKER: N/A (HTTP 404)
+
+=== A7 ===
+URL: https://auto-page-maker-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A7.health
+HTTP_CODE: 200
+TIME: 0.190907s
+BODY: {"status":"healthy","timestamp":"2026-01-12T20:49:02.609Z","version":"v2.9","app":"auto_page_maker","uptime_s":42459,"dependencies":[{"name":"database","status":"healthy","latency_ms":22,"details":{"type":"postgresql","provider":"neon"}},{"name":"email_provider","status":"healthy","latency_ms":598,"details":{"provider":"sendgrid","http_status":200},"cached":true,"cached_at":"2026-01-12T20:48:56.124Z"},{"name":"jwks","status":"healthy","latency_ms":1,"details":{"algorithm":"RS256","kid":"scholar-auth-2025-01","use":"sig"}}],"summary":{"total":3,"healthy":3,"degraded":0,"unhealthy":0},"async_mode":true}
+CONTENT_MARKER: VERIFIED
+
+=== A8 ===
+URL: https://auto-com-center-jamarrlmayes.replit.app/health?t=1768250941085
+X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021.A8.health
+HTTP_CODE: 200
+TIME: 0.107072s
+BODY: {"status":"ok","system_identity":"auto_com_center","base_url":"https://auto-com-center-jamarrlmayes.replit.app","app":"ScholarshipAI Communication Hub","version":"1.0.0"}
+CONTENT_MARKER: VERIFIED
+

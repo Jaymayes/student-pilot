@@ -1,7 +1,7 @@
-# Ecosystem Double Confirmation (Run 017 - Protocol v28)
+# Ecosystem Double Confirmation (Run 021 - Protocol v29)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017  
-**Protocol:** AGENT3_HANDSHAKE v28 (Strict Mode)
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
+**Protocol:** AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)
 
 ---
 
@@ -12,7 +12,7 @@
 |-------|--------|
 | HTTP 200 + Content Marker | `system_identity:scholar_auth` |
 | X-Trace-Id | Sent |
-| P95 <=120ms | 51ms |
+| P95 <=120ms | ~75ms |
 **Result:** 3-of-3 PASS
 
 ### A2 (scholarship_api)
@@ -41,15 +41,15 @@
 ### A5 (student_pilot)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 + Content Marker | `status:ok` |
+| Deployed HTTP | 404 (needs publishing) |
+| Local HTTP 200 | `status:ok` |
 | Security headers | All present |
-| Session cookie + Stripe.js | Verified |
-**Result:** 3-of-3 PASS
+**Result:** 2-of-3 (local verified, deployed pending)
 
 ### A6 (scholarship_admin)
 | Proof | Status |
 |-------|--------|
-| HTTP 200 | 404 (12th consecutive) |
+| HTTP 200 | 404 (13th consecutive) |
 | Content Marker | NO_MARKER |
 **Result:** 0-of-3 BLOCKED
 
@@ -71,13 +71,14 @@
 
 ---
 
-## Protocol v28 Enhancements
+## Protocol v29 Compliance
 
 | Enhancement | Applied |
 |-------------|---------|
+| Scorched Earth cleanup | YES |
 | Cache-busting (`?t={epoch_ms}`) | YES |
 | Content marker verification | YES |
-| False-positive prevention | A6 correctly FAIL |
+| False-positive prevention | A4/A5/A6 correctly FAIL |
 | X-Idempotency-Key on mutations | YES |
 
 ---
@@ -86,16 +87,17 @@
 
 | Category | Apps | Count |
 |----------|------|-------|
-| 3-of-3 PASS | A1, A2, A3, A5, A7, A8 | 6 |
+| 3-of-3 PASS | A1, A2, A3, A7, A8 | 5 |
+| 2-of-3 (local) | A5 | 1 |
 | DEGRADED | A4 | 1 |
 | BLOCKED | A6 | 1 |
 
-**Fleet Score:** 6/8 (75%)
+**Fleet Score:** 5/8 deployed healthy + A5 local healthy
 
 ---
 
 ## Verdict
 
-WARNING: **ECOSYSTEM: PARTIAL** (6/8 apps verified with 3-of-3 + content markers)
+WARNING: **ECOSYSTEM: PARTIAL** (5/8 deployed + A5 local verified)
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*

@@ -1,1 +1,0 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006","timestamp":"2026-01-12T04:10:00Z","mode":"READ_ONLY","stripe_safety":"ENFORCED","stripe_remaining":4,"threshold":5,"action":"SKIP_LIVE_CHARGE","cookie_persistence":"VERIFIED","auth_persistence":{"provider":"A1","status":"WARM","latency_ms":65},"verdict":"CONDITIONAL_PASS_SAFETY_PAUSE"}

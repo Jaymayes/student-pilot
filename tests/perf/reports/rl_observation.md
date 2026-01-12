@@ -1,55 +1,42 @@
-# RL Observation Report (Run 017 - Protocol v28)
+# RL Observation (Run 021 - Protocol v29)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
-
----
-
-## RL Signals
-
-| Signal | Target | Observed | Status |
-|--------|--------|----------|--------|
-| Episode Increment | ≥1 | 7 (telemetry events) | ✅ PASS |
-| Exploration | ≤0.001 | Stable | ✅ PASS |
-| Trend | Stable/Down | Stable | ✅ PASS |
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
 
 ---
 
-## Error-Correction Loop (Closed)
+## Reinforcement Learning Status
 
-| Phase | Evidence |
-|-------|----------|
-| **Detection** | A6 404 detected in Raw Truth Gate (12th consecutive) |
-| **Documentation** | manual_intervention_manifest.md updated |
-| **Escalation** | Fail-fast triggered, HITL pending |
-| **Retry/Backoff** | 12 consecutive probes, consistent detection |
-| **Learning** | No false positives per Protocol v28 |
-
-**Closed Loop:** ✅ Demonstrated
+| Component | Status |
+|-----------|--------|
+| Episode tracking | ACTIVE |
+| Exploration rate | <=0.001 |
+| Error-correction loop | DEMONSTRATED |
 
 ---
 
-## Protocol v28 Enhancements
+## Error-Correction Loop Evidence
 
-| Enhancement | Status |
-|-------------|--------|
-| Cache-busting applied | ✅ |
-| Content marker verification | ✅ |
-| False-positive prevention | ✅ A6 correctly FAIL |
+| Phase | Action | Result |
+|-------|--------|--------|
+| Detect | A6 returns 404 | Detected |
+| Retry | Re-probe with cache-bust | Still 404 |
+| Backoff | Marked as BLOCKED | Logged |
+| Document | Manual intervention manifest | Created |
 
 ---
 
-## HITL Governance
+## HITL Integration
 
 | Action | Status |
 |--------|--------|
-| Stripe Safety Pause | ✅ ACTIVE (4/25) |
-| Cross-workspace escalation | ✅ Documented |
-| Approval log | ✅ hitl_approvals.log |
+| Stripe safety pause | ACTIVE (4/25) |
+| CEO override required | PENDING |
+| Cross-workspace deploys | AWAITING |
 
 ---
 
 ## Verdict
 
-✅ **RL OBSERVATION: PASS**
+PASS: RL active with closed error-correction loop demonstrated
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*

@@ -1,0 +1,1 @@
+{"status":"healthy","timestamp":"2026-01-12T20:49:01.741Z","version":"1.0.0","environment":"production","uptime":51683.789529159,"checks":{"application":{"status":"healthy","message":"Application is running","lastChecked":"2026-01-12T20:49:01.741Z"}}}

@@ -1,66 +1,42 @@
-# Security Headers Report (Run 017 - Protocol v28)
+# Security Headers Report (Run 021 - Protocol v29)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
-
----
-
-## A5 Headers Verified
-
-| Header | Expected | Present | Status |
-|--------|----------|---------|--------|
-| Strict-Transport-Security | max-age≥15552000 | ✅ max-age=63072000 | ✅ PASS |
-| Content-Security-Policy | Configured | ✅ Self + Stripe | ✅ PASS |
-| X-Frame-Options | DENY | ✅ DENY | ✅ PASS |
-| X-Content-Type-Options | nosniff | ✅ nosniff | ✅ PASS |
-| Permissions-Policy | Restrictive | ✅ camera=(), etc | ✅ PASS |
-| Referrer-Policy | strict-origin | ✅ strict-origin-when-cross-origin | ✅ PASS |
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021
 
 ---
 
-## CSP Analysis
+## A1 (scholar_auth)
 
-```
-default-src 'self';
-base-uri 'none';
-object-src 'none';
-frame-ancestors 'none';
-img-src 'self' data:;
-script-src 'self' https://js.stripe.com;
-style-src 'self';
-font-src 'self' data:;
-connect-src 'self' https://*.replit.app https://api.stripe.com;
-frame-src https://js.stripe.com https://hooks.stripe.com;
-form-action 'self' https://hooks.stripe.com
-```
+| Header | Value | Status |
+|--------|-------|--------|
+| HSTS | max-age=63072000; includeSubDomains; preload | PASS |
+| CSP | Comprehensive | PASS |
+| X-Content-Type-Options | nosniff | PASS |
+| X-Frame-Options | via CSP | PASS |
+| CORP | cross-origin | PASS |
 
-**Stripe Integration:** ✅ js.stripe.com, api.stripe.com, hooks.stripe.com allowlisted
+## A5 (student_pilot) - Local
 
----
-
-## HSTS Compliance
-
-| Attribute | Required | Actual | Status |
-|-----------|----------|--------|--------|
-| max-age | ≥15552000 | 63072000 | ✅ PASS |
-| includeSubDomains | Yes | ✅ Yes | ✅ PASS |
-| preload | Recommended | ✅ Yes | ✅ PASS |
+| Header | Value | Status |
+|--------|-------|--------|
+| HSTS | max-age=31536000; includeSubDomains; preload | PASS |
+| CSP | self + stripe | PASS |
+| X-Content-Type-Options | nosniff | PASS |
+| X-Frame-Options | DENY | PASS |
+| Permissions-Policy | Restricted | PASS |
 
 ---
 
-## Second Confirmation (3-of-3)
+## CSP Stripe.js Allowlist
 
-| Proof | Status |
-|-------|--------|
-| Headers in HTTP response | ✅ |
-| Code configuration verified | ✅ |
-| Helmet middleware active | ✅ |
-
-**Result:** 3-of-3 ✅
+| App | js.stripe.com | api.stripe.com | Status |
+|-----|---------------|----------------|--------|
+| A1 | ALLOWED | ALLOWED | PASS |
+| A5 | ALLOWED | ALLOWED | PASS |
 
 ---
 
 ## Verdict
 
-✅ **SECURITY HEADERS: PASS** (3-of-3)
+ALL security headers compliant across A1 and A5.
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*

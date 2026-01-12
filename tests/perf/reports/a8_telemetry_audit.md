@@ -1,70 +1,50 @@
-# A8 Telemetry Audit (Run 017 - Protocol v28)
+# A8 Telemetry Audit (Run 021 - Protocol v29)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-017
-
----
-
-## Event Ingestion Test
-
-| # | Event ID | Accepted | Persisted | Status |
-|---|----------|----------|-----------|--------|
-| 1 | evt_1768244813798_lqkeo1ra8 | ✅ | ✅ | ✅ |
-| 2 | evt_1768244813980_jpaa6io2w | ✅ | ✅ | ✅ |
-| 3 | evt_1768244814167_i9k83o66n | ✅ | ✅ | ✅ |
-| 4 | evt_1768244814356_vmpdtan7n | ✅ | ✅ | ✅ |
-| 5 | evt_1768244814571_x9vsyfynq | ✅ | ✅ | ✅ |
-| 6 | evt_1768244814862_41ij7px10 | ✅ | ✅ | ✅ |
-| 7 | evt_1768244815121_xm9zayca7 | ✅ | ✅ | ✅ |
-
----
-
-## Ingestion Rate
-
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Events Sent | 7 | 7 | ✅ |
-| Events Accepted | 7 | 7 | ✅ |
-| Events Persisted | 7 | 7 | ✅ |
-| **Ingestion Rate** | ≥99% | **100%** | ✅ PASS |
-
----
-
-## Protocol v28 Compliance
-
-| Requirement | Status |
-|-------------|--------|
-| X-Idempotency-Key | ✅ Sent |
-| X-Trace-Id | ✅ Sent |
-| accepted:true | ✅ All events |
-| persisted:true | ✅ All events |
+**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-021  
+**Protocol:** AGENT3_HANDSHAKE v29 (Strict + Scorched Earth)
 
 ---
 
 ## POST+GET Round-Trip
 
-| Step | Status |
-|------|--------|
-| POST to /events | ✅ Accepted |
-| Event ID returned | ✅ Confirmed |
-| Persisted | ✅ true |
-| GET verification | ✅ Responded |
+| Event ID | Accepted | Persisted | X-Trace-Id |
+|----------|----------|-----------|------------|
+| evt_1768251047299_qsjd9b8xw | YES | YES | RUN021.telemetry.1 |
+| evt_1768251047533_m4g0cdy7u | YES | YES | RUN021.telemetry.2 |
+| evt_1768251047809_ky0ke8fmd | YES | YES | RUN021.telemetry.3 |
+| evt_1768251047997_nhjsl6nh5 | YES | YES | RUN021.telemetry.4 |
+| evt_1768251048312_bbvwwaesx | YES | YES | RUN021.telemetry.5 |
+| evt_1768251048524_95i2duoba | YES | YES | RUN021.telemetry.6 |
+| evt_1768251048716_9ib7twmau | YES | YES | RUN021.telemetry.7 |
 
 ---
 
-## Second Confirmation (3-of-3)
+## Summary
 
-| Proof | Status |
-|-------|--------|
-| HTTP 200 + X-Trace-Id | ✅ |
-| Event ID in response | ✅ |
-| Persisted: true | ✅ |
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| Events Posted | 7 | - | - |
+| Events Accepted | 7 | >=99% | PASS |
+| Events Persisted | 7 | >=99% | PASS |
+| Ingestion Rate | 100% | >=99% | PASS |
 
-**Result:** 3-of-3 ✅
+---
+
+## A8 Health Response
+
+```json
+{
+  "status": "ok",
+  "system_identity": "auto_com_center",
+  "app": "ScholarshipAI Communication Hub",
+  "version": "1.0.0"
+}
+```
 
 ---
 
 ## Verdict
 
-✅ **A8 TELEMETRY: PASS** - 100% ingestion, 7/7 events, 3-of-3 proof
+PASS: A8 telemetry at 100% ingestion with POST+GET round-trip confirmation
 
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-017*
+*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-021*
