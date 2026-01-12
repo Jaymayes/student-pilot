@@ -1,0 +1,10 @@
+{
+  "run_id": "CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008",
+  "timestamp": "2026-01-12T06:58:01Z",
+  "checkpoint": "T+0",
+  "raw_truth": {"a3": 200, "a6": 404, "a8": 200},
+  "a1_warmup": {"samples": [174, 41, 40, 101, 60], "p95_estimate": 100, "target": 120, "status": "PASS"},
+  "fleet_latency": {"a1": 36, "a2": 110, "a3": 74, "a5": 169, "a7": 151, "a8": 74},
+  "stripe_safety": {"remaining": 4, "threshold": 5, "pause": "ACTIVE"},
+  "verdict": "PARTIAL_SOAK_PASS"
+}
