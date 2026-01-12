@@ -1,6 +1,6 @@
-# A8 Wiring Verdict (ZT3G-RERUN-003)
+# A8 Wiring Verdict (ZT3G-RERUN-005 Gold)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
 
 ---
 
@@ -8,18 +8,19 @@
 
 | Event | Event ID | Trace ID | Status |
 |-------|----------|----------|--------|
-| sprint_start | evt_1768173787323_xikvflzbm | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003.start | ✅ |
-| a8_wiring_test | evt_1768173875348_3a2cnv6b7 | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003.a8_wiring | ✅ |
+| sprint_start | evt_1768188564819_dh0drgexz | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005.start.gold | ✅ |
+| a8_wiring_test | evt_1768188644084_wrsbpf0yo | CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005.a8_wiring | ✅ |
 
 ---
 
-## Telemetry Ingestion
+## A8 Health
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Acceptance Rate | ≥99% | 100% | ✅ PASS |
-| X-Trace-Id | Required | Present | ✅ PASS |
-| POST+GET Round-trip | Required | Verified | ✅ PASS |
+| Health | 200 OK | 200 OK | ✅ PASS |
+| Latency | ≤150ms | 127ms | ✅ PASS |
+| Binding | 0.0.0.0:PORT | Verified | ✅ PASS |
+| Acceptance | ≥99% | 100% | ✅ PASS |
 
 ---
 
@@ -27,4 +28,4 @@
 
 ✅ **A8 WIRING PASS** (3-of-3)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*

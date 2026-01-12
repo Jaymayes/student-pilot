@@ -1,16 +1,6 @@
-# Idempotency Validation (ZT3G-RERUN-003)
+# Idempotency Validation (ZT3G-RERUN-005 Gold)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
-
----
-
-## Canary Status
-
-| Phase | Target | Actual | Status |
-|-------|--------|--------|--------|
-| Current | 25% | 25% | ✅ Active |
-| 428 Errors | <0.5% | 0% | ✅ PASS |
-| Fallback | Not triggered | - | ✅ OK |
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
 
 ---
 
@@ -27,4 +17,4 @@
 
 ✅ **IDEMPOTENCY PASS**
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*

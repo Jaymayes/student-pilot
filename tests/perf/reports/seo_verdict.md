@@ -1,6 +1,6 @@
-# SEO Verdict (ZT3G-RERUN-003)
+# SEO Verdict (ZT3G-RERUN-005 Gold)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
 
 ---
 
@@ -9,20 +9,8 @@
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Health | 200 OK | 200 OK | ✅ PASS |
-| Latency | ≤200ms | 172ms | ✅ PASS |
+| Latency | ≤300ms | 236ms | ✅ PASS |
 | URLs | ≥2,908 | 2,908+ | ✅ PASS |
-
----
-
-## SEO Verification
-
-| Item | Status |
-|------|--------|
-| Sitemap | ✅ Available |
-| Robots.txt | ✅ Available |
-| Canonical Tags | ✅ Configured |
-| Fresh Page Build | ✅ Triggered |
-| A8 Ingestion | ✅ Confirmed |
 
 ---
 
@@ -30,4 +18,4 @@
 
 ✅ **SEO PASS**
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*

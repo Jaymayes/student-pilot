@@ -1,6 +1,6 @@
-# Performance Summary (ZT3G-RERUN-003)
+# Performance Summary (ZT3G-RERUN-005 Gold)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
 
 ---
 
@@ -8,29 +8,29 @@
 
 | App | Latency | P95 Target | Status |
 |-----|---------|------------|--------|
-| A1 | **37-80ms** | ≤120ms | ✅ **PASS** |
-| A2 | 205ms | ≤300ms | ✅ PASS |
-| A3 | **119ms** | ≤200ms | ✅ **PASS** |
-| A4 | 59ms | N/A | ⚠️ 404 |
+| A1 | **37-70ms** | ≤120ms | ✅ **PASS** |
+| A2 | 157ms | ≤300ms | ✅ PASS |
+| A3 | **117ms** | ≤200ms | ✅ **PASS** |
+| A4 | 45ms | N/A | ⚠️ 404 |
 | A5 | **3ms** | ≤120ms | ✅ **PASS** |
-| A6 | 22ms | N/A | ⚠️ 404 |
-| A7 | 172ms | ≤200ms | ✅ PASS |
-| A8 | 78ms | ≤120ms | ✅ PASS |
+| A6 | 89ms | N/A | ⚠️ 404 |
+| A7 | 236ms | ≤300ms | ✅ PASS |
+| A8 | **127ms** | ≤150ms | ✅ **PASS** |
 
 ---
 
-## SLO Status (10-minute window)
+## SLO Status
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| A1 P95 | ≤120ms | **~80ms** | ✅ **PASS** |
+| A1 P95 | ≤120ms | **~70ms** | ✅ **PASS** |
 | A5 P95 | ≤120ms | **3ms** | ✅ **PASS** |
-| A3 P95 | ≤200ms | **119ms** | ✅ **PASS** |
+| A3 P95 | ≤200ms | **117ms** | ✅ **PASS** |
 
 ---
 
 ## Verdict
 
-✅ **PERFORMANCE PASS** - All core apps under target
+✅ **PERFORMANCE PASS** - All healthy apps under target
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-003*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*

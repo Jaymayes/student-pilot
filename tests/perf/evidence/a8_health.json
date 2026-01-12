@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-004","app":"A8","name":"auto_com_center","url":"https://auto-com-center-jamarrlmayes.replit.app","endpoint":"/health","status":200,"latency_ms":110,"timestamp":"2026-01-11T23:52:00Z","verdict":"HEALTHY","trace_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-004.a8"}
+{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005","app":"A8","name":"auto_com_center","status":200,"latency_ms":127,"timestamp":"2026-01-12T03:30:00Z","verdict":"HEALTHY","binding":"0.0.0.0:PORT","trace_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005.a8"}
