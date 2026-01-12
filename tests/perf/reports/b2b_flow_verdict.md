@@ -1,14 +1,15 @@
-# B2B Flow Verdict (ZT3G-RERUN-005 Gold)
+# B2B Flow Verdict (ZT3G-RERUN-006 Persistence)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006  
+**Mode:** READ-ONLY
 
 ---
 
-## A6 Stability Gate
+## A6 Persistence Gate
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Health | 200 OK | **404** | ❌ BLOCKED |
+| Metric | Expected | Actual | Status |
+|--------|----------|--------|--------|
+| Health | 200 OK | **404** | ❌ **REGRESSION** |
 
 ---
 
@@ -16,22 +17,16 @@
 
 | Component | Status |
 |-----------|--------|
-| A6 Provider Portal | ❌ 404 |
+| A6 Provider Portal | ❌ **REGRESSION** (404) |
 | Provider Onboarding | ⏸️ BLOCKED |
 | Fee Lineage (3% + 4x) | ⏸️ BLOCKED |
 
 ---
 
-## Blocker
-
-**A6 (scholarship_admin)** returns HTTP 404.
-- **Consecutive Failures:** 4
-- **Required Action:** BizOps must republish A6
-
----
-
 ## Verdict
 
-⏸️ **B2B BLOCKED** (A6 requires external republish)
+❌ **B2B BLOCKED** - A6 REGRESSION DETECTED
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*
+Per read-only protocol, no fixes applied. Escalating.
+
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006*

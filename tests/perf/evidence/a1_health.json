@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005","app":"A1","name":"scholar_auth","status":200,"latency_ms":37,"warmup":"complete","p95":"70ms","p95_target":"PASS","timestamp":"2026-01-12T03:30:00Z","verdict":"HEALTHY","trace_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005.a1"}
+{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006","app":"A1","name":"scholar_auth","status":200,"latency_ms":41,"warmup":"complete","p95":"65ms","p95_target":"PASS","timestamp":"2026-01-12T04:09:00Z","verdict":"HEALTHY","trace_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006.a1"}

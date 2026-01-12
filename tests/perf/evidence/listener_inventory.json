@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005","timestamp":"2026-01-12T03:30:00Z","port":5000,"status":"CLEAN","listeners_detected":0,"conflicts":[],"a5_binding":"localhost:5000","a5_status":200,"remediation":"none_required","verdict":"PASS"}
+{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006","timestamp":"2026-01-12T04:08:30Z","mode":"READ_ONLY","port":5000,"status":"CLEAN","listeners_detected":0,"conflicts":[],"intervention":"NONE","verdict":"PERSISTENCE_VERIFIED"}

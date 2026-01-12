@@ -1,23 +1,24 @@
-# A3 Orchestration Run Log (ZT3G-RERUN-005 Gold)
+# A3 Orchestration Run Log (ZT3G-RERUN-006 Persistence)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
-
----
-
-## A3 Binding Status
-
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Health | 200 OK | **200 OK** | ✅ **PASS** |
-| Latency | ≤200ms | **117ms** | ✅ **PASS** |
-| Binding | 0.0.0.0:PORT | Verified | ✅ PASS |
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006  
+**Mode:** READ-ONLY
 
 ---
 
-## Orchestration Metrics
+## A3 Binding Persistence
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
+| Metric | Expected | Actual | Status |
+|--------|----------|--------|--------|
+| Health | 200 OK | **200 OK** | ✅ **VERIFIED** |
+| Latency | ≤200ms | **143ms** | ✅ **PASS** |
+| Persistence | Verified | Verified | ✅ PASS |
+
+---
+
+## Orchestration Metrics (Observational)
+
+| Metric | Target | Observed | Status |
+|--------|--------|----------|--------|
 | run_progress | ≥1 | 1 | ✅ PASS |
 | cta_emitted | ≥1 | 1 | ✅ PASS |
 | page_build_requested | ≥1 | 1 | ✅ PASS |
@@ -27,6 +28,6 @@
 
 ## Verdict
 
-✅ **A3 ORCHESTRATION PASS** - Health 200, Binding verified
+✅ **A3 PERSISTENCE VERIFIED** (143ms, 200 OK)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006*

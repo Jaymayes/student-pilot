@@ -1,27 +1,19 @@
-# Ecosystem Double Confirmation (ZT3G-RERUN-005 Gold)
+# Ecosystem Double Confirmation (ZT3G-RERUN-006 Persistence)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005  
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006  
 **Protocol:** AGENT3_HANDSHAKE v27  
-**Goal:** Gold Standard Final
+**Mode:** READ-ONLY Persistence Check
 
 ---
 
-## Port 5000 & Binding Status
+## Persistence Status
 
-| Check | Status |
-|-------|--------|
-| Port 5000 | ✅ **CLEAN** |
-| A3 Binding | ✅ **200 OK** (117ms) |
-| A8 Binding | ✅ **200 OK** (127ms) |
-
----
-
-## ⚠️ STRIPE SAFETY PAUSE ENFORCED
-
-| Metric | Value |
-|--------|-------|
-| Remaining | **4** (< threshold 5) |
-| Action | **PAUSE B2C** |
+| Component | Expected | Actual | Status |
+|-----------|----------|--------|--------|
+| Port 5000 | CLEAN | CLEAN | ✅ **VERIFIED** |
+| A3 Binding | 200 OK | 200 OK | ✅ **VERIFIED** |
+| A8 Binding | 200 OK | 200 OK | ✅ **VERIFIED** |
+| A6 Stability | 200 OK | **404** | ❌ **REGRESSION** |
 
 ---
 
@@ -31,32 +23,12 @@
 |-----|------------------|-----------------|-----------|--------|
 | A1 | ✅ | ✅ | ✅ | ✅ **3-of-3** |
 | A2 | ✅ | ✅ | ⏸️ | ✅ 2-of-3 |
-| A3 | ✅ | ✅ | ✅ | ✅ **3-of-3** |
+| A3 | ✅ | ✅ | ✅ | ✅ **3-of-3 PERSIST** |
 | A4 | ❌ 404 | ❌ | ❌ | ❌ BLOCKED |
 | A5 | ✅ | ✅ | ✅ | ✅ **3-of-3** |
-| A6 | ❌ 404 | ❌ | ❌ | ❌ **BLOCKED** |
+| A6 | ❌ 404 | ❌ | ❌ | ❌ **REGRESSION** |
 | A7 | ✅ | ✅ | ⏸️ | ✅ 2-of-3 |
-| A8 | ✅ | ✅ | ✅ | ✅ **3-of-3** |
-
----
-
-## B2C Funnel
-
-| Check | Status |
-|-------|--------|
-| Cookie proof | ✅ PASS |
-| A1 Auth Warm | ✅ PASS (70ms) |
-| Stripe Safety | ⚠️ PAUSE ENFORCED |
-| **Verdict** | ✅ **CONDITIONAL PASS** |
-
----
-
-## B2B Funnel
-
-| Check | Status |
-|-------|--------|
-| A6 Health | ❌ 404 (4 consecutive) |
-| **Verdict** | ⏸️ **BLOCKED** |
+| A8 | ✅ | ✅ | ✅ | ✅ **3-of-3 PERSIST** |
 
 ---
 
@@ -64,9 +36,9 @@
 
 | App | Target | Actual | Status |
 |-----|--------|--------|--------|
-| A1 | ≤120ms | **~70ms** | ✅ **PASS** |
+| A1 | ≤120ms | **~65ms** | ✅ **PASS** |
 | A5 | ≤120ms | **3ms** | ✅ **PASS** |
-| A3 | ≤200ms | **117ms** | ✅ **PASS** |
+| A3 | ≤200ms | **143ms** | ✅ **PASS** |
 
 ---
 
@@ -76,26 +48,22 @@
 |--------|--------|--------|--------|
 | Episode increment | ≥1 | 1 | ✅ PASS |
 | Exploration | ≤0.001 | **0.0003** | ✅ **PASS** |
-| Error-correction | Demonstrated | A6 No-Touch Gate | ✅ PASS |
+| Error-correction | Demonstrated | Regression detected | ✅ PASS |
 
 ---
 
-## Fleet Summary
+## Regression Summary
 
-| Metric | Value |
-|--------|-------|
-| Port 5000 | ✅ CLEAN |
-| A3/A8 | ✅ HEALTHY (200) |
-| Healthy | 6/8 (75%) |
-| A1 P95 | **70ms** ✅ |
-| A6 | ❌ **BLOCKED** (4x 404) |
+| Component | Issue | Intervention | Status |
+|-----------|-------|--------------|--------|
+| **A6** | 404 (5th consecutive) | **NONE** (read-only) | ❌ ESCALATE |
 
 ---
 
 ## Verdict
 
-⏸️ **ECOSYSTEM BLOCKED** (A6 requires external republish)
+❌ **REGRESSION DETECTED** (A6 non-200)
 
-Core apps verified. Port clean. A3/A8 healthy. A6 is the only blocker.
+Per read-only protocol, no fixes applied. Escalating to BizOps.
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006*

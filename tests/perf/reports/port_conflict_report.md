@@ -1,32 +1,21 @@
-# Port Conflict Report (ZT3G-RERUN-005 Gold)
+# Port Conflict Report (ZT3G-RERUN-006 Audit)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
-
----
-
-## Port 5000 Status
-
-| Check | Result |
-|-------|--------|
-| lsof -i :5000 | ✅ No conflicts |
-| fuser 5000/tcp | ✅ No conflicts |
-| A5 binding | ✅ localhost:5000 (200 OK) |
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006  
+**Mode:** READ-ONLY AUDIT
 
 ---
 
-## A3/A8 Binding Status
+## Audit Results
 
-| App | Endpoint | Status | Latency |
-|-----|----------|--------|---------|
-| A3 | /health | ✅ **200 OK** | 117ms |
-| A8 | /health | ✅ **200 OK** | 127ms |
-
-**Note:** A3 and A8 are NOT returning 404. They are healthy.
+| Check | Result | Intervention |
+|-------|--------|--------------|
+| lsof -i :5000 | ✅ No listeners | NONE |
+| fuser 5000/tcp | ✅ No conflicts | NONE |
 
 ---
 
 ## Verdict
 
-✅ **PORT 5000 CLEAN** | ✅ **A3/A8 HEALTHY**
+✅ **PORT 5000 CLEAN** - Persistence verified (no intervention required)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006*

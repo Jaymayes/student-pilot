@@ -1,21 +1,22 @@
-# Post-Republish Diff Report (ZT3G-RERUN-005 Gold)
+# Post-Republish Diff Report (ZT3G-RERUN-006 Persistence)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006  
+**Mode:** READ-ONLY
 
 ---
 
-## Republish Status
+## Changes This Sprint
 
-| App | Republished This Sprint | Status |
-|-----|------------------------|--------|
-| A6 | **NO** (No-Touch) | ✅ Compliant |
-| A3 | No | N/A |
-| A8 | No | N/A |
+| Action | Count |
+|--------|-------|
+| Republishes | **0** |
+| Fixes applied | **0** |
+| Config changes | **0** |
 
 ---
 
 ## Verdict
 
-✅ **NO A6 REPUBLISH** - Compliant with No-Touch protocol
+✅ **NO CHANGES** - Read-only audit compliant
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-005*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006*
