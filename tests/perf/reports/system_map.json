@@ -1,6 +1,6 @@
 {
   "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:19:56Z",
+  "timestamp": "2026-01-12T21:26:02Z",
   "protocol": "AGENT3_HANDSHAKE_v30_FUNCTIONAL_DEEP_DIVE",
   "fleet": {
     "A1": {
@@ -33,11 +33,16 @@
     },
     "A5": {
       "name": "student_pilot",
-      "url": "https://scholarlink-student-pilot-jamarrlmayes.replit.app",
-      "deployed_http": 404,
-      "local_http": 200,
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "url_alt": "https://scholarlink-student-pilot-jamarrlmayes.replit.app",
+      "http": 200,
       "marker": "status:ok",
-      "status": "DEPLOYMENT_PENDING"
+      "functional": {
+        "pricing_bytes": 4509,
+        "stripe_js": true,
+        "security_headers": true
+      },
+      "status": "HEALTHY"
     },
     "A6": {
       "name": "scholarship_admin",
@@ -63,10 +68,10 @@
     }
   },
   "summary": {
-    "healthy_deployed": 5,
+    "healthy_deployed": 6,
     "degraded": 1,
     "blocked": 1,
-    "deployment_pending": 1,
     "total": 8
-  }
+  },
+  "notes": "A5 deployed at student-pilot-jamarrlmayes.replit.app (not scholarlink- prefix)"
 }

@@ -1,33 +1,18 @@
 {
   "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:23:41Z",
+  "timestamp": "2026-01-12T21:26:59Z",
   "algorithm": "SHA256",
   "mode": "FIX_RUN",
   "protocol": "AGENT3_HANDSHAKE_v30_FUNCTIONAL_DEEP_DIVE",
   "artifacts": {
-    "raw_curl_evidence.txt": "c404252b36633d955ad62b2a7e32ff3a63392b5e81a8cbf46e25f56db892ffcd",
-    "raw_truth_summary.md": "11b21aca06290cedd995a2e2be29cbacbce486d7a107291ae0468699be0be7f5",
-    "system_map.json": "33d193bbe78cff94a28d1e63aadf008109b08375157fe65d44d366db0231ad39",
-    "a1_warmup_report.md": "5deb53000d0338066930d467bb0a4c40a6acb29ec8dc7f3b05649d420acafb29",
-    "a1_cookie_validation.md": "6a2a93469c0214917670d0ac95a31f98ca6b3c3febb9203f3537e66e958f1b3d",
-    "a8_telemetry_audit.md": "978513535158c0764b9f17f9b7fe735bfcf922415ca56aa38376001b0ec1e6f7",
-    "perf_summary.md": "bead112fa2d56927ef4e54a3293f5b784bdc29b48c35c16b44497249c6f9cf37",
-    "b2b_funnel_verdict.md": "8e1958f480ce4d2cfc17d0f8ab67f29c4d3f50a782f0e7e3f708f6699e84d3aa",
-    "b2c_funnel_verdict.md": "19effcab8f9a4add84d4870fe41bfe0d2539b23f9bc6059995216c21025321f6",
+    "go_no_go_report.md": "418a45e2ef76764ff0b00e2792b4354764ac916b5ee2f17705bbafb2871419db",
+    "system_map.json": "a9cf064fe7d90b3f94533985d0f567c1d85a893ba28880a6c8d1b4db9de909fd",
+    "A5_health.json": "73a535b7e2e06ff82d48f802c9e38035aaf4636f9f0eb84b3a87c95a41b0f670",
     "ecosystem_double_confirm.md": "90d848c32c6fa83d4e941cceadf84b94da8fc8725bd47f0b2d2249785c088bcb",
-    "fee_lineage.json": "b74ec88a7e723f9ba594b0b4a4d67aa0e18f41bae3fea5d7dfa97838baf2a36e"
+    "raw_curl_evidence.txt": "c404252b36633d955ad62b2a7e32ff3a63392b5e81a8cbf46e25f56db892ffcd"
   },
-  "a8_events": [
-    "evt_1768252817793_s3odgvejj",
-    "evt_1768252818014_my45f2xf6",
-    "evt_1768252818320_qjjl979h3",
-    "evt_1768252818564_7lks45bvg",
-    "evt_1768252818840_41cbd8rb1",
-    "evt_1768252819123_lnlnwmb1o",
-    "evt_1768252819400_rjfa8y7mi"
-  ],
-  "fleet_health": "5/8 deployed + A5 local",
-  "content_verified": true,
-  "functional_deep_dive": true,
-  "attestation": "BLOCKED"
+  "fleet_health": "6/8 deployed healthy",
+  "a5_status": "DEPLOYED_HEALTHY",
+  "a5_url": "https://student-pilot-jamarrlmayes.replit.app",
+  "attestation": "BLOCKED_A4_A6_ONLY"
 }
