@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007-E2E","app":"A6","name":"scholarship_admin","url":"https://scholarship-admin-jamarrlmayes.replit.app","status":404,"critical":true,"timestamp":"2026-01-12T06:03:14Z","verdict":"FAILED","consecutive_failures":6,"blocker":"BizOps_republish"}
+{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK","app":"A6","status":404,"latency_ms":28,"timestamp":"2026-01-12T07:14:44Z","verdict":"DEGRADED"}
