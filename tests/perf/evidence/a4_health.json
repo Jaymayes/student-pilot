@@ -1,1 +1,1 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006","app":"A4","name":"scholarship_ai","status":404,"latency_ms":64,"timestamp":"2026-01-12T04:09:00Z","verdict":"DEGRADED","blocker":"AITeam_republish","trace_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006.a4"}
+{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007-E2E","app":"A4","name":"scholarship_ai","url":"https://scholarship-ai-jamarrlmayes.replit.app","status":404,"critical":false,"timestamp":"2026-01-12T06:03:14Z","verdict":"DEGRADED","blocker":"AITeam_republish"}

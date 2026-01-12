@@ -1,17 +1,17 @@
-# Manual Intervention Manifest (ZT3G-RERUN-007)
+# Manual Intervention Manifest (ZT3G-RERUN-007-E2E)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007  
+**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007-E2E  
 **Protocol:** AGENT3_HANDSHAKE v27  
-**Timestamp:** 2026-01-12T04:35:00Z  
-**Mode:** TRUTH & RECONCILIATION
+**Timestamp:** 2026-01-12T06:02:00Z  
+**Mode:** READ-ONLY E2E Verification
 
 ---
 
-## ❌ RAW TRUTH PROBE FAILED
+## ❌ CRITICAL LIVENESS FAILURE
 
-The following core app failed the anti-hallucination gate:
+The following critical app failed the anti-hallucination gate:
 
-### A6 (scholarship_admin) — **HTTP/2 404**
+### A6 (scholarship_admin / provider-register) — **HTTP/2 404**
 
 **Raw curl output (verbatim from evidence):**
 ```
@@ -24,59 +24,110 @@ The following core app failed the anti-hallucination gate:
 
 ---
 
-## ✅ PASSED Raw Truth Probes
+## ✅ PASSED Critical Apps
 
-| App | Status | Evidence |
-|-----|--------|----------|
-| A3 (scholarship_agent) | **HTTP/2 200** | ✅ VERIFIED |
-| A8 (auto_com_center) | **HTTP/2 200** | ✅ VERIFIED |
+| App | Name | Status | Evidence |
+|-----|------|--------|----------|
+| A3 | scholarship_agent | **HTTP/2 200** | ✅ VERIFIED |
+| A8 | auto_com_center | **HTTP/2 200** | ✅ VERIFIED |
 
 ---
 
-## A6 Manual Intervention Steps (CEO/BizOps Required)
+## ⚠️ Non-Critical Degraded Apps
 
-### Root Cause Analysis
+| App | Name | Status | Impact | Owner |
+|-----|------|--------|--------|-------|
+| A4 | scholarship_ai | 404 | AI features degraded | AITeam |
+
+---
+
+## A6 Root Cause Analysis
 
 | Factor | Assessment |
 |--------|------------|
 | Binding | Likely bound to 127.0.0.1 instead of 0.0.0.0 |
-| PORT env var | May not be correctly read/used |
-| App state | May not be started or crashed |
+| PORT env var | May not be correctly read/used by server |
+| App state | Application may not be running or crashed |
+| Health endpoint | /health route may not be defined |
 
-### Fix Steps (Cross-Workspace)
+---
 
-1. **Open A6 Workspace:**
-   - Navigate to: `https://replit.com/@jamarrlmayes/scholarship-admin`
+## Cross-Workspace Remediation Steps (CEO/BizOps)
 
-2. **Verify Startup Command:**
-   - Ensure server binds to `0.0.0.0:$PORT`
-   - For Express.js: `app.listen(process.env.PORT || 3000, '0.0.0.0')`
-   - For Flask: `app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))`
-   - For FastAPI/Uvicorn: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+### Step 1: Open A6 Workspace
+Navigate to: `https://replit.com/@jamarrlmayes/scholarship-admin`
 
-3. **Verify PORT Environment Variable:**
-   - Check that `PORT` is defined in the environment
-   - The server must read and use this variable
+### Step 2: Verify Server Binding
+Ensure the server binds to `0.0.0.0:$PORT`:
 
-4. **Republish/Deploy:**
-   - Click "Deploy" in the Replit dashboard
-   - Wait for deployment to complete
+**For Express.js:**
+```javascript
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on 0.0.0.0:${PORT}`);
+});
+```
 
-5. **Verify Fix:**
-   ```bash
-   curl -I -v https://scholarship-admin-jamarrlmayes.replit.app/health
-   ```
-   - Expected: `HTTP/2 200`
+**For Flask:**
+```python
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+```
+
+**For FastAPI/Uvicorn:**
+```bash
+uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+### Step 3: Verify Health Endpoint Exists
+Ensure `/health` route is defined and returns 200:
+
+**Express.js:**
+```javascript
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+```
+
+### Step 4: Verify PORT Environment Variable
+- In Replit Secrets/Environment, ensure `PORT` is defined
+- Or let the server use Replit's auto-assigned PORT
+
+### Step 5: Republish/Deploy
+1. Click "Deploy" in the Replit dashboard
+2. Wait for deployment to complete (usually 1-2 minutes)
+3. Check deployment logs for errors
+
+### Step 6: Verify Fix
+```bash
+curl -I -v https://scholarship-admin-jamarrlmayes.replit.app/health
+```
+**Expected:** `HTTP/2 200`
+
+---
+
+## Readiness Timeline
+
+| Phase | Action | Owner | ETA | Status |
+|-------|--------|-------|-----|--------|
+| T+0 | Review this manifest | CEO/BizOps | Immediate | ⏳ PENDING |
+| T+10min | Open A6 workspace | BizOps | +10 min | ⏳ PENDING |
+| T+20min | Apply binding fix | BizOps | +20 min | ⏳ PENDING |
+| T+25min | Republish A6 | BizOps | +25 min | ⏳ PENDING |
+| T+30min | Verify /health = 200 | BizOps | +30 min | ⏳ PENDING |
+| T+35min | Re-run E2E sprint | Agent | +35 min | ⏳ PENDING |
+| T+60min | VERIFIED LIVE | All | +60 min | ⏳ PENDING |
 
 ---
 
 ## Acceptance Tests After Fix
 
-| Test | Command | Expected Result |
-|------|---------|-----------------|
-| Health check | `curl -s -w '%{http_code}' -o /dev/null https://scholarship-admin-jamarrlmayes.replit.app/health` | `200` |
-| Readiness | `curl -s -w '%{http_code}' -o /dev/null https://scholarship-admin-jamarrlmayes.replit.app/readyz` | `200` |
-| Provider portal | `curl -s -w '%{http_code}' -o /dev/null https://scholarship-admin-jamarrlmayes.replit.app/` | `200` |
+| Test | Command | Expected |
+|------|---------|----------|
+| Health | `curl -s -w '%{http_code}' https://scholarship-admin-jamarrlmayes.replit.app/health` | `200` |
+| Readiness | `curl -s -w '%{http_code}' https://scholarship-admin-jamarrlmayes.replit.app/readyz` | `200` |
+| Root | `curl -s -w '%{http_code}' https://scholarship-admin-jamarrlmayes.replit.app/` | `200` |
 
 ---
 
@@ -84,13 +135,13 @@ The following core app failed the anti-hallucination gate:
 
 | Risk | Mitigation |
 |------|------------|
-| Data loss | No data migration required - just fix binding |
-| Downtime | A6 is already down (404) |
-| Rollback | Revert to last known good Git SHA if issues |
+| Data loss | No data migration required - binding fix only |
+| Downtime | A6 is already down (404) - no additional impact |
+| Rollback | Revert to last known good Git SHA if issues persist |
 
 ---
 
-## Consecutive Failures
+## Consecutive A6 Failures
 
 | Sprint | A6 Status | Result |
 |--------|-----------|--------|
@@ -98,30 +149,24 @@ The following core app failed the anti-hallucination gate:
 | RERUN-004 | 404 | ❌ UNVERIFIED |
 | RERUN-005 | 404 | ❌ UNVERIFIED |
 | RERUN-006 | 404 | ❌ UNVERIFIED |
-| **RERUN-007** | **404** | ❌ **UNVERIFIED** |
+| RERUN-007 | 404 | ❌ UNVERIFIED |
+| **RERUN-007-E2E** | **404** | ❌ **UNVERIFIED** |
 
-**A6 has failed for 5+ CONSECUTIVE SPRINTS.**
+**A6 has failed for 6+ CONSECUTIVE SPRINTS.**
 
 ---
 
 ## Summary
 
-| Component | Status | Action Required |
-|-----------|--------|-----------------|
-| A3 | ✅ 200 | None |
-| A8 | ✅ 200 | None |
-| **A6** | ❌ **404** | **REPUBLISH FROM REPLIT DASHBOARD** |
-
----
-
-## Next Steps
-
-1. **BizOps:** Execute A6 fix steps above (P0 CRITICAL)
-2. **Re-run:** Sprint ZT3G-RERUN-008 after A6 returns 200
-3. **Expected:** VERIFIED LIVE (TRUTH CONFIRMED)
+| Component | Status | Action Required | Priority |
+|-----------|--------|-----------------|----------|
+| A3 | ✅ 200 | None | - |
+| A8 | ✅ 200 | None | - |
+| **A6** | ❌ **404** | **REPUBLISH** | **P0 CRITICAL** |
+| A4 | ⚠️ 404 | Republish | P1 |
 
 ---
 
 **Evidence Location:** `tests/perf/evidence/raw_curl_evidence.txt`
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007*
+*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007-E2E*

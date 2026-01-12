@@ -1,0 +1,20 @@
+{
+  "run_id": "CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-007-E2E",
+  "timestamp": "2026-01-12T06:03:14Z",
+  "protocol": "AGENT3_HANDSHAKE_v27",
+  "mode": "READ_ONLY_E2E",
+  "apps": {
+    "A1": {"name": "scholar_auth", "url": "https://scholar-auth-jamarrlmayes.replit.app", "status": 200, "critical": false, "verdict": "HEALTHY"},
+    "A2": {"name": "scholarship_api", "url": "https://scholarship-api-jamarrlmayes.replit.app", "status": 200, "critical": false, "verdict": "HEALTHY"},
+    "A3": {"name": "scholarship_agent", "url": "https://scholarship-agent-jamarrlmayes.replit.app", "status": 200, "critical": true, "verdict": "HEALTHY"},
+    "A4": {"name": "scholarship_ai", "url": "https://scholarship-ai-jamarrlmayes.replit.app", "status": 404, "critical": false, "verdict": "DEGRADED"},
+    "A5": {"name": "student_pilot", "url": "https://student-pilot-jamarrlmayes.replit.app", "status": 200, "critical": false, "verdict": "HEALTHY"},
+    "A6": {"name": "scholarship_admin", "url": "https://scholarship-admin-jamarrlmayes.replit.app", "status": 404, "critical": true, "verdict": "FAILED"},
+    "A7": {"name": "auto_page_maker", "url": "https://auto-page-maker-jamarrlmayes.replit.app", "status": 200, "critical": false, "verdict": "HEALTHY"},
+    "A8": {"name": "auto_com_center", "url": "https://auto-com-center-jamarrlmayes.replit.app", "status": 200, "critical": true, "verdict": "HEALTHY"}
+  },
+  "fleet_health": "75%",
+  "critical_health": "66%",
+  "raw_truth_gate": "FAILED",
+  "blocker": "A6_404"
+}
