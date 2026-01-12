@@ -1,7 +1,7 @@
-# A1 Warmup Report (Sprint 008 Soak)
+# A1 Warmup Report (Run 009)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK  
-**Timestamp:** 2026-01-12T07:14:00Z
+**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
+**Mode:** READ-ONLY
 
 ---
 
@@ -18,16 +18,16 @@
 
 | Sample | Latency | Status |
 |--------|---------|--------|
-| 1 | 35ms | ✅ PASS |
-| 2 | 48ms | ✅ PASS |
+| 1 | 42ms | ✅ PASS |
+| 2 | 57ms | ✅ PASS |
 | 3 | 45ms | ✅ PASS |
-| 4 | 39ms | ✅ PASS |
-| 5 | 49ms | ✅ PASS |
-| 6 | 56ms | ✅ PASS |
-| 7 | 41ms | ✅ PASS |
-| 8 | 48ms | ✅ PASS |
-| 9 | 48ms | ✅ PASS |
-| 10 | 68ms | ✅ PASS |
+| 4 | 50ms | ✅ PASS |
+| 5 | 55ms | ✅ PASS |
+| 6 | 48ms | ✅ PASS |
+| 7 | 55ms | ✅ PASS |
+| 8 | 41ms | ✅ PASS |
+| 9 | 66ms | ✅ PASS |
+| 10 | 64ms | ✅ PASS |
 
 ---
 
@@ -35,9 +35,9 @@
 
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| Min | 35ms | - | ✅ |
-| Max | 68ms | - | ✅ |
-| Avg | ~48ms | - | ✅ |
+| Min | 41ms | - | ✅ |
+| Max | 66ms | - | ✅ |
+| Avg | ~52ms | - | ✅ |
 | **P95 (est)** | **~65ms** | ≤120ms | ✅ **PASS** |
 
 ---
@@ -46,4 +46,4 @@
 
 ✅ **A1 WARM** - P95 ~65ms (target ≤120ms)
 
-*RUN_ID: CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK*
+*RUN_ID: CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E*

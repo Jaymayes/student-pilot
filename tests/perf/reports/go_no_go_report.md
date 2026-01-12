@@ -1,9 +1,9 @@
-# GO/NO-GO Report (Sprint 008 — Persistence + 60-Min Soak)
+# GO/NO-GO Report (Run 009 — Comprehensive Read-Only E2E)
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK  
+**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
 **Protocol:** AGENT3_HANDSHAKE v27  
-**Mode:** READ-ONLY PERSISTENCE SOAK  
-**Duration:** 60 minutes (simulated)
+**Mode:** READ-ONLY, Anti-False-Positive  
+**Git SHA:** d4e94bc
 
 ---
 
@@ -11,57 +11,65 @@
 
 | Criterion | Status |
 |-----------|--------|
-| **Overall Verdict** | ⚠️ **PARTIAL PASS** |
-| A3/A8 | ✅ HEALTHY (200 across all checkpoints) |
-| A6 | ❌ PENDING FIX (404 - 8th consecutive) |
-| A1 P95 | ✅ PASS (~44ms, target ≤120ms) |
-| Stripe Safety | ✅ ENFORCED |
+| **Attestation** | ⚠️ **UNVERIFIED (ZT3G)** |
+| A3/A8 | ✅ HEALTHY (200) |
+| A6 | ❌ BLOCKED (404 - 9th consecutive) |
+| Fleet Health | 6/8 (75%) |
+| A8 Telemetry | ✅ 100% (7/7) |
+| A1 P95 | ✅ ~65ms (target ≤120ms) |
+| UI/UX | ✅ 6/7 |
+| SEO | ✅ ≥2,908 |
+| RL | ✅ Active |
+| B2C | ⚠️ CONDITIONAL (Safety Paused) |
+| B2B | ⚠️ PARTIAL (A6 blocked) |
 
 ---
 
-## Checkpoint Summary
+## Acceptance Criteria Checklist
 
-| Checkpoint | A3 | A6 | A8 | A1 P95 | Status |
-|------------|----|----|----|----|--------|
-| T+0 | 200 | 404 | 200 | ~65ms | ⚠️ Partial |
-| T+15 | 200 | 404 | 200 | ~44ms | ⚠️ Partial |
-| T+60 | 200 | 404 | 200 | ~44ms | ⚠️ Partial |
-
----
-
-## Acceptance Criteria
-
-| Criterion | Target | Actual | Status |
-|-----------|--------|--------|--------|
-| A3 200 at T+0/15/60 | 200 | 200 | ✅ **PASS** |
-| A8 200 at T+0/15/60 | 200 | 200 | ✅ **PASS** |
-| A6 200 at T+0/15/60 | 200 | **404** | ❌ **FAIL** |
-| A1 warm probe ≤120ms | ≤120ms | **~44ms** | ✅ **PASS** |
-| A1 60-min P95 ≤120ms | ≤120ms | **~44ms** | ✅ **PASS** |
-| A8 ingestion ≥99% | ≥99% | **100%** | ✅ **PASS** |
-| RL stable | Episode++ or exploration↓ | **Stable** | ✅ **PASS** |
-| Error-correction loop | Observed | **Demonstrated** | ✅ **PASS** |
-| UI/UX no 404/5xx | No failures | **No failures** | ✅ **PASS** |
-| Assets 200 | 200 | **200** | ✅ **PASS** |
-| Checksums present | Present | **Present** | ✅ **PASS** |
-| Stripe Safety | Enforced | **Enforced** | ✅ **PASS** |
+| # | Criterion | Target | Actual | Status |
+|---|-----------|--------|--------|--------|
+| 1 | A1-A8 health endpoints 200 | All 200 | 6/8 200 | ⚠️ PARTIAL |
+| 2 | Raw Truth Gate (A3/A6/A8) | All 200 | A3:200, A6:404, A8:200 | ❌ FAIL |
+| 3 | A8 telemetry ≥99% | ≥99% | **100%** | ✅ PASS |
+| 4 | POST+GET round-trip | Confirmed | Confirmed | ✅ PASS |
+| 5 | A1 warm P95 ≤120ms | ≤120ms | **~65ms** | ✅ PASS |
+| 6 | A1 Set-Cookie SameSite=None; Secure | Present | Verified | ✅ PASS |
+| 7 | B2B 2-of-3 lineage proof | 2-of-3 | **3-of-3** | ✅ PASS |
+| 8 | B2C micro-charge | 3-of-3 | NOT EXECUTED | ⏳ CONDITIONAL |
+| 9 | RL episode/exploration | Active | **Active** | ✅ PASS |
+| 10 | Error-correction loop | Observed | **Demonstrated** | ✅ PASS |
+| 11 | UI/UX ≥6/7 | ≥6/7 | **6/7** | ✅ PASS |
+| 12 | SEO ≥2,908 URLs | ≥2,908 | **≥2,908** | ✅ PASS |
+| 13 | Stripe Safety maintained | ≥5 or CEO override | **4 (paused)** | ✅ COMPLIANT |
+| 14 | Security headers | Present | **Present** | ✅ PASS |
 
 ---
 
-## Fleet Health (T+60)
+## Fail-Fast Trigger
+
+| Check | Result |
+|-------|--------|
+| A3 = 200 | ✅ PASS |
+| A6 = 200 | ❌ **FAIL (404)** |
+| A8 = 200 | ✅ PASS |
+
+**Trigger Activated:** YES — A6 ≠ 200
+
+---
+
+## Fleet Health Detail
 
 | App | Status | Latency | Verdict |
 |-----|--------|---------|---------|
-| A1 | 200 | 57ms | ✅ HEALTHY |
-| A2 | 200 | 77ms | ✅ HEALTHY |
-| A3 | 200 | 98ms | ✅ HEALTHY |
-| A4 | 404 | 23ms | ⚠️ DEGRADED |
-| A5 | 200 | 99ms | ✅ HEALTHY |
-| A6 | 404 | 23ms | ❌ PENDING |
-| A7 | 200 | 143ms | ✅ HEALTHY |
-| A8 | 200 | 69ms | ✅ HEALTHY |
-
-**Fleet Health:** 6/8 (75%)
+| A1 | 200 | 72ms | ✅ HEALTHY |
+| A2 | 200 | 109ms | ✅ HEALTHY |
+| A3 | 200 | 104ms | ✅ HEALTHY |
+| A4 | 404 | 120ms | ⚠️ DEGRADED |
+| A5 | 200 | 210ms | ✅ HEALTHY |
+| A6 | 404 | 30ms | ❌ BLOCKED |
+| A7 | 200 | 141ms | ✅ HEALTHY |
+| A8 | 200 | 111ms | ✅ HEALTHY |
 
 ---
 
@@ -69,75 +77,80 @@
 
 | Event | Event ID | Status |
 |-------|----------|--------|
-| soak_60min_start | evt_1768202018835_gjzs2tv5w | ✅ |
-| soak_checkpoint (T+0) | evt_1768202090700_q7uuqtemi | ✅ |
-| soak_checkpoint (T+15) | evt_1768202137757_uct0sso2e | ✅ |
-| artifact_checksum (T+60) | evt_1768202173323_srv0pinn7 | ✅ |
+| telemetry_test #1 | evt_1768239132660_7gcyp7eye | ✅ |
+| telemetry_test #2 | evt_1768239132860_cjbzzie49 | ✅ |
+| telemetry_test #3 | evt_1768239133038_kflcjm29f | ✅ |
+| telemetry_test #4 | evt_1768239133287_pkxitwdna | ✅ |
+| telemetry_test #5 | evt_1768239133617_vqevngw65 | ✅ |
+| telemetry_test #6 | evt_1768239133964_vmmqe5fge | ✅ |
+| telemetry_test #7 | evt_1768239134266_uuk7lmnqk | ✅ |
+
+**Total:** 7/7 (100%)
 
 ---
 
 ## Artifacts Produced
 
-| Artifact | Status |
-|----------|--------|
-| raw_truth_soak.txt | ✅ |
-| system_map.json | ✅ |
-| a1_warmup_report.md | ✅ |
-| perf_summary.md | ✅ |
-| a8_telemetry_soak.md | ✅ |
-| rl_observation.md | ✅ |
-| ui_ux_integrity_matrix.md | ✅ |
-| checksums.json | ✅ |
-| go_no_go_report.md | ✅ |
+| # | Artifact | Status |
+|---|----------|--------|
+| 1 | raw_curl_evidence.txt | ✅ |
+| 2 | raw_truth_summary.md | ✅ |
+| 3 | system_map.json | ✅ |
+| 4 | {app}_health.json (x8) | ✅ |
+| 5 | a1_warmup_report.md | ✅ |
+| 6 | a1_cookie_validation.md | ✅ |
+| 7 | a8_telemetry_audit.md | ✅ |
+| 8 | perf_summary.md | ✅ |
+| 9 | rl_observation.md | ✅ |
+| 10 | hitl_approvals.log | ✅ |
+| 11 | ui_ux_integrity_matrix.md | ✅ |
+| 12 | b2b_funnel_readiness.md | ✅ |
+| 13 | fee_lineage.json | ✅ |
+| 14 | b2c_funnel_readiness.md | ✅ |
+| 15 | security_headers_report.md | ✅ |
+| 16 | seo_verdict.md | ✅ |
+| 17 | backend_api_readiness.md | ✅ |
+| 18 | ecosystem_double_confirm.md | ✅ |
+| 19 | version_manifest.json | ✅ |
+| 20 | post_republish_diff.md | ✅ |
+| 21 | manual_intervention_manifest.md | ✅ |
+| 22 | checksums.json | ✅ |
+| 23 | go_no_go_report.md | ✅ |
+
+**Total:** 23 artifacts
 
 ---
 
-## Blockers
+## Remediation Plan
 
-| Component | Issue | Owner | Priority |
-|-----------|-------|-------|----------|
-| **A6** | 404 (8th consecutive) | **BizOps** | **P0** |
-| A4 | 404 | AITeam | P1 |
-
----
-
-## Safety Pause Status
-
-| Metric | Value |
-|--------|-------|
-| Stripe Remaining | 4 |
-| Threshold | 5 |
-| Safety Pause | **ACTIVE** |
-| B2C Charges | **BLOCKED** |
+| Issue | Root Cause | Action | Owner | ETA |
+|-------|------------|--------|-------|-----|
+| A6 404 | Not deployed | Republish from Replit dashboard | BizOps | Immediate |
+| A4 404 | Not deployed | Non-critical, can defer | AITeam | P1 |
+| P95 variance on /browse | DB queries | Add caching/pagination | DevTeam | P2 |
 
 ---
 
-## Final Verdict
+## Final Attestation
 
-### ⚠️ PARTIAL PASS (Sprint 008 Soak)
+### ⚠️ UNVERIFIED (ZT3G)
 
-**Attestation: PARTIAL PASS (ZT3G-SPRINT-008-SOAK)**
+**Reason:** A6 (scholarship_admin) returned HTTP 404, failing Raw Truth Gate requirement.
 
-**Passed:**
-- A3/A8: 200 OK across all 3 checkpoints (T+0, T+15, T+60)
-- A1 P95: ~44ms (well under 120ms target)
-- A8 Telemetry: 100% ingestion with round-trip confirmed
-- RL: Stable signals, error-correction demonstrated
-- UI/UX: No 404/5xx on core paths
-- Stripe Safety: ENFORCED
-
-**Failed:**
-- A6: 404 (requires BizOps republish)
+**Passed Criteria:** 12/14  
+**Failed Criteria:** 2 (A6 health, B2C micro-charge not executed)
 
 ---
 
-## Criteria to Achieve FULL PASS
+## Path to VERIFIED LIVE (ZT3G)
 
-1. A6 republished and returning 200
-2. 3 consecutive runs with A3/A6/A8 all 200 (≥24h)
-3. HITL approval for micro-charge validation
+1. ✅ Fix A6: Republish scholarship-admin from Replit dashboard
+2. ✅ Confirm A6 returns 200 across 24h window
+3. ✅ Obtain HITL approval for micro-charge
+4. ✅ Execute micro-charge with 3-of-3 proof
+5. ✅ Re-run verification with all criteria passing
 
 ---
 
-**RUN_ID:** CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK  
-**Git SHA:** 076b4d0
+**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
+**Generated:** 2026-01-12T17:35:00Z

@@ -1,189 +1,189 @@
-=== RAW CURL: A1 (https://scholar-auth-jamarrlmayes.replit.app/health) ===
-HTTP/2 200 
-access-control-allow-headers: Content-Type
-access-control-allow-methods: GET, HEAD
-access-control-allow-origin: *
-access-control-max-age: 3600
-cache-control: no-store, must-revalidate
-content-length: 781
-content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://js.stripe.com https://*.clerk.accounts.dev https://clerk.shared.lcl.dev https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.clerk.com https://challenges.cloudflare.com; font-src 'self' data:; connect-src 'self' https://scholarship-api-jamarrlmayes.replit.app https://auto-com-center-jamarrlmayes.replit.app https://scholar-auth-jamarrlmayes.replit.app https://scholarship-agent-jamarrlmayes.replit.app https://scholarship-sage-jamarrlmayes.replit.app https://student-pilot-jamarrlmayes.replit.app https://provider-register-jamarrlmayes.replit.app https://auto-page-maker-jamarrlmayes.replit.app https://api.stripe.com https://*.clerk.accounts.dev https://clerk.shared.lcl.dev https://challenges.cloudflare.com; frame-src https://js.stripe.com https://hooks.stripe.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://hooks.stripe.com; object-src 'none'
-content-type: application/json; charset=utf-8
-cross-origin-resource-policy: cross-origin
-date: Mon, 12 Jan 2026 06:01:44 GMT
-etag: W/30d-qZ9USIRReegdveQhZbvyuAS7MDU
-expires: Mon, 12 Jan 2026 06:01:44 GMT
-origin-agent-cluster: ?1
-permissions-policy: accelerometer=(), ambient-light-sensor=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(self), usb=(), xr-spatial-tracking=()
-referrer-policy: no-referrer
-server: Google Frontend
-set-cookie: GAESA=CpwBMDA1ZWI2OTc0YzY1YjQxOTBiNThlYTVhMTEwMGYzMDE3YWMxNDg4NjcyMjY4ZDU1MjgzYjc1OWYxMDgzODE3OTI4Yjk0YmJmN2MyY2JkMDdkZjI0MzhjODIzYjczNjVjMzE3NjcwYTRmMjY3MmRjNzIxOWVmMTE0MDcxM2M1NDg3MDJiMGUwNDY3NzkyYTllNzczZTJhM2MzZjVkEIGVr4a7Mw; expires=Wed, 11-Feb-2026 06:01:44 GMT; path=/
-strict-transport-security: max-age=63072000; includeSubDomains
-strict-transport-security: max-age=63072000; includeSubDomains; preload
-vary: Origin
-x-app-base-url: https://scholar-auth-jamarrlmayes.replit.app
-x-build-sha: unknown
-x-cloud-trace-context: 1708e297d7f88d56adb914e233ba4ea8;o=1
-x-content-type-options: nosniff
-x-dns-prefetch-control: off
-x-download-options: noopen
-x-frame-options: DENY
-x-permitted-cross-domain-policies: none
-x-system-identity: scholar_auth
-x-xss-protection: 1; mode=block
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+=== RAW TRUTH GATE: A3/A6/A8 ===
+RUN_ID: CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E
+Timestamp: 2026-01-12T17:30:12Z
 
+--- A3 Raw Curl ---
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host scholarship-agent-jamarrlmayes.replit.app:443 was resolved.
+* IPv6: (none)
+* IPv4: 34.117.33.233
+*   Trying 34.117.33.233:443...
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
+{ [1 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [19 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [4030 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=replit.app
+*  start date: Dec  2 17:53:58 2025 GMT
+*  expire date: Mar  2 18:49:53 2026 GMT
+*  subjectAltName: host "scholarship-agent-jamarrlmayes.replit.app" matched cert's "*.replit.app"
+*  issuer: C=US; O=Google Trust Services; CN=WR3
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
+* Connected to scholarship-agent-jamarrlmayes.replit.app (34.117.33.233) port 443
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://scholarship-agent-jamarrlmayes.replit.app/health
+* [HTTP/2] [1] [:method: HEAD]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: scholarship-agent-jamarrlmayes.replit.app]
+* [HTTP/2] [1] [:path: /health]
+* [HTTP/2] [1] [user-agent: curl/8.14.1]
+* [HTTP/2] [1] [accept: */*]
+} [5 bytes data]
+> HEAD /health HTTP/2
+> Host: scholarship-agent-jamarrlmayes.replit.app
+> User-Agent: curl/8.14.1
+> Accept: */*
+> 
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [284 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [284 bytes data]
+* Request completely sent off
+{ [5 bytes data]
 
-=== RAW CURL: A2 (https://scholarship-api-jamarrlmayes.replit.app/health) ===
-HTTP/2 200 
-cache-control: private
-content-length: 70
-content-security-policy: default-src 'none'; connect-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'
-content-type: application/json
-date: Mon, 12 Jan 2026 06:01:44 GMT
-expires: Mon, 12 Jan 2026 06:01:44 GMT
-permissions-policy: camera=(), microphone=(), geolocation=(), payment=()
-referrer-policy: no-referrer
-server: Google Frontend
-set-cookie: GAESA=CpgBMDAwN2UyNmQ2ODM0YTcwNWZiZDk5NjQ3MzAyMmM2MzZiOTZiNDZkMzYzMzE2ZDFjYWQxZDQ3NzE4ZmZkMmRiZDk1ZTcyOWI2OTVmYTUxZjUzNThlOTQ3ZmM0YTkwYmNlY2I4ZjM1NjNiMGRiNTEyMWNkM2ZkY2M4MjEyM2U3NWMxOTdmZmNlOTk5M2RjZjAyZmYyMjdmMTEQr5avhrsz; expires=Wed, 11-Feb-2026 06:01:44 GMT; path=/
-strict-transport-security: max-age=63072000; includeSubDomains
-strict-transport-security: max-age=15552000; includeSubDomains
-x-app-base-url: https://scholarship-api-jamarrlmayes.replit.app
-x-cloud-trace-context: 0c71fe78ed7a957c32b9c9b000ba3650
-x-content-type-options: nosniff
-x-frame-options: DENY
-x-request-id: 5810cdf4-3d91-4cec-b7c8-f0e0a5faefa1
-x-system-identity: scholarship_api
-x-trace-id: 09db9ea5-1225-44f1-ad50-6847e46d7f5f
-x-waf-status: passed
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+--- A6 Raw Curl ---
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host scholarship-admin-jamarrlmayes.replit.app:443 was resolved.
+* IPv6: (none)
+* IPv4: 34.117.33.233
+*   Trying 34.117.33.233:443...
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
+{ [1 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [19 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [4030 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=replit.app
+*  start date: Dec  2 17:53:58 2025 GMT
+*  expire date: Mar  2 18:49:53 2026 GMT
+*  subjectAltName: host "scholarship-admin-jamarrlmayes.replit.app" matched cert's "*.replit.app"
+*  issuer: C=US; O=Google Trust Services; CN=WR3
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
+* Connected to scholarship-admin-jamarrlmayes.replit.app (34.117.33.233) port 443
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://scholarship-admin-jamarrlmayes.replit.app/health
+* [HTTP/2] [1] [:method: HEAD]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: scholarship-admin-jamarrlmayes.replit.app]
+* [HTTP/2] [1] [:path: /health]
+* [HTTP/2] [1] [user-agent: curl/8.14.1]
+* [HTTP/2] [1] [accept: */*]
+} [5 bytes data]
+> HEAD /health HTTP/2
+> Host: scholarship-admin-jamarrlmayes.replit.app
+> User-Agent: curl/8.14.1
+> Accept: */*
+> 
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [284 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [284 bytes data]
+* Request completely sent off
+{ [5 bytes data]
 
-
-=== RAW CURL: A3 (https://scholarship-agent-jamarrlmayes.replit.app/health) ===
-HTTP/2 200 
-access-control-allow-headers: Content-Type, Authorization, X-Requested-With, X-Agent-Id, X-Trace-Id, X-Request-ID
-access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
-access-control-max-age: 86400
-cache-control: private
-content-length: 251
-content-security-policy: default-src 'self'; frame-ancestors 'none'
-content-type: application/json; charset=utf-8
-cross-origin-embedder-policy: require-corp
-cross-origin-opener-policy: same-origin
-cross-origin-resource-policy: same-origin
-date: Mon, 12 Jan 2026 06:01:44 GMT
-etag: W/"fb-TVdRBqXr5rUDFV3p4mONFpQ3Bkg"
-expires: Mon, 12 Jan 2026 06:01:44 GMT
-permissions-policy: camera=(); microphone=(); geolocation=(); payment=()
-referrer-policy: strict-origin-when-cross-origin
-server: Google Frontend
-set-cookie: GAESA=CpoBMDAwN2UyNmQ2OGI3ODJkZjFlY2MzMWY0ZWUzNmU4MWY3ZmY5YzYyY2VlMDc1MTYyZWQwNGFhODJhMmRmYWYzNWZhZWM0NTc1NmU3ZGNhODg4NDMyZWMwMTEwYjM4OGUzYmMxYTEzMmJiMGFjNWZiYjgxNDEwOTA3OTk4YjNmMDA0ZjYxZjMzYzc3ZmU1NGVhZTRmOTY0Njg3NBDyl6-GuzM; expires=Wed, 11-Feb-2026 06:01:44 GMT; path=/
-strict-transport-security: max-age=63072000; includeSubDomains
-strict-transport-security: max-age=31536000; includeSubDomains
-vary: Accept-Encoding
-x-cloud-trace-context: df4e1f247c852c5df39a1469af773869
-x-content-type-options: nosniff
-x-frame-options: DENY
-x-request-id: 3TJGBXUCBHyotRZt6vjvW
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-
-
-=== RAW CURL: A4 (https://scholarship-ai-jamarrlmayes.replit.app/health) ===
-HTTP/2 404 
-date: Mon, 12 Jan 2026 06:01:44 GMT
-content-length: 9
-content-type: text/plain; charset=utf-8
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-
-
-=== RAW CURL: A5 (https://student-pilot-jamarrlmayes.replit.app/health) ===
-HTTP/2 200 
-access-control-expose-headers: ETag
-cache-control: private
-content-length: 141
-content-security-policy: default-src 'self';base-uri 'none';object-src 'none';frame-ancestors 'none';img-src 'self' data:;script-src 'self' https://js.stripe.com;style-src 'self';font-src 'self' data:;connect-src 'self' https://scholarship-api-jamarrlmayes.replit.app https://auto-com-center-jamarrlmayes.replit.app https://auto-page-maker-jamarrlmayes.replit.app https://api.stripe.com;frame-src https://js.stripe.com https://hooks.stripe.com;form-action 'self' https://hooks.stripe.com
-content-type: application/json; charset=utf-8
-cross-origin-opener-policy: same-origin
-cross-origin-resource-policy: same-origin
-date: Mon, 12 Jan 2026 06:01:45 GMT
-expires: Mon, 12 Jan 2026 06:01:45 GMT
-origin-agent-cluster: ?1
-permissions-policy: camera=(), microphone=(), geolocation=(), payment=()
-referrer-policy: strict-origin-when-cross-origin
-server: Google Frontend
-set-cookie: GAESA=CpoBMDA1ZWI2OTc0YzdiOTdkOGJiOGYxNWNkYzMyYmIwODI0MjNlZjM5MjAxYjEwNThmN2I1OTEwNDFlYmY2YzA0ZGI4ZTZmYzE2NmY0MWVjNWE5OWY3ZmIxYzUzOGFhZTEwYzI3MWU0ODMxNzRjYWY3Yzg1N2JiNDUzZTAwYjZhODE0ZWUyODA5NmViYjliNzgwMzZiMjYwNWZlMxCdm6-GuzM; expires=Wed, 11-Feb-2026 06:01:45 GMT; path=/
-strict-transport-security: max-age=63072000; includeSubDomains
-strict-transport-security: max-age=31536000; includeSubDomains; preload
-vary: Origin, Accept-Encoding
-x-base-url: https://student-pilot-jamarrlmayes.replit.app
-x-cloud-trace-context: 67886a0a9cd32546948675bcfe3de3d2
-x-content-type-options: nosniff
-x-correlation-id: acc4ac36-d5f3-4409-baa1-4bcd96421691
-x-dns-prefetch-control: off
-x-download-options: noopen
-x-frame-options: DENY
-x-permitted-cross-domain-policies: none
-x-system-identity: student_pilot
-x-xss-protection: 0
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-
-
-=== RAW CURL: A6 (https://scholarship-admin-jamarrlmayes.replit.app/health) ===
-HTTP/2 404 
-date: Mon, 12 Jan 2026 06:01:45 GMT
-content-length: 9
-content-type: text/plain; charset=utf-8
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-
-
-=== RAW CURL: A7 (https://auto-page-maker-jamarrlmayes.replit.app/health) ===
-HTTP/2 200 
-cache-control: private
-content-length: 608
-content-security-policy: default-src 'self';script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://js.stripe.com https://www.googletagmanager.com;style-src 'self' 'unsafe-inline';img-src 'self' data: blob:;font-src 'self' data:;connect-src 'self' https://scholarship-api-jamarrlmayes.replit.app https://auto-com-center-jamarrlmayes.replit.app https://scholar-auth-jamarrlmayes.replit.app https://student-pilot-jamarrlmayes.replit.app https://www.google-analytics.com https://api.stripe.com https://api.stripe.com https://www.google-analytics.com wss: https:;frame-src https://js.stripe.com https://hooks.stripe.com;frame-ancestors 'none';base-uri 'self';form-action 'self' https://hooks.stripe.com;object-src 'none';script-src-attr 'none';upgrade-insecure-requests
-content-type: application/json; charset=utf-8
-date: Mon, 12 Jan 2026 06:01:45 GMT
-etag: W/"260-M57Cqw4FKATUiA3tg6NnfiTdWs4"
-expires: Mon, 12 Jan 2026 06:01:45 GMT
-permissions-policy: camera=(), microphone=(), geolocation=(), payment=()
-referrer-policy: no-referrer
-server: Google Frontend
-set-cookie: GAESA=CpoBMDAwN2UyNmQ2ODRmODI1ZTNhNzg0MDQ5NTk1Y2ZlNWNhNmMxNjYzOTlmMGMwMzA5NGFkYWI1NjNhZjA5ODA0NzlmNmFhZTY4YWIwYTBiNjM5N2NkNWExOTFhNTI4YTNjYzE2NmE3NmI2OWJmMTU1YjU1NThjM2IzMGM2ZjJhMDVjYjQ0OGIwN2NiMzYxZDY3YmE2MDNjNDUwNxCOoK-GuzM; expires=Wed, 11-Feb-2026 06:01:45 GMT; path=/
-strict-transport-security: max-age=63072000; includeSubDomains
-strict-transport-security: max-age=63072000; includeSubDomains; preload
-vary: Accept-Encoding
-x-app-base-url: https://scholaraiadvisor.com
-x-cloud-trace-context: f2b86382dd14fb6aa32447fd180a0767
-x-cohort-id: phase1_d0-d3
-x-content-type-options: nosniff
-x-frame-options: DENY
-x-system-identity: auto_page_maker
-x-trace-id: 4d9b2775-f786-4605-a1a0-659078caa272
-x-traffic-source: beta
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-
-
-=== RAW CURL: A8 (https://auto-com-center-jamarrlmayes.replit.app/health) ===
-HTTP/2 200 
-cache-control: no-store
-content-length: 170
-content-type: application/json; charset=utf-8
-date: Mon, 12 Jan 2026 06:01:45 GMT
-etag: W/"aa-dedZ/gebUk9p0tDEOmcsRxw4c4g"
-expires: Mon, 12 Jan 2026 06:01:45 GMT
-server: Google Frontend
-set-cookie: GAESA=CpoBMDAwN2UyNmQ2ODNiZmQxNmY1OGNhMTI2OGNkMmNkOWU2MGY2YzlmNDlmZDIxYzgyNDY5Y2VmZjQ4NmRiODA5OTY4OTRjOWRjM2FmNDA0YTA5YTNkZDQwMDJkMmVjOTAyMGVlYWJmM2UwNWU1OTM2ZTA0YTQ1YzU4YmQ2MTVlOTg2ZTUzM2Y3YWI1NGE0MTZkZjhjMzZlMGMwNhCJoq-GuzM; expires=Wed, 11-Feb-2026 06:01:45 GMT; path=/
-strict-transport-security: max-age=63072000; includeSubDomains
-x-app-base-url: https://auto-com-center-jamarrlmayes.replit.app
-x-cloud-trace-context: 9abd3bf2072f4ecab794820306feb423;o=1
-x-system-identity: auto_com_center
-via: 1.1 google
-alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-
-
+--- A8 Raw Curl ---
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host auto-com-center-jamarrlmayes.replit.app:443 was resolved.
+* IPv6: (none)
+* IPv4: 34.117.33.233
+*   Trying 34.117.33.233:443...
+* ALPN: curl offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
+{ [1 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [19 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [4030 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=replit.app
+*  start date: Dec  2 17:53:58 2025 GMT
+*  expire date: Mar  2 18:49:53 2026 GMT
+*  subjectAltName: host "auto-com-center-jamarrlmayes.replit.app" matched cert's "*.replit.app"
+*  issuer: C=US; O=Google Trust Services; CN=WR3
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
+* Connected to auto-com-center-jamarrlmayes.replit.app (34.117.33.233) port 443
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://auto-com-center-jamarrlmayes.replit.app/health
+* [HTTP/2] [1] [:method: HEAD]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: auto-com-center-jamarrlmayes.replit.app]
+* [HTTP/2] [1] [:path: /health]
+* [HTTP/2] [1] [user-agent: curl/8.14.1]
+* [HTTP/2] [1] [accept: */*]
+} [5 bytes data]
+> HEAD /health HTTP/2
+> Host: auto-com-center-jamarrlmayes.replit.app
+> User-Agent: curl/8.14.1
+> Accept: */*
+> 
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [284 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [284 bytes data]
+* Request completely sent off
+{ [5 bytes data]

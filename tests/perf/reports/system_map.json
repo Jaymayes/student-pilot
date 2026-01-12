@@ -1,1 +1,21 @@
-{"run_id":"CEOSPRINT-20260111-REPUBLISH-ZT3G-RERUN-006","timestamp":"2026-01-12T04:09:00Z","protocol":"AGENT3_HANDSHAKE v27","goal":"persistence_redundancy_check","mode":"READ_ONLY","port_status":"CLEAN","stripe_safety":"ENFORCED","a3_persistence":"VERIFIED","a8_persistence":"VERIFIED","a6_persistence":"FAILED","ecosystem":{"A1":{"name":"scholar_auth","status":"HEALTHY","latency_ms":41,"p95":"65ms","warmup":"complete","p95_target":"PASS"},"A2":{"name":"scholarship_api","status":"HEALTHY","latency_ms":196},"A3":{"name":"scholarship_agent","status":"HEALTHY","latency_ms":143,"persistence":"VERIFIED","p95_target":"PASS"},"A4":{"name":"scholarship_ai","status":"DEGRADED","latency_ms":64,"blocker":"AITeam"},"A5":{"name":"student_pilot","status":"HEALTHY","latency_ms":3,"p95_target":"PASS","commit":"59ff259"},"A6":{"name":"scholarship_admin","status":"REGRESSION","latency_ms":41,"consecutive_failures":5},"A7":{"name":"auto_page_maker","status":"HEALTHY","latency_ms":150},"A8":{"name":"auto_com_center","status":"HEALTHY","latency_ms":104,"persistence":"VERIFIED"}},"fleet_health":"75%","sprint_status":"UNVERIFIED_REGRESSION"}
+{
+  "run_id": "CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E",
+  "timestamp": "2026-01-12T17:30:59Z",
+  "protocol": "AGENT3_HANDSHAKE_v27",
+  "fleet": {
+    "A1": {"name": "scholar_auth", "url": "https://scholar-auth-jamarrlmayes.replit.app", "status": 200, "latency_ms": 72, "verdict": "HEALTHY"},
+    "A2": {"name": "scholarship_api", "url": "https://scholarship-api-jamarrlmayes.replit.app", "status": 200, "latency_ms": 109, "verdict": "HEALTHY"},
+    "A3": {"name": "scholarship_agent", "url": "https://scholarship-agent-jamarrlmayes.replit.app", "status": 200, "latency_ms": 104, "verdict": "HEALTHY"},
+    "A4": {"name": "scholarship_ai", "url": "https://scholarship-ai-jamarrlmayes.replit.app", "status": 404, "latency_ms": 120, "verdict": "DEGRADED"},
+    "A5": {"name": "student_pilot", "url": "https://student-pilot-jamarrlmayes.replit.app", "status": 200, "latency_ms": 210, "verdict": "HEALTHY"},
+    "A6": {"name": "scholarship_admin", "url": "https://scholarship-admin-jamarrlmayes.replit.app", "status": 404, "latency_ms": 30, "verdict": "PENDING_FIX"},
+    "A7": {"name": "auto_page_maker", "url": "https://auto-page-maker-jamarrlmayes.replit.app", "status": 200, "latency_ms": 141, "verdict": "HEALTHY"},
+    "A8": {"name": "auto_com_center", "url": "https://auto-com-center-jamarrlmayes.replit.app", "status": 200, "latency_ms": 111, "verdict": "HEALTHY"}
+  },
+  "fleet_health": "6/8",
+  "raw_truth_gate": {"a3": 200, "a6": 404, "a8": 200},
+  "fail_fast_triggered": true,
+  "fail_fast_reason": "A6_404",
+  "stripe_safety": "PAUSED_4_REMAINING",
+  "mode": "READ_ONLY"
+}

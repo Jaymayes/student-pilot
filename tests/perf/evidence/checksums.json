@@ -1,26 +1,39 @@
 {
-  "run_id": "CEOSPRINT-20260111-REPUBLISH-ZT3G-SPRINT-008-SOAK",
-  "timestamp": "2026-01-12T07:17:44Z",
+  "run_id": "CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E",
+  "timestamp": "2026-01-12T17:35:38Z",
   "algorithm": "SHA256",
-  "mode": "PERSISTENCE_SOAK_60MIN",
+  "mode": "COMPREHENSIVE_READ_ONLY_E2E",
   "artifacts": {
-    "raw_truth_soak.txt": "601e66956c59c151b6117f8f2d4bc35b376ef88604f43ef6401e613ed807eb5c",
-    "system_map.json": "0d92c118568e6d50438ccab8575d5961ba6c8960b9043a23bb467e2d71fef23f",
-    "a1_warmup_report.md": "f74bd577a2ff1ae43a612a0710266f41554a7fb6425a428d6b1f981dd75248d3",
-    "perf_summary.md": "ddd6fc928f17f46881ddd8f923499b1fcc41d7f7cf518cf75e430dc0cd037fba",
-    "a8_telemetry_soak.md": "9a19c71778741d033c348964eb315c709d3a8db53a5b43f86ebaa5598a5e24cd",
-    "rl_observation.md": "c5fee89df16b99d134367369b0e41293ef6b9388712cdb27756734fa8cd15591",
-    "ui_ux_integrity_matrix.md": "c9ef81fea2b4252f93a30f3876be05e7d91a61a88315cfdc41f2af159a048f8e"
+    "raw_curl_evidence.txt": "7ac5f4819d835050ee47709bbdc47859927cc0ded14944234a20a43c3ffb547c",
+    "raw_truth_summary.md": "92f0887c977e185b254e526497f278c7a26b5ec5649e9c74b06a07d616001933",
+    "system_map.json": "aa43aa3918f69732bbf5e23b765e56910dab18ebb1ade346f63ea6bf6f1842ab",
+    "a1_warmup_report.md": "475c07e9ed31bf087e8efe89f235cc480314ac86183bcbdafcf37ffe9758ec65",
+    "a1_cookie_validation.md": "fd35940d37be235d31366f70203e92add8eaa8d59c7fba580f789ac85f1cf7e7",
+    "a8_telemetry_audit.md": "f1ecdb4fa5b64fdd35026094c5db6cfeb682d33768f427386f726d6868470639",
+    "perf_summary.md": "2334053a5f00dfc242110e7a32fbe8dad7eb9af161d0fd7da3a00592c0a296a2",
+    "rl_observation.md": "8d797027d11d164e8ba82f64957761c8dc9daa2c649248211f0385027977ede7",
+    "ui_ux_integrity_matrix.md": "f1ab895a4efa5bb3db44ae2d9e784c7306b11e6c0ac245ea898c2684fe28dd3c",
+    "b2b_funnel_readiness.md": "90cd50490aef28d29be28a597de0f7f863bb15bbed57a03395d166b234a0849f",
+    "b2c_funnel_readiness.md": "13cdec71708aaae96383a4b63c4eeee014b9b9890e0fc1ba49963afd8ab4c6c1",
+    "security_headers_report.md": "2cf859388503013797a9e6d1966c4716221866e6716023bbffe445c82e1fdf72",
+    "seo_verdict.md": "eee799e6d39d83e25ed97785abd91ea88ffcd22a7644d0e77fe5d46a68afba2f",
+    "backend_api_readiness.md": "f7c36ded036607333edbe0f47a43f4b753b63c73a8aae64642d8e572948f6346",
+    "ecosystem_double_confirm.md": "9e49bf63f7a894633b1d079bb10aa3f73f45907e7576981bda97c61ef7f5f21f",
+    "version_manifest.json": "a03eb4e0be21cc69be9c5e65e3eb57d8d8f21b9f7fb53b1764ef72ded86bcba3",
+    "manual_intervention_manifest.md": "fbbf7ffb943aa1772415d5e162aac4ab5ac572000edbf7238ff915c79bfe93a8",
+    "fee_lineage.json": "2cc77488c012d1ad4b41f58bed16c3b11533034b2db29d80122ef8b63b9edc78"
   },
   "a8_events": [
-    "evt_1768202018835_gjzs2tv5w",
-    "evt_1768202090700_q7uuqtemi",
-    "evt_1768202137757_uct0sso2e",
-    "evt_1768202173323_srv0pinn7"
+    "evt_1768239132660_7gcyp7eye",
+    "evt_1768239132860_cjbzzie49",
+    "evt_1768239133038_kflcjm29f",
+    "evt_1768239133287_pkxitwdna",
+    "evt_1768239133617_vqevngw65",
+    "evt_1768239133964_vmmqe5fge",
+    "evt_1768239134266_uuk7lmnqk"
   ],
   "fleet_health": "6/8",
-  "a1_p95_final": "44ms",
-  "stripe_safety": "ENFORCED",
-  "a6_status": "PENDING_FIX_8TH_CONSECUTIVE",
-  "soak_result": "PARTIAL_PASS"
+  "raw_truth_gate": {"a3": 200, "a6": 404, "a8": 200},
+  "fail_fast_triggered": true,
+  "attestation": "UNVERIFIED"
 }
