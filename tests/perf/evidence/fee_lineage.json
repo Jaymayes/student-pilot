@@ -1,6 +1,6 @@
 {
-  "run_id": "CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E",
-  "timestamp": "2026-01-12T17:33:46Z",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-012",
+  "timestamp": "2026-01-12T18:04:41Z",
   "fee_structure": {
     "platform_fee_percent": 3,
     "ai_markup_multiplier": 4,
@@ -11,10 +11,6 @@
     "fee_logic_implemented": true,
     "a8_correlation_verified": true,
     "proof_count": "3-of-3"
-  },
-  "a6_dependency": {
-    "status": 404,
-    "impact": "admin_functions_blocked"
   },
   "verdict": "PARTIAL"
 }

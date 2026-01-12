@@ -1,40 +1,25 @@
-# Post-Republish Diff (Run 009)
+# Post-Republish Diff (Run 012)
 
-**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
-**Mode:** READ-ONLY (No deployments in this run)
-
----
-
-## Deployment Status
-
-| App | Last Deploy | Status |
-|-----|-------------|--------|
-| A1 | Active | ✅ |
-| A2 | Active | ✅ |
-| A3 | Active | ✅ |
-| A4 | Unknown | ⚠️ 404 |
-| A5 | Active | ✅ |
-| A6 | **NOT DEPLOYED** | ❌ |
-| A7 | Active | ✅ |
-| A8 | Active | ✅ |
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
 
 ---
 
-## A6 Republish Required
+## A5 Status
 
-**Issue:** A6 returning HTTP 404 (9th consecutive failure)
-
-**Action Required:**
-1. Navigate to https://replit.com/@jamarrlmayes/scholarship-admin
-2. Verify server binds to 0.0.0.0:$PORT
-3. Click Deploy
+**No code changes required.** A5 was already compliant:
+- Session cookie: sameSite='none', secure=true, httpOnly=true
+- Security headers: Helmet + CSP + HSTS
+- Port binding: 0.0.0.0:PORT
 
 ---
 
-## Code Changes This Run
+## Cross-Workspace Status
 
-None - READ-ONLY mode enforced.
+| App | Status | Action Required |
+|-----|--------|-----------------|
+| A4 | 404 | DEPLOY (BizOps) |
+| A6 | 404 | DEPLOY (BizOps) |
 
 ---
 
-*RUN_ID: CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E*
+*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*

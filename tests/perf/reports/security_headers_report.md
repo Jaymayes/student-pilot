@@ -1,60 +1,51 @@
-# Security Headers Report (Run 009)
+# Security Headers Report (Run 012)
 
-**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
-**Mode:** READ-ONLY
-
----
-
-## Required Headers
-
-| Header | Expected | Status |
-|--------|----------|--------|
-| X-Content-Type-Options | nosniff | ✅ Present (via Helmet) |
-| X-Frame-Options | DENY/SAMEORIGIN | ✅ Present (via Helmet) |
-| X-XSS-Protection | 1; mode=block | ✅ Present (via Helmet) |
-| Strict-Transport-Security | max-age=... | ✅ Enforced by Replit |
-| Content-Security-Policy | Configured | ⚠️ Partial |
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
 
 ---
 
-## CORS Configuration
+## A5 Headers Verified
 
-| Setting | Value | Status |
-|---------|-------|--------|
-| Origin | Configured | ✅ |
-| Credentials | true | ✅ |
-| Methods | GET,POST,PUT,DELETE | ✅ |
-
----
-
-## Session Security
-
-| Attribute | Value | Status |
-|-----------|-------|--------|
-| Secure | true | ✅ |
-| HttpOnly | true | ✅ |
-| SameSite | none | ✅ |
+| Header | Expected | Present | Status |
+|--------|----------|---------|--------|
+| Strict-Transport-Security | max-age=... | ✅ max-age=63072000 | ✅ PASS |
+| Content-Security-Policy | Configured | ✅ Self + Stripe | ✅ PASS |
+| X-Frame-Options | DENY | ✅ DENY | ✅ PASS |
+| X-Content-Type-Options | nosniff | ✅ nosniff | ✅ PASS |
+| Permissions-Policy | Restrictive | ✅ camera=(), etc | ✅ PASS |
+| Referrer-Policy | strict-origin | ✅ strict-origin-when-cross-origin | ✅ PASS |
 
 ---
 
-## Secrets Management
+## CSP Analysis
 
-| Secret | Managed | Status |
-|--------|---------|--------|
-| DATABASE_URL | Replit | ✅ |
-| STRIPE_SECRET_KEY | Replit | ✅ |
-| OPENAI_API_KEY | Replit | ✅ |
-| AUTH_CLIENT_SECRET | Replit | ✅ |
+```
+default-src 'self';
+base-uri 'none';
+object-src 'none';
+frame-ancestors 'none';
+img-src 'self' data:;
+script-src 'self' https://js.stripe.com;
+style-src 'self';
+font-src 'self' data:;
+connect-src 'self' https://*.replit.app https://api.stripe.com;
+frame-src https://js.stripe.com https://hooks.stripe.com;
+form-action 'self' https://hooks.stripe.com
+```
+
+**Stripe Integration:** ✅ Allowlisted
 
 ---
 
-## Compliance
+## Second Confirmation (3-of-3)
 
-| Standard | Status |
-|----------|--------|
-| FERPA | ✅ Aware (no PII logged) |
-| COPPA | ✅ Aware (no child data) |
-| Least Privilege | ✅ Enforced |
+| Proof | Status |
+|-------|--------|
+| Headers in HTTP response | ✅ |
+| Code configuration verified | ✅ |
+| Helmet middleware active | ✅ |
+
+**Result:** 3-of-3 ✅
 
 ---
 
@@ -62,4 +53,4 @@
 
 ✅ **SECURITY HEADERS: PASS**
 
-*RUN_ID: CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E*
+*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*

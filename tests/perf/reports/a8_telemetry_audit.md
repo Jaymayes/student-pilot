@@ -1,21 +1,20 @@
-# A8 Telemetry Audit (Run 009)
+# A8 Telemetry Audit (Run 012)
 
-**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
-**Mode:** READ-ONLY
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
 
 ---
 
 ## Event Ingestion Test
 
-| # | Event Type | Event ID | Status |
-|---|------------|----------|--------|
-| 1 | telemetry_test | evt_1768239132660_7gcyp7eye | ✅ |
-| 2 | telemetry_test | evt_1768239132860_cjbzzie49 | ✅ |
-| 3 | telemetry_test | evt_1768239133038_kflcjm29f | ✅ |
-| 4 | telemetry_test | evt_1768239133287_pkxitwdna | ✅ |
-| 5 | telemetry_test | evt_1768239133617_vqevngw65 | ✅ |
-| 6 | telemetry_test | evt_1768239133964_vmmqe5fge | ✅ |
-| 7 | telemetry_test | evt_1768239134266_uuk7lmnqk | ✅ |
+| # | Event ID | Status |
+|---|----------|--------|
+| 1 | evt_1768240962334_c7o97kbeq | ✅ |
+| 2 | evt_1768240962562_7qf4k7f89 | ✅ |
+| 3 | evt_1768240962932_3yftpdisb | ✅ |
+| 4 | evt_1768240963225_b0yxca952 | ✅ |
+| 5 | evt_1768240963543_jwryojp7m | ✅ |
+| 6 | evt_1768240963801_2izrsyben | ✅ |
+| 7 | evt_1768240964179_jlwb9surv | ✅ |
 
 ---
 
@@ -25,7 +24,7 @@
 |--------|--------|--------|--------|
 | Events Sent | 7 | 7 | ✅ |
 | Events Accepted | 7 | 7 | ✅ |
-| **Ingestion Rate** | ≥99% | **100%** | ✅ **PASS** |
+| **Ingestion Rate** | ≥99% | **100%** | ✅ PASS |
 
 ---
 
@@ -35,7 +34,7 @@
 |------|--------|
 | POST to /events | ✅ Accepted |
 | Event ID returned | ✅ Confirmed |
-| Persisted flag | ✅ true |
+| Persisted | ✅ true |
 
 ---
 
@@ -53,6 +52,6 @@
 
 ## Verdict
 
-✅ **A8 TELEMETRY: PASS** - 100% ingestion, 7/7 events, 3-of-3 confirmed
+✅ **A8 TELEMETRY: PASS** - 100% ingestion, 7/7 events
 
-*RUN_ID: CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E*
+*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*

@@ -1,33 +1,32 @@
-# A1 Warmup Report (Run 009)
+# A1 Warmup Report (Run 012)
 
-**RUN_ID:** CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E  
-**Mode:** READ-ONLY
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-012
 
 ---
 
 ## Warmup Execution
 
-| Phase | Requests | Method |
-|-------|----------|--------|
-| Warmup | 50 | Parallel |
-| Sampling | 10 | Sequential |
+| Phase | Requests |
+|-------|----------|
+| Warmup | 50 parallel |
+| Sampling | 10 sequential |
 
 ---
 
 ## Post-Warmup Latency Samples
 
-| Sample | Latency | Status |
-|--------|---------|--------|
-| 1 | 42ms | ✅ PASS |
-| 2 | 57ms | ✅ PASS |
-| 3 | 45ms | ✅ PASS |
-| 4 | 50ms | ✅ PASS |
-| 5 | 55ms | ✅ PASS |
-| 6 | 48ms | ✅ PASS |
-| 7 | 55ms | ✅ PASS |
-| 8 | 41ms | ✅ PASS |
-| 9 | 66ms | ✅ PASS |
-| 10 | 64ms | ✅ PASS |
+| Sample | Latency |
+|--------|---------|
+| 1 | 44ms |
+| 2 | 77ms |
+| 3 | 78ms |
+| 4 | 98ms |
+| 5 | 142ms |
+| 6 | 91ms |
+| 7 | 100ms |
+| 8 | 68ms |
+| 9 | 56ms |
+| 10 | 71ms |
 
 ---
 
@@ -35,15 +34,15 @@
 
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| Min | 41ms | - | ✅ |
-| Max | 66ms | - | ✅ |
-| Avg | ~52ms | - | ✅ |
-| **P95 (est)** | **~65ms** | ≤120ms | ✅ **PASS** |
+| Min | 44ms | - | ✅ |
+| Max | 142ms | - | ⚠️ |
+| Avg | ~82ms | - | ✅ |
+| **P95 (est)** | **~140ms** | ≤120ms | ⚠️ MARGINAL |
 
 ---
 
 ## Verdict
 
-✅ **A1 WARM** - P95 ~65ms (target ≤120ms)
+⚠️ **A1 MARGINAL** - P95 ~140ms slightly exceeds 120ms target (one outlier)
 
-*RUN_ID: CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E*
+*RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-012*

@@ -1,29 +1,16 @@
 {
-  "run_id": "CEOSPRINT-20260113-0100Z-ZT3G-RERUN-009-E2E",
-  "timestamp": "2026-01-12T17:35:18Z",
-  "git_sha": "d4e94bc",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-012",
+  "timestamp": "2026-01-12T18:04:59Z",
+  "git_sha": "2eafc18",
   "protocol": "AGENT3_HANDSHAKE_v27",
-  "mode": "READ_ONLY",
   "apps": {
     "A1": {"version": "1.0.0", "status": "HEALTHY"},
     "A2": {"version": "1.0.0", "status": "HEALTHY"},
     "A3": {"version": "1.0.0", "status": "HEALTHY"},
-    "A4": {"version": "1.0.0", "status": "DEGRADED"},
+    "A4": {"version": "unknown", "status": "DEGRADED"},
     "A5": {"version": "1.0.0", "status": "HEALTHY"},
-    "A6": {"version": "unknown", "status": "PENDING_FIX"},
+    "A6": {"version": "unknown", "status": "BLOCKED"},
     "A7": {"version": "1.0.0", "status": "HEALTHY"},
     "A8": {"version": "1.0.0", "status": "HEALTHY"}
-  },
-  "dependencies": {
-    "drizzle-orm": "installed",
-    "stripe": "installed",
-    "openai": "installed",
-    "express": "installed",
-    "react": "installed"
-  },
-  "database": {
-    "type": "postgresql",
-    "provider": "neon",
-    "status": "connected"
   }
 }
