@@ -133,3 +133,15 @@ All V2 services are built with required endpoints, privacy middleware, and resil
 | Orchestrator | ✓ | ✓ | ✓ | ✓ |
 
 **Updated:** 2026-01-13T09:01:49Z
+
+---
+
+## CEO HITL Token Consumed
+
+| Field | Value |
+|-------|-------|
+| Token | HITL-CEO-20260113-CUTOVER-V2 |
+| Consumed At | 2026-01-13T20:04:16Z |
+| Purpose | A2 v2.6 upgrade + Shadow Mode |
+| Status | CONSUMED |
+
