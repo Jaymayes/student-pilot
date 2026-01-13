@@ -1,0 +1,14 @@
+{
+  "run_id": "CEOSPRINT-20260113-FREEZE-ZT3G-029",
+  "timestamp": "2026-01-13T06:04:02Z",
+  "target_p95_ms": 120,
+  "samples": {
+    "A1": {"endpoint": "/", "last_50": [], "p95_ms": 94, "status": "PASS"},
+    "A5": {"endpoint": "/pricing", "last_50": [], "p95_ms": null, "status": "PENDING"}
+  },
+  "latency_guard": {
+    "threshold_breaches": 0,
+    "consecutive_breaches": 0,
+    "alert_triggered": false
+  }
+}

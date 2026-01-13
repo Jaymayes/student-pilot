@@ -1,0 +1,35 @@
+{
+  "run_id": "CEOSPRINT-20260113-FREEZE-ZT3G-029",
+  "timestamp": "2026-01-13T06:03:21Z",
+  "policies": {
+    "hard_drift": {
+      "severity": "High",
+      "conditions": [
+        "SHA mismatch on /health JSON",
+        "Service marker missing or changed",
+        "A7 sitemap URL count < 2908",
+        "A8 telemetry ingestion < 98%"
+      ],
+      "action": "ALERT + BLOCK deployment"
+    },
+    "soft_drift": {
+      "severity": "Medium",
+      "conditions": [
+        "Body length shrinks by > 25%",
+        "P95 latency > 120ms for 2+ audits",
+        "A5 stripe.js missing"
+      ],
+      "action": "ALERT + investigate"
+    },
+    "tolerated_drift": {
+      "severity": "Info",
+      "conditions": [
+        "Timestamp/uptime fields change",
+        "Minor version increments",
+        "Cache-busting query params"
+      ],
+      "action": "LOG only"
+    }
+  },
+  "alert_endpoint": "https://auto-com-center-jamarrlmayes.replit.app/events"
+}

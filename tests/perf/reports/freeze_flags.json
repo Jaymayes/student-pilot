@@ -1,0 +1,17 @@
+{
+  "run_id": "CEOSPRINT-20260113-FREEZE-ZT3G-029",
+  "timestamp": "2026-01-13T06:02:52Z",
+  "freeze_lock": true,
+  "protocol": "v30_driftguard",
+  "golden_tag": "ZT3G_GOLDEN_20260113_028",
+  "apps": {
+    "A1": {"freeze_lock": true, "mutation_routes": "DENY"},
+    "A2": {"freeze_lock": true, "mutation_routes": "DENY"},
+    "A3": {"freeze_lock": true, "mutation_routes": "DENY"},
+    "A4": {"freeze_lock": false, "status": "NOT_DEPLOYED"},
+    "A5": {"freeze_lock": true, "mutation_routes": "DENY"},
+    "A6": {"freeze_lock": false, "status": "NOT_DEPLOYED"},
+    "A7": {"freeze_lock": true, "mutation_routes": "READ_ONLY"},
+    "A8": {"freeze_lock": true, "mutation_routes": "EVENTS_ONLY"}
+  }
+}

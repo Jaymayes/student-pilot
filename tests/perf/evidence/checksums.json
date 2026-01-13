@@ -1,20 +1,22 @@
 {
-  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-028",
-  "timestamp": "2026-01-13T05:11:42Z",
+  "run_id": "CEOSPRINT-20260113-FREEZE-ZT3G-029",
+  "timestamp": "2026-01-13T06:04:12Z",
   "algorithm": "SHA256",
-  "protocol": "AGENT3_HANDSHAKE_v30_GOLDEN_RECORD",
+  "protocol": "v30_driftguard_freeze",
+  "bundle": {
+    "path": "/tmp/golden_freeze_bundle_029.tar.gz",
+    "size_bytes": 10595,
+    "sha256": "5af20ce8b11865009b0910ef9b08af8bba23b5eff5a828723390bf02e4c51941"
+  },
   "artifacts": {
     "system_map.json": "1d95a0524f9674766d8a47c35a626a18f721cf0a885c77d94a73a44aaebceb47",
-    "raw_truth_summary.md": "d125bdb437edffc3bf45264c2ce18563a08946098c51a8adba22a438dfba4ae0",
-    "ecosystem_double_confirm.md": "ea0ac796382adce5a18ddd1755b68db06eff59f7fedb55172fdd846c4f9fa5ec",
-    "b2c_funnel_verdict.md": "0bada12224c9781caa300043a099d417645e25b0577dc3e0225b55b80e1d2033",
-    "b2b_funnel_verdict.md": "77e96d37e40cda50fd5ee7919255d440e50ac0c1e668eed80a2c8a8e2861b8c7",
-    "raw_curl_evidence.txt": "d0a017c020a70d84413ce2d3d126ec1ffd39b1d1551092cb60f98da0b603625b",
-    "fee_lineage.json": "ae8126964181b406b40d6de52c83ab791cec2b18261c0f12a66c842ff8be2ba3",
-    "version_manifest.json": "4742c96a583a7e3edf2145a951b58a3f8f62712ab967682d625a375e552a8cac"
+    "go_no_go_report.md": "b61a9a5131437a3d20c46539de65cb1058d385633685d2a2f733ce7ccfe19c88",
+    "release_notes_golden.md": "0c7f9c7e9bd74fdbdee829e242afada28f00d4e64db6ad42c85bc336e03a23f9",
+    "freeze_flags.json": "f28771e6eee77313ada1bb4d75c62ba2f562c40ad32668fb70dbdc3ec0b898fb",
+    "drift_baseline.json": "45b539ca729f50e2c88e5729dad6cbe223f745b1128e65605e0a048f1726468b",
+    "drift_policy.json": "b6e43ddb6c16ad9da364ca16dacfae34a13fe4c42203bd4cce6e2a9bbf0f9b6a"
   },
-  "a8_event_id": "evt_1768280977998_wgu1ydqsg",
-  "a8_payload_sha256": "2ebd7d51021803dadf537aa81602a1fde8063a133381d91260c3766395de69ea",
+  "a8_event_ids": ["evt_1768280977998_wgu1ydqsg", "evt_1768281183665_vtax152z1"],
   "fleet_health": "6/8",
-  "attestation": "BLOCKED"
+  "attestation": "FROZEN"
 }

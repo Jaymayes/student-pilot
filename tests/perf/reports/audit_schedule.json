@@ -1,0 +1,26 @@
+{
+  "run_id": "CEOSPRINT-20260113-SCHEDULE-ZT3G-030",
+  "timestamp": "2026-01-13T06:03:39Z",
+  "schedule": {
+    "frequency": "daily",
+    "window_start_utc": "02:00",
+    "window_end_utc": "03:00",
+    "timezone": "UTC"
+  },
+  "audit_steps": [
+    "1. Scorched Earth cleanup",
+    "2. Functional deep-dive probes (A1-A8)",
+    "3. Body size > 50B + markers verification",
+    "4. Retry 3x for 'Waking/Loading'",
+    "5. P95 sampling (10 min, target <=120ms)",
+    "6. Second-confirmation matrix (HTTP+Trace, logs, A8)",
+    "7. Generate daily_go_no_go.md"
+  ],
+  "b2b_checks": ["Verify /api/providers JSON", "Fee lineage correlation"],
+  "b2c_checks": ["pk_* + stripe.js + CTA", "Cookies OK", "Readiness only unless override"],
+  "artifacts": [
+    "tests/perf/reports/daily_go_no_go.md",
+    "tests/perf/reports/daily_b2b_verdict.md",
+    "tests/perf/evidence/raw_curl_evidence.txt"
+  ]
+}
