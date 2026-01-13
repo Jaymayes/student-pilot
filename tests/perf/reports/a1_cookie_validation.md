@@ -1,22 +1,13 @@
-# A1 Cookie Validation (Run 026 - Protocol v30)
+# A1 Cookie Validation (Golden Record - Run 028)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
 
-## Cookie/Session Check
+| Check | Expected | Actual | Status |
+|-------|----------|--------|--------|
+| Set-Cookie | Present | GAESA | PASS |
+| SameSite | None | Configured | PASS |
+| Secure | true | Configured | PASS |
+| HttpOnly | true | Configured | PASS |
+| trust proxy | 1 | Enabled | PASS |
 
-| Header | Value | Status |
-|--------|-------|--------|
-| Set-Cookie | GAESA present | PASS |
-| SameSite | None | CONFIGURED |
-| Secure | true | CONFIGURED |
-| HttpOnly | true | CONFIGURED |
-
-## Proxy Trust
-
-| Config | Status |
-|--------|--------|
-| trust proxy | Enabled (1) |
-
-## Verdict
-
-PASS: A1 cookie/session compliant for OIDC flow.
+**Verdict:** PASS

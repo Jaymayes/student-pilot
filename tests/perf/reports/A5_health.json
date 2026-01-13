@@ -1,1 +1,1 @@
-{"app":"A5","http":200,"status":"HEALTHY","marker":"status:ok","run_id":"CEOSPRINT-20260113-VERIFY-ZT3G-026","timestamp":"2026-01-13T04:38:01Z"}
+{"app":"A5","http":200,"status":"HEALTHY","marker":"status:ok,stripe_js:true","run_id":"CEOSPRINT-20260113-VERIFY-ZT3G-028"}

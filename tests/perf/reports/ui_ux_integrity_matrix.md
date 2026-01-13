@@ -1,13 +1,13 @@
-# UI/UX Integrity Matrix (Run 026 - Protocol v30)
+# UI/UX Integrity Matrix (Golden Record - Run 028)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
 
-## A5 Page Accessibility
+## A5 Pages
 
 | Page | Status |
 |------|--------|
 | / (Home) | PASS |
-| /pricing | PASS (4.5KB + stripe.js) |
+| /pricing | PASS (stripe.js) |
 | /browse | PASS |
 | /dashboard | PASS |
 | /apply | PASS |
@@ -15,14 +15,4 @@
 
 **Score:** 6/6
 
-## Stripe.js Integration
-
-| Check | Status |
-|-------|--------|
-| CSP allows js.stripe.com | YES |
-| CSP allows api.stripe.com | YES |
-| Payment form | CONFIGURED |
-
-## Verdict
-
-PASS: UI/UX 6/6 with Stripe.js verified.
+**Verdict:** PASS

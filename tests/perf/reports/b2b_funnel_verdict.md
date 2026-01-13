@@ -1,6 +1,6 @@
-# B2B Funnel Verdict (Run 026 - Protocol v30)
+# B2B Funnel Verdict (Golden Record - Run 028)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
 
 ## A6 Functional Check
 
@@ -13,12 +13,8 @@
 
 | Source | Status |
 |--------|--------|
-| A6 (admin) | BLOCKED (404) |
-| A7 (SEO) | HEALTHY |
-| A8 (telemetry) | HEALTHY |
+| A6 | BLOCKED (404) |
+| A7 | HEALTHY |
+| A8 | HEALTHY |
 
-**Lineage Proof:** 2-of-3 (A6 blocked)
-
-## Verdict
-
-**PARTIAL**: B2B has 2-of-3 proof. A6 deployment required for 3-of-3.
+**Verdict:** PARTIAL (2-of-3)

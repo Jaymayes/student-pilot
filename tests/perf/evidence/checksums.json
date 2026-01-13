@@ -1,17 +1,20 @@
 {
-  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-026",
-  "timestamp": "2026-01-13T04:39:52Z",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-028",
+  "timestamp": "2026-01-13T05:11:42Z",
   "algorithm": "SHA256",
-  "protocol": "AGENT3_HANDSHAKE_v30_FUNCTIONAL_DEEP_DIVE",
+  "protocol": "AGENT3_HANDSHAKE_v30_GOLDEN_RECORD",
   "artifacts": {
-    "system_map.json": "b229cb2cc7b2dbcefb3d620d6a0bdb93b32092c89fd84d6ade3d92f254dbe704",
-    "raw_truth_summary.md": "ebc0e0fd815b51da828cffab1bf11ee4d1ddbf2ba041fa31cee2f29941af442e",
-    "ecosystem_double_confirm.md": "6cfc2318912cad2c923621e3f0ba6c3373e45e88bed9ed882ff62dc6e3d94c20",
-    "b2c_funnel_verdict.md": "8d9e2dcac613fbab7e9a650a5925fa00274d7fc98cde8b586f5fc758a8ac8322",
-    "b2b_funnel_verdict.md": "12c0b75f3794a609e10513d36d76e0b36eb76b41548d6a0905846fc43973da01",
-    "raw_curl_evidence.txt": "de8ef4573a6c7f8676dcf42cf6f9aca6a31a1f1d082dc2c41e0ca2bdd6c3a550"
+    "system_map.json": "1d95a0524f9674766d8a47c35a626a18f721cf0a885c77d94a73a44aaebceb47",
+    "raw_truth_summary.md": "d125bdb437edffc3bf45264c2ce18563a08946098c51a8adba22a438dfba4ae0",
+    "ecosystem_double_confirm.md": "ea0ac796382adce5a18ddd1755b68db06eff59f7fedb55172fdd846c4f9fa5ec",
+    "b2c_funnel_verdict.md": "0bada12224c9781caa300043a099d417645e25b0577dc3e0225b55b80e1d2033",
+    "b2b_funnel_verdict.md": "77e96d37e40cda50fd5ee7919255d440e50ac0c1e668eed80a2c8a8e2861b8c7",
+    "raw_curl_evidence.txt": "d0a017c020a70d84413ce2d3d126ec1ffd39b1d1551092cb60f98da0b603625b",
+    "fee_lineage.json": "ae8126964181b406b40d6de52c83ab791cec2b18261c0f12a66c842ff8be2ba3",
+    "version_manifest.json": "4742c96a583a7e3edf2145a951b58a3f8f62712ab967682d625a375e552a8cac"
   },
-  "a8_event_id": "evt_1768279037413_ztzrwgxt1",
+  "a8_event_id": "evt_1768280977998_wgu1ydqsg",
+  "a8_payload_sha256": "2ebd7d51021803dadf537aa81602a1fde8063a133381d91260c3766395de69ea",
   "fleet_health": "6/8",
   "attestation": "BLOCKED"
 }

@@ -1,6 +1,6 @@
 {
-  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-026",
-  "timestamp": "2026-01-13T04:38:57Z",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-028",
+  "timestamp": "2026-01-13T05:10:46Z",
   "fee_structure": {"platform_fee_percent": 3, "ai_markup_multiplier": 4},
   "lineage_proof": {"a6_http_200": false, "a7_healthy": true, "a8_correlation": true},
   "proof_count": "2-of-3",

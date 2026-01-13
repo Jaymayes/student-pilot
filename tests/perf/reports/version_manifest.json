@@ -1,15 +1,16 @@
 {
-  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-026",
-  "timestamp": "2026-01-13T04:39:52Z",
-  "protocol": "v30_functional_deep_dive",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-028",
+  "timestamp": "2026-01-13T05:10:14Z",
+  "protocol": "v30_golden_record",
+  "git_sha": "ed1b5cfdbce438b80403c1efe3daaaedc25986c4",
   "versions": {
-    "A1": {"name": "scholar_auth", "status": "healthy"},
-    "A2": {"name": "scholarship_api", "status": "healthy"},
+    "A1": {"name": "scholar_auth", "version": "1.0.0", "status": "healthy"},
+    "A2": {"name": "scholarship_api", "version": "1.0.0", "status": "healthy"},
     "A3": {"name": "scholarship_agent", "version": "1.0.0", "status": "healthy"},
     "A4": {"name": "scholarship_ai", "http": 404, "status": "degraded"},
-    "A5": {"name": "student_pilot", "status": "healthy"},
+    "A5": {"name": "student_pilot", "version": "1.0.0", "status": "healthy"},
     "A6": {"name": "scholarship_admin", "http": 404, "status": "blocked"},
     "A7": {"name": "auto_page_maker", "version": "v2.9", "status": "healthy"},
-    "A8": {"name": "auto_com_center", "status": "healthy"}
+    "A8": {"name": "auto_com_center", "version": "1.0.0", "status": "healthy"}
   }
 }

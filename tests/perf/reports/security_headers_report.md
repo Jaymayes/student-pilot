@@ -1,13 +1,13 @@
-# Security Headers Report (Run 026 - Protocol v30)
+# Security Headers Report (Golden Record - Run 028)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
 
 ## A1 (scholar_auth)
 
 | Header | Value | Status |
 |--------|-------|--------|
 | HSTS | max-age>=15552000 | PASS |
-| Set-Cookie | SameSite=None; Secure | PASS |
+| Set-Cookie | SameSite=None; Secure; HttpOnly | PASS |
 
 ## A5 (student_pilot)
 
@@ -18,14 +18,4 @@
 | X-Frame-Options | DENY | PASS |
 | X-Content-Type-Options | nosniff | PASS |
 
-## CSP Stripe Allowlist
-
-| Domain | Directive | Status |
-|--------|-----------|--------|
-| js.stripe.com | script-src | ALLOWED |
-| api.stripe.com | connect-src | ALLOWED |
-| hooks.stripe.com | frame-src | ALLOWED |
-
-## Verdict
-
-PASS: All security headers compliant.
+**Verdict:** PASS

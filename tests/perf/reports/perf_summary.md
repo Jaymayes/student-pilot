@@ -1,30 +1,27 @@
-# Performance Summary (Run 026 - Protocol v30)
+# Performance Summary (Golden Record - Run 028)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
 
-## A1 Latency
+## A1 Latency (10 samples)
 
 | Metric | Value |
 |--------|-------|
-| Samples | 10 |
-| Average | ~73ms |
-| P95 | ~108ms |
+| Average | ~58ms |
+| P95 | ~89ms |
 | Target | <=120ms |
 | Status | **PASS** |
 
 ## Fleet Response Times
 
-| App | HTTP | Latency | Status |
-|-----|------|---------|--------|
-| A1 | 200 | ~70ms | Healthy |
-| A2 | 200 | ~80ms | Healthy |
-| A3 | 200 | ~90ms | Healthy |
-| A4 | 404 | - | Degraded |
-| A5 | 200 | ~40ms | Healthy |
-| A6 | 404 | - | Blocked |
-| A7 | 200 | ~150ms | Healthy |
-| A8 | 200 | ~60ms | Healthy |
+| App | HTTP | Status |
+|-----|------|--------|
+| A1 | 200 | Healthy |
+| A2 | 200 | Healthy |
+| A3 | 200 | Healthy |
+| A4 | 404 | Degraded |
+| A5 | 200 | Healthy |
+| A6 | 404 | Blocked |
+| A7 | 200 | Healthy |
+| A8 | 200 | Healthy |
 
-## Verdict
-
-PASS: All healthy apps respond within acceptable latency.
+**Verdict:** PASS

@@ -1,6 +1,6 @@
-# RL Observation (Run 026 - Protocol v30)
+# RL Observation (Golden Record - Run 028)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
 
 ## Reinforcement Learning Status
 
@@ -12,21 +12,10 @@
 
 ## Closed Error-Correction Loop
 
-1. **Probe**: A4 returns HTTP 404
-2. **Fail**: No healthy marker detected
-3. **Backoff**: Retry with cache-busting (3x)
+1. **Probe**: A4/A6 return HTTP 404
+2. **Fail**: No healthy marker
+3. **Backoff**: Retry with cache-busting
 4. **Still Fail**: Document in manifest
-5. **Resolve**: Flag for manual intervention
+5. **Continue**: Verify remaining apps
 
-## Evidence
-
-| Phase | Action | Result |
-|-------|--------|--------|
-| Detect | A4/A6 404 | Confirmed |
-| Retry | 3x with backoff | Still 404 |
-| Document | Manual manifest | Created |
-| Continue | Other apps | Verified |
-
-## Verdict
-
-PASS: RL active with closed error-correction loop demonstrated.
+**Verdict:** PASS
