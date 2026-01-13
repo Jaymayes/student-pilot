@@ -1,20 +1,11 @@
-# B2B Funnel Verdict (Golden Record - Run 028)
+# B2B Funnel Verdict (Daily 031)
 
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
-
-## A6 Functional Check
+**RUN_ID:** CEOSPRINT-20260114-DAILY-ZT3G-031
 
 | Check | Expected | Actual | Status |
 |-------|----------|--------|--------|
-| HTTP | 200 | 404 | FAIL |
-| /api/providers | JSON array | Not Found | FAIL |
+| A6 /api/providers | 200 + JSON | 404 | FAIL |
 
-## Fee Lineage (3% + 4x)
+**Lineage:** 2-of-3 (A6 blocked)
 
-| Source | Status |
-|--------|--------|
-| A6 | BLOCKED (404) |
-| A7 | HEALTHY |
-| A8 | HEALTHY |
-
-**Verdict:** PARTIAL (2-of-3)
+**Verdict:** PARTIAL

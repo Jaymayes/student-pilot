@@ -1,18 +1,10 @@
-# UI/UX Integrity Matrix (Golden Record - Run 028)
-
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
-
-## A5 Pages
+# UI/UX Integrity Matrix (Daily 031)
 
 | Page | Status |
 |------|--------|
-| / (Home) | PASS |
-| /pricing | PASS (stripe.js) |
+| / | PASS |
+| /pricing | PASS |
 | /browse | PASS |
 | /dashboard | PASS |
-| /apply | PASS |
-| /profile | PASS |
 
-**Score:** 6/6
-
-**Verdict:** PASS
+**Score:** 4/4 | **Verdict:** PASS

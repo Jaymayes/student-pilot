@@ -1,22 +1,13 @@
 {
-  "run_id": "CEOSPRINT-20260113-FREEZE-ZT3G-029",
-  "timestamp": "2026-01-13T06:04:12Z",
+  "run_id": "CEOSPRINT-20260114-DAILY-ZT3G-031",
+  "timestamp": "2026-01-13T06:25:58Z",
   "algorithm": "SHA256",
-  "protocol": "v30_driftguard_freeze",
-  "bundle": {
-    "path": "/tmp/golden_freeze_bundle_029.tar.gz",
-    "size_bytes": 10595,
-    "sha256": "5af20ce8b11865009b0910ef9b08af8bba23b5eff5a828723390bf02e4c51941"
-  },
   "artifacts": {
-    "system_map.json": "1d95a0524f9674766d8a47c35a626a18f721cf0a885c77d94a73a44aaebceb47",
-    "go_no_go_report.md": "b61a9a5131437a3d20c46539de65cb1058d385633685d2a2f733ce7ccfe19c88",
-    "release_notes_golden.md": "0c7f9c7e9bd74fdbdee829e242afada28f00d4e64db6ad42c85bc336e03a23f9",
-    "freeze_flags.json": "f28771e6eee77313ada1bb4d75c62ba2f562c40ad32668fb70dbdc3ec0b898fb",
-    "drift_baseline.json": "45b539ca729f50e2c88e5729dad6cbe223f745b1128e65605e0a048f1726468b",
-    "drift_policy.json": "b6e43ddb6c16ad9da364ca16dacfae34a13fe4c42203bd4cce6e2a9bbf0f9b6a"
+    "system_map.json": "f4caba12c9de31aaae999b5b0a06209bd9e23acbe862d2a51b10073387e48ee0",
+    "daily_go_no_go.md": "f59ac8895fb89990df64c4265efb561934c21f6d2670e4a4e84f57811c872392"
   },
-  "a8_event_ids": ["evt_1768280977998_wgu1ydqsg", "evt_1768281183665_vtax152z1"],
+  "a8_event_id": "evt_1768285488501_g61q083tb",
   "fleet_health": "6/8",
-  "attestation": "FROZEN"
+  "p95_ms": 98,
+  "attestation": "BLOCKED"
 }

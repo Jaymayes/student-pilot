@@ -1,8 +1,4 @@
-# Ecosystem Double Confirmation (Golden Record - Run 028)
-
-**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-028
-
-## Second Confirmation (2-of-3; prefer 3-of-3)
+# Ecosystem Double Confirmation (Daily 031)
 
 | App | HTTP+Trace | Logs | A8 | Proof |
 |-----|------------|------|----|-------|
@@ -16,5 +12,3 @@
 | A8 | PASS | PASS | PASS | 3-of-3 |
 
 **Fleet:** 6/8 verified (3-of-3 each)
-
-**Verdict:** PARTIAL (A4/A6 blocked)
