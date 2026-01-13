@@ -1,505 +1,102 @@
-# Raw Curl Evidence for Protocol v30 (Functional Deep-Dive)
-# RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
-# Generated: 2026-01-12T21:19:20Z
-# Mode: FIX RUN
+=== Phase 3: Functional Deep-Dive Probes ===
+RUN_ID: CEOSPRINT-20260113-VERIFY-ZT3G-026
+Timestamp: 2026-01-13T04:36:33Z
 
-================================================================================
-A1 (scholar-auth) - /health
-================================================================================
-* Host scholar-auth-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
-*  subjectAltName: host "scholar-auth-jamarrlmayes.replit.app" matched cert's "*.replit.app"
-*  issuer: C=US; O=Google Trust Services; CN=WR3
-*  SSL certificate verify ok.
-*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
-* Connected to scholar-auth-jamarrlmayes.replit.app (34.117.33.233) port 443
-* using HTTP/2
-* [HTTP/2] [1] OPENED stream for https://scholar-auth-jamarrlmayes.replit.app/health?t=1768252760612
-* [HTTP/2] [1] [:method: GET]
-* [HTTP/2] [1] [:scheme: https]
-* [HTTP/2] [1] [:authority: scholar-auth-jamarrlmayes.replit.app]
-* [HTTP/2] [1] [:path: /health?t=1768252760612]
-* [HTTP/2] [1] [user-agent: curl/8.14.1]
-* [HTTP/2] [1] [accept: */*]
-* [HTTP/2] [1] [cache-control: no-cache]
-* [HTTP/2] [1] [x-trace-id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A1]
-} [5 bytes data]
-> GET /health?t=1768252760612 HTTP/2
-> Host: scholar-auth-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> Cache-Control: no-cache
-> X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A1
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
+--- A1 (scholar_auth) ---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScholarshipAI - Secure Enterprise Authentication Platform | 60ms P95 Performance</title>
+    <meta name="description" content="ScholarshipAI provides enterprise-grade authentication with WCAG 2.2 AA accessibility, 60ms P95 performance, and comprehensive OAuth support. Secure, fast, and accessible authentication built for students and educational institutions.">
+    <meta name="keywords" content="authentication, OAuth, OIDC, enterprise security, WCAG accessible, student authentication, educational platform">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ScholarshipAI - Secure Enterprise Authentication">
+    <meta property="og:description" content="Enterprise-grade authentication with 60ms P95 performance and WCAG 2.2 AA accessibility compliance.">
+    <meta property="og:site_name" content="ScholarshipAI">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ScholarshipAI - Secure Enterprise Authentication">
+    <meta name="twitter:description" content="Enterprise-grade authentication with 60ms P95 performance and WCAG 2.2 AA accessibility compliance.">
+    
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="ScholarshipAI">
+    <link rel="canonical" href="https://scholar-auth-jamarrlmayes.replit.app/">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@300..700&family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Oxanium:wght@200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-CgLsbhBK.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BHa2xfT0.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>
+HTTP_CODE:200
+SIZE:3628
 
-================================================================================
-A2 (scholarship-api) - /health
-================================================================================
-* Host scholarship-api-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
-*  subjectAltName: host "scholarship-api-jamarrlmayes.replit.app" matched cert's "*.replit.app"
-*  issuer: C=US; O=Google Trust Services; CN=WR3
-*  SSL certificate verify ok.
-*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
-* Connected to scholarship-api-jamarrlmayes.replit.app (34.117.33.233) port 443
-* using HTTP/2
-* [HTTP/2] [1] OPENED stream for https://scholarship-api-jamarrlmayes.replit.app/health?t=1768252760612
-* [HTTP/2] [1] [:method: GET]
-* [HTTP/2] [1] [:scheme: https]
-* [HTTP/2] [1] [:authority: scholarship-api-jamarrlmayes.replit.app]
-* [HTTP/2] [1] [:path: /health?t=1768252760612]
-* [HTTP/2] [1] [user-agent: curl/8.14.1]
-* [HTTP/2] [1] [accept: */*]
-* [HTTP/2] [1] [cache-control: no-cache]
-* [HTTP/2] [1] [x-trace-id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A2]
-} [5 bytes data]
-> GET /health?t=1768252760612 HTTP/2
-> Host: scholarship-api-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> Cache-Control: no-cache
-> X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A2
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
+--- A1 Cookie Headers ---
+set-cookie: GAESA=Cp4BMDA1ZWI2OTc0Y2E0Nzc0YTdiNTM5NzE0ZDRlNzBkZWM2MDAyZDMwMTFiOGM3NjUwYWRkMTY5NWFjOGViOWU1ZDdiYmZlYTAxZWExNmJiYjlmZDBiODc0NzUxZGM1ZDBmZTlkMDllZDc0MjZhZWI3MjE5MzdkZWQ3YjQ2YjUxMzM3ZWFkZGRjOTczODY1ZDBiZDg0ZjBiNDdlNjliMTIQldSQrbsz; expires=Thu, 12-Feb-2026 04:36:33 GMT; path=/
+strict-transport-security: max-age=63072000; includeSubDomains
+strict-transport-security: max-age=63072000; includeSubDomains; preload
 
-================================================================================
-A3 (scholarship-agent) - /health
-================================================================================
-* Host scholarship-agent-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
-*  subjectAltName: host "scholarship-agent-jamarrlmayes.replit.app" matched cert's "*.replit.app"
-*  issuer: C=US; O=Google Trust Services; CN=WR3
-*  SSL certificate verify ok.
-*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
-* Connected to scholarship-agent-jamarrlmayes.replit.app (34.117.33.233) port 443
-* using HTTP/2
-* [HTTP/2] [1] OPENED stream for https://scholarship-agent-jamarrlmayes.replit.app/health?t=1768252760612
-* [HTTP/2] [1] [:method: GET]
-* [HTTP/2] [1] [:scheme: https]
-* [HTTP/2] [1] [:authority: scholarship-agent-jamarrlmayes.replit.app]
-* [HTTP/2] [1] [:path: /health?t=1768252760612]
-* [HTTP/2] [1] [user-agent: curl/8.14.1]
-* [HTTP/2] [1] [accept: */*]
-* [HTTP/2] [1] [cache-control: no-cache]
-* [HTTP/2] [1] [x-trace-id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A3]
-} [5 bytes data]
-> GET /health?t=1768252760612 HTTP/2
-> Host: scholarship-agent-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> Cache-Control: no-cache
-> X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A3
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
+--- A2 (scholarship_api) ---
+{"status":"healthy","trace_id":"1a9312d9-a6cb-4e3e-8a44-d6bfa12b9a91"}
+HTTP_CODE:200
+SIZE:70
 
-================================================================================
-A4 (scholarship-ai) - /health - DEGRADED
-================================================================================
-* Host scholarship-ai-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
+--- A3 (scholarship_agent) ---
+{"status":"healthy","timestamp":"2026-01-13T04:36:44.312Z","version":"1.0.0","environment":"production","uptime":27088.491432811,"checks":{"application":{"status":"healthy","message":"Application is running","lastChecked":"2026-01-13T04:36:44.312Z"}}}
+HTTP_CODE:200
+SIZE:251
 
-================================================================================
-A5 (student-pilot) - LOCAL /health
-================================================================================
-* Host localhost:5000 was resolved.
-* IPv6: ::1
-* IPv4: 127.0.0.1
-*   Trying [::1]:5000...
-* connect to ::1 port 5000 from ::1 port 39400 failed: Connection refused
-*   Trying 127.0.0.1:5000...
-* Connected to localhost (127.0.0.1) port 5000
-* using HTTP/1.x
-> GET /health HTTP/1.1
-> Host: localhost:5000
-> User-Agent: curl/8.14.1
-> Accept: */*
-> 
-* Request completely sent off
-< HTTP/1.1 200 OK
-< Vary: Origin, Accept-Encoding
-< Access-Control-Expose-Headers: ETag
-< Cross-Origin-Opener-Policy: same-origin
-< Cross-Origin-Resource-Policy: same-origin
-< Origin-Agent-Cluster: ?1
-< Referrer-Policy: strict-origin-when-cross-origin
-< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-< X-Content-Type-Options: nosniff
-< X-DNS-Prefetch-Control: off
-< X-Download-Options: noopen
-< X-Frame-Options: DENY
-< X-Permitted-Cross-Domain-Policies: none
-< X-XSS-Protection: 0
-< Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-< Content-Security-Policy: default-src 'self';base-uri 'none';object-src 'none';frame-ancestors 'none';img-src 'self' data:;script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com;style-src 'self' 'unsafe-inline';font-src 'self' data:;connect-src 'self' https://scholarship-api-jamarrlmayes.replit.app https://auto-com-center-jamarrlmayes.replit.app https://auto-page-maker-jamarrlmayes.replit.app https://api.stripe.com;frame-src https://js.stripe.com https://hooks.stripe.com;form-action 'self' https://hooks.stripe.com
-< X-Correlation-ID: e08438f6-5c5a-4bdc-b77b-a113116c6db0
-< X-System-Identity: student_pilot
-< X-Base-URL: https://student-pilot-jamarrlmayes.replit.app
-< Content-Type: application/json; charset=utf-8
-< Content-Length: 139
-< Date: Mon, 12 Jan 2026 21:19:23 GMT
-< Connection: keep-alive
-< Keep-Alive: timeout=5
-< 
-{ [139 bytes data]
+--- A4 (scholarship_ai) ---
+Not Found
+HTTP_CODE:404
+SIZE:9
 
-================================================================================
-A5 (student-pilot) - DEPLOYED /health - PENDING DEPLOYMENT
-================================================================================
-* Host scholarlink-student-pilot-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
+--- A5 (student_pilot) /pricing ---
+Response size: 4533 bytes
+Stripe.js: js.stripe.com
 
-================================================================================
-A6 (scholarship-admin) - /health - BLOCKED
-================================================================================
-* Host scholarship-admin-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
+--- A5 (student_pilot) /health ---
+{"status":"ok","timestamp":"2026-01-13T04:36:56.192Z","uptime":421.961883466,"checks":{"database":"ok","agent":"active","capabilities":9}}
 
-================================================================================
-A7 (auto-page-maker) - /health
-================================================================================
-* Host auto-page-maker-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
-*  subjectAltName: host "auto-page-maker-jamarrlmayes.replit.app" matched cert's "*.replit.app"
-*  issuer: C=US; O=Google Trust Services; CN=WR3
-*  SSL certificate verify ok.
-*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
-* Connected to auto-page-maker-jamarrlmayes.replit.app (34.117.33.233) port 443
-* using HTTP/2
-* [HTTP/2] [1] OPENED stream for https://auto-page-maker-jamarrlmayes.replit.app/health?t=1768252760612
-* [HTTP/2] [1] [:method: GET]
-* [HTTP/2] [1] [:scheme: https]
-* [HTTP/2] [1] [:authority: auto-page-maker-jamarrlmayes.replit.app]
-* [HTTP/2] [1] [:path: /health?t=1768252760612]
-* [HTTP/2] [1] [user-agent: curl/8.14.1]
-* [HTTP/2] [1] [accept: */*]
-* [HTTP/2] [1] [cache-control: no-cache]
-* [HTTP/2] [1] [x-trace-id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A7]
-} [5 bytes data]
-> GET /health?t=1768252760612 HTTP/2
-> Host: auto-page-maker-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> Cache-Control: no-cache
-> X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A7
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
+--- A5 Security Headers ---
+content-security-policy: default-src 'self';base-uri 'none';object-src 'none';frame-ancestors 'none';img-src 'self' data:;script-src 'self' https://js.stripe.com;style-src 'self';font-src 'self' data:;connect-src 'self' https://scholarship-api-jamarrlmayes.replit.app https://auto-com-center-jamarrlmayes.replit.app https://auto-page-maker-jamarrlmayes.replit.app https://api.stripe.com;frame-src https://js.stripe.com https://hooks.stripe.com;form-action 'self' https://hooks.stripe.com
+strict-transport-security: max-age=63072000; includeSubDomains
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+x-content-type-options: nosniff
+x-frame-options: DENY
 
-================================================================================
-A7 (auto-page-maker) - /sitemap.xml
-================================================================================
-    <loc>https://scholaraiadvisor.com/scholarship/e487cb9a-6fd4-406e-abaa-b945d8f48cca</loc>
-    <lastmod>2025-11-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://scholaraiadvisor.com/scholarship/edc813b2-4964-406b-9bd7-2036e6df8926</loc>
-    <lastmod>2025-11-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://scholaraiadvisor.com/scholarship/8877549a-e85c-4cfa-a112-a712aa264dbb</loc>
-    <lastmod>2025-11-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://scholaraiadvisor.com/scholarship/a8e037f2-0938-487f-b93d-530faeb1876e</loc>
-    <lastmod>2025-11-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://scholaraiadvisor.com/scholarship/f86ce4ed-b8e4-4001-916e-880f96f8dbd7</loc>
-    <lastmod>2025-11-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-</urlset>
+--- A6 (scholarship_admin) /api/providers ---
+Not Found
+HTTP_CODE:404
+SIZE:9
 
-================================================================================
-A8 (auto-com-center) - /health
-================================================================================
-* Host auto-com-center-jamarrlmayes.replit.app:443 was resolved.
-* IPv6: (none)
-* IPv4: 34.117.33.233
-*   Trying 34.117.33.233:443...
-* ALPN: curl offers h2,http/1.1
-} [5 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Client hello (1):
-} [512 bytes data]
-* TLSv1.3 (IN), TLS handshake, Server hello (2):
-{ [122 bytes data]
-* TLSv1.3 (IN), TLS change cipher, Change cipher spec (1):
-{ [1 bytes data]
-* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
-{ [19 bytes data]
-* TLSv1.3 (IN), TLS handshake, Certificate (11):
-{ [4030 bytes data]
-* TLSv1.3 (IN), TLS handshake, CERT verify (15):
-{ [264 bytes data]
-* TLSv1.3 (IN), TLS handshake, Finished (20):
-{ [52 bytes data]
-* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
-} [1 bytes data]
-* TLSv1.3 (OUT), TLS handshake, Finished (20):
-} [52 bytes data]
-* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / x25519 / RSASSA-PSS
-* ALPN: server accepted h2
-* Server certificate:
-*  subject: CN=replit.app
-*  start date: Dec  2 17:53:58 2025 GMT
-*  expire date: Mar  2 18:49:53 2026 GMT
-*  subjectAltName: host "auto-com-center-jamarrlmayes.replit.app" matched cert's "*.replit.app"
-*  issuer: C=US; O=Google Trust Services; CN=WR3
-*  SSL certificate verify ok.
-*   Certificate level 0: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
-*   Certificate level 2: Public key type RSA (4096/152 Bits/secBits), signed using sha384WithRSAEncryption
-* Connected to auto-com-center-jamarrlmayes.replit.app (34.117.33.233) port 443
-* using HTTP/2
-* [HTTP/2] [1] OPENED stream for https://auto-com-center-jamarrlmayes.replit.app/health?t=1768252760612
-* [HTTP/2] [1] [:method: GET]
-* [HTTP/2] [1] [:scheme: https]
-* [HTTP/2] [1] [:authority: auto-com-center-jamarrlmayes.replit.app]
-* [HTTP/2] [1] [:path: /health?t=1768252760612]
-* [HTTP/2] [1] [user-agent: curl/8.14.1]
-* [HTTP/2] [1] [accept: */*]
-* [HTTP/2] [1] [cache-control: no-cache]
-* [HTTP/2] [1] [x-trace-id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A8]
-} [5 bytes data]
-> GET /health?t=1768252760612 HTTP/2
-> Host: auto-com-center-jamarrlmayes.replit.app
-> User-Agent: curl/8.14.1
-> Accept: */*
-> Cache-Control: no-cache
-> X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025.A8
-> 
-{ [5 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
-* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
-{ [284 bytes data]
+--- A7 (auto_page_maker) /sitemap.xml ---
+Sitemap URLs: 2908
 
+--- A7 (auto_page_maker) /health ---
+{"status":"healthy","timestamp":"2026-01-13T04:37:08.541Z","version":"v2.9","app":"auto_page_maker","uptime_s":27020,"dependencies":[{"name":"database","status":"healthy","latency_ms":24,"details":{"type":"postgresql","provider":"neon"}},{"name":"email_provider","status":"healthy","latency_ms":601,"details":{"provider":"sendgrid","http_status":200},"cached":true,"cached_at":"2026-01-13T04:36:54.062Z"},{"name":"jwks","status":"healthy","latency_ms":1,"details":{"algorithm":"RS256","kid":"scholar-auth-2025-01","use":"sig"}}],"summary":{"total":3,"healthy":3,"degraded":0,"unhealthy":0},"async_mode":true}
+
+--- A8 (auto_com_center) POST+GET ---
+POST Response: {"accepted":true,"event_id":"evt_1768279037413_ztzrwgxt1","app_id":"A5","app_name":"A5","event_type":"verify_run_start","internal_type":"SYSTEM_HEALTH","persisted":true,"timestamp":"2026-01-13T04:37:17.413Z"}
+
+A8 /health: {"status":"ok","system_identity":"auto_com_center","base_url":"https://auto-com-center-jamarrlmayes.replit.app","app":"ScholarshipAI Communication Hub","version":"1.0.0"}
+=== Phase 4: SLO Sampling ===
+SLO Latencies:           
+P95: ms
+
+=== SLO Sampling (corrected) ===
+Latencies: 97 54 45 84 43 41 43 39 38 58 
+Average: 54ms
+P95: 84ms

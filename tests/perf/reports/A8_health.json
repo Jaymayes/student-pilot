@@ -1,8 +1,1 @@
-{
-  "app": "A8",
-  "status": "healthy",
-  "http_code": 200,
-  "marker": "system_identity:auto_com_center",
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:23:41Z"
-}
+{"app":"A8","http":200,"status":"HEALTHY","marker":"system_identity:auto_com_center","run_id":"CEOSPRINT-20260113-VERIFY-ZT3G-026","timestamp":"2026-01-13T04:38:01Z"}

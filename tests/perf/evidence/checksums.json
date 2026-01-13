@@ -1,18 +1,17 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:26:59Z",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-026",
+  "timestamp": "2026-01-13T04:39:52Z",
   "algorithm": "SHA256",
-  "mode": "FIX_RUN",
   "protocol": "AGENT3_HANDSHAKE_v30_FUNCTIONAL_DEEP_DIVE",
   "artifacts": {
-    "go_no_go_report.md": "418a45e2ef76764ff0b00e2792b4354764ac916b5ee2f17705bbafb2871419db",
-    "system_map.json": "a9cf064fe7d90b3f94533985d0f567c1d85a893ba28880a6c8d1b4db9de909fd",
-    "A5_health.json": "73a535b7e2e06ff82d48f802c9e38035aaf4636f9f0eb84b3a87c95a41b0f670",
-    "ecosystem_double_confirm.md": "90d848c32c6fa83d4e941cceadf84b94da8fc8725bd47f0b2d2249785c088bcb",
-    "raw_curl_evidence.txt": "c404252b36633d955ad62b2a7e32ff3a63392b5e81a8cbf46e25f56db892ffcd"
+    "system_map.json": "b229cb2cc7b2dbcefb3d620d6a0bdb93b32092c89fd84d6ade3d92f254dbe704",
+    "raw_truth_summary.md": "ebc0e0fd815b51da828cffab1bf11ee4d1ddbf2ba041fa31cee2f29941af442e",
+    "ecosystem_double_confirm.md": "6cfc2318912cad2c923621e3f0ba6c3373e45e88bed9ed882ff62dc6e3d94c20",
+    "b2c_funnel_verdict.md": "8d9e2dcac613fbab7e9a650a5925fa00274d7fc98cde8b586f5fc758a8ac8322",
+    "b2b_funnel_verdict.md": "12c0b75f3794a609e10513d36d76e0b36eb76b41548d6a0905846fc43973da01",
+    "raw_curl_evidence.txt": "de8ef4573a6c7f8676dcf42cf6f9aca6a31a1f1d082dc2c41e0ca2bdd6c3a550"
   },
-  "fleet_health": "6/8 deployed healthy",
-  "a5_status": "DEPLOYED_HEALTHY",
-  "a5_url": "https://student-pilot-jamarrlmayes.replit.app",
-  "attestation": "BLOCKED_A4_A6_ONLY"
+  "a8_event_id": "evt_1768279037413_ztzrwgxt1",
+  "fleet_health": "6/8",
+  "attestation": "BLOCKED"
 }

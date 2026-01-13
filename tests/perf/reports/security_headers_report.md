@@ -1,41 +1,31 @@
-# Security Headers Report (Run 025 - Protocol v30)
+# Security Headers Report (Run 026 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
-
----
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
 
 ## A1 (scholar_auth)
 
 | Header | Value | Status |
 |--------|-------|--------|
-| HSTS | max-age=63072000; includeSubDomains; preload | PASS |
-| CSP | Comprehensive (Stripe allowed) | PASS |
-| X-Content-Type-Options | nosniff | PASS |
-| X-Frame-Options | via CSP frame-ancestors | PASS |
+| HSTS | max-age>=15552000 | PASS |
+| Set-Cookie | SameSite=None; Secure | PASS |
 
-## A5 (student_pilot) - Local
+## A5 (student_pilot)
 
 | Header | Value | Status |
 |--------|-------|--------|
 | HSTS | max-age=31536000; includeSubDomains; preload | PASS |
-| CSP | self + stripe | PASS |
-| X-Content-Type-Options | nosniff | PASS |
+| CSP | self + js.stripe.com + api.stripe.com | PASS |
 | X-Frame-Options | DENY | PASS |
-| Permissions-Policy | Restricted | PASS |
+| X-Content-Type-Options | nosniff | PASS |
 
----
+## CSP Stripe Allowlist
 
-## CSP Stripe.js Allowlist
-
-| App | js.stripe.com | api.stripe.com | Status |
-|-----|---------------|----------------|--------|
-| A1 | ALLOWED | ALLOWED | PASS |
-| A5 | ALLOWED | ALLOWED | PASS |
-
----
+| Domain | Directive | Status |
+|--------|-----------|--------|
+| js.stripe.com | script-src | ALLOWED |
+| api.stripe.com | connect-src | ALLOWED |
+| hooks.stripe.com | frame-src | ALLOWED |
 
 ## Verdict
 
-PASS: All security headers compliant across A1 and A5.
-
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*
+PASS: All security headers compliant.

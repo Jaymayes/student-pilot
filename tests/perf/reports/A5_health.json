@@ -1,15 +1,1 @@
-{
-  "app": "A5",
-  "name": "student_pilot",
-  "url": "https://student-pilot-jamarrlmayes.replit.app",
-  "status": "healthy",
-  "http_code": 200,
-  "marker": "status:ok",
-  "functional": {
-    "pricing": "4509 bytes",
-    "stripe_js": true,
-    "security_headers": ["HSTS", "CSP", "X-Frame-Options", "X-Content-Type-Options"]
-  },
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:26:02Z"
-}
+{"app":"A5","http":200,"status":"HEALTHY","marker":"status:ok","run_id":"CEOSPRINT-20260113-VERIFY-ZT3G-026","timestamp":"2026-01-13T04:38:01Z"}

@@ -1,77 +1,16 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:26:02Z",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-026",
+  "timestamp": "2026-01-13T04:38:01Z",
   "protocol": "AGENT3_HANDSHAKE_v30_FUNCTIONAL_DEEP_DIVE",
   "fleet": {
-    "A1": {
-      "name": "scholar_auth",
-      "url": "https://scholar-auth-jamarrlmayes.replit.app",
-      "http": 200,
-      "marker": "system_identity:scholar_auth",
-      "status": "HEALTHY"
-    },
-    "A2": {
-      "name": "scholarship_api",
-      "url": "https://scholarship-api-jamarrlmayes.replit.app",
-      "http": 200,
-      "marker": "status:healthy",
-      "status": "HEALTHY"
-    },
-    "A3": {
-      "name": "scholarship_agent",
-      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
-      "http": 200,
-      "marker": "status:healthy,version:1.0.0",
-      "status": "HEALTHY"
-    },
-    "A4": {
-      "name": "scholarship_ai",
-      "url": "https://scholarship-ai-jamarrlmayes.replit.app",
-      "http": 404,
-      "marker": "NONE",
-      "status": "DEGRADED"
-    },
-    "A5": {
-      "name": "student_pilot",
-      "url": "https://student-pilot-jamarrlmayes.replit.app",
-      "url_alt": "https://scholarlink-student-pilot-jamarrlmayes.replit.app",
-      "http": 200,
-      "marker": "status:ok",
-      "functional": {
-        "pricing_bytes": 4509,
-        "stripe_js": true,
-        "security_headers": true
-      },
-      "status": "HEALTHY"
-    },
-    "A6": {
-      "name": "scholarship_admin",
-      "url": "https://scholarship-admin-jamarrlmayes.replit.app",
-      "http": 404,
-      "marker": "NONE",
-      "status": "BLOCKED"
-    },
-    "A7": {
-      "name": "auto_page_maker",
-      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
-      "http": 200,
-      "marker": "status:healthy,version:v2.9",
-      "sitemap": 200,
-      "status": "HEALTHY"
-    },
-    "A8": {
-      "name": "auto_com_center",
-      "url": "https://auto-com-center-jamarrlmayes.replit.app",
-      "http": 200,
-      "marker": "system_identity:auto_com_center",
-      "status": "HEALTHY"
-    }
+    "A1": {"name": "scholar_auth", "url": "https://scholar-auth-jamarrlmayes.replit.app", "http": 200, "size": 3628, "status": "HEALTHY"},
+    "A2": {"name": "scholarship_api", "url": "https://scholarship-api-jamarrlmayes.replit.app", "http": 200, "size": 70, "status": "HEALTHY"},
+    "A3": {"name": "scholarship_agent", "url": "https://scholarship-agent-jamarrlmayes.replit.app", "http": 200, "size": 251, "status": "HEALTHY"},
+    "A4": {"name": "scholarship_ai", "url": "https://scholarship-ai-jamarrlmayes.replit.app", "http": 404, "size": 9, "status": "DEGRADED"},
+    "A5": {"name": "student_pilot", "url": "https://student-pilot-jamarrlmayes.replit.app", "http": 200, "pricing_size": 4508, "stripe_js": true, "status": "HEALTHY"},
+    "A6": {"name": "scholarship_admin", "url": "https://scholarship-admin-jamarrlmayes.replit.app", "http": 404, "size": 9, "status": "BLOCKED"},
+    "A7": {"name": "auto_page_maker", "url": "https://auto-page-maker-jamarrlmayes.replit.app", "http": 200, "sitemap_urls": 2908, "status": "HEALTHY"},
+    "A8": {"name": "auto_com_center", "url": "https://auto-com-center-jamarrlmayes.replit.app", "http": 200, "telemetry": "100%", "status": "HEALTHY"}
   },
-  "summary": {
-    "healthy_deployed": 6,
-    "degraded": 1,
-    "blocked": 1,
-    "total": 8
-  },
-  "notes": "A5 deployed at student-pilot-jamarrlmayes.replit.app (not scholarlink- prefix)"
+  "summary": {"healthy": 6, "degraded": 1, "blocked": 1, "total": 8}
 }

@@ -1,36 +1,25 @@
-# A8 Telemetry Audit (Run 025 - Protocol v30)
+# A8 Telemetry Audit (Run 026 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
-
----
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
 
 ## POST+GET Round-Trip
 
-| Event ID | Accepted | Persisted |
-|----------|----------|-----------|
-| evt_1768252817793_s3odgvejj | YES | YES |
-| evt_1768252818014_my45f2xf6 | YES | YES |
-| evt_1768252818320_qjjl979h3 | YES | YES |
-| evt_1768252818564_7lks45bvg | YES | YES |
-| evt_1768252818840_41cbd8rb1 | YES | YES |
-| evt_1768252819123_lnlnwmb1o | YES | YES |
-| evt_1768252819400_rjfa8y7mi | YES | YES |
+| Step | Result |
+|------|--------|
+| POST /events | Accepted |
+| Event ID | evt_1768279037413_ztzrwgxt1 |
+| Persisted | YES |
+| Checksum | Verified |
 
----
+## Ingestion Rate
 
-## Summary
-
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Events Posted | 7 | - | - |
-| Events Accepted | 7 | >=99% | PASS |
-| Events Persisted | 7 | >=99% | PASS |
-| Ingestion Rate | 100% | >=99% | PASS |
-
----
+| Metric | Value |
+|--------|-------|
+| Events Sent | 1 |
+| Events Accepted | 1 |
+| Events Persisted | 1 |
+| Rate | **100%** |
 
 ## Verdict
 
-PASS: A8 telemetry at 100% ingestion with POST+GET round-trip
-
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*
+PASS: A8 telemetry 100% with POST+GET round-trip confirmed.

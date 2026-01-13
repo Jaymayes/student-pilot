@@ -1,42 +1,22 @@
-# A1 Cookie Validation (Run 025 - Protocol v30)
+# A1 Cookie Validation (Run 026 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
 
----
-
-## Session Cookie Analysis
-
-| Attribute | Expected | Observed | Status |
-|-----------|----------|----------|--------|
-| Cookie Present | Yes | GAESA (Google Auth) | PASS |
-| Secure | Required | TLS enforced | PASS |
-| Path | / | path=/ | PASS |
-| Expiry | Future | 30 days | PASS |
-
----
-
-## Security Headers
+## Cookie/Session Check
 
 | Header | Value | Status |
 |--------|-------|--------|
-| Strict-Transport-Security | max-age=63072000; includeSubDomains; preload | PASS |
-| X-Content-Type-Options | nosniff | PASS |
-| Content-Security-Policy | Comprehensive (Stripe allowed) | PASS |
+| Set-Cookie | GAESA present | PASS |
+| SameSite | None | CONFIGURED |
+| Secure | true | CONFIGURED |
+| HttpOnly | true | CONFIGURED |
 
----
+## Proxy Trust
 
-## CSP Stripe Allowlist
-
-| Source | Allowed |
-|--------|---------|
-| js.stripe.com | YES |
-| api.stripe.com | YES |
-| hooks.stripe.com | YES (frame-src) |
-
----
+| Config | Status |
+|--------|--------|
+| trust proxy | Enabled (1) |
 
 ## Verdict
 
-PASS: Cookie and security headers compliant for B2C flow
-
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*
+PASS: A1 cookie/session compliant for OIDC flow.

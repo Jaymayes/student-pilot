@@ -1,19 +1,8 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-025",
-  "timestamp": "2026-01-12T21:21:29Z",
-  "protocol": "v30",
-  "fee_structure": {
-    "platform_fee_percent": 3,
-    "ai_markup_multiplier": 4,
-    "source": "A6_blocked"
-  },
-  "lineage_proof": {
-    "a6_http_200": false,
-    "a6_json_array": false,
-    "a7_seo_visible": true,
-    "a8_correlation": true
-  },
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-026",
+  "timestamp": "2026-01-13T04:38:57Z",
+  "fee_structure": {"platform_fee_percent": 3, "ai_markup_multiplier": 4},
+  "lineage_proof": {"a6_http_200": false, "a7_healthy": true, "a8_correlation": true},
   "proof_count": "2-of-3",
-  "verdict": "PARTIAL",
-  "blocker": "A6_404"
+  "verdict": "PARTIAL"
 }

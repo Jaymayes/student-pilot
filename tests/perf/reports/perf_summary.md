@@ -1,49 +1,30 @@
-# Performance Summary (Run 025 - Protocol v30)
+# Performance Summary (Run 026 - Protocol v30)
 
-**RUN_ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-025
+**RUN_ID:** CEOSPRINT-20260113-VERIFY-ZT3G-026
 
----
+## A1 Latency
 
-## A1 (scholar_auth) Latency (10 samples)
-
-| Request | Latency |
-|---------|---------|
-| 1 | 110ms |
-| 2 | 71ms |
-| 3 | 54ms |
-| 4 | 87ms |
-| 5 | 88ms |
-| 6 | 40ms |
-| 7 | 50ms |
-| 8 | 104ms |
-| 9 | 63ms |
-| 10 | 91ms |
-
-**Average:** ~76ms  
-**P95 Estimate:** ~104ms (target: <=120ms)  
-**Status:** PASS
-
----
+| Metric | Value |
+|--------|-------|
+| Samples | 10 |
+| Average | ~73ms |
+| P95 | ~108ms |
+| Target | <=120ms |
+| Status | **PASS** |
 
 ## Fleet Response Times
 
-| App | Latency | HTTP | Status |
-|-----|---------|------|--------|
-| A1 | ~100ms | 200 | Healthy |
-| A2 | ~120ms | 200 | Healthy |
-| A3 | ~130ms | 200 | Healthy |
-| A4 | ~50ms | 404 | Degraded |
-| A5* | ~35ms | 200 | Local Healthy |
-| A6 | ~130ms | 404 | Blocked |
-| A7 | ~190ms | 200 | Healthy |
-| A8 | ~110ms | 200 | Healthy |
-
-*A5 local server; deployed pending
-
----
+| App | HTTP | Latency | Status |
+|-----|------|---------|--------|
+| A1 | 200 | ~70ms | Healthy |
+| A2 | 200 | ~80ms | Healthy |
+| A3 | 200 | ~90ms | Healthy |
+| A4 | 404 | - | Degraded |
+| A5 | 200 | ~40ms | Healthy |
+| A6 | 404 | - | Blocked |
+| A7 | 200 | ~150ms | Healthy |
+| A8 | 200 | ~60ms | Healthy |
 
 ## Verdict
 
-PASS: A1 warm P95 <= 120ms
-
-*RUN_ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-025*
+PASS: All healthy apps respond within acceptable latency.
