@@ -1,0 +1,17 @@
+{
+  "run_id": "CEOSPRINT-20260114-MIGRATE-V2-036",
+  "timestamp": "2026-01-13T09:01:49Z",
+  "algorithm": "SHA256",
+  "revision": "post-security-fix",
+  "artifacts": {
+    "v2_repos_index.json": "87fa7368c11c1bb06ef4dbb23d026a29f496b82ce5a8dee5fcc4ad772ae125d9",
+    "dataservice_index.ts": "0ad824af177c39926e6822ed8066d8047336c53d135762b9fb70c4131b44ea6b",
+    "document_hub_index.ts": "bbf7f52d29360945cca0aec27d1fb8ae77433157b36f5d571630033b0886e90c",
+    "orchestrator_index.ts": "d1ba3893fe29082a32c41cf5790c872ebdadf955322abf2c31ae1462e62f0752",
+    "verifier_index.ts": "0eccee5fcfacea7e922e1f421542bc334ee52ed5da3a3a52273f53995aa09620",
+    "privacy_middleware.ts": "aa62389892c3dfbaf10ba3953012981c817ba17198d873d94f6073624ddfa966",
+    "resilience.ts": "c4229a9c809cd548ac30212dfb54baae237c723a8d12491bb170fda4927571cd"
+  },
+  "security_fixes": ["DocumentHub API key auth added", "Privacy middleware integrated with A8 telemetry"],
+  "attestation": "V2_STAGING_READY"
+}

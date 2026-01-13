@@ -4,29 +4,66 @@ const app = express();
 const PORT = process.env.PORT || 3003;
 const DATASERVICE_URL = process.env.DATASERVICE_URL || 'http://localhost:3001';
 const DATASERVICE_API_KEY = process.env.DATASERVICE_API_KEY || 'dev-api-key';
+const A8_ENDPOINT = process.env.A8_ENDPOINT || 'https://auto-com-center-jamarrlmayes.replit.app/events';
 const startTime = Date.now();
 
 app.use(express.json());
 
-const activationStates: Map<string, any> = new Map();
-const processingQueue: any[] = [];
+interface PrivacyContext {
+  doNotSell: boolean;
+  isMinor: boolean;
+  trackingDisabled: boolean;
+  privacyEnforced: boolean;
+}
 
 const ageGateMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const age = req.body.age || req.query.age;
-  if (age && parseInt(age) < 18) {
+  const age = parseInt(req.body?.age || req.query?.age as string || '0');
+  const declaredMinor = req.body?.is_minor === true || req.query?.is_minor === 'true';
+  const isMinor = (age > 0 && age < 18) || declaredMinor;
+  
+  const privacyContext: PrivacyContext = {
+    doNotSell: isMinor,
+    isMinor,
+    trackingDisabled: isMinor,
+    privacyEnforced: isMinor
+  };
+  
+  (req as any).privacyContext = privacyContext;
+  
+  if (isMinor) {
     res.setHeader('X-Do-Not-Sell', 'true');
+    res.setHeader('X-Privacy-Enforced', 'true');
     res.setHeader('Content-Security-Policy', 
       "default-src 'self'; script-src 'self'; img-src 'self' data:; " +
-      "connect-src 'self'; frame-ancestors 'none';"
+      "connect-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; form-action 'self';"
     );
-    (req as any).privacyEnforced = true;
-    (req as any).doNotSell = true;
     console.log('[Orchestrator] Privacy enforced for under-18 user');
+    logPrivacyEvent('privacy_enforced', { reason: 'under_18', source: 'orchestrator' });
   }
   next();
 };
 
+async function logPrivacyEvent(eventType: string, data: object): Promise<void> {
+  try {
+    await fetch(A8_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_type: eventType,
+        app_id: 'onboarding-orchestrator-v2',
+        timestamp: new Date().toISOString(),
+        data
+      })
+    });
+  } catch {
+    console.log('[Orchestrator] Failed to log privacy event (non-blocking)');
+  }
+}
+
 app.use(ageGateMiddleware);
+
+const activationStates: Map<string, object> = new Map();
+const processingQueue: object[] = [];
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({
@@ -38,11 +75,20 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-app.get('/onboarding', (_req: Request, res: Response) => {
+app.get('/onboarding', (req: Request, res: Response) => {
+  const privacyContext = (req as any).privacyContext as PrivacyContext;
+  const trackingPixels = privacyContext?.trackingDisabled ? '' : `
+    <!-- Third-party tracking pixels would go here for adult users -->
+  `;
+  
   res.send(`
     <!DOCTYPE html>
     <html>
-    <head><title>Scholar AI - Get Started</title></head>
+    <head>
+      <title>Scholar AI - Get Started</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
     <body>
       <h1>Welcome to Scholar AI Advisor</h1>
       <p>Upload your transcript or past essay to unlock your personalized dashboard.</p>
@@ -51,13 +97,14 @@ app.get('/onboarding', (_req: Request, res: Response) => {
         <button type="submit">Upload & Analyze</button>
       </form>
       <p><small>AI tools are for editing and discovery only; users are responsible for academic integrity.</small></p>
+      ${trackingPixels}
     </body>
     </html>
   `);
 });
 
-function analyzeDocumentNLP(content: string): any {
-  const themes = [];
+function analyzeDocumentNLP(content: string): object {
+  const themes: string[] = [];
   const contentLower = content.toLowerCase();
   
   if (contentLower.includes('community') || contentLower.includes('volunteer')) {
@@ -85,9 +132,13 @@ function analyzeDocumentNLP(content: string): any {
 }
 
 app.post('/events/document_uploaded', async (req: Request, res: Response) => {
-  const { document_id, user_id, mime, size, filename } = req.body;
+  const { document_id, user_id, mime, size, filename, privacy_context } = req.body;
   
   console.log(`[Orchestrator] Processing document ${document_id} for user ${user_id}`);
+  
+  if (privacy_context?.privacyEnforced) {
+    console.log(`[Orchestrator] Privacy mode active for user ${user_id}`);
+  }
   
   const mockContent = `Sample document content for ${filename}. 
     This student has shown leadership in community service programs 
@@ -100,6 +151,7 @@ app.post('/events/document_uploaded', async (req: Request, res: Response) => {
     document_id,
     status: 'ready',
     derived_features: nlpResult,
+    privacy_enforced: privacy_context?.privacyEnforced || false,
     processed_at: new Date().toISOString()
   };
   activationStates.set(user_id, activationState);
@@ -116,15 +168,16 @@ app.post('/events/document_uploaded', async (req: Request, res: Response) => {
         derived_features: nlpResult
       })
     });
-  } catch (err) {
-    console.log('[Orchestrator] DataService update failed (non-blocking):', err);
+  } catch {
+    console.log('[Orchestrator] DataService update failed (non-blocking)');
   }
 
   res.json({
     status: 'processed',
     document_id,
     user_id,
-    derived_features: nlpResult
+    derived_features: nlpResult,
+    privacy_enforced: privacy_context?.privacyEnforced || false
   });
 });
 
