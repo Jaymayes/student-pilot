@@ -1,0 +1,13 @@
+entrypoint = "src/index.ts"
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "npx tsx src/index.ts"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 3004
+externalPort = 80

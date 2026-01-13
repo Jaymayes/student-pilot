@@ -1,0 +1,40 @@
+{
+  "run_id": "CEOSPRINT-20260114-MIGRATE-V2-036",
+  "protocol": "AGENT3_HANDSHAKE v30",
+  "mode": "staging",
+  "production_frozen": true,
+  "services": {
+    "dataservice": {
+      "name": "saa-core-data-v2",
+      "path": "staging-v2/dataservice",
+      "purpose": "Database-as-a-Service, sole PostgreSQL owner",
+      "port": 3001,
+      "status": "building"
+    },
+    "document-hub": {
+      "name": "document-hub-v2",
+      "path": "staging-v2/document-hub",
+      "purpose": "Secure upload ingress, DocumentUploaded events",
+      "port": 3002,
+      "status": "building"
+    },
+    "onboarding-orchestrator": {
+      "name": "onboarding-orchestrator-v2",
+      "path": "staging-v2/onboarding-orchestrator",
+      "purpose": "First Upload activation flow, NLP analysis",
+      "port": 3003,
+      "status": "building"
+    },
+    "verifier": {
+      "name": "saa-verifier-v2",
+      "path": "staging-v2/verifier",
+      "purpose": "Critic workflow for AI outputs",
+      "port": 3004,
+      "status": "scaffold"
+    }
+  },
+  "shared": {
+    "middleware": "staging-v2/shared/middleware",
+    "utils": "staging-v2/shared/utils"
+  }
+}
