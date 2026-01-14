@@ -102,6 +102,16 @@ export interface FunnelMetrics {
   completion_rate: number;
 }
 
+export const DATA_SUFFICIENCY_GUARDRAIL = {
+  trigger: {
+    opens_below: 500,
+    starts_below: 50,
+    evaluation_at: 'T+2h'
+  },
+  action: 'defer_optimization_to_t6h',
+  description: 'If <500 opens or <50 starts at T+2h, defer any optimization actions until T+6h'
+};
+
 export interface T2hPacket {
   timestamp: string;
   slo_by_variant: {
@@ -114,6 +124,21 @@ export interface T2hPacket {
   complaints: number;
   violations: number;
   cost: CostTelemetry;
+  integrity: {
+    holdout_drift_pp: number;
+    randomization_locked: boolean;
+  };
+  b2b_pulse: {
+    provider_acceptance: number;
+    baseline: number;
+    delta: number;
+  };
+  data_sufficiency: {
+    total_opens: number;
+    total_starts: number;
+    sufficient: boolean;
+    defer_optimization: boolean;
+  };
 }
 
 export interface T6hPacket {
