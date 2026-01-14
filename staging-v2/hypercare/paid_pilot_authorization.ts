@@ -9,6 +9,9 @@ const A8_ENDPOINT = process.env.A8_ENDPOINT || 'https://auto-com-center-jamarrlm
 
 export const PAID_PILOT_CONFIG = {
   token: 'CEO-20260114-PAID-PILOT-72H',
+  stepup_token: 'CEO-20260114-PAID-PILOT-STEPUP',
+  stepup_consumed: true,
+  stepup_consumed_at: '2026-01-14T02:08:00Z',
   
   conditions: {
     t24h_fully_green: true,
@@ -16,12 +19,14 @@ export const PAID_PILOT_CONFIG = {
   },
   
   parameters: {
-    daily_budget_max_usd: 150,
+    daily_budget_max_usd: 300,
     rolling_24h_spend: true,
     cac_ceiling_usd: 12,
+    cac_target_usd: 8,
     cac_breach_auto_pause_hours: 24,
     arpu_min_usd: 18,
-    arpu_cac_multiplier: 1.5,
+    arpu_target_usd: 25,
+    arpu_cac_multiplier: 1.8,
     arpu_window_days: 7,
     channel: 'retargeting_only',
     prospecting: false,
@@ -32,7 +37,15 @@ export const PAID_PILOT_CONFIG = {
     'cac_breach_24h_continuous',
     'arpu_below_18_after_7d',
     'privacy_compliance_violation'
-  ]
+  ],
+  
+  auto_downshift_to_150: {
+    cac_6h_avg_breach_usd: 10,
+    stripe_success_breach: 0.985,
+    stripe_breach_duration_min: 30,
+    fraud_breach: 0.005,
+    refund_breach: 0.04
+  }
 };
 
 export interface PilotState {
