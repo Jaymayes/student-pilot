@@ -54,6 +54,7 @@ const EnvironmentSchema = z.object({
   
   // Feature Flags
   FEATURE_COPPA_AGE_GATE: z.string().optional().default('false'),
+  FEATURE_CIRCUIT_BREAKER_ENABLED: z.string().optional().default('false'),
   
   // Microservice URLs (Gate 0 requirement - zero hardcoded URLs)
   // CEO Directive: REQUIRED in production/staging; optional in development

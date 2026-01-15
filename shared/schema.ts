@@ -1026,6 +1026,33 @@ export const matchScoringFactorsRelations = relations(matchScoringFactors, ({ on
   }),
 }));
 
+// Provider backlog status enum for circuit breaker
+export const backlogStatusEnum = pgEnum("backlog_status", [
+  "pending",
+  "processing",
+  "completed",
+  "dead_letter"
+]);
+
+// Provider backlog table for A3→A6 circuit breaker
+export const providerBacklog = pgTable("provider_backlog", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  idempotencyKey: varchar("idempotency_key").notNull().unique(),
+  payloadJson: text("payload_json").notNull(),
+  endpoint: varchar("endpoint").notNull(),
+  firstSeenAt: timestamp("first_seen_at").notNull().defaultNow(),
+  nextRetryAt: timestamp("next_retry_at").notNull(),
+  attempts: integer("attempts").notNull().default(0),
+  status: backlogStatusEnum("status").notNull().default("pending"),
+  lastError: text("last_error"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_provider_backlog_status").on(table.status),
+  index("IDX_provider_backlog_next_retry").on(table.nextRetryAt),
+  index("IDX_provider_backlog_idempotency").on(table.idempotencyKey),
+]);
+
 // Actor type enum for business events
 export const actorTypeEnum = pgEnum("actor_type", [
   "student",
@@ -1100,3 +1127,12 @@ export type MatchScoringFactors = typeof matchScoringFactors.$inferSelect;
 export type InsertMatchScoringFactors = z.infer<typeof insertMatchScoringFactorsSchema>;
 export type BusinessEvent = typeof businessEvents.$inferSelect;
 export type InsertBusinessEvent = z.infer<typeof insertBusinessEventSchema>;
+
+// Provider backlog schemas and types
+export const insertProviderBacklogSchema = createInsertSchema(providerBacklog).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type ProviderBacklog = typeof providerBacklog.$inferSelect;
+export type InsertProviderBacklog = z.infer<typeof insertProviderBacklogSchema>;

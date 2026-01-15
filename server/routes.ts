@@ -46,6 +46,7 @@ import { trackPaymentSucceeded, trackCreditPurchased, trackPaymentFailed, trackD
 import { telemetryClient } from "./telemetry/telemetryClient";
 import { getPromptMetadata, loadSystemPrompt, getPromptHash, getMergedPrompt, getAppOverlay } from "./utils/systemPrompt";
 import { adminMetricsRouter } from "./routes/adminMetrics";
+import { ocaProviderRouter } from "./routes/ocaProvider";
 import { serviceConfig } from "./serviceConfig";
 import { metricsCollector } from "./monitoring/metrics";
 import { registerTemporaryCreditEndpoints } from "./routes/creditsApiTemp";
@@ -205,6 +206,10 @@ Allow: /apply/`;
   
   // CEO Option B: Admin metrics endpoints for T+24/T+48 evidence collection
   app.use('/api/admin', adminMetricsRouter);
+
+  // ========== OCA PROVIDER ENDPOINTS ==========
+  // Provider registration with circuit breaker protection
+  app.use('/api/oca', ocaProviderRouter);
 
   // ========== COPPA AGE VERIFICATION MIDDLEWARE (CRITICAL - APPLY EARLY) ==========
   
