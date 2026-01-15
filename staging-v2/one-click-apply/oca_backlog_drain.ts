@@ -54,11 +54,22 @@ const STOP_LOSS_GATES = {
 
 const RATE_GUARDS = {
   normal_rps: 5,
+  band2_rps: 3,
   reduced_rps: 2,
   reduce_threshold_reserves_pct: 17,
   reduce_duration_min: 3,
   resume_threshold_reserves_pct: 20,
-  resume_duration_min: 5
+  resume_duration_min: 5,
+  per_provider_max_rps: 1,
+  burst_max_rps: 5,
+  burst_p95_threshold_ms: 1000,
+  burst_reserves_threshold_pct: 22
+};
+
+const PROVIDER_CONTROLS = {
+  held_providers: new Set<string>(),
+  provider_rps: new Map<string, number>(),
+  token_bucket: new Map<string, { tokens: number; last_refill: Date }>()
 };
 
 let drainState = {
@@ -280,4 +291,45 @@ export async function pauseForQuietPeriod(): Promise<{ event_id: string; evidenc
   });
 }
 
-export { drainState, STOP_LOSS_GATES, RATE_GUARDS, checkIdempotency, checkStopLoss };
+export function holdProviderQueue(providerId: string, reason: string): void {
+  PROVIDER_CONTROLS.held_providers.add(providerId);
+  console.log(`[DRAIN] Provider ${providerId} queue HELD: ${reason}`);
+}
+
+export function isProviderHeld(providerId: string): boolean {
+  return PROVIDER_CONTROLS.held_providers.has(providerId);
+}
+
+export function getProviderRps(providerId: string, systemP95: number, reserves: number): number {
+  if (PROVIDER_CONTROLS.held_providers.has(providerId)) {
+    return 0;
+  }
+  
+  if (systemP95 < RATE_GUARDS.burst_p95_threshold_ms && reserves >= RATE_GUARDS.burst_reserves_threshold_pct) {
+    return Math.min(RATE_GUARDS.burst_max_rps, RATE_GUARDS.per_provider_max_rps * 5);
+  }
+  
+  return RATE_GUARDS.per_provider_max_rps;
+}
+
+export async function postBacklogForecast(currentBacklog: number, drainRatePerHour: number): Promise<{ event_id: string; evidence_hash: string }> {
+  const hoursToTarget = currentBacklog > 10 ? (currentBacklog - 10) / drainRatePerHour : 0;
+  const quietPeriodTime = new Date('2026-01-16T09:05:00Z');
+  const nowTime = new Date();
+  const hoursUntilQuiet = (quietPeriodTime.getTime() - nowTime.getTime()) / 3600000;
+  const willMeetTarget = hoursToTarget <= hoursUntilQuiet;
+
+  return await postToA8('oca_backlog_forecast', {
+    timestamp: new Date().toISOString(),
+    current_backlog: currentBacklog,
+    target_backlog: 10,
+    drain_rate_per_hour: drainRatePerHour,
+    hours_to_target: hoursToTarget,
+    quiet_period: '09:05Z',
+    hours_until_quiet: hoursUntilQuiet,
+    forecast_meets_target: willMeetTarget,
+    confidence: willMeetTarget ? 'HIGH' : 'AT_RISK'
+  });
+}
+
+export { drainState, STOP_LOSS_GATES, RATE_GUARDS, PROVIDER_CONTROLS, checkIdempotency, checkStopLoss };
