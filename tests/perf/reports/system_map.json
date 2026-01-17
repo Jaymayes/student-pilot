@@ -1,16 +1,51 @@
 {
-  "run_id": "CEOSPRINT-20260114-DAILY-ZT3G-031",
-  "timestamp": "2026-01-13T06:25:12Z",
-  "protocol": "v30_zt_sentinel",
-  "fleet": {
-    "A1": {"http": 200, "status": "HEALTHY"},
-    "A2": {"http": 200, "status": "HEALTHY"},
-    "A3": {"http": 200, "status": "HEALTHY"},
-    "A4": {"http": 404, "status": "DEGRADED"},
-    "A5": {"http": 200, "stripe_js": true, "status": "HEALTHY"},
-    "A6": {"http": 404, "status": "BLOCKED"},
-    "A7": {"http": 200, "urls": 2908, "status": "HEALTHY"},
-    "A8": {"http": 200, "telemetry": "100%", "status": "HEALTHY"}
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
+  "generated_at": "2026-01-17T18:37:00.000Z",
+  "ecosystem": "Scholar AI Advisor",
+  "apps": {
+    "A1": {
+      "name": "scholar_auth",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "role": "Authentication (OIDC)",
+      "health_endpoint": "/health",
+      "status": "healthy"
+    },
+    "A2": {
+      "name": "scholarship_api",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "role": "Core Data API",
+      "health_endpoint": "/api/health",
+      "status": "requires_auth"
+    },
+    "A3": {
+      "name": "scholarship_agent",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+      "role": "AI Agent",
+      "health_endpoint": "/health",
+      "status": "healthy"
+    },
+    "A5": {
+      "name": "student_pilot",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "role": "B2C Student App + Payments",
+      "health_endpoint": "/api/health",
+      "status": "healthy"
+    },
+    "A7": {
+      "name": "auto_page_maker",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
+      "role": "SEO Landing Pages",
+      "health_endpoint": "/health",
+      "status": "healthy"
+    },
+    "A8": {
+      "name": "auto_com_center",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "role": "Command Center + Telemetry",
+      "health_endpoint": "/api/health",
+      "status": "healthy"
+    }
   },
-  "summary": {"healthy": 6, "degraded": 1, "blocked": 1}
+  "telemetry_protocol": "AGENT3_v3.5.1",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027"
 }

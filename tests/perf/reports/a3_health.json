@@ -1,0 +1,24 @@
+{
+  "app_id": "A3",
+  "app_name": "scholarship_agent",
+  "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+  "health_endpoint": "/health",
+  "checked_at": "2026-01-17T18:37:08.921Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.a3-health",
+  "response": {
+    "status": "healthy",
+    "version": "1.0.0",
+    "environment": "production",
+    "uptime": 50863.143678654,
+    "checks": {
+      "application": {
+        "status": "healthy",
+        "message": "Application is running"
+      }
+    }
+  },
+  "http_status": 200,
+  "latency_ms": 147,
+  "markers_present": ["status:healthy", "version:1.0.0", "application:healthy"],
+  "verdict": "PASS"
+}

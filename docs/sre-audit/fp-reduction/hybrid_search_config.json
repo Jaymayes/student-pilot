@@ -1,0 +1,50 @@
+{
+  "config_version": "2.0.0",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
+  "updated_at": "2026-01-17T18:37:00.000Z",
+  
+  "hard_filters": {
+    "enabled": true,
+    "filters": ["deadline", "gpa", "residency", "major"],
+    "order": "deadline -> gpa -> residency -> major",
+    "fail_fast": true,
+    "description": "Hard filters applied BEFORE vector scoring to eliminate false positives"
+  },
+  
+  "filter_config": {
+    "deadline_buffer_days": 0,
+    "gpa_tolerance": 0.0,
+    "major_fuzzy_threshold": 0.8,
+    "strictMajorMatch": false,
+    "residency_abbreviation_support": true
+  },
+  
+  "missing_data_handling": {
+    "gpa_missing": "pass_to_soft_scoring",
+    "location_missing": "pass_to_soft_scoring",
+    "major_missing": "pass_to_soft_scoring",
+    "rationale": "Avoid false negatives by deferring unknown eligibility to soft scoring"
+  },
+  
+  "soft_scoring": {
+    "enabled": true,
+    "vector_weight": 0.7,
+    "keyword_weight": 0.3,
+    "freshness_boost": 0.1,
+    "min_score_threshold": 50
+  },
+  
+  "performance_targets": {
+    "search_p95_ms": 200,
+    "fpr_target": 0.05,
+    "precision_target": 0.85,
+    "recall_target": 0.70
+  },
+  
+  "monitoring": {
+    "telemetry_enabled": true,
+    "log_rejections": true,
+    "a8_watchtower_alerts": true,
+    "alert_on_rejection_rate_above": 0.80
+  }
+}

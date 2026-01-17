@@ -1,0 +1,23 @@
+{
+  "app_id": "A5",
+  "app_name": "student_pilot",
+  "url": "https://student-pilot-jamarrlmayes.replit.app",
+  "health_endpoint": "/api/health",
+  "checked_at": "2026-01-17T18:37:04.957Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.a5-health",
+  "response": {
+    "status": "ok",
+    "app": "student_pilot",
+    "baseUrl": "https://student-pilot-jamarrlmayes.replit.app",
+    "service": "scholarlink-api",
+    "checks": {
+      "database": "healthy",
+      "cache": "healthy",
+      "stripe": "live_mode"
+    }
+  },
+  "http_status": 200,
+  "latency_ms": 187,
+  "markers_present": ["status:ok", "app:student_pilot", "stripe:live_mode"],
+  "verdict": "PASS"
+}

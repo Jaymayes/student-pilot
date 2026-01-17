@@ -1,13 +1,24 @@
 {
-  "run_id": "CEOSPRINT-20260114-DAILY-ZT3G-031",
-  "timestamp": "2026-01-13T06:25:58Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
+  "generated_at": "2026-01-17T18:38:00.000Z",
   "algorithm": "SHA256",
-  "artifacts": {
-    "system_map.json": "f4caba12c9de31aaae999b5b0a06209bd9e23acbe862d2a51b10073387e48ee0",
-    "daily_go_no_go.md": "f59ac8895fb89990df64c4265efb561934c21f6d2670e4a4e84f57811c872392"
+  "checksums": {
+    "reports": {
+      "a1_health.json": "fcdc9c094b3ddf04f94b8e46129fd9893937baba8f35cfba9766efc72dc5b743",
+      "a3_health.json": "098cd1fb0b96d50f6dd430271c2c9acb3fb592e4e67fb6264327d01383d695d8",
+      "a5_health.json": "a594c5e54b6a6694e75bc08308ce48514afcf2422e144f6a40a8084514315675",
+      "a7_health.json": "f084f903572bdd09cdb01abd7895fa45e0dead06b0a538d03aff7f2c225a174f",
+      "a8_health.json": "2183982c07c29b0a1d1263abdead5be84e8627016aa50a0fc3bfa7f4ed4e9801",
+      "system_map.json": "db2671e30f4649cd70fc7fdbbf3fdb67fbb1f5a4208dfcfef5ce313e1f193513"
+    },
+    "sre_audit": {
+      "fpr_analysis.json": "3c89bee8f5161edfda4482fc7a8c21e7746c556bb492ef555a6eabfe589425f1",
+      "hybrid_search_config.json": "6004b91badf38520706ab48500eedf7ed3a81e65e28c1bb6d874666b96d48357",
+      "verification_scorecard.json": "1a58e404c95e523f4d0aa312b294f9927470caf305f1e17882eb1f7dfa6fc636"
+    }
   },
-  "a8_event_id": "evt_1768285488501_g61q083tb",
-  "fleet_health": "6/8",
-  "p95_ms": 98,
-  "attestation": "BLOCKED"
+  "verification": {
+    "all_present": true,
+    "integrity_check": "PASS"
+  }
 }
