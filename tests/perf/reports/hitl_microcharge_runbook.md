@@ -1,6 +1,6 @@
 # HITL Micro-Charge Runbook
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-027  
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-031  
 **Status:** PENDING CEO APPROVAL
 
 ## Purpose
@@ -32,7 +32,7 @@ Add to `hitl_approvals.log`:
 ```bash
 curl -X POST "https://student-pilot-jamarrlmayes.replit.app/api/billing/create-checkout" \
   -H "Content-Type: application/json" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.b2c-charge" \
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-031.b2c-charge" \
   -d '{"amount": 50, "currency": "usd"}'
 ```
 
@@ -43,7 +43,7 @@ Navigate to returned checkout URL and complete payment.
 ```bash
 curl -X POST "https://student-pilot-jamarrlmayes.replit.app/api/billing/refund" \
   -H "Content-Type: application/json" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.b2c-refund" \
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-031.b2c-refund" \
   -d '{"payment_intent_id": "<PAYMENT_INTENT_ID>"}'
 ```
 

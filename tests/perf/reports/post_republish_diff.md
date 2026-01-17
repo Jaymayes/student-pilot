@@ -1,27 +1,43 @@
 # Post-Republish Diff Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-027  
-**Generated:** 2026-01-17T19:49:00.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-031  
+**Generated:** 2026-01-17T20:44:00.000Z
 
-## Changes in This Sprint
+## Changes Since Previous Run (ZT3G-FIX-027)
 
-### server/routes.ts
-- Added FPR verification endpoints (lines 1875-2043)
-- `GET /api/scholarships/config` - Read filter configuration
-- `PATCH /api/scholarships/config` - Admin update configuration
-- `GET /api/scholarships/fpr/baseline` - FPR baseline data
-- `POST /api/scholarships/fpr/verify` - Run adversarial tests
-- `POST /api/scholarships/search` - Scholarship search with hard filters
-- Routes ordered BEFORE `:id` catch-all
+### Artifact Generation
+- All stale artifacts purged per Scorched Earth protocol
+- Fresh probes executed with cache-busting headers
+- New run ID applied to all traces
 
-### server/services/hardFilters.ts
-- Missing data handling changed to "pass to soft scoring"
-- Avoids false negatives for incomplete profiles
+### External Workspace Status Changes
 
-### server/services/recommendationEngine.ts
-- Hard filters integrated BEFORE scoring loop
-- Filter stats logging added
+| App | Previous Status | Current Status |
+|-----|-----------------|----------------|
+| A1 | Unknown/Blocked | Healthy |
+| A3 | Unknown/Blocked | Healthy |
+| A5 | Unknown/Blocked | Healthy |
+| A6 | Unknown/Blocked | Conditional (missing endpoint) |
+| A7 | Unknown/Blocked | Healthy |
+| A8 | Unknown/Blocked | Healthy |
+
+### New Artifacts Created
+
+1. `manual_intervention_manifest.md` - Copy-paste fix for A6
+2. `system_map.json` - Updated ecosystem status
+3. `a1_health.json` through `a8_health.json` - Fresh health probes
+4. `ecosystem_double_confirm.md` - Second confirmation matrix
+5. `rl_observation.md` - Closed loop documentation
+
+### A6 Blocker
+
+```
+Issue: GET /api/providers returns 404 NOT_FOUND
+Status: Blocker for B2B funnel verification
+Fix: Add GET /api/providers endpoint (see manifest)
+```
 
 ## Verdict
 
-Changes successfully committed and deployed.
+External workspaces now reachable except A6 `/api/providers` endpoint.
+Attestation upgraded from BLOCKED → CONDITIONAL GO.

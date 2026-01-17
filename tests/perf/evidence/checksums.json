@@ -1,26 +1,33 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-17T19:49:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-031",
+  "generated_at": "2026-01-17T20:44:00.000Z",
   "algorithm": "SHA256",
   "checksums": {
     "reports": {
-      "a1_health.json": "eea4af2c3c1d67133fa57bda694b599b700c5140df43af0d78cac4cc5e931fb4",
-      "a3_health.json": "94430b127d23b7ad267534e184b4aa6f3fea04608182d0005c89c0570682fe7e",
-      "a5_health.json": "6672e950971a5591df643e7142ced9e6813ae81c80a0c3589e490e16ffab6289",
-      "a7_health.json": "a6b73b695d9e341d9bd392f5bcae5997bc3711d820b01a0d4f6d16cba88f5a36",
-      "a8_health.json": "646b1f65efb15155e95151058a491151ff2fa60e01ba997ca8d585c407a94b03",
-      "system_map.json": "9f7f8988162939319abfa9d3b57de85bdf289318595d62f172159111fe564256",
-      "version_manifest.json": "13575a560db390ff50e4a5bf6d19cc6f8f751019048c1b12df08915b08925a28"
+      "a1_health.json": "13c7230c84e0f4aba4692c2c8b890754cbfc6e67dac2fa396319e690e7fdd67f",
+      "a3_health.json": "92fd53a45ae9f4875f380abb3b2507291f996715992b550ffc7b855b2f7ba13e",
+      "a5_health.json": "0a557fc106c3c096db5244bcbcda7d09927f8b0f7c84c9560f82f023f0660f3f",
+      "a6_health.json": "a6b41d8f17abff8b68430940718b1114d684a0078984ccb21ef9173b55f40b2c",
+      "a7_health.json": "f68ad210d3be4777265f54f4e02675e85d31f18852ebda78c9bf1a0fa1d4950b",
+      "a8_health.json": "6627aab9add723a83ba4070dfd7070f527ca2641dd880b307f00774c8d5a0e7f",
+      "system_map.json": "0f9d0a749af2671e091fafcfffcb4d161ec0a4658e2d0b29a582df0340aba023",
+      "version_manifest.json": "51b9df4542e48a84aa6137cadaf95757bbda29809029a767168ccfd8adbe50fd"
     },
-    "sre_audit": {
-      "fpr_analysis.json": "0c970870775308146c04454da84e3629179539d153a59fceea3077c3643ee236",
-      "hybrid_search_config.json": "44dc7057a18e826a208734e1e47d7f30383c96d7bf825e5a2e40034d0bc83060",
-      "verification_scorecard.json": "5c75cca3e1365841a79ab90d4b882b057bc49fc5f5477b1b18a213e347af30fa"
+    "evidence": {
+      "raw_curl_evidence.txt": "e54a7dd89bc995ed46db082b7c6220783c8537de0a501bee3bb3000bdef3afbd"
+    },
+    "a8_roundtrip": {
+      "event_id": "evt_1768682690404_dfuxr19ey",
+      "persisted": true,
+      "verified": true
     }
   },
-  "a8_roundtrip": {
-    "event_id": "evt_1768679352242_vhdphkli8",
-    "persisted": true,
-    "verified": true
-  }
+  "blockers": [
+    {
+      "app": "A6",
+      "endpoint": "/api/providers",
+      "http_code": 404,
+      "remediation": "manual_intervention_manifest.md"
+    }
+  ]
 }

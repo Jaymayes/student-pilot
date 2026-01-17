@@ -1,0 +1,30 @@
+{
+  "app_id": "A6",
+  "app_name": "provider_register",
+  "url": "https://provider-register-jamarrlmayes.replit.app",
+  "health_endpoint": "/health",
+  "checked_at": "2026-01-17T20:44:32.350Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-031.A6",
+  "response": {
+    "status": "ok",
+    "app": "provider_register",
+    "checks": {
+      "db": "healthy",
+      "db_latency_ms": 22,
+      "cache": "healthy",
+      "stripe_connect": "healthy",
+      "telemetry_outbound": "soft-fail-allowed"
+    },
+    "version": "1.0.0"
+  },
+  "http_code": 200,
+  "latency_ms": 91,
+  "markers_present": ["status:ok", "app:provider_register", "db:healthy"],
+  "functional_check": {
+    "endpoint": "/api/providers",
+    "result": "NOT_FOUND",
+    "action_required": "Add GET /api/providers endpoint"
+  },
+  "verdict": "CONDITIONAL",
+  "blocker": "Missing /api/providers endpoint"
+}

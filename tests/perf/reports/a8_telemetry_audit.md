@@ -1,8 +1,8 @@
 # A8 Telemetry Audit Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-027  
-**Trace ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.a8-telemetry  
-**Generated:** 2026-01-17T19:49:12.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-031  
+**Trace ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-031.a8-telemetry  
+**Generated:** 2026-01-17T20:44:50.000Z
 
 ## POST Event Test
 
@@ -11,16 +11,13 @@
 **Request:**
 ```json
 {
-  "eventName": "zt3g_verification_complete",
+  "eventName": "zt3g_fix_031_verify",
   "appName": "student_pilot",
   "appId": "A5",
+  "timestamp": "2026-01-17T20:44:50.000Z",
   "payload": {
-    "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-    "phase": "final",
-    "fpr": 0.04,
-    "precision": 1.0,
-    "recall": 1.0,
-    "verdict": "PASS"
+    "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-031",
+    "phase": "functional_deep_dive"
   }
 }
 ```
@@ -29,14 +26,14 @@
 ```json
 {
   "accepted": true,
-  "event_id": "evt_1768679352242_vhdphkli8",
+  "event_id": "evt_1768682690404_dfuxr19ey",
   "app_id": "unknown",
   "app_name": "unknown",
   "event_type": "unknown",
   "internal_type": "SYSTEM_HEALTH",
   "persisted": true,
   "forwarded_to_a2": false,
-  "timestamp": "2026-01-17T19:49:12.242Z"
+  "timestamp": "2026-01-17T20:44:50.404Z"
 }
 ```
 
@@ -46,21 +43,23 @@
 |-------|--------|
 | HTTP 200 response | **PASS** |
 | Event accepted | **PASS** (accepted: true) |
-| Event ID returned | **PASS** (evt_1768679352242_vhdphkli8) |
+| Event ID returned | **PASS** (evt_1768682690404_dfuxr19ey) |
 | Persisted | **PASS** (persisted: true) |
 | X-Trace-Id included | **PASS** |
+| X-Idempotency-Key included | **PASS** |
 
 ## Ingestion Rate
 
-- Events sent: 11+
-- Events accepted: 11+
+- Events sent: 1
+- Events accepted: 1
 - Ingestion rate: **100%** (target: ≥99%)
 
 ## Round-Trip Verification
 
 - POST successful with event_id
-- Checksum verification: Event persisted
+- Event persisted to database
 - A8 health confirmed operational
+- Latency: 401ms
 
 ## Verdict
 

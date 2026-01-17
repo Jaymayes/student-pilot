@@ -1,6 +1,8 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-17T19:49:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-031",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-032",
+  "matching_trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
+  "generated_at": "2026-01-17T20:44:00.000Z",
   "protocol": "AGENT3_HANDSHAKE v30",
   "ecosystem": "Scholar AI Advisor",
   "apps": {
@@ -10,15 +12,19 @@
       "role": "Authentication (OIDC)",
       "health_endpoint": "/health",
       "status": "healthy",
-      "uptime_s": 34206
+      "http_code": 200,
+      "latency_ms": 121,
+      "uptime_s": 37531
     },
     "A3": {
       "name": "scholarship_agent",
       "url": "https://scholarship-agent-jamarrlmayes.replit.app",
-      "role": "AI Agent",
+      "role": "AI Agent/Orchestrator",
       "health_endpoint": "/health",
       "status": "healthy",
-      "uptime_s": 55181
+      "http_code": 200,
+      "latency_ms": 151,
+      "uptime_s": 58506
     },
     "A5": {
       "name": "student_pilot",
@@ -26,7 +32,19 @@
       "role": "B2C Student App + Payments",
       "health_endpoint": "/api/health",
       "status": "healthy",
+      "http_code": 200,
+      "latency_ms": 138,
       "stripe_mode": "live_mode"
+    },
+    "A6": {
+      "name": "provider_register",
+      "url": "https://provider-register-jamarrlmayes.replit.app",
+      "role": "B2B Provider Registration",
+      "health_endpoint": "/health",
+      "status": "healthy",
+      "http_code": 200,
+      "latency_ms": 91,
+      "blocker": "/api/providers endpoint missing"
     },
     "A7": {
       "name": "auto_page_maker",
@@ -34,7 +52,9 @@
       "role": "SEO Landing Pages",
       "health_endpoint": "/health",
       "status": "healthy",
-      "uptime_s": 44460
+      "http_code": 200,
+      "latency_ms": 199,
+      "uptime_s": 47784
     },
     "A8": {
       "name": "auto_com_center",
@@ -42,9 +62,11 @@
       "role": "Command Center + Telemetry",
       "health_endpoint": "/api/health",
       "status": "healthy",
-      "uptime_s": 59504
+      "http_code": 200,
+      "latency_ms": 401,
+      "uptime_s": 62828
     }
   },
-  "telemetry_protocol": "AGENT3_v3.5.1",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027"
+  "blockers": ["A6: /api/providers endpoint missing"],
+  "telemetry_protocol": "AGENT3_v3.5.1"
 }
