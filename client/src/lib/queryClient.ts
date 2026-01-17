@@ -65,11 +65,11 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
-      refetchOnWindowFocus: isTestMode ? 'always' : false, // Force fresh in test mode
-      staleTime: isTestMode ? 0 : 5 * 60 * 1000, // No cache in test mode
-      gcTime: isTestMode ? 0 : 5 * 60 * 1000, // Immediate cleanup in test mode
-      refetchOnMount: isTestMode ? 'always' : true, // Always refetch in test mode
+      refetchOnWindowFocus: 'always', // Zero-Staleness: Always refetch on focus
+      staleTime: isTestMode ? 0 : 5000, // Zero-Staleness: 5-second SLA for data freshness
+      gcTime: isTestMode ? 0 : 30000, // 30 second garbage collection
+      refetchOnMount: 'always', // Zero-Staleness: Always refetch on mount
+      refetchInterval: isTestMode ? false : 5000, // Zero-Staleness: Poll every 5 seconds
       // Smart retry: let our resilience layer handle retries for network errors
       retry: (failureCount, error) => {
         if (isTestMode) return false; // No retries in test mode for faster feedback

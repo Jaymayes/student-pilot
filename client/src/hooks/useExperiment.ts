@@ -157,13 +157,25 @@ export function useExperiment(experimentId: string) {
   }, [assignment, experimentId, hasLoggedExposure]);
 
   /**
-   * Get variant configuration
+   * Get variant configuration from API (Zero-Staleness: No mock data in production)
    */
-  const getVariantConfig = useCallback((defaultConfig: Record<string, any> = {}) => {
+  const getVariantConfig = useCallback(async (defaultConfig: Record<string, any> = {}): Promise<Record<string, any>> => {
     if (!assignment) return defaultConfig;
 
-    // In a real implementation, this would fetch from experiment config
-    // For now, return mock variant configurations
+    // Zero-Staleness: Fetch variant config from production API
+    if (!import.meta.env.DEV) {
+      try {
+        const response = await apiRequest('GET', `/api/experiments/${experimentId}/variants/${assignment.variantId}/config`);
+        const config = await response.json();
+        return { ...defaultConfig, ...config };
+      } catch (error) {
+        console.error('Failed to fetch variant config from API:', error);
+        // Fail loudly in production - show error state, not fake data
+        throw new Error(`Variant config unavailable for ${assignment.variantId}`);
+      }
+    }
+
+    // DEV only: Mock variant configurations for local development
     const variantConfigs: Record<string, Record<string, any>> = {
       control: defaultConfig,
       variant_a: { ...defaultConfig, showNewFeature: true },
@@ -182,7 +194,7 @@ export function useExperiment(experimentId: string) {
     };
 
     return variantConfigs[assignment.variantId] || defaultConfig;
-  }, [assignment]);
+  }, [assignment, experimentId]);
 
   /**
    * Check if user is in specific variant

@@ -239,9 +239,20 @@ export async function resilientFetch(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   
+  // Zero-Staleness: Add cache-busting headers to all requests
+  const cacheBustingHeaders: HeadersInit = {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  };
+
   const fetchOptions: RequestInit = {
     ...options,
     signal: controller.signal,
+    headers: {
+      ...cacheBustingHeaders,
+      ...options.headers,
+    },
   };
 
   try {
