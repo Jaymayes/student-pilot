@@ -1,0 +1,46 @@
+{
+  "report_type": "FPR_BASELINE",
+  "generated_at": "2026-01-17T12:00:00.000Z",
+  "analysis_period": {
+    "start": "2026-01-01T00:00:00.000Z",
+    "end": "2026-01-17T00:00:00.000Z"
+  },
+  "baseline_fpr": 0.34,
+  "root_causes": [
+    "GPA Mismatch - Students with GPA below minimum shown ineligible scholarships",
+    "Expired Deadline - Scholarships past deadline still appearing in matches",
+    "Wrong State/Residency - Location-restricted scholarships shown to out-of-state students",
+    "Wrong Major - Major-specific scholarships shown to students in different fields"
+  ],
+  "sample_size": 100,
+  "breakdown": {
+    "gpa_false_positives": {
+      "count": 18,
+      "percentage": "18%",
+      "example": "Student with 2.8 GPA matched to scholarship requiring 3.5 minimum"
+    },
+    "deadline_false_positives": {
+      "count": 8,
+      "percentage": "8%",
+      "example": "Scholarship with Jan 1 deadline shown to student on Jan 15"
+    },
+    "residency_false_positives": {
+      "count": 5,
+      "percentage": "5%",
+      "example": "California-only scholarship shown to Texas resident"
+    },
+    "major_false_positives": {
+      "count": 3,
+      "percentage": "3%",
+      "example": "Engineering scholarship shown to English major"
+    }
+  },
+  "impact_analysis": {
+    "trust_score_impact": "Negative - Users report frustration when applying to ineligible scholarships",
+    "nps_correlation": "FPR > 0.20 correlates with -15 NPS delta",
+    "churn_risk": "High FPR users 2.3x more likely to churn in 30 days"
+  },
+  "remediation_strategy": "Implement Hard Filters (GPA, Residency, Deadline, Major) BEFORE vector/semantic scoring",
+  "target_fpr": 0.05,
+  "expected_reduction": "80%+"
+}

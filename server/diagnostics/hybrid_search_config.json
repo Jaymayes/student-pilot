@@ -1,0 +1,70 @@
+{
+  "config_version": "2.0.0-hybrid",
+  "updated_at": "2026-01-17T12:00:00.000Z",
+  "description": "Hybrid Search Configuration - Hard Filters + Soft Scoring",
+  
+  "hard_filters_implemented": [
+    {
+      "name": "gpa",
+      "type": "strict_gate",
+      "behavior": "REJECT if student.gpa < scholarship.minGpa",
+      "enabled": true,
+      "priority": 1
+    },
+    {
+      "name": "residency",
+      "type": "strict_gate", 
+      "behavior": "REJECT if student.location not in scholarship.allowedStates",
+      "enabled": true,
+      "priority": 2
+    },
+    {
+      "name": "deadline",
+      "type": "strict_gate",
+      "behavior": "REJECT if scholarship.deadline < now()",
+      "enabled": true,
+      "priority": 3,
+      "buffer_days": 0
+    },
+    {
+      "name": "major",
+      "type": "strict_gate",
+      "behavior": "REJECT if student.major not in scholarship.allowedMajors",
+      "enabled": true,
+      "priority": 4,
+      "strict_match": false,
+      "field_level_fallback": true
+    }
+  ],
+  
+  "soft_scoring_weights": {
+    "description": "Applied AFTER hard filters pass",
+    "vector_weight": 0.70,
+    "keyword_weight": 0.30,
+    "breakdown": {
+      "gpa_alignment": 0.25,
+      "major_alignment": 0.20,
+      "demographics_match": 0.15,
+      "geography_proximity": 0.10,
+      "extracurriculars": 0.10,
+      "financial_need": 0.05,
+      "academic_level": 0.05,
+      "ai_analysis": 0.10
+    }
+  },
+  
+  "execution_flow": [
+    "1. Fetch all active scholarships",
+    "2. Apply Hard Filters (strict eligibility gates)",
+    "3. Reject all scholarships that fail ANY hard filter",
+    "4. Apply Soft Scoring to remaining eligible scholarships",
+    "5. Rank by weighted score",
+    "6. Return top-N matches"
+  ],
+  
+  "telemetry": {
+    "emit_filter_stats": true,
+    "emit_rejection_reasons": true,
+    "emit_latency_metrics": true
+  }
+}

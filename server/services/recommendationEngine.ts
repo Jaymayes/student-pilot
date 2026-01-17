@@ -12,6 +12,7 @@ import {
 } from '@shared/schema';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { openaiService } from '../openai';
+import { hardFiltersService, type HardFilterReport } from './hardFilters';
 
 interface ScoringWeights {
   gpa: number;
@@ -93,10 +94,30 @@ export class RecommendationEngine {
         )
         .orderBy(desc(scholarships.deadline));
 
-      // Generate detailed scores for all scholarships
+      // HYBRID SEARCH: Apply Hard Filters BEFORE scoring (Trust Leak Fix)
+      // This eliminates False Positives by rejecting strictly ineligible scholarships
+      const eligibleScholarships: Scholarship[] = [];
+      const rejectedScholarships: { scholarship: Scholarship; report: HardFilterReport }[] = [];
+      
+      for (const scholarship of availableScholarships) {
+        const filterReport = hardFiltersService.applyHardFilters(student, scholarship);
+        
+        if (filterReport.allPassed) {
+          eligibleScholarships.push(scholarship);
+        } else {
+          rejectedScholarships.push({ scholarship, report: filterReport });
+        }
+      }
+
+      // Log filter stats for monitoring
+      const filterStats = hardFiltersService.getFilterStats();
+      console.log(`Hard Filters applied: ${availableScholarships.length} total → ${eligibleScholarships.length} eligible (${rejectedScholarships.length} rejected)`);
+      console.log(`Filter rejection breakdown: GPA=${filterStats.failuresByType.gpa}, Residency=${filterStats.failuresByType.residency}, Deadline=${filterStats.failuresByType.deadline}, Major=${filterStats.failuresByType.major}`);
+
+      // Generate detailed scores ONLY for eligible scholarships (post-filter)
       const scoredMatches: (ScholarshipMatch & { detailedScore: DetailedMatchScore })[] = [];
 
-      for (const scholarship of availableScholarships) {
+      for (const scholarship of eligibleScholarships) {
         const detailedScore = await this.calculateDetailedScore(student, scholarship);
         
         if (detailedScore.totalScore >= minScore) {
