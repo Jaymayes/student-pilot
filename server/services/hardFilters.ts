@@ -137,12 +137,13 @@ export class HardFiltersService {
     const studentGpa = student.gpa ? parseFloat(student.gpa.toString()) : null;
     const requiredGpa = parseFloat(minGpa.toString());
 
-    // Student has no GPA on file - cannot verify eligibility
+    // Student has no GPA on file - pass to soft scoring (avoid false negative)
+    // Rationale: Missing data should not cause rejection; defer to soft scoring
     if (studentGpa === null) {
       return {
-        passed: false,
+        passed: true,
         filterName: 'GPA',
-        reason: 'GPA not provided - cannot verify eligibility',
+        reason: 'GPA not provided - deferring to soft scoring',
         studentValue: null,
         requirementValue: requiredGpa,
       };
@@ -190,12 +191,13 @@ export class HardFiltersService {
       };
     }
 
-    // Student has no location on file
+    // Student has no location on file - pass to soft scoring (avoid false negative)
+    // Rationale: Missing data should not cause rejection; defer to soft scoring
     if (!student.location) {
       return {
-        passed: false,
+        passed: true,
         filterName: 'Residency',
-        reason: 'Location not provided - cannot verify residency eligibility',
+        reason: 'Location not provided - deferring to soft scoring',
         studentValue: null,
         requirementValue: JSON.stringify(allowedStates || allowedRegions),
       };
@@ -334,12 +336,13 @@ export class HardFiltersService {
       };
     }
 
-    // Student has no major on file
+    // Student has no major on file - pass to soft scoring (avoid false negative)
+    // Rationale: Missing data should not cause rejection; defer to soft scoring
     if (!student.major) {
       return {
-        passed: false,
+        passed: true,
         filterName: 'Major',
-        reason: 'Major not provided - cannot verify eligibility',
+        reason: 'Major not provided - deferring to soft scoring',
         studentValue: null,
         requirementValue: JSON.stringify(allowedMajors || allowedFields),
       };
