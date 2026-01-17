@@ -1,49 +1,38 @@
 {
   "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-17T18:38:00.000Z",
+  "generated_at": "2026-01-17T19:49:00.000Z",
   "apps": {
     "A1": {
       "name": "scholar_auth",
-      "url": "https://scholar-auth-jamarrlmayes.replit.app",
       "version": "1.0.0",
-      "git_sha": "unknown",
-      "uptime_s": 29885,
-      "last_deploy": "2026-01-17"
+      "uptime_s": 34206
     },
     "A3": {
       "name": "scholarship_agent",
-      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
       "version": "1.0.0",
-      "environment": "production",
-      "uptime": 50863
+      "uptime_s": 55181
     },
     "A5": {
       "name": "student_pilot",
-      "url": "https://student-pilot-jamarrlmayes.replit.app",
       "service": "scholarlink-api",
-      "git_sha": "b73f5712818b075f4c1270787b39969b2417bf05",
       "stripe_mode": "live"
     },
     "A7": {
       "name": "auto_page_maker",
-      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
       "version": "v2.9",
-      "uptime_s": 40149
+      "uptime_s": 44460
     },
     "A8": {
       "name": "auto_com_center",
-      "url": "https://auto-com-center-jamarrlmayes.replit.app",
       "version": "8a9563bb-3cdc-4ec5-b73d-1803fef7da89",
-      "environment": "production",
-      "uptime_s": 55183
+      "uptime_s": 59504
     }
   },
   "changes_in_this_sprint": {
     "A5": [
-      "Implemented HardFiltersService in server/services/hardFilters.ts",
-      "Integrated hard filters into RecommendationEngine before scoring",
-      "Fixed missing data handling to pass to soft scoring",
-      "Added diagnostic artifacts for FPR verification"
+      "Added FPR verification endpoints (POST/GET config, baseline, verify, search)",
+      "Endpoints ordered BEFORE :id catch-all route",
+      "Hard filters integration verified"
     ]
   }
 }

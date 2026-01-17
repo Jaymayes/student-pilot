@@ -3,20 +3,17 @@
   "app_name": "auto_com_center",
   "url": "https://auto-com-center-jamarrlmayes.replit.app",
   "health_endpoint": "/api/health",
-  "checked_at": "2026-01-17T18:37:07.774Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.a8-health",
+  "checked_at": "2026-01-17T19:49:08.408Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.A8",
   "response": {
     "service": "ScholarshipAI Command Center",
     "env": "production",
     "status": "healthy",
-    "db": {
-      "status": "healthy",
-      "latency_ms": 230
-    },
-    "uptimeSeconds": 55183
+    "db": { "status": "healthy", "latency_ms": 225 },
+    "uptimeSeconds": 59504
   },
   "http_status": 200,
-  "latency_ms": 230,
+  "latency_ms": 225,
   "markers_present": ["service:ScholarshipAI Command Center", "status:healthy", "db:healthy"],
   "verdict": "PASS"
 }

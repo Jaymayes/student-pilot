@@ -1,22 +1,21 @@
 {
   "config_version": "2.0.0",
   "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "updated_at": "2026-01-17T18:37:00.000Z",
+  "updated_at": "2026-01-17T19:49:00.000Z",
   
-  "hard_filters": {
-    "enabled": true,
-    "filters": ["deadline", "gpa", "residency", "major"],
+  "hard_filters": ["deadline", "gpa", "residency", "major"],
+  "deadline_buffer_days": 30,
+  "gpa_tolerance": 0.1,
+  "major_fuzzy_threshold": 0.8,
+  "strictMajorMatch": true,
+  "vector_weight": 0.7,
+  "keyword_weight": 0.3,
+  "freshness_boost": 0.1,
+  
+  "filter_config": {
     "order": "deadline -> gpa -> residency -> major",
     "fail_fast": true,
     "description": "Hard filters applied BEFORE vector scoring to eliminate false positives"
-  },
-  
-  "filter_config": {
-    "deadline_buffer_days": 0,
-    "gpa_tolerance": 0.0,
-    "major_fuzzy_threshold": 0.8,
-    "strictMajorMatch": false,
-    "residency_abbreviation_support": true
   },
   
   "missing_data_handling": {
@@ -28,9 +27,6 @@
   
   "soft_scoring": {
     "enabled": true,
-    "vector_weight": 0.7,
-    "keyword_weight": 0.3,
-    "freshness_boost": 0.1,
     "min_score_threshold": 50
   },
   

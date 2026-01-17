@@ -1,6 +1,7 @@
 {
   "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-17T18:37:00.000Z",
+  "generated_at": "2026-01-17T19:49:00.000Z",
+  "protocol": "AGENT3_HANDSHAKE v30",
   "ecosystem": "Scholar AI Advisor",
   "apps": {
     "A1": {
@@ -8,42 +9,40 @@
       "url": "https://scholar-auth-jamarrlmayes.replit.app",
       "role": "Authentication (OIDC)",
       "health_endpoint": "/health",
-      "status": "healthy"
-    },
-    "A2": {
-      "name": "scholarship_api",
-      "url": "https://scholarship-api-jamarrlmayes.replit.app",
-      "role": "Core Data API",
-      "health_endpoint": "/api/health",
-      "status": "requires_auth"
+      "status": "healthy",
+      "uptime_s": 34206
     },
     "A3": {
       "name": "scholarship_agent",
       "url": "https://scholarship-agent-jamarrlmayes.replit.app",
       "role": "AI Agent",
       "health_endpoint": "/health",
-      "status": "healthy"
+      "status": "healthy",
+      "uptime_s": 55181
     },
     "A5": {
       "name": "student_pilot",
       "url": "https://student-pilot-jamarrlmayes.replit.app",
       "role": "B2C Student App + Payments",
       "health_endpoint": "/api/health",
-      "status": "healthy"
+      "status": "healthy",
+      "stripe_mode": "live_mode"
     },
     "A7": {
       "name": "auto_page_maker",
       "url": "https://auto-page-maker-jamarrlmayes.replit.app",
       "role": "SEO Landing Pages",
       "health_endpoint": "/health",
-      "status": "healthy"
+      "status": "healthy",
+      "uptime_s": 44460
     },
     "A8": {
       "name": "auto_com_center",
       "url": "https://auto-com-center-jamarrlmayes.replit.app",
       "role": "Command Center + Telemetry",
       "health_endpoint": "/api/health",
-      "status": "healthy"
+      "status": "healthy",
+      "uptime_s": 59504
     }
   },
   "telemetry_protocol": "AGENT3_v3.5.1",

@@ -3,24 +3,19 @@
   "app_name": "auto_page_maker",
   "url": "https://auto-page-maker-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-17T18:37:17.241Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.a7-health",
+  "checked_at": "2026-01-17T19:49:08.043Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.A7",
   "response": {
     "status": "healthy",
     "version": "v2.9",
     "app": "auto_page_maker",
-    "uptime_s": 40149,
+    "uptime_s": 44460,
     "dependencies": [
-      {"name": "database", "status": "healthy", "latency_ms": 25},
-      {"name": "email_provider", "status": "healthy", "latency_ms": 501},
-      {"name": "jwks", "status": "healthy", "latency_ms": 1}
+      { "name": "database", "status": "healthy", "latency_ms": 23 },
+      { "name": "email_provider", "status": "healthy", "latency_ms": 1300 },
+      { "name": "jwks", "status": "healthy", "latency_ms": 0 }
     ],
-    "summary": {
-      "total": 3,
-      "healthy": 3,
-      "degraded": 0,
-      "unhealthy": 0
-    }
+    "summary": { "total": 3, "healthy": 3, "degraded": 0, "unhealthy": 0 }
   },
   "http_status": 200,
   "latency_ms": 89,

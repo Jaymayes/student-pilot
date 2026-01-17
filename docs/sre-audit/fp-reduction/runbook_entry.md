@@ -5,27 +5,47 @@
 
 ## Overview
 
-This runbook provides guidance on tuning the Hard Filters system to balance False Positive Rate (FPR) reduction while avoiding False Negatives (valid scholarships being hidden).
+This runbook provides guidance on tuning the Hard Filters system to balance False Positive Rate (FPR) reduction while avoiding False Negatives.
 
 ## Quick Reference
 
 | Filter | Config Key | Default | Safe Range |
 |--------|-----------|---------|------------|
-| GPA | `enableGpaFilter` | `true` | Always enabled |
-| Residency | `enableResidencyFilter` | `true` | Enable/disable based on data quality |
-| Deadline | `enableDeadlineFilter` | `true` | Always enabled |
-| Major | `enableMajorFilter` | `true` | Can disable for "open major" orgs |
-| Deadline Buffer | `deadlineBufferDays` | `0` | 0-3 days |
-| Strict Major Match | `strictMajorMatch` | `false` | `false` recommended |
+| GPA | enabled | `true` | Always enabled |
+| Residency | enabled | `true` | Enable/disable based on data quality |
+| Deadline | enabled | `true` | Always enabled |
+| Major | enabled | `true` | Can disable for "open major" orgs |
+| Deadline Buffer | `deadline_buffer_days` | `30` | 0-30 days |
+| GPA Tolerance | `gpa_tolerance` | `0.1` | 0.0-0.2 |
+| Major Fuzzy | `major_fuzzy_threshold` | `0.8` | 0.6-1.0 |
+| Strict Major | `strictMajorMatch` | `true` | true/false |
 
-## Implementation Details
+## API Endpoints
 
-### File Locations
-- **Hard Filters Service:** `server/services/hardFilters.ts`
-- **Integration Point:** `server/services/recommendationEngine.ts`
-- **Configuration:** `docs/sre-audit/fp-reduction/hybrid_search_config.json`
+### View Configuration
+```bash
+curl "https://student-pilot-jamarrlmayes.replit.app/api/scholarships/config"
+```
 
-### Filter Order
+### Update Configuration (Admin)
+```bash
+curl -X PATCH "https://student-pilot-jamarrlmayes.replit.app/api/scholarships/config" \
+  -H "Authorization: Bearer <ADMIN_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"deadline_buffer_days": 15}'
+```
+
+### Check Baseline FPR
+```bash
+curl "https://student-pilot-jamarrlmayes.replit.app/api/scholarships/fpr/baseline"
+```
+
+### Run Verification
+```bash
+curl -X POST "https://student-pilot-jamarrlmayes.replit.app/api/scholarships/fpr/verify"
+```
+
+## Filter Order
 ```
 Scholarship List
       ↓
@@ -40,85 +60,44 @@ Scholarship List
 Eligible Scholarships → Soft Scoring
 ```
 
-## Common Scenarios
+## Missing Data Handling
 
-### Scenario 1: Valid Scholarships Being Hidden (False Negatives)
+- **GPA missing:** Pass to soft scoring (avoid false negatives)
+- **Location missing:** Pass to soft scoring
+- **Major missing:** Pass to soft scoring
 
-**Symptoms:**
-- Users complaining they can't see scholarships they know they qualify for
-- Low match count for users with good profiles
-- Support tickets about "missing scholarships"
+## Common Issues
 
-**Resolution:**
-1. Check missing data handling (should "pass to soft scoring")
-2. Verify `strictMajorMatch: false`
-3. Add `deadlineBufferDays: 1-3` if timezone issues
+### Too Many Rejections
+- Check rejection rate (should be 30-60%)
+- Increase `gpa_tolerance` or `deadline_buffer_days`
+- Set `strictMajorMatch: false`
 
-### Scenario 2: Expired Scholarships Still Appearing
-
-**Symptoms:**
-- Users seeing past-deadline scholarships
-- Apply buttons leading to closed applications
-
-**Resolution:**
-- Ensure `enableDeadlineFilter: true`
-- Check that scholarship `deadline` field is properly formatted (ISO 8601)
-
-### Scenario 3: Too Many Rejections (Overcorrection)
-
-**Symptoms:**
-- Users seeing very few or no matches
-- Filter stats show >80% rejection rate
-
-**Resolution:**
-1. Check filter statistics via `hardFiltersService.getFilterStats()`
-2. Temporarily disable the problem filter for analysis
-3. Review data quality in the affected eligibility field
-
-## Configuration API
-
-### View Current Configuration
-```typescript
-import { hardFiltersService } from './services/hardFilters';
-console.log(hardFiltersService.getConfig());
-```
-
-### Update Configuration
-```typescript
-hardFiltersService.updateConfig({
-  deadlineBufferDays: 1,
-  strictMajorMatch: false
-});
-```
-
-## Monitoring & Alerting
-
-### Key Metrics
-1. **Rejection Rate:** Should be 30-60% typically
-2. **FPR:** Should be <5%
-3. **Latency P95:** Should be <200ms
-
-### A8 Watchtower Alerts
-- Alert on rejection rate >80% (over-filtering)
-- Alert on FPR >10% (trust leak returning)
+### False Positives Returning
+- Verify hard filters are enabled
+- Check filter configuration values
+- Review scholarship eligibilityCriteria data quality
 
 ## Emergency Rollback
 
-```typescript
-// Disable all hard filters temporarily
-hardFiltersService.updateConfig({
-  enableGpaFilter: false,
-  enableResidencyFilter: false,
-  enableDeadlineFilter: false,
-  enableMajorFilter: false
-});
+```bash
+curl -X PATCH "https://student-pilot-jamarrlmayes.replit.app/api/scholarships/config" \
+  -H "Authorization: Bearer <ADMIN_TOKEN>" \
+  -d '{"hard_filters": []}'
 ```
 
 **WARNING:** This returns to pre-fix FPR levels (~34%)
+
+## A8 Watchtower Alerts
+
+Configure alerts for:
+- FPR > 10% → Trust leak returning
+- Rejection rate > 80% → Over-filtering
 
 ## Version History
 
 | Date | Version | Change |
 |------|---------|--------|
 | 2026-01-17 | 2.0.0 | Initial hard filters implementation |
-| 2026-01-17 | 2.0.1 | Fixed missing data handling (pass to soft scoring) |
+| 2026-01-17 | 2.0.1 | Fixed missing data handling |
+| 2026-01-17 | 2.1.0 | Added API endpoints for runtime config |

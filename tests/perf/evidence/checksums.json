@@ -1,24 +1,26 @@
 {
   "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-17T18:38:00.000Z",
+  "generated_at": "2026-01-17T19:49:00.000Z",
   "algorithm": "SHA256",
   "checksums": {
     "reports": {
-      "a1_health.json": "fcdc9c094b3ddf04f94b8e46129fd9893937baba8f35cfba9766efc72dc5b743",
-      "a3_health.json": "098cd1fb0b96d50f6dd430271c2c9acb3fb592e4e67fb6264327d01383d695d8",
-      "a5_health.json": "a594c5e54b6a6694e75bc08308ce48514afcf2422e144f6a40a8084514315675",
-      "a7_health.json": "f084f903572bdd09cdb01abd7895fa45e0dead06b0a538d03aff7f2c225a174f",
-      "a8_health.json": "2183982c07c29b0a1d1263abdead5be84e8627016aa50a0fc3bfa7f4ed4e9801",
-      "system_map.json": "db2671e30f4649cd70fc7fdbbf3fdb67fbb1f5a4208dfcfef5ce313e1f193513"
+      "a1_health.json": "eea4af2c3c1d67133fa57bda694b599b700c5140df43af0d78cac4cc5e931fb4",
+      "a3_health.json": "94430b127d23b7ad267534e184b4aa6f3fea04608182d0005c89c0570682fe7e",
+      "a5_health.json": "6672e950971a5591df643e7142ced9e6813ae81c80a0c3589e490e16ffab6289",
+      "a7_health.json": "a6b73b695d9e341d9bd392f5bcae5997bc3711d820b01a0d4f6d16cba88f5a36",
+      "a8_health.json": "646b1f65efb15155e95151058a491151ff2fa60e01ba997ca8d585c407a94b03",
+      "system_map.json": "9f7f8988162939319abfa9d3b57de85bdf289318595d62f172159111fe564256",
+      "version_manifest.json": "13575a560db390ff50e4a5bf6d19cc6f8f751019048c1b12df08915b08925a28"
     },
     "sre_audit": {
-      "fpr_analysis.json": "3c89bee8f5161edfda4482fc7a8c21e7746c556bb492ef555a6eabfe589425f1",
-      "hybrid_search_config.json": "6004b91badf38520706ab48500eedf7ed3a81e65e28c1bb6d874666b96d48357",
-      "verification_scorecard.json": "1a58e404c95e523f4d0aa312b294f9927470caf305f1e17882eb1f7dfa6fc636"
+      "fpr_analysis.json": "0c970870775308146c04454da84e3629179539d153a59fceea3077c3643ee236",
+      "hybrid_search_config.json": "44dc7057a18e826a208734e1e47d7f30383c96d7bf825e5a2e40034d0bc83060",
+      "verification_scorecard.json": "5c75cca3e1365841a79ab90d4b882b057bc49fc5f5477b1b18a213e347af30fa"
     }
   },
-  "verification": {
-    "all_present": true,
-    "integrity_check": "PASS"
+  "a8_roundtrip": {
+    "event_id": "evt_1768679352242_vhdphkli8",
+    "persisted": true,
+    "verified": true
   }
 }
