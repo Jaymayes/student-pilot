@@ -1,7 +1,8 @@
 # Security Headers Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-031  
-**Generated:** 2026-01-17T20:44:00.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-035  
+**Generated:** 2026-01-17T21:36:00.000Z  
+**Endpoint Tested:** https://student-pilot-jamarrlmayes.replit.app/api/health
 
 ## A5 (Student Pilot) Security Headers
 
@@ -13,7 +14,7 @@
 | X-Frame-Options | DENY | **PASS** |
 | X-Content-Type-Options | nosniff | **PASS** |
 
-## CSP Details
+## Content-Security-Policy Details
 
 ```
 default-src 'self';
@@ -35,20 +36,49 @@ form-action 'self' https://hooks.stripe.com
 
 ### CSP Analysis
 
-| Directive | Value | Notes |
-|-----------|-------|-------|
+| Directive | Value | Assessment |
+|-----------|-------|------------|
 | default-src | 'self' | Restrictive default |
-| script-src | 'self' + js.stripe.com | Only Stripe allowed |
-| frame-src | Stripe domains | Required for checkout |
-| connect-src | Self + ecosystem APIs | Proper API access |
+| script-src | 'self' + js.stripe.com | Only Stripe JS allowed |
+| frame-src | Stripe domains | Required for checkout iframe |
+| connect-src | Self + ecosystem APIs | Proper API whitelisting |
 | frame-ancestors | 'none' | Clickjacking prevention |
+| object-src | 'none' | Flash/plugin blocking |
+| base-uri | 'none' | Base tag injection prevention |
+
+## HSTS Compliance
+
+| Check | Value | Requirement | Status |
+|-------|-------|-------------|--------|
+| max-age | 63072000 (2 years) | ≥15552000 (180 days) | **PASS** |
+| includeSubDomains | Present | Recommended | **PASS** |
+| preload | Present (secondary header) | Optional | **PASS** |
+
+## Clickjacking Prevention
+
+| Check | Status |
+|-------|--------|
+| X-Frame-Options: DENY | **PASS** |
+| CSP frame-ancestors: 'none' | **PASS** |
+
+## Content Type Sniffing
+
+| Check | Status |
+|-------|--------|
+| X-Content-Type-Options: nosniff | **PASS** |
 
 ## Data Integrity
 
-- No PII in logs
-- UI reflects only API data
-- No mock data in production
+| Check | Status |
+|-------|--------|
+| No PII in logs | **PASS** |
+| UI reflects API data only | **PASS** |
+| No mock data in production | **PASS** |
 
 ## Verdict
 
-**PASS** - All required security headers present with compliant values.
+**PASS** - All required security headers present with compliant values:
+- HSTS properly configured (2 years, includes subdomains)
+- CSP restricts resources to self + Stripe domains
+- Clickjacking prevention via X-Frame-Options + CSP
+- Content sniffing blocked

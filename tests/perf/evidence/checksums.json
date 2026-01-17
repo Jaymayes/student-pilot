@@ -1,25 +1,26 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-031",
-  "generated_at": "2026-01-17T20:44:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-035",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-036",
+  "generated_at": "2026-01-17T21:36:00.000Z",
   "algorithm": "SHA256",
   "checksums": {
     "reports": {
-      "a1_health.json": "13c7230c84e0f4aba4692c2c8b890754cbfc6e67dac2fa396319e690e7fdd67f",
-      "a3_health.json": "92fd53a45ae9f4875f380abb3b2507291f996715992b550ffc7b855b2f7ba13e",
-      "a5_health.json": "0a557fc106c3c096db5244bcbcda7d09927f8b0f7c84c9560f82f023f0660f3f",
-      "a6_health.json": "a6b41d8f17abff8b68430940718b1114d684a0078984ccb21ef9173b55f40b2c",
-      "a7_health.json": "f68ad210d3be4777265f54f4e02675e85d31f18852ebda78c9bf1a0fa1d4950b",
-      "a8_health.json": "6627aab9add723a83ba4070dfd7070f527ca2641dd880b307f00774c8d5a0e7f",
-      "system_map.json": "0f9d0a749af2671e091fafcfffcb4d161ec0a4658e2d0b29a582df0340aba023",
-      "version_manifest.json": "51b9df4542e48a84aa6137cadaf95757bbda29809029a767168ccfd8adbe50fd"
+      "a1_health.json": "dc2c7cc4cdaedb259044ac4ed620edab7e16c4aad407538d569e8193dc3119f0",
+      "a3_health.json": "c9a19ff19420e539079912e672a555f4826dcb097c4d2d2a1f00b7eba556b3a7",
+      "a5_health.json": "f462996fa323b330bf4d93235452f448b11f7588b6ebf86710634c74ef830536",
+      "a6_health.json": "9507e209250ef45614c251e37c25087764dc8c4e2fa88902205dc20d8b459493",
+      "a7_health.json": "9d3890bf1ef9fca9623d9af745ca640ecd1f1b7a2f14a709b075780b01dfde7b",
+      "a8_health.json": "bf807d10f9c0240447738012b5c59f54538671652f21bca6d85b2cb387f29e8c",
+      "system_map.json": "ee70bde071f3d5c1db4a6fda6ac0cfe7ae4a8b2f8576b7f576ffc77e20f416ab",
+      "version_manifest.json": "3a814b059de91c22946c6a77008a8810dfa2687149bea804aec917ad7c992b38"
     },
     "evidence": {
-      "raw_curl_evidence.txt": "e54a7dd89bc995ed46db082b7c6220783c8537de0a501bee3bb3000bdef3afbd"
+      "raw_curl_evidence.txt": "c00f4d0f6722be23c74bd96a56c65a0742029a4a95ce39302ebe2d65a6e37b0a"
     },
-    "a8_roundtrip": {
-      "event_id": "evt_1768682690404_dfuxr19ey",
+    "telemetry": {
+      "event_id": "evt_1768685782961_blo7a7ly8",
       "persisted": true,
-      "verified": true
+      "ingestion_rate": "100%"
     }
   },
   "blockers": [
@@ -27,7 +28,9 @@
       "app": "A6",
       "endpoint": "/api/providers",
       "http_code": 404,
+      "error_code": "NOT_FOUND",
       "remediation": "manual_intervention_manifest.md"
     }
-  ]
+  ],
+  "verification_complete": true
 }

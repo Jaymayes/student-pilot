@@ -1,49 +1,62 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-031",
-  "generated_at": "2026-01-17T20:44:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-035",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-036",
+  "generated_at": "2026-01-17T21:36:00.000Z",
+  "protocol": "AGENT3_HANDSHAKE v30",
   "apps": {
     "A1": {
       "name": "scholar_auth",
       "version": "1.0.0",
-      "uptime_s": 37531,
-      "status": "healthy"
+      "uptime_s": 40623,
+      "status": "healthy",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app"
     },
     "A3": {
       "name": "scholarship_agent",
       "version": "1.0.0",
-      "uptime_s": 58506,
-      "status": "healthy"
+      "uptime_s": 61598,
+      "status": "healthy",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app"
     },
     "A5": {
       "name": "student_pilot",
       "service": "scholarlink-api",
       "stripe_mode": "live",
-      "status": "healthy"
+      "status": "healthy",
+      "url": "https://student-pilot-jamarrlmayes.replit.app"
     },
     "A6": {
       "name": "provider_register",
       "version": "1.0.0",
       "status": "conditional",
-      "blocker": "/api/providers missing"
+      "blocker": "/api/providers missing",
+      "url": "https://provider-register-jamarrlmayes.replit.app"
     },
     "A7": {
       "name": "auto_page_maker",
       "version": "v2.9",
-      "uptime_s": 47784,
-      "status": "healthy"
+      "uptime_s": 50877,
+      "status": "healthy",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app"
     },
     "A8": {
       "name": "auto_com_center",
       "version": "8a9563bb-3cdc-4ec5-b73d-1803fef7da89",
-      "uptime_s": 62828,
-      "status": "healthy"
+      "uptime_s": 65921,
+      "status": "healthy",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app"
     }
   },
   "blockers": [
     {
       "app": "A6",
-      "issue": "/api/providers endpoint missing",
+      "issue": "/api/providers endpoint missing (HTTP 404)",
       "remediation": "See manual_intervention_manifest.md"
     }
-  ]
+  ],
+  "telemetry": {
+    "event_id": "evt_1768685782961_blo7a7ly8",
+    "persisted": true,
+    "ingestion_rate": "100%"
+  }
 }
