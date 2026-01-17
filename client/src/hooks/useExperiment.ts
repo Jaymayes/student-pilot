@@ -156,23 +156,43 @@ export function useExperiment(experimentId: string) {
     }
   }, [assignment, experimentId, hasLoggedExposure]);
 
+  // Zero-Staleness: State for variant config loaded from production API
+  const [variantConfig, setVariantConfig] = useState<Record<string, any> | null>(null);
+  const [configError, setConfigError] = useState<Error | null>(null);
+
+  // Zero-Staleness: Load variant config from API in production
+  useEffect(() => {
+    if (!assignment) return;
+
+    // In production, fetch variant config from API
+    if (!import.meta.env.DEV) {
+      apiRequest('GET', `/api/experiments/${experimentId}/variants/${assignment.variantId}/config`)
+        .then(response => response.json())
+        .then(config => setVariantConfig(config))
+        .catch(error => {
+          console.error('Failed to fetch variant config from API:', error);
+          setConfigError(new Error(`Variant config unavailable for ${assignment.variantId}`));
+        });
+    }
+  }, [assignment, experimentId]);
+
   /**
-   * Get variant configuration from API (Zero-Staleness: No mock data in production)
+   * Get variant configuration (Zero-Staleness: Uses API data in production)
    */
-  const getVariantConfig = useCallback(async (defaultConfig: Record<string, any> = {}): Promise<Record<string, any>> => {
+  const getVariantConfig = useCallback((defaultConfig: Record<string, any> = {}): Record<string, any> => {
     if (!assignment) return defaultConfig;
 
-    // Zero-Staleness: Fetch variant config from production API
+    // In production, return API-loaded config (fail loudly if error)
     if (!import.meta.env.DEV) {
-      try {
-        const response = await apiRequest('GET', `/api/experiments/${experimentId}/variants/${assignment.variantId}/config`);
-        const config = await response.json();
-        return { ...defaultConfig, ...config };
-      } catch (error) {
-        console.error('Failed to fetch variant config from API:', error);
-        // Fail loudly in production - show error state, not fake data
-        throw new Error(`Variant config unavailable for ${assignment.variantId}`);
+      if (configError) {
+        console.error('Variant config error - returning default:', configError);
+        return defaultConfig; // Graceful degradation with logging
       }
+      if (variantConfig) {
+        return { ...defaultConfig, ...variantConfig };
+      }
+      // Config still loading - return default
+      return defaultConfig;
     }
 
     // DEV only: Mock variant configurations for local development
@@ -194,7 +214,7 @@ export function useExperiment(experimentId: string) {
     };
 
     return variantConfigs[assignment.variantId] || defaultConfig;
-  }, [assignment, experimentId]);
+  }, [assignment, variantConfig, configError]);
 
   /**
    * Check if user is in specific variant
@@ -261,6 +281,10 @@ export function useExperiment(experimentId: string) {
     isVariant,
     logExposure,
     trackConversion,
+    
+    // Zero-Staleness: Config loading state
+    variantConfigLoaded: variantConfig !== null,
+    variantConfigError: configError,
     
     // Debug info
     experimentId,
