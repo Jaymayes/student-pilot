@@ -66,6 +66,14 @@ Core entities include Users, Student Profiles, Scholarships, Applications, Schol
 - **A8 Automation**: POST to `/api/automations/won-deal` for Command Center workflow triggers
 - **Graceful Degradation**: All external calls wrapped in try/catch - payment flow never blocked on learning loop failures
 
+## Zero-Staleness / Real-Time Truth (5-Second SLA)
+- **QueryClient Config**: staleTime=5s, refetchInterval=5s for real-time data freshness
+- **Cache-Busting Headers**: All API requests include Cache-Control: no-cache, no-store and Pragma: no-cache
+- **Server Headers**: Scholarship APIs return no-store, no-cache headers
+- **No Mock Data in Production**: useExperiment.ts fetches variant configs from API; mocks only in DEV
+- **Fail Loudly**: Missing variant configs trigger errors with logging, not silent fallbacks
+- **Last Updated**: 2026-01-17 - SRE audit completed; 5-second freshness SLA enforced
+
 ## Graceful Degradation
 The application is designed to continue operating when external services are unavailable, with fallbacks for Scholar Auth, Agent Bridge, Telemetry, Neon Database, and M2M Tokens.
 
