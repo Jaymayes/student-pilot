@@ -1,27 +1,27 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-037",
-  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-038",
-  "generated_at": "2026-01-18T19:45:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-041",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-042",
+  "generated_at": "2026-01-18T20:13:00.000Z",
   "algorithm": "SHA256",
   "checksums": {
     "reports": {
-      "a1_health.json": "5f329e42c8b032dac81e1c2b3d7fbd59b9ebcc3b09a143ef06d01e432da7bff4",
-      "a2_health.json": "b14f77c7d52104587b94b7fb0285a62116d281a994bb73b261f86fe451d4b11d",
-      "a3_health.json": "1b5f65451ff3b16eb911e883b5aac4aed97f958df50e828df5ca23d2145c4634",
-      "a4_health.json": "51ddc826d8f1f1f5f113a63414ea62669a257e881e23c9988af4a236c0932ad1",
-      "a5_health.json": "46ce1f5db68144f034e8eccca7f800cd30a8be74cb969900a9404b336c17efc1",
-      "a6_health.json": "3828b95cea8e834519279937494f829e3f8ff9e4a60a49d17dff141d3ce8ed77",
-      "a7_health.json": "918bd70d65f31cafe62d267198b3eee2b06da6b1ff9fe3335c513e7bb76fb768",
-      "a8_health.json": "238ca814df29bc1c1d3d97a966aec9f4a25cd3107ed37d1ad461c5ab44c26d91",
-      "system_map.json": "586665a8b0769404a6b26f1fcd581eee0974679e23e5c5d737eb17a410a7c822",
-      "version_manifest.json": "f5e0802328fb597d539d379712aa0db97c1947b05aeb25587b67cc82827a7218"
+      "a1_health.json": "62831c24baea793b37d974720cf5e7ddaddf6c8422f2740229f7e7a1cdafc37e",
+      "a2_health.json": "d5bd5ae69b6266d55b75b43fe6a61c74047bbc86da4bbcb112dcfb826e6c1ccf",
+      "a3_health.json": "5243751b8510f4235bd40ef27101961024b978f8a55c0c764bc28fe97cf416a4",
+      "a4_health.json": "8df265ecbc159901081b33571ff8c4061e07e31663a764b02873b4367fadb727",
+      "a5_health.json": "f0d3d51da1579cff3c62e6a381369572a33aa7fa65fad672552e2d0da4b78629",
+      "a6_health.json": "ab176f3c326fcc5766180a09df714ccae33e336d2f14e6297824fac84253db45",
+      "a7_health.json": "2eae76a00ceb8c2ed05057c93ee1f113d0c8718645c382ea983ebc9408813b0b",
+      "a8_health.json": "345ffd516f20aa1ded64248aee540eceec83cedb1b645235a19a48c2c69eea1a",
+      "system_map.json": "7c0499e74cc0386db8fb66ca3fc971f3432067dc04f1cd7df3010832cb90bc31",
+      "version_manifest.json": "729f9cac6f2aae0128de12ab88c69f461059cbfc1d1a6236b193f1651860fa47"
     },
     "evidence": {
-      "fee_lineage.json": "1363b08853d3bb0e3e9b8e6565f8b55272db472469dfeed8ed5237b5f8ff14ea",
-      "raw_curl_evidence.txt": "f3a72925b1b6d1594961a3f4e10cb9f6af63a9a703bda3c41fcbbdaa04325a1d"
+      "fee_lineage.json": "c9c0c2d10933107f9955e2807757406156d0a89108c92a042c9b9e297a4a7b55",
+      "raw_curl_evidence.txt": "6008a8f69e91d6e163dcc6d31e6170d93809b3585d2b53d3e541d1387171fd6b"
     },
     "telemetry": {
-      "event_id": "evt_1768765473626_f5juwgzwc",
+      "event_id": "evt_1768767157053_2f4aonhgj",
       "persisted": true,
       "ingestion_rate": "100%"
     }

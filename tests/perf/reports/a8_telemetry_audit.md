@@ -1,14 +1,14 @@
 # A8 Telemetry Audit Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-037  
-**Generated:** 2026-01-18T19:45:00.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-041  
+**Generated:** 2026-01-18T20:13:00.000Z
 
 ## POST Event Test
 
 **Endpoint:** `POST https://auto-com-center-jamarrlmayes.replit.app/api/events`
 
 **Request Headers:**
-- X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-037
+- X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-041
 - X-Idempotency-Key: (UUID generated)
 - Content-Type: application/json
 
@@ -16,9 +16,9 @@
 ```json
 {
   "accepted": true,
-  "event_id": "evt_1768765473626_f5juwgzwc",
+  "event_id": "evt_1768767157053_2f4aonhgj",
   "persisted": true,
-  "timestamp": "2026-01-18T19:44:33.626Z"
+  "timestamp": "2026-01-18T20:12:37.053Z"
 }
 ```
 
@@ -28,7 +28,7 @@
 |-------|--------|
 | HTTP 200 response | **PASS** |
 | Event accepted | **PASS** (accepted: true) |
-| Event ID returned | **PASS** (evt_1768765473626_f5juwgzwc) |
+| Event ID returned | **PASS** (evt_1768767157053_2f4aonhgj) |
 | Persisted | **PASS** (persisted: true) |
 | X-Trace-Id included | **PASS** |
 | X-Idempotency-Key included | **PASS** |
