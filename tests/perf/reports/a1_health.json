@@ -3,24 +3,22 @@
   "app_name": "scholar_auth",
   "url": "https://scholar-auth-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-18T03:22:37.938Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A1",
+  "checked_at": "2026-01-18T18:43:59.667Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A1",
   "response": {
     "status": "ok",
     "system_identity": "scholar_auth",
-    "base_url": "https://scholar-auth-jamarrlmayes.replit.app",
     "version": "1.0.0",
-    "uptime_s": 61417,
+    "uptime_s": 116699,
     "dependencies": {
-      "auth_db": {"status": "slow", "responseTime": 130},
+      "auth_db": {"status": "slow", "responseTime": 139, "circuitBreaker": {"state": "CLOSED", "isHealthy": true}},
       "email_service": {"status": "healthy", "provider": "postmark"},
-      "jwks_signer": {"status": "healthy", "cache_initialized": true},
+      "jwks_signer": {"status": "healthy"},
       "oauth_provider": {"status": "healthy", "provider": "replit-oidc"},
       "clerk": {"status": "healthy", "provider": "clerk"}
     }
   },
   "http_code": 200,
-  "latency_ms": 212,
   "markers_present": ["status:ok", "system_identity:scholar_auth", "oauth_provider:healthy"],
   "verdict": "PASS"
 }

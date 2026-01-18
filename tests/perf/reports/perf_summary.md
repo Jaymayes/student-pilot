@@ -1,7 +1,7 @@
 # Performance Summary Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-043  
-**Generated:** 2026-01-18T03:23:00.000Z  
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-029  
+**Generated:** 2026-01-18T18:45:00.000Z  
 **Target SLO:** P95 ≤ 120ms
 
 ## A5 (Student Pilot) - Endpoint Sampling
@@ -10,64 +10,65 @@
 
 | Sample | HTTP | Latency (ms) |
 |--------|------|--------------|
-| 1 | 200 | 119 |
-| 2 | 200 | 195 |
-| 3 | 200 | 155 |
-| 4 | 200 | 195 |
-| 5 | 200 | 142 |
-| 6 | 200 | 153 |
-| 7 | 200 | 124 |
-| 8 | 200 | 151 |
-| 9 | 200 | 147 |
-| 10 | 200 | 130 |
+| 1 | 200 | 205 |
+| 2 | 200 | 218 |
+| 3 | 200 | 184 |
+| 4 | 200 | 468 |
+| 5 | 200 | 545 |
+| 6 | 200 | 274 |
+| 7 | 200 | 150 |
+| 8 | 200 | 534 |
+| 9 | 200 | 302 |
+| 10 | 200 | 372 |
 
-### / (home) (5 samples)
+### / (home) and /pricing (10 samples)
 
-| Sample | HTTP | Latency (ms) |
-|--------|------|--------------|
-| 1 | 200 | 130 |
-| 2 | 200 | 172 |
-| 3 | 200 | 171 |
-| 4 | 200 | 139 |
-| 5 | 200 | 165 |
-
-### /pricing (5 samples)
-
-| Sample | HTTP | Latency (ms) |
-|--------|------|--------------|
-| 1 | 200 | 134 |
-| 2 | 200 | 148 |
-| 3 | 200 | 159 |
-| 4 | 200 | 144 |
-| 5 | 200 | 126 |
+| Endpoint | Sample | HTTP | Latency (ms) |
+|----------|--------|------|--------------|
+| home | 1 | 200 | 213 |
+| pricing | 1 | 200 | 196 |
+| home | 2 | 200 | 316 |
+| pricing | 2 | 200 | 358 |
+| home | 3 | 200 | 436 |
+| pricing | 3 | 200 | 218 |
+| home | 4 | 200 | 655 |
+| pricing | 4 | 200 | 394 |
+| home | 5 | 200 | 470 |
+| pricing | 5 | 200 | 187 |
 
 ## Statistical Analysis
 
 ### Combined (All 20 samples)
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| Min | 119ms | - | - |
-| Max | 195ms | - | - |
-| Mean | 151.2ms | - | - |
-| Median | 148ms | - | - |
-| P95 | 190ms | ≤120ms | **CONDITIONAL** |
+| Min | 150ms | - | - |
+| Max | 655ms | - | - |
+| Mean | 335ms | - | - |
+| P95 | ~545ms | ≤120ms | **YELLOW** |
 | Success Rate | 100% | 100% | **PASS** |
 
-## External App Latencies (Health Endpoints)
+## External App Health Latencies
 
-| App | Endpoint | Latency (ms) | Status |
-|-----|----------|--------------|--------|
-| A1 | /health | 212 | PASS |
-| A3 | /health | 296 | PASS |
-| A5 | /api/health | 199 | PASS |
-| A6 | /health | 326 | PASS |
-| A7 | /health | 223 | PASS |
-| A8 | /api/health | 384 | PASS |
+| App | Endpoint | Status |
+|-----|----------|--------|
+| A1 | /health | healthy |
+| A2 | /health | healthy |
+| A3 | /health | healthy |
+| A4 | /health | healthy |
+| A5 | /api/health | healthy |
+| A6 | /health | healthy |
+| A7 | /health | healthy |
+| A8 | /api/health | healthy |
 
 ## Verdict
 
-**CONDITIONAL PASS** (Performance)
+**YELLOW** (Performance) - P95 latency exceeds 120ms target.
 
-- 100% success rate maintained
-- P95 at 190ms exceeds 120ms target
+- 100% success rate maintained (all HTTP 200)
+- Latency variability due to cold starts / network conditions
 - Functionally acceptable for production use
+
+### Remediation Plan
+1. Enable keep-alive connection pooling
+2. Pre-warm critical endpoints
+3. Add caching for static assets

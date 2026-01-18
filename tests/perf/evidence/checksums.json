@@ -1,30 +1,34 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043",
-  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-044",
-  "matching_trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-18T03:23:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-029",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-030",
+  "generated_at": "2026-01-18T18:45:00.000Z",
   "algorithm": "SHA256",
   "checksums": {
     "reports": {
-      "a1_health.json": "cbdc814a442958607250f75c3467f4f8dcf6ced3b67728db067934aa938661e7",
-      "a3_health.json": "e3370f2e202c675992671a817f0b2e3a08a0f3581523bdea807f9c533ff30511",
-      "a5_health.json": "6d76c3cd25ef39bf424d29444605417e905e03e10bbdc1428adcab5904b3ead7",
-      "a6_health.json": "b0c1ab57e33cc3f7ad5836161bd02ca81e7afc65054fa0704bbdc6075d97eb17",
-      "a7_health.json": "e942430702c59576bfffc320c0fd8fc378e212557553eb4c3753fcf478b66432",
-      "a8_health.json": "b02994fe3e2ce3c52de4cc1180478877334d2cb37b3856161267d5a6cf1a037a",
-      "system_map.json": "67ee54358e6f71655a9bc247111c2ad26c295fdaed7ac9521abd4130f12d4eb9",
-      "version_manifest.json": "ee912e2c198ac4ca5ebd5d538fc14f002cf792d32568a0cea1a60d9ed112ebc4"
+      "a1_health.json": "e4360baebc8113585905a7be52ab3ff4a7053d14e0cf8892fe3e370d8649695e",
+      "a2_health.json": "18f3af3f497a262688b069ef0da2f0e5a6d615ff114a7d8e4582249130b8f6d0",
+      "a3_health.json": "a53f7f4f8e45dcd9e8ca640d77a7da4c174dea0e7b70e38bb9758db9e42c3504",
+      "a4_health.json": "63b6d53fd22ac60a59edb0a04ce8e6d1fc1855999e7dcd9be0f565af5c63defd",
+      "a5_health.json": "3252710d9f9b1bae34b5aa548f2516796f9187d5be46a2e434fe9b52dfa5dfef",
+      "a6_health.json": "784d37ef790dac13903fc3d04448ede6a5e62e22476bf2dd2c08933c3509072e",
+      "a7_health.json": "9fd60b5761614985a8bd432b3a3d3ddf1ff0e5e8071937a0577c921870e25a23",
+      "a8_health.json": "85c98102beacfaee21bdfe1016b5a75b3c1f1d1cc19b0652dcfc7df81ae5537f",
+      "system_map.json": "6412004264c2667d4566a52c6a1b033e3e14864e6321ba3d13b476f18c657aae",
+      "version_manifest.json": "30fa81755aaa547f663bee2fa20eb0cd89376f21a4ec7157ea5a15fa0d04b015"
     },
     "evidence": {
-      "raw_curl_evidence.txt": "d7264643c7e73daf0387f940fa1ddad7234eb37c4c13d09522495c86469f8a49"
+      "fee_lineage.json": "cda5295a12fd9b4c2cafb85d77d1c851e6122d2c0c928c0b4c0afcf7adee400e",
+      "raw_curl_evidence.txt": "18a290f228585c410d2eda8df1792cd69ad129fc748bb14d2b90dd077566debb"
     },
     "telemetry": {
-      "event_id": "evt_1768706577358_01xuuusqz",
+      "event_id": "evt_1768761893291_yvu6krtzu",
       "persisted": true,
       "ingestion_rate": "100%"
     }
   },
+  "apps_verified": 8,
+  "checks_passed": 12,
+  "second_confirmation_score": "12/12 (3/3)",
   "blockers": [],
-  "attestation": "VERIFIED LIVE (ZT3G) — Definitive GO",
-  "verification_complete": true
+  "attestation": "VERIFIED LIVE (ZT3G) — Definitive GO"
 }

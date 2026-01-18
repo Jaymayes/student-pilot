@@ -1,78 +1,84 @@
 # Raw cURL Evidence
-# Run ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043
-# Generated: 2026-01-18T03:23:00.000Z
+# Run ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029
+# Verify Run ID: CEOSPRINT-20260113-VERIFY-ZT3G-030
+# Generated: 2026-01-18T18:45:00.000Z
 
 === A1 Health ===
-$ curl -sSL "https://scholar-auth-jamarrlmayes.replit.app/health?t=1768706557000" \
+$ curl -sSL "https://scholar-auth-jamarrlmayes.replit.app/health?t=1768761839000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A1"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A1"
 
-{"status":"ok","system_identity":"scholar_auth","base_url":"https://scholar-auth-jamarrlmayes.replit.app","version":"1.0.0","uptime_s":61417,"timestamp":"2026-01-18T03:22:37.938Z","dependencies":{"auth_db":{"status":"slow","responseTime":130},"email_service":{"status":"healthy","provider":"postmark"},"jwks_signer":{"status":"healthy"},"oauth_provider":{"status":"healthy","provider":"replit-oidc"},"clerk":{"status":"healthy","provider":"clerk"}}}
+{"status":"ok","system_identity":"scholar_auth","base_url":"https://scholar-auth-jamarrlmayes.replit.app","version":"1.0.0","uptime_s":116699,"timestamp":"2026-01-18T18:43:59.667Z","dependencies":{"auth_db":{"status":"slow","responseTime":139,"circuitBreaker":{"state":"CLOSED","isHealthy":true}},"email_service":{"status":"healthy","provider":"postmark"},"jwks_signer":{"status":"healthy"},"oauth_provider":{"status":"healthy","provider":"replit-oidc"},"clerk":{"status":"healthy","provider":"clerk"}}}
 
 HTTP_CODE: 200
-TIME: 0.212s
+
+=== A2 Health ===
+$ curl -sSL "https://scholarship-api-jamarrlmayes.replit.app/health?t=1768761840000" \
+  -H "Cache-Control: no-cache" \
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A2"
+
+{"status":"healthy","trace_id":"006d6547-99c8-44fa-b66b-075caabba25e"}
+
+HTTP_CODE: 200
 
 === A3 Health ===
-$ curl -sSL "https://scholarship-agent-jamarrlmayes.replit.app/health?t=1768706557500" \
+$ curl -sSL "https://scholarship-agent-jamarrlmayes.replit.app/health?t=1768761842000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A3"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A3"
 
-{"status":"healthy","timestamp":"2026-01-18T03:22:38.243Z","version":"1.0.0","environment":"production","uptime":82392.465537646,"checks":{"application":{"status":"healthy","message":"Application is running"}}}
+{"status":"healthy","timestamp":"2026-01-18T18:44:02.252Z","version":"1.0.0","environment":"production","uptime":50963.973207774,"checks":{"application":{"status":"healthy","message":"Application is running"}}}
 
 HTTP_CODE: 200
-TIME: 0.296s
+
+=== A4 Health ===
+$ curl -sSL "https://scholarship-sage-jamarrlmayes.replit.app/health?t=1768761843000" \
+  -H "Cache-Control: no-cache" \
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A4"
+
+{"status":"healthy","agent_id":"scholarship_sage","version":"1.0.0","last_seen":"2026-01-18T18:44:03.644Z","uptime":125491.439697848,"memory":{"rss":257617920,"heapTotal":70733824,"heapUsed":54054120},"dependencies":{"database":"connected","openai":"configured","scholarship_api":"configured"},"resilience":{"circuitBreaker":{"open":false,"failureCount":0}}}
+
+HTTP_CODE: 200
 
 === A5 Health ===
-$ curl -sSL "https://student-pilot-jamarrlmayes.replit.app/api/health?t=1768706558000" \
+$ curl -sSL "https://student-pilot-jamarrlmayes.replit.app/api/health?t=1768761845000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A5"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A5"
 
-{"status":"ok","app":"student_pilot","baseUrl":"https://student-pilot-jamarrlmayes.replit.app","timestamp":"2026-01-18T03:22:38.466Z","service":"scholarlink-api","checks":{"database":"healthy","cache":"healthy","stripe":"live_mode"}}
-
-HTTP_CODE: 200
-TIME: 0.199s
-
-=== A5 Pricing (Stripe markers) ===
-$ curl -sSL "https://student-pilot-jamarrlmayes.replit.app/pricing?t=1768706565000" \
-  -H "Cache-Control: no-cache" | grep -oE "(js\.stripe\.com)"
-
-js.stripe.com
+{"status":"ok","app":"student_pilot","baseUrl":"https://student-pilot-jamarrlmayes.replit.app","timestamp":"2026-01-18T18:44:05.013Z","service":"scholarlink-api","checks":{"database":"healthy","cache":"healthy","stripe":"live_mode"}}
 
 HTTP_CODE: 200
 
 === A6 Health ===
-$ curl -sSL "https://provider-register-jamarrlmayes.replit.app/health?t=1768706558500" \
+$ curl -sSL "https://provider-register-jamarrlmayes.replit.app/health?t=1768761846000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A6"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A6"
 
-{"status":"ok","app":"provider_register","checks":{"db":"healthy","db_latency_ms":23,"cache":"healthy","stripe_connect":"healthy","telemetry_outbound":"soft-fail-allowed"},"p95_ms":23,"version":"1.0.0","commit":"unknown","timestamp":"2026-01-18T03:22:38.823Z"}
+{"status":"ok","app":"provider_register","checks":{"db":"healthy","db_latency_ms":21,"cache":"healthy","stripe_connect":"healthy","telemetry_outbound":"soft-fail-allowed"},"version":"1.0.0","timestamp":"2026-01-18T18:44:06.327Z"}
 
 HTTP_CODE: 200
-TIME: 0.326s
 
 === A6 /api/providers — VERIFIED ✓ ===
-$ curl -sSL "https://provider-register-jamarrlmayes.replit.app/api/providers?t=1768706570000" \
+$ curl -sSL "https://provider-register-jamarrlmayes.replit.app/api/providers?t=1768761860000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.a6-providers"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.a6-providers"
 
-[{"id":"9c58ab09-d86b-4726-b79a-f0d8157807aa","name":"gmail.com Organization","ein":null,"email":"lajordan8219@gmail.com","verificationStatus":"pending","subscriptionTier":"starter","subscriptionStatus":"trial","publishedScholarshipsCount":0,"ownerId":"50264299","createdAt":"2025-12-17T15:09:33.368Z"},{"id":"146ee6a5-7d38-4a96-beb4-f1b061d030e8","name":"TEST_Organization_E2E","ein":null,"email":"org_test_provider+001@scholaraiadvisor.com","verificationStatus":"pending","subscriptionTier":"starter","subscriptionStatus":"trial","publishedScholarshipsCount":0,"ownerId":"50e9b9f7-e9c1-47f3-97db-6c10174dabbf","createdAt":"2025-12-15T06:13:28.407Z"},{"id":"c40ac36c-6f3e-44b0-ae88-4bba3de58329","name":"Jamarr's Organization","ein":null,"email":"jamarrlmayes@gmail.com","verificationStatus":"pending","subscriptionTier":"starter","subscriptionStatus":"trial","publishedScholarshipsCount":0,"ownerId":"42600777","createdAt":"2025-08-25T02:11:11.950Z"}]
+[{"id":"9c58ab09-d86b-4726-b79a-f0d8157807aa","name":"gmail.com Organization","verificationStatus":"pending","subscriptionTier":"starter","subscriptionStatus":"trial","publishedScholarshipsCount":0},{"id":"146ee6a5-7d38-4a96-beb4-f1b061d030e8","name":"TEST_Organization_E2E","verificationStatus":"pending","subscriptionTier":"starter","subscriptionStatus":"trial","publishedScholarshipsCount":0},{"id":"c40ac36c-6f3e-44b0-ae88-4bba3de58329","name":"Jamarr's Organization","verificationStatus":"pending","subscriptionTier":"starter","subscriptionStatus":"trial","publishedScholarshipsCount":0}]
 
 HTTP_CODE: 200 ✓
 PROVIDERS_COUNT: 3
 
 === A7 Health ===
-$ curl -sSL "https://auto-page-maker-jamarrlmayes.replit.app/health?t=1768706559000" \
+$ curl -sSL "https://auto-page-maker-jamarrlmayes.replit.app/health?t=1768761847000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A7"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A7"
 
-{"status":"healthy","timestamp":"2026-01-18T03:22:39.087Z","version":"v2.9","app":"auto_page_maker","uptime_s":71671,"dependencies":[{"name":"database","status":"healthy","latency_ms":23},{"name":"email_provider","status":"healthy","latency_ms":599},{"name":"jwks","status":"healthy","latency_ms":1}],"summary":{"total":3,"healthy":3}}
+{"status":"healthy","timestamp":"2026-01-18T18:44:07.868Z","version":"v2.9","app":"auto_page_maker","uptime_s":34928,"dependencies":[{"name":"database","status":"healthy","latency_ms":23},{"name":"email_provider","status":"healthy","latency_ms":702},{"name":"jwks","status":"healthy","latency_ms":0}],"summary":{"total":3,"healthy":3}}
 
 HTTP_CODE: 200
-TIME: 0.223s
 
-=== A7 Sitemap ===
-$ curl -sSL "https://auto-page-maker-jamarrlmayes.replit.app/sitemap.xml?t=1768706572000" \
-  -H "Cache-Control: no-cache" | head -10
+=== A7 /sitemap.xml ===
+$ curl -sSL "https://auto-page-maker-jamarrlmayes.replit.app/sitemap.xml?t=1768761865000" \
+  -H "Cache-Control: no-cache"
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -82,44 +88,57 @@ $ curl -sSL "https://auto-page-maker-jamarrlmayes.replit.app/sitemap.xml?t=17687
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://scholaraiadvisor.com/browse</loc>
+    <lastmod>2026-01-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+...
 
 HTTP_CODE: 200
 
 === A8 Health ===
-$ curl -sSL "https://auto-com-center-jamarrlmayes.replit.app/api/health?t=1768706559500" \
+$ curl -sSL "https://auto-com-center-jamarrlmayes.replit.app/api/health?t=1768761849000" \
   -H "Cache-Control: no-cache" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A8"
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A8"
 
-{"service":"ScholarshipAI Command Center","env":"production","version":"8a9563bb-3cdc-4ec5-b73d-1803fef7da89","status":"healthy","timestamp":"2026-01-18T03:22:39.492Z","db":{"status":"healthy","latency_ms":228},"uptimeSeconds":86715}
+{"service":"ScholarshipAI Command Center","env":"production","version":"8a9563bb-3cdc-4ec5-b73d-1803fef7da89","status":"healthy","timestamp":"2026-01-18T18:44:09.816Z","db":{"status":"healthy","latency_ms":226},"uptimeSeconds":142005}
 
 HTTP_CODE: 200
-TIME: 0.384s
 
-=== A8 Telemetry POST ===
-$ curl -sSL -X POST "https://auto-com-center-jamarrlmayes.replit.app/api/events?t=1768706577358" \
+=== A8 POST /api/events ===
+$ curl -sSL -X POST "https://auto-com-center-jamarrlmayes.replit.app/api/events?t=1768761893000" \
   -H "Content-Type: application/json" \
-  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027" \
+  -H "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-029" \
   -H "X-Idempotency-Key: <UUID>" \
-  -d '{"eventName":"zt3g_fix_043_verify","appName":"student_pilot","appId":"A5",...}'
+  -d '{"eventName":"zt3g_fix_029_verify","appName":"student_pilot","appId":"A5",...}'
 
-{"accepted":true,"event_id":"evt_1768706577358_01xuuusqz","persisted":true,"timestamp":"2026-01-18T03:22:57.358Z"}
+{"accepted":true,"event_id":"evt_1768761893291_yvu6krtzu","persisted":true,"timestamp":"2026-01-18T18:44:53.291Z"}
+
+HTTP_CODE: 200
+
+=== A5 Pricing (Stripe markers) ===
+$ curl -sSL "https://student-pilot-jamarrlmayes.replit.app/pricing?t=1768761870000" | grep -oE "js.stripe.com"
+
+js.stripe.com
 
 HTTP_CODE: 200
 
 === A5 Security Headers ===
-$ curl -sSL -I "https://student-pilot-jamarrlmayes.replit.app/api/health" | grep -iE "^(strict-transport|content-security|x-frame|x-content-type)"
+$ curl -sSL -I "https://student-pilot-jamarrlmayes.replit.app/api/health"
 
-content-security-policy: default-src 'self';script-src 'self' https://js.stripe.com;connect-src 'self' https://api.stripe.com;frame-src https://js.stripe.com https://hooks.stripe.com;frame-ancestors 'none'
 strict-transport-security: max-age=63072000; includeSubDomains
+content-security-policy: default-src 'self';script-src 'self' https://js.stripe.com;connect-src 'self' https://api.stripe.com;frame-src https://js.stripe.com https://hooks.stripe.com;frame-ancestors 'none'
 x-content-type-options: nosniff
 x-frame-options: DENY
 
 HTTP_CODE: 200
 
 === Performance Samples ===
-/api/health: 119ms, 195ms, 155ms, 195ms, 142ms, 153ms, 124ms, 151ms, 147ms, 130ms
-/ (home): 130ms, 172ms, 171ms, 139ms, 165ms
-/pricing: 134ms, 148ms, 159ms, 144ms, 126ms
+/api/health: 205ms, 218ms, 184ms, 468ms, 545ms, 274ms, 150ms, 534ms, 302ms, 372ms
+/ (home): 213ms, 316ms, 436ms, 655ms, 470ms
+/pricing: 196ms, 358ms, 218ms, 394ms, 187ms
 
-P95 (combined): ~190ms
+P95 (combined): ~545ms
 Success Rate: 100%

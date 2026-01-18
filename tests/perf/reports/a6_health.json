@@ -3,34 +3,22 @@
   "app_name": "provider_register",
   "url": "https://provider-register-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-18T03:22:38.823Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A6",
+  "checked_at": "2026-01-18T18:44:06.327Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A6",
   "response": {
     "status": "ok",
     "app": "provider_register",
-    "checks": {
-      "db": "healthy",
-      "db_latency_ms": 23,
-      "cache": "healthy",
-      "stripe_connect": "healthy",
-      "telemetry_outbound": "soft-fail-allowed"
-    },
+    "checks": {"db": "healthy", "db_latency_ms": 21, "cache": "healthy", "stripe_connect": "healthy"},
     "version": "1.0.0"
   },
   "http_code": 200,
-  "latency_ms": 326,
   "markers_present": ["status:ok", "app:provider_register", "db:healthy"],
   "functional_check": {
     "endpoint": "/api/providers",
     "result": "SUCCESS",
     "http_code": 200,
     "providers_count": 3,
-    "providers": [
-      "gmail.com Organization",
-      "TEST_Organization_E2E",
-      "Jamarr's Organization"
-    ]
+    "providers": ["gmail.com Organization", "TEST_Organization_E2E", "Jamarr's Organization"]
   },
-  "verdict": "PASS",
-  "blocker_resolved": true
+  "verdict": "PASS"
 }

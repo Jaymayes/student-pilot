@@ -3,24 +3,22 @@
   "app_name": "auto_com_center",
   "url": "https://auto-com-center-jamarrlmayes.replit.app",
   "health_endpoint": "/api/health",
-  "checked_at": "2026-01-18T03:22:39.492Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043.A8",
+  "checked_at": "2026-01-18T18:44:09.816Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-029.A8",
   "response": {
     "service": "ScholarshipAI Command Center",
     "env": "production",
     "version": "8a9563bb-3cdc-4ec5-b73d-1803fef7da89",
     "status": "healthy",
-    "db": {"status": "healthy", "latency_ms": 228},
-    "uptimeSeconds": 86715
+    "db": {"status": "healthy", "latency_ms": 226},
+    "uptimeSeconds": 142005
   },
   "http_code": 200,
-  "latency_ms": 384,
   "markers_present": ["service:ScholarshipAI Command Center", "status:healthy", "db:healthy"],
   "telemetry_check": {
     "post_accepted": true,
-    "event_id": "evt_1768706577358_01xuuusqz",
-    "persisted": true,
-    "timestamp": "2026-01-18T03:22:57.358Z"
+    "event_id": "evt_1768761893291_yvu6krtzu",
+    "persisted": true
   },
   "verdict": "PASS"
 }

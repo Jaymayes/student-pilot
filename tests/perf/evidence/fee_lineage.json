@@ -1,0 +1,20 @@
+{
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-029",
+  "generated_at": "2026-01-18T18:45:00.000Z",
+  "fee_structure": {
+    "platform_fee": {
+      "percentage": 3,
+      "description": "Platform fee on B2B provider transactions"
+    },
+    "ai_markup": {
+      "multiplier": 4,
+      "description": "AI services markup (>4x)"
+    }
+  },
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-029",
+  "a8_correlation": {
+    "event_id": "evt_1768761893291_yvu6krtzu",
+    "persisted": true
+  },
+  "verification_status": "PASS"
+}
