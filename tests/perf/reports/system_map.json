@@ -1,8 +1,8 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-039",
-  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-040",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-044",
   "matching_trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-18T02:39:00.000Z",
+  "generated_at": "2026-01-18T03:23:00.000Z",
   "protocol": "AGENT3_HANDSHAKE v30",
   "ecosystem": "Scholar AI Advisor",
   "apps": {
@@ -13,8 +13,8 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 182,
-      "uptime_s": 58810
+      "latency_ms": 212,
+      "uptime_s": 61417
     },
     "A3": {
       "name": "scholarship_agent",
@@ -23,8 +23,8 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 178,
-      "uptime_s": 79785
+      "latency_ms": 296,
+      "uptime_s": 82392
     },
     "A5": {
       "name": "student_pilot",
@@ -33,7 +33,7 @@
       "health_endpoint": "/api/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 162,
+      "latency_ms": 199,
       "stripe_mode": "live_mode"
     },
     "A6": {
@@ -43,7 +43,7 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 159,
+      "latency_ms": 326,
       "providers_endpoint": "/api/providers",
       "providers_count": 3
     },
@@ -54,8 +54,8 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 186,
-      "uptime_s": 69063
+      "latency_ms": 223,
+      "uptime_s": 71671
     },
     "A8": {
       "name": "auto_com_center",
@@ -64,9 +64,8 @@
       "health_endpoint": "/api/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 394,
-      "uptime_s": 84107,
-      "healthz_alias": "missing (404)"
+      "latency_ms": 384,
+      "uptime_s": 86715
     }
   },
   "blockers": [],

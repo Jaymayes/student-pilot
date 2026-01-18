@@ -1,56 +1,19 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-039",
-  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-040",
-  "generated_at": "2026-01-18T02:39:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-044",
+  "generated_at": "2026-01-18T03:23:00.000Z",
   "protocol": "AGENT3_HANDSHAKE v30",
   "apps": {
-    "A1": {
-      "name": "scholar_auth",
-      "version": "1.0.0",
-      "uptime_s": 58810,
-      "status": "healthy",
-      "url": "https://scholar-auth-jamarrlmayes.replit.app"
-    },
-    "A3": {
-      "name": "scholarship_agent",
-      "version": "1.0.0",
-      "uptime_s": 79785,
-      "status": "healthy",
-      "url": "https://scholarship-agent-jamarrlmayes.replit.app"
-    },
-    "A5": {
-      "name": "student_pilot",
-      "service": "scholarlink-api",
-      "stripe_mode": "live",
-      "status": "healthy",
-      "url": "https://student-pilot-jamarrlmayes.replit.app"
-    },
-    "A6": {
-      "name": "provider_register",
-      "version": "1.0.0",
-      "status": "healthy",
-      "providers_count": 3,
-      "blocker_resolved": true,
-      "url": "https://provider-register-jamarrlmayes.replit.app"
-    },
-    "A7": {
-      "name": "auto_page_maker",
-      "version": "v2.9",
-      "uptime_s": 69063,
-      "status": "healthy",
-      "url": "https://auto-page-maker-jamarrlmayes.replit.app"
-    },
-    "A8": {
-      "name": "auto_com_center",
-      "version": "8a9563bb-3cdc-4ec5-b73d-1803fef7da89",
-      "uptime_s": 84107,
-      "status": "healthy",
-      "url": "https://auto-com-center-jamarrlmayes.replit.app"
-    }
+    "A1": {"name": "scholar_auth", "version": "1.0.0", "uptime_s": 61417, "status": "healthy"},
+    "A3": {"name": "scholarship_agent", "version": "1.0.0", "uptime_s": 82392, "status": "healthy"},
+    "A5": {"name": "student_pilot", "service": "scholarlink-api", "stripe_mode": "live", "status": "healthy"},
+    "A6": {"name": "provider_register", "version": "1.0.0", "status": "healthy", "providers_count": 3},
+    "A7": {"name": "auto_page_maker", "version": "v2.9", "uptime_s": 71671, "status": "healthy"},
+    "A8": {"name": "auto_com_center", "version": "8a9563bb", "uptime_s": 86715, "status": "healthy"}
   },
   "blockers": [],
   "telemetry": {
-    "event_id": "evt_1768703985028_av1np69sd",
+    "event_id": "evt_1768706577358_01xuuusqz",
     "persisted": true,
     "ingestion_rate": "100%"
   },

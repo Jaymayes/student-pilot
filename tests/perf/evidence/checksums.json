@@ -1,37 +1,30 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-039",
-  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-040",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-043",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-044",
   "matching_trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-18T02:40:00.000Z",
+  "generated_at": "2026-01-18T03:23:00.000Z",
   "algorithm": "SHA256",
   "checksums": {
     "reports": {
-      "a1_health.json": "2710cdcfb5b6118e22eb4418ed17aa148c3320dcdc44fa7d1509295a82c9c30f",
-      "a3_health.json": "bb66df006e6fdaf754ae968265ce9afbed67a0ac45b9327866479434554e8549",
-      "a5_health.json": "b47c7f42c8fbbe809e9c14e9e7dbe717cb7ba614226f5ee4f9a41f6440cd0252",
-      "a6_health.json": "d31a39320bf4ff457137616c5caed60765a775fd579cd2d2f0635fee9c10c0d2",
-      "a7_health.json": "135ba7d46c3cbd8800ba4398088b48ec26ed742f169eec28edde71af652479d4",
-      "a8_health.json": "3950f942932ac2aa3002737937e9a3c1887795915790137a587374d9ce552594",
-      "system_map.json": "8e7159cb6612a84874ae7e1c61ddfd4ffdaba5fbd35550b9db8ab135393290ba",
-      "version_manifest.json": "89a075cefa1766b577133394161369054b3a302a9f5ed83094968d88b18f4f11"
+      "a1_health.json": "cbdc814a442958607250f75c3467f4f8dcf6ced3b67728db067934aa938661e7",
+      "a3_health.json": "e3370f2e202c675992671a817f0b2e3a08a0f3581523bdea807f9c533ff30511",
+      "a5_health.json": "6d76c3cd25ef39bf424d29444605417e905e03e10bbdc1428adcab5904b3ead7",
+      "a6_health.json": "b0c1ab57e33cc3f7ad5836161bd02ca81e7afc65054fa0704bbdc6075d97eb17",
+      "a7_health.json": "e942430702c59576bfffc320c0fd8fc378e212557553eb4c3753fcf478b66432",
+      "a8_health.json": "b02994fe3e2ce3c52de4cc1180478877334d2cb37b3856161267d5a6cf1a037a",
+      "system_map.json": "67ee54358e6f71655a9bc247111c2ad26c295fdaed7ac9521abd4130f12d4eb9",
+      "version_manifest.json": "ee912e2c198ac4ca5ebd5d538fc14f002cf792d32568a0cea1a60d9ed112ebc4"
     },
     "evidence": {
-      "raw_curl_evidence.txt": "017f8409619308397f05e3e7a11641aed310effbc74d463b8d34ff1153fef72b"
+      "raw_curl_evidence.txt": "d7264643c7e73daf0387f940fa1ddad7234eb37c4c13d09522495c86469f8a49"
     },
     "telemetry": {
-      "event_id": "evt_1768703985028_av1np69sd",
+      "event_id": "evt_1768706577358_01xuuusqz",
       "persisted": true,
       "ingestion_rate": "100%"
     }
   },
   "blockers": [],
-  "blocker_resolved": {
-    "app": "A6",
-    "endpoint": "/api/providers",
-    "previous_status": "HTTP 404 NOT_FOUND",
-    "current_status": "HTTP 200 - Returns JSON array with 3 providers",
-    "providers_count": 3
-  },
   "attestation": "VERIFIED LIVE (ZT3G) — Definitive GO",
   "verification_complete": true
 }
