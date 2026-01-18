@@ -1,102 +1,75 @@
 # Post-Republish Diff Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-035  
-**Previous Run:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-031  
-**Generated:** 2026-01-17T21:36:00.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-039  
+**Previous Run:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-035  
+**Generated:** 2026-01-18T02:40:00.000Z
 
-## Changes Since Previous Run
+## MAJOR CHANGE: A6 /api/providers BLOCKER RESOLVED
 
-### Artifact Generation
-- Scorched Earth executed: `rm -rf tests/perf/reports/* tests/perf/evidence/*`
-- All artifacts regenerated with fresh timestamps
-- New run ID applied to all traces
+### Previous Status (ZT3G-FIX-035)
+```
+GET https://provider-register-jamarrlmayes.replit.app/api/providers
+HTTP 404 NOT_FOUND
 
-### External Workspace Status (Unchanged)
+{"error":{"code":"NOT_FOUND","message":"Endpoint not found"}}
+```
+
+### Current Status (ZT3G-FIX-039)
+```
+GET https://provider-register-jamarrlmayes.replit.app/api/providers
+HTTP 200 OK
+
+[
+  {"id":"9c58ab09-d86b-4726-b79a-f0d8157807aa","name":"gmail.com Organization",...},
+  {"id":"146ee6a5-7d38-4a96-beb4-f1b061d030e8","name":"TEST_Organization_E2E",...},
+  {"id":"c40ac36c-6f3e-44b0-ae88-4bba3de58329","name":"Jamarr's Organization",...}
+]
+```
+
+**Impact:** Primary blocker resolved. Attestation upgrades to VERIFIED LIVE.
+
+## External Workspace Status Change
 
 | App | Previous Status | Current Status | Change |
 |-----|-----------------|----------------|--------|
 | A1 | Healthy (200) | Healthy (200) | None |
 | A3 | Healthy (200) | Healthy (200) | None |
 | A5 | Healthy (200) | Healthy (200) | None |
-| A6 | Conditional (/api/providers 404) | Conditional (/api/providers 404) | **BLOCKER PERSISTS** |
+| A6 | **Conditional** (/api/providers 404) | **Healthy** (/api/providers 200) | **RESOLVED** ✓ |
 | A7 | Healthy (200) | Healthy (200) | None |
 | A8 | Healthy (200) | Healthy (200) | None |
 
-### Uptime Comparison
+## Uptime Comparison
 
 | App | Previous Uptime | Current Uptime | Delta |
 |-----|-----------------|----------------|-------|
-| A1 | 37531s | 40623s | +3092s (~52 min) |
-| A3 | 58506s | 61598s | +3092s (~52 min) |
-| A7 | 47784s | 50877s | +3093s (~52 min) |
-| A8 | 62828s | 65921s | +3093s (~52 min) |
+| A1 | 40623s | 58810s | +18187s (~5 hours) |
+| A3 | 61598s | 79785s | +18187s (~5 hours) |
+| A7 | 50877s | 69063s | +18186s (~5 hours) |
+| A8 | 65921s | 84107s | +18186s (~5 hours) |
 
-### New Artifacts Created (FIX-035)
+## Attestation Upgrade
 
-```
-tests/perf/reports/
-├── a1_health.json
-├── a3_health.json
-├── a5_health.json
-├── a6_health.json
-├── a7_health.json
-├── a8_health.json
-├── a8_telemetry_audit.md
-├── b2b_funnel_verdict.md
-├── b2c_funnel_verdict.md
-├── ecosystem_double_confirm.md
-├── hitl_approvals.log
-├── hitl_microcharge_runbook.md
-├── manual_intervention_manifest.md
-├── perf_summary.md
-├── post_republish_diff.md
-├── rl_observation.md
-├── security_headers_report.md
-├── seo_verdict.md
-├── system_map.json
-├── version_manifest.json
-└── go_no_go_report.md
+| Metric | Previous (FIX-035) | Current (FIX-039) |
+|--------|-------------------|-------------------|
+| A6 /api/providers | HTTP 404 (BLOCKER) | HTTP 200 (PASS) ✓ |
+| Providers returned | N/A | 3 organizations |
+| Attestation | CONDITIONAL GO | **VERIFIED LIVE** ✓ |
 
-tests/perf/evidence/
-├── raw_curl_evidence.txt
-└── checksums.json
-```
+## Artifacts Updated
 
-### A6 Blocker (Persists)
-
-```
-Previous: GET /api/providers → 404 NOT_FOUND
-Current:  GET /api/providers → 404 NOT_FOUND
-
-No change detected. Owner action still required.
-```
-
-### Manual Intervention Manifest Updates
-
-- Added comprehensive copy-paste fix with 3 language options:
-  - Node.js/Express
-  - Python/FastAPI
-  - Python/Flask
-- Added republish steps
-- Added verification curls
-
-### Telemetry
-
-| Run | Event ID | Persisted |
-|-----|----------|-----------|
-| FIX-031 | evt_1768682690404_dfuxr19ey | true |
-| FIX-035 | evt_1768685782961_blo7a7ly8 | true |
-
-### Performance
-
-| Metric | FIX-031 | FIX-035 | Change |
-|--------|---------|---------|--------|
-| P95 (health) | 165ms | 200ms | +35ms |
-| Success Rate | 100% | 100% | None |
+All artifacts regenerated with new run ID and timestamps:
+- system_map.json → No blockers
+- a6_health.json → blocker_resolved: true
+- b2b_funnel_verdict.md → Status: PASS
+- ecosystem_double_confirm.md → A6 /api/providers: 3/3
+- rl_observation.md → Loop CLOSED
+- go_no_go_report.md → VERIFIED LIVE (ZT3G) — Definitive GO
 
 ## Summary
 
-- External workspaces remain stable (all uptime increased)
-- A6 /api/providers blocker persists (owner action required)
-- All other endpoints continue to pass verification
-- Attestation remains: **CONDITIONAL GO (ZT3G)**
+- **A6 /api/providers blocker RESOLVED** — Now returns 3 providers
+- All external apps healthy and verified
+- Attestation upgraded from CONDITIONAL GO to **VERIFIED LIVE (ZT3G) — Definitive GO**
+- B2C funnel remains CONDITIONAL (safety guardrail, no CEO override)
+- Trust Leak FIX remains compliant (FPR ≤5%)

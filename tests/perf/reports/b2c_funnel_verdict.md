@@ -1,7 +1,7 @@
 # B2C Funnel Verdict
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-035  
-**Generated:** 2026-01-17T21:36:00.000Z  
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-039  
+**Generated:** 2026-01-18T02:40:00.000Z  
 **Status:** CONDITIONAL (No Live Charge Executed)
 
 ## Funnel Components
@@ -9,7 +9,7 @@
 ### 1. Landing Page (A5)
 - **URL:** https://student-pilot-jamarrlmayes.replit.app
 - **HTTP Status:** 200
-- **Latency:** 156ms
+- **Latency:** 160ms (median)
 - **Status:** **PASS**
 
 ### 2. Pricing Page (A5)
@@ -73,13 +73,9 @@ B2C funnel components verified:
 
 ## To Complete B2C Verification
 
-1. CEO adds override to `tests/perf/reports/hitl_approvals.log`:
-   ```
-   [TIMESTAMP] [CEO] [APPROVE] MICRO_CHARGE $0.50 with remaining=4
-   ```
+1. CEO adds override to `tests/perf/reports/hitl_approvals.log`
 2. Execute $0.50 micro-charge via `/api/billing/create-checkout`
 3. Refund within 60 seconds
-4. Capture 3-of-3 proof (Stripe dashboard, server logs, A8 telemetry)
-5. Update this verdict from CONDITIONAL to PASS
+4. Capture 3-of-3 proof
 
 See: `tests/perf/reports/hitl_microcharge_runbook.md`

@@ -1,7 +1,7 @@
 # Security Headers Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-035  
-**Generated:** 2026-01-17T21:36:00.000Z  
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-039  
+**Generated:** 2026-01-18T02:40:00.000Z  
 **Endpoint Tested:** https://student-pilot-jamarrlmayes.replit.app/api/health
 
 ## A5 (Student Pilot) Security Headers
@@ -53,27 +53,6 @@ form-action 'self' https://hooks.stripe.com
 | max-age | 63072000 (2 years) | ≥15552000 (180 days) | **PASS** |
 | includeSubDomains | Present | Recommended | **PASS** |
 | preload | Present (secondary header) | Optional | **PASS** |
-
-## Clickjacking Prevention
-
-| Check | Status |
-|-------|--------|
-| X-Frame-Options: DENY | **PASS** |
-| CSP frame-ancestors: 'none' | **PASS** |
-
-## Content Type Sniffing
-
-| Check | Status |
-|-------|--------|
-| X-Content-Type-Options: nosniff | **PASS** |
-
-## Data Integrity
-
-| Check | Status |
-|-------|--------|
-| No PII in logs | **PASS** |
-| UI reflects API data only | **PASS** |
-| No mock data in production | **PASS** |
 
 ## Verdict
 

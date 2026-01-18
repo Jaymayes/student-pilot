@@ -1,8 +1,8 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-035",
-  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-036",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-039",
+  "verify_run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-040",
   "matching_trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
-  "generated_at": "2026-01-17T21:36:00.000Z",
+  "generated_at": "2026-01-18T02:39:00.000Z",
   "protocol": "AGENT3_HANDSHAKE v30",
   "ecosystem": "Scholar AI Advisor",
   "apps": {
@@ -13,8 +13,8 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 153,
-      "uptime_s": 40623
+      "latency_ms": 182,
+      "uptime_s": 58810
     },
     "A3": {
       "name": "scholarship_agent",
@@ -23,8 +23,8 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 160,
-      "uptime_s": 61598
+      "latency_ms": 178,
+      "uptime_s": 79785
     },
     "A5": {
       "name": "student_pilot",
@@ -33,7 +33,7 @@
       "health_endpoint": "/api/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 172,
+      "latency_ms": 162,
       "stripe_mode": "live_mode"
     },
     "A6": {
@@ -43,8 +43,9 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 154,
-      "blocker": "/api/providers endpoint missing"
+      "latency_ms": 159,
+      "providers_endpoint": "/api/providers",
+      "providers_count": 3
     },
     "A7": {
       "name": "auto_page_maker",
@@ -53,8 +54,8 @@
       "health_endpoint": "/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 200,
-      "uptime_s": 50877
+      "latency_ms": 186,
+      "uptime_s": 69063
     },
     "A8": {
       "name": "auto_com_center",
@@ -63,10 +64,12 @@
       "health_endpoint": "/api/health",
       "status": "healthy",
       "http_code": 200,
-      "latency_ms": 399,
-      "uptime_s": 65921
+      "latency_ms": 394,
+      "uptime_s": 84107,
+      "healthz_alias": "missing (404)"
     }
   },
-  "blockers": ["A6: /api/providers endpoint missing"],
-  "telemetry_protocol": "AGENT3_v3.5.1"
+  "blockers": [],
+  "telemetry_protocol": "AGENT3_v3.5.1",
+  "attestation": "VERIFIED LIVE (ZT3G) — Definitive GO"
 }

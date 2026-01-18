@@ -3,29 +3,29 @@
   "app_name": "auto_page_maker",
   "url": "https://auto-page-maker-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-17T21:36:04.808Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-035.A7",
+  "checked_at": "2026-01-18T02:39:11.662Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-039.A7",
   "response": {
     "status": "healthy",
     "version": "v2.9",
     "app": "auto_page_maker",
-    "uptime_s": 50877,
+    "uptime_s": 69063,
     "dependencies": [
-      {"name": "database", "status": "healthy", "latency_ms": 23},
-      {"name": "email_provider", "status": "healthy", "latency_ms": 801},
+      {"name": "database", "status": "healthy", "latency_ms": 24},
+      {"name": "email_provider", "status": "healthy", "latency_ms": 400},
       {"name": "jwks", "status": "healthy", "latency_ms": 1}
     ],
     "summary": {"total": 3, "healthy": 3, "degraded": 0, "unhealthy": 0}
   },
   "http_code": 200,
-  "latency_ms": 200,
+  "latency_ms": 186,
   "markers_present": ["status:healthy", "app:auto_page_maker", "database:healthy"],
   "sitemap_check": {
     "url": "/sitemap.xml",
     "accessible": true,
     "format": "valid XML urlset",
     "domain": "scholaraiadvisor.com",
-    "lastmod": "2026-01-17"
+    "lastmod": "2026-01-18"
   },
   "verdict": "PASS"
 }
