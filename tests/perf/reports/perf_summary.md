@@ -1,7 +1,7 @@
 # Performance Summary Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-033  
-**Generated:** 2026-01-18T19:16:00.000Z  
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-037  
+**Generated:** 2026-01-18T19:45:00.000Z  
 **Target SLO:** P95 ≤ 120ms (yellow 120-200ms)
 
 ## A5 (Student Pilot) - Endpoint Sampling
@@ -10,50 +10,50 @@
 
 | Sample | HTTP | Latency (ms) |
 |--------|------|--------------|
-| 1 | 200 | 183 |
-| 2 | 200 | 151 |
-| 3 | 200 | 169 |
-| 4 | 200 | 148 |
-| 5 | 200 | 147 |
-| 6 | 200 | 176 |
-| 7 | 200 | 139 |
-| 8 | 200 | 154 |
-| 9 | 200 | 204 |
-| 10 | 200 | 231 |
+| 1 | 200 | 194 |
+| 2 | 200 | 178 |
+| 3 | 200 | 173 |
+| 4 | 200 | 142 |
+| 5 | 200 | 169 |
+| 6 | 200 | 138 |
+| 7 | 200 | 164 |
+| 8 | 200 | 156 |
+| 9 | 200 | 138 |
+| 10 | 200 | 145 |
 
 ### / (home) and /pricing (10 samples)
 
 | Endpoint | Sample | HTTP | Latency (ms) |
 |----------|--------|------|--------------|
-| home | 1 | 200 | 178 |
-| pricing | 1 | 200 | 214 |
-| home | 2 | 200 | 174 |
-| pricing | 2 | 200 | 171 |
-| home | 3 | 200 | 197 |
-| pricing | 3 | 200 | 162 |
-| home | 4 | 200 | 162 |
-| pricing | 4 | 200 | 225 |
-| home | 5 | 200 | 229 |
-| pricing | 5 | 200 | 184 |
+| home | 1 | 200 | 182 |
+| pricing | 1 | 200 | 176 |
+| home | 2 | 200 | 166 |
+| pricing | 2 | 200 | 148 |
+| home | 3 | 200 | 132 |
+| pricing | 3 | 200 | 147 |
+| home | 4 | 200 | 153 |
+| pricing | 4 | 200 | 158 |
+| home | 5 | 200 | 158 |
+| pricing | 5 | 200 | 161 |
 
 ## Statistical Analysis
 
 ### Combined (All 20 samples)
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| Min | 139ms | - | - |
-| Max | 231ms | - | - |
-| Mean | 180ms | - | - |
-| P95 | ~231ms | ≤120ms | **YELLOW** |
+| Min | 132ms | - | - |
+| Max | 194ms | - | - |
+| Mean | 159ms | - | - |
+| P95 | ~194ms | ≤120ms | **YELLOW** |
 | Success Rate | 100% | 100% | **PASS** |
 
 ## Verdict
 
-**YELLOW** (Performance) - P95 latency 231ms, within acceptable range (120-200ms tolerance).
+**YELLOW** (Performance) - P95 latency ~194ms, within acceptable tolerance (120-200ms).
 
 - 100% success rate maintained (all HTTP 200)
-- Improved from previous run (~545ms → ~231ms)
-- Remediation plan in progress
+- Improved from previous runs (~545ms → ~231ms → ~194ms)
+- Within yellow tolerance zone
 
 ### Remediation Plan
 1. Enable keep-alive connection pooling

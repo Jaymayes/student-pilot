@@ -3,12 +3,12 @@
   "app_name": "provider_register",
   "url": "https://provider-register-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-18T19:15:12.191Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-033.A6",
+  "checked_at": "2026-01-18T19:44:10.388Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-037.A6",
   "response": {
     "status": "ok",
     "app": "provider_register",
-    "checks": {"db": "healthy", "db_latency_ms": 20, "cache": "healthy", "stripe_connect": "healthy"},
+    "checks": {"db": "healthy", "db_latency_ms": 23, "cache": "healthy", "stripe_connect": "healthy"},
     "version": "1.0.0"
   },
   "http_code": 200,

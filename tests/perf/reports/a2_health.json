@@ -3,11 +3,11 @@
   "app_name": "scholarship_api",
   "url": "https://scholarship-api-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-18T19:15:06.000Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-033.A2",
+  "checked_at": "2026-01-18T19:44:04.000Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-037.A2",
   "response": {
     "status": "healthy",
-    "trace_id": "de5f5fef-620a-4440-930e-2d9e7463f075"
+    "trace_id": "25f55195-29ab-45e9-b873-1b2ea460a552"
   },
   "http_code": 200,
   "markers_present": ["status:healthy", "trace_id:present"],

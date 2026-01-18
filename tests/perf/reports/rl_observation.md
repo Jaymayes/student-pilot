@@ -1,7 +1,7 @@
 # Reinforcement Learning Observation Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-033  
-**Generated:** 2026-01-18T19:16:00.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-037  
+**Generated:** 2026-01-18T19:45:00.000Z
 
 ## RL Episode Tracking
 
@@ -9,14 +9,14 @@
 
 | State | Description | Timestamp |
 |-------|-------------|-----------|
-| S0 | Scorched Earth cleanup | 2026-01-18T19:14:45Z |
-| S1 | URL truth set created | 2026-01-18T19:14:50Z |
-| S2 | Probe all health endpoints (A1-A8) | 2026-01-18T19:15:05Z |
-| S3 | All 8 health endpoints verified | 2026-01-18T19:15:16Z |
-| S4 | Functional probes (providers, pricing, sitemap) | 2026-01-18T19:15:30Z |
-| S5 | A8 telemetry POST verified | 2026-01-18T19:15:32Z |
-| S6 | Performance sampling completed | 2026-01-18T19:15:50Z |
-| S7 | **VERIFIED LIVE (ZT3G) — Definitive GO** | 2026-01-18T19:16:00Z |
+| S0 | Scorched Earth cleanup | 2026-01-18T19:43:52Z |
+| S1 | DNS/Network validation | 2026-01-18T19:43:55Z |
+| S2 | Probe all health endpoints (A1-A8) | 2026-01-18T19:44:03Z |
+| S3 | All 8 health endpoints verified | 2026-01-18T19:44:14Z |
+| S4 | Functional probes (providers, pricing, sitemap) | 2026-01-18T19:44:25Z |
+| S5 | A8 telemetry POST verified | 2026-01-18T19:44:33Z |
+| S6 | Performance sampling completed | 2026-01-18T19:44:50Z |
+| S7 | **VERIFIED LIVE (ZT3G) — Definitive GO** | 2026-01-18T19:45:00Z |
 
 ### Exploration Rate
 
@@ -26,14 +26,14 @@
 
 ## Closed Error-Correction Loops
 
-### Loop 1: Workflow EADDRINUSE Recovery
+### Loop 1: DNS Resolution Verification
 
 ```
-State: Workflow FAILED with EADDRINUSE: port 5000 in use
+State: Workspace DNS check
   ↓
-Action: Restart workflow (automatic cleanup)
+Action: dig +short replit.app
   ↓
-Result: Workflow running, port bound successfully
+Result: 34.117.33.233 resolved
   ↓
 ✓ LOOP CLOSED
 ```
@@ -55,7 +55,7 @@ No "Waking/Loading" placeholders detected
 ### Loop 3: A8 Telemetry Round-Trip
 
 ```
-POST event to A8 with X-Trace-Id
+POST event to A8 with X-Trace-Id + X-Idempotency-Key
   ↓
 Response: event_id + persisted: true
   ↓
