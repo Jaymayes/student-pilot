@@ -1,6 +1,6 @@
 {
-  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-041",
-  "generated_at": "2026-01-18T20:13:00.000Z",
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047",
+  "generated_at": "2026-01-19T03:14:00.000Z",
   "fee_structure": {
     "platform_fee": {
       "percentage": 3,
@@ -11,9 +11,9 @@
       "description": "AI services markup (>4x)"
     }
   },
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-041",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047",
   "a8_correlation": {
-    "event_id": "evt_1768767157053_2f4aonhgj",
+    "event_id": "evt_1768792449147_zw985xynb",
     "persisted": true
   },
   "verification_status": "PASS"

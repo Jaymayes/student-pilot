@@ -3,13 +3,13 @@
   "app_name": "scholarship_sage",
   "url": "https://scholarship-sage-jamarrlmayes.replit.app",
   "health_endpoint": "/health",
-  "checked_at": "2026-01-18T20:11:59.953Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-041.A4",
+  "checked_at": "2026-01-19T03:13:28.649Z",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047.A4",
   "response": {
     "status": "healthy",
     "agent_id": "scholarship_sage",
     "version": "1.0.0",
-    "uptime": 130767.74,
+    "uptime": 156056.44,
     "dependencies": {
       "database": "connected",
       "openai": "configured",

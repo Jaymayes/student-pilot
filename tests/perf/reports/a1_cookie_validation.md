@@ -1,12 +1,12 @@
 # A1 Cookie Validation Report
 
-**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-041  
-**Generated:** 2026-01-18T20:13:00.000Z
+**Run ID:** CEOSPRINT-20260113-EXEC-ZT3G-FIX-047  
+**Generated:** 2026-01-19T03:14:00.000Z
 
 ## Headers Observed
 
 ```
-set-cookie: GAESA=CpgBMDA1ZWI2OTc0YzA0MTk2YTBkMWZmZGNjMjUxYmQxY2E3YWI1NDI0OWI5ZWE5ZDZmOTNlZGQ1MDViNmJjNWM4YmQ2YTczYTViZGE2Mjg3Mjk3MTBkMzhmMmU3ZjFiMWQyMmMyNTg5YjhiOGUwNmY5ZWRkZmY0NTUzNDRhMWRiYmEzNzZjOWJiMGViMWEzMDliYzYzMTUxNGMQyIL0lb0z; expires=Tue, 17-Feb-2026 20:12:40 GMT; path=/
+set-cookie: GAESA=...; expires=...; path=/
 strict-transport-security: max-age=63072000; includeSubDomains
 strict-transport-security: max-age=63072000; includeSubDomains; preload
 ```
@@ -17,7 +17,7 @@ strict-transport-security: max-age=63072000; includeSubDomains; preload
 |-----------|----------|----------|--------|
 | Set-Cookie present | Yes | Yes (GAESA) | **PASS** |
 | path=/ | Yes | Yes | **PASS** |
-| Expires set | Recommended | Yes (30 days) | **PASS** |
+| Expires set | Recommended | Yes | **PASS** |
 | HSTS enabled | Yes | Yes (max-age=63072000) | **PASS** |
 | HSTS preload | Recommended | Yes | **PASS** |
 
