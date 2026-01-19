@@ -33,6 +33,11 @@
     "soak_artifacts": {
       "b2c_toggle_config.md": "f419c30a58ac6b780bb45270d37d6b145bee361e46040e9ea30a7b8d4b67d658",
       "stripe_dryrun_checklist.md": "13b64717732d7c68665d532898c9328bdfff00bfec67af2ff3b0cd1d4e6ebe04"
+    },
+    "fix052_artifacts": {
+      "fix052_controls.json": "7d28f2ec077ccf6870f369aa1e82774245864cb006004b8e95701935e9155780",
+      "risk_log.json": "9e496bb03be4bbcd70edb8b84da634ce411474da37da9705a6ee830b90d9aba7",
+      "hourly_export_template.json": "c0f0f90c3eb6c350a4eceec2b2ccda44cd9587c9e1c7c672cb729951fe7f5068"
     }
   },
   "telemetry_proof": {
@@ -41,7 +46,7 @@
     "ingestion_rate": "100%"
   },
   "soak_status": {
-    "current_checkpoint": "T+0",
+    "current_checkpoint": "T+2h",
     "next_checkpoint": "T+12h",
     "soak_end": "T+24h",
     "pass_gates": {
