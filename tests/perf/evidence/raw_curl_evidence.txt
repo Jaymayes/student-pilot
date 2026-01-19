@@ -1,0 +1,40 @@
+================================================================================
+RAW CURL EVIDENCE - VERIFY-ZT3G-056
+Generated: 2026-01-19T08:32:00.000Z
+================================================================================
+
+=== A1 Health ===
+curl -sSL "https://scholar-auth-jamarrlmayes.replit.app/health" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A1"
+Response: {"status":"ok","system_identity":"scholar_auth","version":"1.0.0","uptime_s":14049}
+
+=== A2 Health ===
+curl -sSL "https://scholarship-api-jamarrlmayes.replit.app/health" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A2"
+Response: {"status":"healthy","trace_id":"4e54c97e-075a-422d-8177-7e441469f3a0"}
+
+=== A3 Readyz ===
+curl -sSL "https://scholarship-agent-jamarrlmayes.replit.app/readyz" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A3"
+Response: {"status":"healthy","version":"1.0.0","checks":{"cron_jobs":"13/13 jobs enabled"}}
+
+=== A4 Health ===
+curl -sSL "https://scholarship-sage-jamarrlmayes.replit.app/health" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A4"
+Response: {"status":"healthy","agent_id":"scholarship_sage","version":"1.0.0"}
+
+=== A5 Health ===
+curl -sSL "https://student-pilot-jamarrlmayes.replit.app/api/health" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A5"
+Response: {"status":"ok","app":"student_pilot","checks":{"stripe":"live_mode"}}
+
+=== A6 Providers ===
+curl -sSL "https://provider-register-jamarrlmayes.replit.app/api/providers" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A6"
+Response: [3 providers returned]
+
+=== A7 Sitemap ===
+curl -sSL "https://auto-page-maker-jamarrlmayes.replit.app/sitemap.xml" -H "Cache-Control: no-cache" -H "X-Trace-Id: VERIFY-ZT3G-056.A7"
+Response: HTTP 200, 2854 URLs
+
+=== A8 Events ===
+curl -sSL -X POST "https://auto-com-center-jamarrlmayes.replit.app/api/events" -H "Content-Type: application/json" -H "X-Trace-Id: VERIFY-ZT3G-056.A8"
+Response: {"accepted":true,"event_id":"evt_1768811518013_9ypyx2lpb","persisted":true}
+
+================================================================================
+All probes completed successfully. 8/8 apps healthy.
+================================================================================

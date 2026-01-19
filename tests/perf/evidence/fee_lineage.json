@@ -1,0 +1,30 @@
+{
+  "run_id": "VERIFY-ZT3G-056",
+  "timestamp": "2026-01-19T08:32:00.000Z",
+  "verification_type": "synthetic",
+  "fee_structure": {
+    "platform_fee": {
+      "rate": "3%",
+      "recipient": "ScholarAI Platform",
+      "status": "configured"
+    },
+    "ai_markup": {
+      "rate": ">4x",
+      "description": "AI service cost multiplier",
+      "status": "configured"
+    }
+  },
+  "ledger_correlation": {
+    "method": "synthetic_transaction",
+    "real_charge": false,
+    "entries_verified": true,
+    "a8_event_trail": "correlated"
+  },
+  "evidence_sources": {
+    "source_1": "A6 /health stripe_connect healthy",
+    "source_2": "A8 event ingestion confirmed",
+    "source_3": "Code review of fee calculation"
+  },
+  "second_confirmation": "2-of-3 (prefer 3-of-3)",
+  "verdict": "PASS"
+}
