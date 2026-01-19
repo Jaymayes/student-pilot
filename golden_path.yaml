@@ -1,0 +1,100 @@
+# Golden Path Manifest
+# Executive Implementation Order SAA-EO-2026-01-19-01
+# 
+# DaaS Hard Rule: No local state. All reads/writes via Core API.
+# DATABASE_URL never embedded in A5/A7.
+
+version: "1.0.0"
+protocol: "AGENT3_HANDSHAKE_v30"
+run_id: "ZT3G-056"
+created_at: "2026-01-19T08:39:06.000Z"
+
+apps:
+  A5_student_pilot:
+    name: student_pilot
+    url: https://student-pilot-jamarrlmayes.replit.app
+    role: Student App + Payments
+    
+    release_gate:
+      smoke_tests:
+        - endpoint: /api/health
+          expected_status: 200
+          functional_markers:
+            - database: healthy
+            - stripe: live_mode
+        - endpoint: /api/readyz
+          expected_status: 200
+      security_headers:
+        - HSTS: "max-age=63072000"
+        - X-Frame-Options: "DENY"
+        - X-Content-Type-Options: "nosniff"
+      confirmation_matrix: "3-of-3"
+      
+    daas_rules:
+      database_url_embedded: false
+      all_reads_via_api: true
+      all_writes_via_api: true
+      
+  A7_auto_page_maker:
+    name: auto_page_maker
+    url: https://auto-page-maker-jamarrlmayes.replit.app
+    role: SEO Page Generator
+    
+    release_gate:
+      smoke_tests:
+        - endpoint: /health
+          expected_status: 200
+          functional_markers:
+            - database: healthy
+            - dependencies: 3/3 healthy
+        - endpoint: /sitemap.xml
+          expected_status: 200
+          min_url_count: 2800
+      security_headers:
+        - HSTS: "max-age=63072000"
+        - X-Frame-Options: "DENY"
+        - X-Content-Type-Options: "nosniff"
+      confirmation_matrix: "3-of-3"
+      
+    daas_rules:
+      database_url_embedded: false
+      all_reads_via_api: true
+      all_writes_via_api: true
+
+success_criteria:
+  stability:
+    consecutive_60min_snapshots: 2
+    all_apps_200_with_markers: true
+    
+  latency:
+    core_apps_p95_ms: 120  # A1-A4
+    aux_apps_p95_ms: 200   # A6, A8
+    
+  confirmation:
+    method: "POST→GET checksum ≥99%"
+    logged_in_a8: true
+
+b2c_pilot:
+  enabled: true
+  mode: pilot_only
+  budget_usd: 50
+  max_users: 100
+  traffic_cap_pct: 2
+  
+b2b:
+  fee_capture_event: AwardDisbursed
+  platform_fee_percent: 3
+  minimum_fee_cents: 50
+  
+monitoring:
+  watchtower_snapshots:
+    - "T+0"
+    - "T+6h"
+    - "T+12h"
+    - "T+24h"
+  drift_sentinel:
+    record_fields:
+      - workspace_id
+      - commit_sha
+      - manifest_digest
+      - build_artifact_sha
