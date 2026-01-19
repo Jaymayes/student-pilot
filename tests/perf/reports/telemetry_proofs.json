@@ -1,0 +1,27 @@
+{
+  "soak_id": "SOAK-049",
+  "checkpoints": {
+    "T+0": {
+      "timestamp": "2026-01-19T04:02:07.367Z",
+      "trace_id": "SOAK-049-T0",
+      "event_id": "evt_1768795327367_q1epd8jj5",
+      "accepted": true,
+      "persisted": true,
+      "ingestion_rate": "100%",
+      "second_confirmation": "3/3"
+    },
+    "T+12h": {
+      "timestamp": null,
+      "trace_id": null,
+      "event_id": null,
+      "status": "PENDING"
+    },
+    "T+24h": {
+      "timestamp": null,
+      "trace_id": null,
+      "event_id": null,
+      "status": "PENDING"
+    }
+  },
+  "notes": "T+12h and T+24h checkpoints will be captured at scheduled intervals."
+}

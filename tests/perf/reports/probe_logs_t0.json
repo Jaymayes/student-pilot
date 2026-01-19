@@ -1,0 +1,22 @@
+{
+  "soak_id": "SOAK-049",
+  "checkpoint": "T+0",
+  "timestamp": "2026-01-19T04:01:53.000Z",
+  "trace_id": "SOAK-049-T0",
+  "probes": [
+    {"app_id": "A1", "url": "https://scholar-auth-jamarrlmayes.replit.app/health", "http": 200, "latency_ms": 159, "status": "ok", "markers": ["system_identity:scholar_auth", "oauth_provider:healthy"]},
+    {"app_id": "A2", "url": "https://scholarship-api-jamarrlmayes.replit.app/health", "http": 200, "latency_ms": 213, "status": "healthy", "markers": ["trace_id:present"]},
+    {"app_id": "A3", "url": "https://scholarship-agent-jamarrlmayes.replit.app/health", "http": 200, "latency_ms": 316, "status": "healthy", "markers": ["version:1.0.0", "environment:production"]},
+    {"app_id": "A4", "url": "https://scholarship-sage-jamarrlmayes.replit.app/health", "http": 200, "latency_ms": 219, "status": "healthy", "markers": ["agent_id:scholarship_sage", "database:connected"]},
+    {"app_id": "A5", "url": "https://student-pilot-jamarrlmayes.replit.app/api/health", "http": 200, "latency_ms": 264, "status": "ok", "markers": ["app:student_pilot", "stripe:live_mode"]},
+    {"app_id": "A6", "url": "https://provider-register-jamarrlmayes.replit.app/health", "http": 200, "latency_ms": 165, "status": "ok", "markers": ["app:provider_register", "db:healthy"]},
+    {"app_id": "A7", "url": "https://auto-page-maker-jamarrlmayes.replit.app/health", "http": 200, "latency_ms": 231, "status": "healthy", "markers": ["app:auto_page_maker", "version:v2.9"]},
+    {"app_id": "A8", "url": "https://auto-com-center-jamarrlmayes.replit.app/api/health", "http": 200, "latency_ms": 552, "status": "healthy", "markers": ["service:ScholarshipAI Command Center", "db:healthy"]}
+  ],
+  "summary": {
+    "total": 8,
+    "healthy": 8,
+    "http_429": 0,
+    "failures": 0
+  }
+}
