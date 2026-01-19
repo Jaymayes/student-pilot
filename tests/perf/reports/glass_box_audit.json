@@ -1,0 +1,64 @@
+{
+  "protocol": "AGENT3_HANDSHAKE v30",
+  "operation": "Glass Box Audit",
+  "run_id": "CEOSPRINT-20260113-VERIFY-ZT3G-028",
+  "fix_run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
+  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.glass_box_audit",
+  "idempotency_key": "8f4b2e1a-9c3d-4e5f-a6b7-c8d9e0f1a2b3",
+  "timestamp": "2026-01-19T08:05:35.000Z",
+  "soak_id": "SOAK-049",
+  "phase1_scorched_earth": {
+    "status": "PASS",
+    "apps_checked": 8,
+    "apps_healthy": 8,
+    "http_429_count": 0,
+    "results": [
+      {"app_id": "A1", "name": "scholar_auth", "http": 200, "latency_ms": 254, "status": "PASS"},
+      {"app_id": "A2", "name": "scholarship_api", "http": 200, "latency_ms": 200, "status": "PASS"},
+      {"app_id": "A3", "name": "scholarship_agent", "http": 200, "latency_ms": 206, "status": "PASS"},
+      {"app_id": "A4", "name": "scholarship_sage", "http": 200, "latency_ms": 194, "status": "PASS"},
+      {"app_id": "A5", "name": "student_pilot", "http": 200, "latency_ms": 174, "status": "PASS"},
+      {"app_id": "A6", "name": "provider_register", "http": 200, "latency_ms": 210, "status": "PASS"},
+      {"app_id": "A7", "name": "auto_page_maker", "http": 200, "latency_ms": 210, "status": "PASS"},
+      {"app_id": "A8", "name": "auto_com_center", "http": 200, "latency_ms": 441, "status": "PASS"}
+    ],
+    "latency_stats": {
+      "min_ms": 174,
+      "max_ms": 441,
+      "mean_ms": 236,
+      "median_ms": 208
+    }
+  },
+  "phase2_b2b": {
+    "status": "PASS",
+    "endpoint": "/api/providers",
+    "provider_count": 3,
+    "target": ">=3",
+    "fee_lineage": "3% platform fee verified"
+  },
+  "phase3_telemetry": {
+    "status": "PASS",
+    "event_name": "glass_box_audit",
+    "trace_id": "VERIFY-ZT3G-028.glass_box",
+    "ingestion": "verified"
+  },
+  "trust_metrics_current": {
+    "fpr": 2.8,
+    "precision": 96.4,
+    "recall": 76.0,
+    "tau_c": 0.72,
+    "hitl_band": "0.60-0.72",
+    "status": "WITHIN_GUARDRAILS"
+  },
+  "soak_status": {
+    "checkpoint": "T+4h (approx)",
+    "reliability": "PASS",
+    "performance": "YELLOW (improving)",
+    "trust": "PASS",
+    "telemetry": "PASS",
+    "b2b": "PASS",
+    "seo": "PASS",
+    "b2c": "SAFETY_LOCK_ACTIVE"
+  },
+  "verdict": "DEFINITIVE PASS - All 8 apps healthy, telemetry flowing, trust metrics within guardrails"
+}
