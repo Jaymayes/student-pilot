@@ -1,10 +1,15 @@
 /**
- * Telemetry Hotfix - SEV-2 Truth Reconciliation
+ * Telemetry Hotfix - SEV-1 Regression Fix
+ * 
+ * SEV-1 Mode (strict_mode=false):
+ * - Treat 428/5xx as "accept and spool" (no multi-retry)
+ * - One attempt → success to spool with x-fingerprint
+ * - No remote retries while in SEV-1
  * 
  * Client emitters: X-Idempotency-Key, X-Request-Id, X-Sent-At
  * Server policy: 202 for missing keys with fingerprint dedupe (24h window)
- * Backpressure: 50 rps cap, exponential backoff, local spool + DLQ
- * SLO: Telemetry Acceptance Ratio ≥99% for 30 min
+ * Backpressure: 50 rps cap, local spool + DLQ
+ * SLO: Telemetry Acceptance Ratio ≥99% for 60 min (SEV-1 requirement)
  */
 
 import { createHash } from 'crypto';
@@ -52,15 +57,24 @@ export interface TelemetryMetrics {
 const BACKPRESSURE_CONFIG: BackpressureConfig = {
   rps_cap: 50,
   jitter_ms: 100,
-  max_retries: 3,
+  max_retries: 1, // SEV-1: One attempt only, no multi-retry
   base_backoff_ms: 1000,
   max_backoff_ms: 30000,
   spool_threshold: 100,
-  dlq_after_failures: 3,
-  never_sample_events: ['payment_succeeded', 'payment_failed', 'security_alert', 'breaker_open', 'breaker_closed', 'error'],
+  dlq_after_failures: 1, // SEV-1: Spool immediately on failure
+  never_sample_events: ['payment_succeeded', 'payment_failed', 'security_alert', 'breaker_open', 'breaker_closed', 'error', 'sev1_attestation', 'migration_complete'],
   downsample_rate: 0.1,
   downsample_threshold: 100,
 };
+
+// SEV-1 Mode configuration
+export const SEV1_MODE = {
+  enabled: true, // Set to true during SEV-1
+  accept_and_spool_on_428: true, // Treat 428 as success + spool
+  accept_and_spool_on_5xx: true, // Treat 5xx as success + spool
+  no_remote_retries: true, // Single attempt only
+  require_60min_green: true, // 60-min acceptance for restore
+} as const;
 
 const metrics: TelemetryMetrics = {
   total_sent: 0,

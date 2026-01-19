@@ -15,32 +15,37 @@
  */
 
 export const SEV1_INCIDENT = {
-  active: true, // SEV-1 → SEV-2 transition in progress
-  cir_id: 'CIR-1768845119',
+  active: true, // SEV-1 REGRESSION - Hard fixes in progress
+  cir_id: 'CIR-1768864546',
   a8_event_id: 'evt_1768842911704_bk0d6109d',
-  error_codes: ['AUTH_RATE_LIMITED', 'IP_BLOCKED_LOCKOUT', 'HIGH_ERROR_RATE', 'TELEMETRY_428', 'GREEN_MIRAGE'],
-  kill_switch_activated_at: '2026-01-19T17:47:00.000Z',
-  stability_hold_passed_at: '2026-01-19T20:08:44.000Z',
+  error_codes: ['AUTH_RATE_LIMITED', 'IP_BLOCKED_LOCKOUT', 'HIGH_ERROR_RATE', 'TELEMETRY_428', 'GREEN_MIRAGE', 'LEDGER_MISSING', 'SPOOL_IO_ERROR'],
+  kill_switch_activated_at: '2026-01-19T23:15:00.000Z',
+  stability_hold_passed_at: null as string | null,
   resolved_at: null as string | null,
   change_freeze: true,
   canary_authorized: false,
   canary_started_at: null as string | null,
-  b2c_paused: false, // RESTORED TO 2% after stability hold
+  b2c_paused: true, // REVERTED TO 0% - SEV-1 regression
+  ledger_freeze: true, // Freeze provider invoicing until ledger created
+  b2b_billing_frozen: true, // No B2B billing events
 } as const;
 
 export const CONTAINMENT_CONFIG = {
   fleet_seo_paused: true,
   internal_schedulers_capped: true,
   permitted_jobs: ['auth', 'payments', 'watchtower'] as const,
-  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron'] as const,
+  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting'] as const,
   stripe_cap_6h: 4,
-  pilot_traffic_pct: 2, // RESTORED after stability hold passed 20:08 UTC
+  pilot_traffic_pct: 0, // SEV-1 REGRESSION - HARD STOP
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
   scheduler_tokens_revoked: true,
   localhost_probes_disabled: true,
   metrics_p95_probes_disabled: true,
+  a8_stopped_until_patch: true, // Self-DDoS guard
+  synthetic_ip_allowlist: true, // Provider flow synthetic IPs
+  rate_limit_abuse_ips: true, // Abuse IP suppression
 } as const;
 
 export const CANARY_CONFIG = {
@@ -76,10 +81,10 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'pilot_only', // RESTORED to 2% pilot after stability hold
+  B2C_CAPTURE: 'paused', // SEV-1 REGRESSION - HARD STOP
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 2, // RESTORED after 20:08 UTC stability hold
+  TRAFFIC_CAP_B2C_PILOT: 0, // SEV-1 REGRESSION - HARD STOP until 60-min green
 } as const;
 
 export const TELEMETRY_GATE = {
