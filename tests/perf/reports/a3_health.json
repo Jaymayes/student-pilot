@@ -1,18 +1,27 @@
 {
   "app_id": "A3",
-  "app_name": "scholarship_agent",
-  "url": "https://scholarship-agent-jamarrlmayes.replit.app",
-  "health_endpoint": "/health",
-  "checked_at": "2026-01-19T03:13:27.323Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047.A3",
-  "response": {
-    "status": "healthy",
-    "version": "1.0.0",
-    "environment": "production",
-    "uptime": 81529.04,
-    "checks": {"application": {"status": "healthy", "message": "Application is running"}}
+  "name": "scholarship_agent",
+  "timestamp": "2026-01-19T08:31:36.000Z",
+  "run_id": "VERIFY-ZT3G-056",
+  "endpoints": {
+    "/readyz": {
+      "status": "healthy",
+      "version": "1.0.0",
+      "environment": "production",
+      "uptime": 14184,
+      "checks": {
+        "database": "healthy",
+        "redis": "healthy (not configured)",
+        "openai": "healthy",
+        "s2s_auth": "healthy",
+        "cron_jobs": "healthy (13/13 jobs)"
+      }
+    },
+    "/health": {"status": "healthy"}
   },
-  "http_code": 200,
-  "markers_present": ["status:healthy", "version:1.0.0", "application:healthy"],
+  "orchestration_markers": {
+    "cron_jobs_enabled": 13,
+    "cron_jobs_running": 13
+  },
   "verdict": "PASS"
 }

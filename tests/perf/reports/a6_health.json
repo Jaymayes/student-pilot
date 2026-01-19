@@ -1,24 +1,32 @@
 {
   "app_id": "A6",
-  "app_name": "provider_register",
-  "url": "https://provider-register-jamarrlmayes.replit.app",
-  "health_endpoint": "/health",
-  "checked_at": "2026-01-19T03:13:31.445Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047.A6",
-  "response": {
-    "status": "ok",
-    "app": "provider_register",
-    "checks": {"db": "healthy", "db_latency_ms": 22, "cache": "healthy", "stripe_connect": "healthy"},
-    "version": "1.0.0"
+  "name": "provider_register",
+  "timestamp": "2026-01-19T08:31:48.000Z",
+  "run_id": "VERIFY-ZT3G-056",
+  "endpoints": {
+    "/api/providers": {
+      "http": 200,
+      "count": 3,
+      "body_len": 2538,
+      "is_array": true
+    },
+    "/health": {
+      "status": "ok",
+      "app": "provider_register",
+      "checks": {
+        "db": "healthy",
+        "db_latency_ms": 21,
+        "cache": "healthy",
+        "stripe_connect": "healthy"
+      },
+      "p95_ms": 21,
+      "version": "1.0.0"
+    }
   },
-  "http_code": 200,
-  "markers_present": ["status:ok", "app:provider_register", "db:healthy"],
-  "functional_check": {
-    "endpoint": "/api/providers",
-    "result": "SUCCESS",
-    "http_code": 200,
-    "providers_count": 3,
-    "providers": ["gmail.com Organization", "TEST_Organization_E2E", "Jamarr's Organization"]
+  "b2b_status": {
+    "providers": 3,
+    "target": ">=3",
+    "status": "PASS"
   },
   "verdict": "PASS"
 }

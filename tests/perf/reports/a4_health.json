@@ -1,25 +1,23 @@
 {
   "app_id": "A4",
-  "app_name": "scholarship_sage",
-  "url": "https://scholarship-sage-jamarrlmayes.replit.app",
-  "health_endpoint": "/health",
-  "checked_at": "2026-01-19T03:13:28.649Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047.A4",
-  "response": {
-    "status": "healthy",
-    "agent_id": "scholarship_sage",
-    "version": "1.0.0",
-    "uptime": 156056.44,
-    "dependencies": {
-      "database": "connected",
-      "openai": "configured",
-      "scholarship_api": "configured"
-    },
-    "resilience": {
-      "circuitBreaker": {"open": false, "failureCount": 0}
+  "name": "scholarship_sage",
+  "timestamp": "2026-01-19T08:31:38.000Z",
+  "run_id": "VERIFY-ZT3G-056",
+  "endpoints": {
+    "/health": {
+      "status": "healthy",
+      "agent_id": "scholarship_sage",
+      "version": "1.0.0",
+      "latency_ms": 198,
+      "uptime": 14236,
+      "dependencies": {
+        "database": "connected",
+        "openai": "configured",
+        "scholarship_api": "configured"
+      },
+      "circuit_breaker": {"open": false, "failureCount": 0}
     }
   },
-  "http_code": 200,
-  "markers_present": ["status:healthy", "agent_id:scholarship_sage", "database:connected"],
+  "performance": {"response_time_ms": 198, "target_ms": 2000, "status": "PASS"},
   "verdict": "PASS"
 }

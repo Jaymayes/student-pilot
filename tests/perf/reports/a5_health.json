@@ -1,21 +1,30 @@
 {
   "app_id": "A5",
-  "app_name": "student_pilot",
-  "url": "https://student-pilot-jamarrlmayes.replit.app",
-  "health_endpoint": "/api/health",
-  "checked_at": "2026-01-19T03:13:30.122Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047.A5",
-  "response": {
-    "status": "ok",
-    "app": "student_pilot",
-    "service": "scholarlink-api",
-    "checks": {"database": "healthy", "cache": "healthy", "stripe": "live_mode"}
+  "name": "student_pilot",
+  "timestamp": "2026-01-19T08:31:44.000Z",
+  "run_id": "VERIFY-ZT3G-056",
+  "endpoints": {
+    "/pricing": {
+      "http": 200,
+      "stripe_js": "js.stripe.com",
+      "pk_key": "present",
+      "body_len": 4509
+    },
+    "/api/health": {
+      "status": "ok",
+      "app": "student_pilot",
+      "checks": {
+        "database": "healthy",
+        "cache": "healthy",
+        "stripe": "live_mode"
+      }
+    }
   },
-  "http_code": 200,
-  "markers_present": ["status:ok", "app:student_pilot", "stripe:live_mode"],
-  "pricing_markers": {
-    "js_stripe_com": true,
-    "checkout_cta": "present"
+  "b2c_readiness": {
+    "stripe_js": true,
+    "publishable_key": true,
+    "live_mode": true,
+    "status": "READY (SAFETY_LOCK_ACTIVE)"
   },
   "verdict": "PASS"
 }

@@ -1,24 +1,26 @@
 {
   "app_id": "A8",
-  "app_name": "auto_com_center",
-  "url": "https://auto-com-center-jamarrlmayes.replit.app",
-  "health_endpoint": "/api/health",
-  "checked_at": "2026-01-19T03:13:34.455Z",
-  "trace_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-047.A8",
-  "response": {
-    "service": "ScholarshipAI Command Center",
-    "env": "production",
-    "version": "8a9563bb-3cdc-4ec5-b73d-1803fef7da89",
-    "status": "healthy",
-    "db": {"status": "healthy", "latency_ms": 91},
-    "uptimeSeconds": 172570
+  "name": "auto_com_center",
+  "timestamp": "2026-01-19T08:31:58.000Z",
+  "run_id": "VERIFY-ZT3G-056",
+  "endpoints": {
+    "POST /api/events": {
+      "accepted": true,
+      "event_id": "evt_1768811518013_9ypyx2lpb",
+      "persisted": true
+    },
+    "/api/health": {
+      "service": "ScholarshipAI Command Center",
+      "env": "production",
+      "status": "healthy",
+      "db": {"status": "healthy", "latency_ms": 241},
+      "uptime_seconds": 14384
+    }
   },
-  "http_code": 200,
-  "markers_present": ["service:ScholarshipAI Command Center", "status:healthy", "db:healthy"],
-  "telemetry_check": {
-    "post_accepted": true,
-    "event_id": "evt_1768792449147_zw985xynb",
-    "persisted": true
+  "telemetry": {
+    "event_ingestion": "verified",
+    "event_id": "evt_1768811518013_9ypyx2lpb",
+    "round_trip": "PASS"
   },
   "verdict": "PASS"
 }
