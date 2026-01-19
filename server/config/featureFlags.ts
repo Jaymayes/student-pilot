@@ -15,16 +15,17 @@
  */
 
 export const SEV1_INCIDENT = {
-  active: true, // SEV-1 ACTIVE - Force Restart
+  active: true, // SEV-1 → SEV-2 transition in progress
   cir_id: 'CIR-1768845119',
   a8_event_id: 'evt_1768842911704_bk0d6109d',
   error_codes: ['AUTH_RATE_LIMITED', 'IP_BLOCKED_LOCKOUT', 'HIGH_ERROR_RATE', 'TELEMETRY_428', 'GREEN_MIRAGE'],
   kill_switch_activated_at: '2026-01-19T17:47:00.000Z',
+  stability_hold_passed_at: '2026-01-19T20:08:44.000Z',
   resolved_at: null as string | null,
   change_freeze: true,
   canary_authorized: false,
   canary_started_at: null as string | null,
-  b2c_paused: true, // TRAFFIC_CAP = 0 during restart
+  b2c_paused: false, // RESTORED TO 2% after stability hold
 } as const;
 
 export const CONTAINMENT_CONFIG = {
@@ -33,7 +34,7 @@ export const CONTAINMENT_CONFIG = {
   permitted_jobs: ['auth', 'payments', 'watchtower'] as const,
   blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron'] as const,
   stripe_cap_6h: 4,
-  pilot_traffic_pct: 0, // SEV-1: ZERO during restart
+  pilot_traffic_pct: 2, // RESTORED after stability hold passed 20:08 UTC
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
@@ -75,10 +76,10 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'paused', // SEV-1: TRAFFIC = 0 during restart
+  B2C_CAPTURE: 'pilot_only', // RESTORED to 2% pilot after stability hold
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 0, // SEV-1: HARD STOP during restart
+  TRAFFIC_CAP_B2C_PILOT: 2, // RESTORED after 20:08 UTC stability hold
 } as const;
 
 export const TELEMETRY_GATE = {
