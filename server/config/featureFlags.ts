@@ -15,15 +15,16 @@
  */
 
 export const SEV2_INCIDENT = {
-  active: true,
+  active: false, // SEV-2 RESOLVED - Pilot Restore Authorized
   cir_id: 'CIR-1768837580',
   a8_event_id: 'evt_1768837580711_ugd0zuebj',
   error_codes: ['AUTH_DB_UNREACHABLE', 'RETRY_STORM_SUPPRESSED'],
   kill_switch_activated_at: '2026-01-19T15:46:20.000Z',
-  change_freeze: true,
+  resolved_at: '2026-01-19T16:10:00.000Z',
+  change_freeze: false,
   canary_authorized: true,
-  canary_started_at: null as string | null,
-  b2c_paused: true, // B2C remains paused during canary
+  canary_started_at: '2026-01-19T16:10:00.000Z',
+  b2c_paused: false, // Pilot restored at 2%
 } as const;
 
 export const CANARY_CONFIG = {
@@ -59,10 +60,32 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: SEV2_INCIDENT.active ? 'paused' : (process.env.B2C_CAPTURE || 'pilot_only'),
-  MICROCHARGE_REFUND: true, // Keep refunds enabled during SEV-2
-  SAFETY_LOCK: true, // Always active during incident
-  TRAFFIC_CAP_B2C_PILOT: SEV2_INCIDENT.active ? 0 : parseFloat(process.env.TRAFFIC_CAP_B2C_PILOT || '2'),
+  B2C_CAPTURE: 'pilot_only', // RESTORED - 2% pilot active
+  MICROCHARGE_REFUND: true, // Refunds enabled
+  SAFETY_LOCK: true, // Safety lock active
+  TRAFFIC_CAP_B2C_PILOT: 2, // 2% traffic cap restored
+} as const;
+
+export const LIVE_MONITORING = {
+  auto_rollback_thresholds: {
+    auth_5xx_duration_min: 5,
+    pool_utilization_pct: 80,
+    pool_utilization_duration_min: 2,
+    core_p95_ms: 120,
+    core_p95_duration_min: 15,
+    aux_p95_ms: 200,
+    aux_p95_duration_min: 15,
+    a3_error_burst_count: 3,
+    a3_error_burst_window_sec: 60,
+  },
+  
+  a3_breaker_close_policy: {
+    consecutive_successes: 50,
+    windows_required: 2,
+    window_duration_min: 5,
+  },
+  
+  synthetic_login_target_p95_ms: 500,
 } as const;
 
 export const B2C_PILOT_CONFIG = {
@@ -145,15 +168,15 @@ export function isSafetyLockActive(): boolean {
 }
 
 export function isKillSwitchActive(): boolean {
-  return SEV2_INCIDENT.active && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT === 0;
+  return SEV2_INCIDENT.active === true && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT < 1;
 }
 
 export function isChangeFreezeActive(): boolean {
-  return SEV2_INCIDENT.change_freeze;
+  return SEV2_INCIDENT.change_freeze === true;
 }
 
 export function canProcessB2CCharge(): boolean {
-  return !SEV2_INCIDENT.active && FEATURE_FLAGS.B2C_CAPTURE !== 'paused';
+  return SEV2_INCIDENT.active === false && FEATURE_FLAGS.B2C_CAPTURE === 'pilot_only';
 }
 
 export function canProcessRefund(): boolean {
