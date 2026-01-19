@@ -21,6 +21,41 @@ export const SEV2_INCIDENT = {
   error_codes: ['AUTH_DB_UNREACHABLE', 'RETRY_STORM_SUPPRESSED'],
   kill_switch_activated_at: '2026-01-19T15:46:20.000Z',
   change_freeze: true,
+  canary_authorized: true,
+  canary_started_at: null as string | null,
+  b2c_paused: true, // B2C remains paused during canary
+} as const;
+
+export const CANARY_CONFIG = {
+  pre_canary_hold_minutes: 10,
+  
+  step1: {
+    a3_concurrency: 1,
+    breaker_state: 'half_open',
+    rate_limit_rpm: 5,
+    duration_minutes: 10,
+  },
+  
+  step2: {
+    a3_concurrency: 3,
+    rate_limit_rpm: 20,
+    green_clock_minutes: 60,
+  },
+  
+  abort_thresholds: {
+    auth_5xx_any: true,
+    pool_utilization_2min: 80,
+    a3_errors_per_60s: 3,
+  },
+  
+  exit_criteria: {
+    green_minutes: 60,
+    auth_5xx: 0,
+    db_connected: true,
+    pool_utilization_max: 80,
+    p95_core_ms: 120,
+    p95_aux_ms: 200,
+  },
 } as const;
 
 export const FEATURE_FLAGS = {
