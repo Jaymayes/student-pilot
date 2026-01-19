@@ -14,28 +14,32 @@
  * - CHANGE_FREEZE: active
  */
 
-export const SEV2_INCIDENT = {
-  active: true, // SEV-2 ACTIVE - Telemetry Truth Reconciliation
-  cir_id: 'CIR-1768842776',
-  a8_event_id: 'evt_1768840917052_cs90awmqw',
-  error_codes: ['AUTH_DB_UNREACHABLE', 'RETRY_STORM_SUPPRESSED', 'TELEMETRY_428', 'GREEN_MIRAGE'],
-  kill_switch_activated_at: '2026-01-19T17:12:00.000Z',
+export const SEV1_INCIDENT = {
+  active: true, // SEV-1 ACTIVE - Force Restart
+  cir_id: 'CIR-1768845119',
+  a8_event_id: 'evt_1768842911704_bk0d6109d',
+  error_codes: ['AUTH_RATE_LIMITED', 'IP_BLOCKED_LOCKOUT', 'HIGH_ERROR_RATE', 'TELEMETRY_428', 'GREEN_MIRAGE'],
+  kill_switch_activated_at: '2026-01-19T17:47:00.000Z',
   resolved_at: null as string | null,
   change_freeze: true,
-  canary_authorized: false, // Gate-1 NO-GO
+  canary_authorized: false,
   canary_started_at: null as string | null,
-  b2c_paused: false, // 2% pilot continues under defensive posture
+  b2c_paused: true, // TRAFFIC_CAP = 0 during restart
 } as const;
 
 export const CONTAINMENT_CONFIG = {
   fleet_seo_paused: true,
   internal_schedulers_capped: true,
   permitted_jobs: ['auth', 'payments', 'watchtower'] as const,
-  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch'] as const,
+  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron'] as const,
   stripe_cap_6h: 4,
-  pilot_traffic_pct: 2,
+  pilot_traffic_pct: 0, // SEV-1: ZERO during restart
   safety_lock: true,
   auto_refunds: true,
+  waf_sitemap_block: true,
+  scheduler_tokens_revoked: true,
+  localhost_probes_disabled: true,
+  metrics_p95_probes_disabled: true,
 } as const;
 
 export const CANARY_CONFIG = {
@@ -71,10 +75,24 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'pilot_only', // RESTORED - 2% pilot active
-  MICROCHARGE_REFUND: true, // Refunds enabled
-  SAFETY_LOCK: true, // Safety lock active
-  TRAFFIC_CAP_B2C_PILOT: 2, // 2% traffic cap restored
+  B2C_CAPTURE: 'paused', // SEV-1: TRAFFIC = 0 during restart
+  MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
+  SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
+  TRAFFIC_CAP_B2C_PILOT: 0, // SEV-1: HARD STOP during restart
+} as const;
+
+export const TELEMETRY_GATE = {
+  strict_mode: false, // SEV-1: DISABLED - Accept all events
+  require_idempotency: false, // SEV-1: DISABLED - Accept without headers
+  accept_status: [200, 202], // Accept both
+  log_missing_header: true, // Log for post-hoc dedupe
+  compute_sha256_body: true, // Fingerprint for dedupe
+} as const;
+
+export const SEO_SUPPRESSION = {
+  waf_block_sitemaps: true, // SEV-1: Block all sitemap endpoints
+  revoke_scheduler_tokens: true, // SEV-1: Revoke across workspaces
+  internal_jobs_paused: true, // SEV-1: All non-essential paused
 } as const;
 
 export const LIVE_MONITORING = {
