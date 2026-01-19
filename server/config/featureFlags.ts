@@ -3,18 +3,31 @@
  * 
  * Executive Implementation Order SAA-EO-2026-01-19-01
  * 
+ * SEV-2 KILL SWITCH ACTIVATED - 2026-01-19T15:46:20Z
+ * CIR ID: CIR-1768837580
+ * 
  * T0 Actions - Feature Toggle Set:
- * - B2C_CAPTURE: pilot_only
- * - MICROCHARGE_REFUND: enabled
+ * - B2C_CAPTURE: paused (KILL SWITCH)
+ * - MICROCHARGE_REFUND: enabled (refunds still allowed)
  * - SAFETY_LOCK: active
- * - TRAFFIC_CAP_B2C_PILOT: 2%
+ * - TRAFFIC_CAP_B2C_PILOT: 0% (HARD STOP)
+ * - CHANGE_FREEZE: active
  */
 
+export const SEV2_INCIDENT = {
+  active: true,
+  cir_id: 'CIR-1768837580',
+  a8_event_id: 'evt_1768837580711_ugd0zuebj',
+  error_codes: ['AUTH_DB_UNREACHABLE', 'RETRY_STORM_SUPPRESSED'],
+  kill_switch_activated_at: '2026-01-19T15:46:20.000Z',
+  change_freeze: true,
+} as const;
+
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: process.env.B2C_CAPTURE || 'pilot_only',
-  MICROCHARGE_REFUND: process.env.MICROCHARGE_REFUND === 'enabled' || true,
-  SAFETY_LOCK: process.env.SAFETY_LOCK !== 'inactive',
-  TRAFFIC_CAP_B2C_PILOT: parseFloat(process.env.TRAFFIC_CAP_B2C_PILOT || '2'),
+  B2C_CAPTURE: SEV2_INCIDENT.active ? 'paused' : (process.env.B2C_CAPTURE || 'pilot_only'),
+  MICROCHARGE_REFUND: true, // Keep refunds enabled during SEV-2
+  SAFETY_LOCK: true, // Always active during incident
+  TRAFFIC_CAP_B2C_PILOT: SEV2_INCIDENT.active ? 0 : parseFloat(process.env.TRAFFIC_CAP_B2C_PILOT || '2'),
 } as const;
 
 export const B2C_PILOT_CONFIG = {
@@ -94,4 +107,20 @@ export function isWithinBudget(currentSpend: number, currentUsers: number): bool
 
 export function isSafetyLockActive(): boolean {
   return FEATURE_FLAGS.SAFETY_LOCK;
+}
+
+export function isKillSwitchActive(): boolean {
+  return SEV2_INCIDENT.active && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT === 0;
+}
+
+export function isChangeFreezeActive(): boolean {
+  return SEV2_INCIDENT.change_freeze;
+}
+
+export function canProcessB2CCharge(): boolean {
+  return !SEV2_INCIDENT.active && FEATURE_FLAGS.B2C_CAPTURE !== 'paused';
+}
+
+export function canProcessRefund(): boolean {
+  return FEATURE_FLAGS.MICROCHARGE_REFUND; // Always enabled
 }
