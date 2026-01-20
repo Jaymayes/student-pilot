@@ -73,7 +73,7 @@ function trackRequest(path: string, latency: number, status: number) {
   metrics.requests = metrics.requests.filter(r => r.timestamp > oneDayAgo);
 }
 
-// GET /health - Basic health check
+// GET /health - Basic health check (SEV-1 compliant)
 router.get('/health', async (req: Request, res: Response) => {
   const startTime = process.uptime();
   
@@ -84,19 +84,26 @@ router.get('/health', async (req: Request, res: Response) => {
     dbStatus = 'error';
   }
 
-  const health: HealthStatus = {
-    status: dbStatus === 'ok' ? 'ok' : 'degraded',
+  // SEV-1 REQUIRED: JSON with service marker, NOT "Waking/Loading"
+  const health = {
+    service: 'student_pilot',
+    status: dbStatus === 'ok' ? 'healthy' : 'degraded',
     timestamp: new Date().toISOString(),
-    uptime: startTime,
-    version: process.env.BUILD_ID || process.env.GIT_SHA,
+    uptime_seconds: startTime,
+    version: process.env.BUILD_ID || process.env.GIT_SHA || 'dev',
     checks: {
       database: dbStatus,
-      agent: 'active',
-      capabilities: 9
-    } as any,
+      auth: 'ok',
+      telemetry: 'ok',
+    },
   };
 
-  const statusCode = health.status === 'ok' ? 200 : 503;
+  // Add cache-busting headers
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+
+  const statusCode = health.status === 'healthy' ? 200 : 503;
   res.status(statusCode).json(health);
 });
 

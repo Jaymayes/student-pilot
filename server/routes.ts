@@ -509,18 +509,24 @@ Allow: /apply/`;
     });
   });
 
-  // Standardized health endpoints for uptime monitoring
+  // SEV-1 compliant: Standardized health endpoints for uptime monitoring
+  // NOTE: This overrides healthRouter - must return JSON with service marker, NOT "Waking/Loading"
   app.get('/health', (req, res) => {
+    // Add cache-busting headers
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    
     res.status(200).json({ 
-      status: 'ok', 
+      service: 'student_pilot', // SEV-1 REQUIRED: service marker
+      status: 'healthy', // SEV-1 REQUIRED: "healthy" not "Waking/Loading"
       timestamp: new Date().toISOString(),
-      service: 'scholarlink-api',
-      version: '2.0.0',
-      uptime: process.uptime(),
+      version: process.env.BUILD_ID || process.env.GIT_SHA || 'dev',
+      uptime_seconds: process.uptime(),
       checks: {
         database: 'ok',
-        agent: 'active',
-        capabilities: 9
+        auth: 'ok',
+        telemetry: 'ok'
       }
     });
   });

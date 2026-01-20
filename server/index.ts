@@ -30,6 +30,10 @@ import { telemetryClient } from "./telemetry/telemetryClient";
 import { telemetryMiddleware } from "./middleware/telemetryMiddleware";
 import { correlationIdMiddleware } from "./middleware/correlationId";
 import { globalIdentityMiddleware } from "./middleware/globalIdentity";
+// SEV-1: WAF middleware for x-forwarded-host preservation
+import { wafMiddleware, telemetrySanitizer } from "./middleware/wafMiddleware";
+// SEV-1: /metrics/p95 endpoint
+import { metricsP95Router, recordLatency } from "./routes/metricsP95";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 function isValidSentryDsn(dsn: string): boolean {
@@ -417,14 +421,24 @@ app.use((req, res, next) => {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const publicDir = path.resolve(__dirname, '..', 'client', 'public');
 
+  // SEV-1: WAF middleware - preserve x-forwarded-host for trusted ingress
+  app.use(wafMiddleware);
+  
   // GLOBAL IDENTITY STANDARD - Add identity headers to ALL responses
   app.use(globalIdentityMiddleware);
   
   // TELEMETRY CONTRACT v1.1 - Track page views and user flows
   app.use(telemetryMiddleware());
   
+  // SEV-1: Telemetry body sanitizer (underscore key handling)
+  app.use('/api/telemetry', telemetrySanitizer);
+  app.use('/api/events', telemetrySanitizer);
+  
   // Register health check and metrics endpoints (before API routes for canary monitoring)
   app.use(healthRouter);
+  
+  // SEV-1: /metrics/p95 endpoint for performance monitoring
+  app.use('/metrics/p95', metricsP95Router);
 
   // ========== CANARY ENDPOINT (AGENT3 v2.7) - REGISTERED BEFORE ROUTES ==========
   // Register canary BEFORE registerRoutes() to prevent API router interference

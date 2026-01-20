@@ -14,20 +14,19 @@
  * - CHANGE_FREEZE: active
  */
 
-export const SEV2_INCIDENT = {
-  active: true, // SEV-2 MONITORING - Downgraded from SEV-1 per CEO decision
-  cir_id: 'CIR-1768864546',
-  a8_event_id: 'evt_1768870925169_yd4km70zv',
-  error_codes: ['AUTH_RATE_LIMITED', 'IP_BLOCKED_LOCKOUT', 'HIGH_ERROR_RATE', 'TELEMETRY_428', 'GREEN_MIRAGE', 'LEDGER_MISSING', 'SPOOL_IO_ERROR'],
-  sev1_started_at: '2026-01-19T23:15:00.000Z',
-  sev2_downgrade_at: '2026-01-20T03:23:00.000Z',
-  stability_60min_passed_at: '2026-01-20T02:02:00.000Z',
+export const SEV1_INCIDENT = {
+  active: true, // SEV-1 CRITICAL - WAF regression broke Auth/OIDC
+  cir_id: 'CIR-1768893338',
+  a8_event_id: 'evt_sev1_waf_regression',
+  error_codes: ['WAF_HEADER_STRIP', 'OIDC_BASE_URL_FAIL', 'HEALTH_410_GONE', 'LOCALHOST_SYNTHETIC'],
+  sev1_declared_at: '2026-01-20T07:15:38.000Z',
+  root_cause: 'WAF stripped x-forwarded-host header',
   resolved_at: null as string | null,
-  change_freeze: false, // Lifted for 2% pilot
-  canary_authorized: false, // Gate-1 (5%) remains NO-GO
+  change_freeze: true,
+  canary_authorized: false,
   canary_started_at: null as string | null,
-  b2c_pilot_approved: true, // 2% APPROVED per CEO
-  gate1_status: 'NO_GO', // Requires 24h stability
+  b2c_pilot_approved: false, // KILLED - 0% traffic
+  gate1_status: 'NO_GO',
 } as const;
 
 export const FINANCE_CONTROLS = {
@@ -44,19 +43,19 @@ export const CONTAINMENT_CONFIG = {
   internal_schedulers_capped: true,
   permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] as const,
   blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting', 'settlement'] as const,
-  stripe_cap_6h: 4,
-  pilot_traffic_pct: 2, // 2% APPROVED per CEO decision
+  stripe_cap_6h: 0, // KILLED
+  pilot_traffic_pct: 0, // SEV-1: TRAFFIC_CAP=0%
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
-  scheduler_tokens_revoked: false, // Lifted for heartbeat
-  localhost_probes_disabled: true,
-  metrics_p95_probes_disabled: true,
-  a8_stopped_until_patch: false, // Restored after patch
+  scheduler_tokens_revoked: true,
+  localhost_probes_disabled: true, // CRITICAL: No localhost probes
+  metrics_p95_probes_disabled: false, // Need /metrics/p95 endpoint
+  a8_stopped_until_patch: false,
   synthetic_ip_allowlist: true,
   rate_limit_abuse_ips: true,
-  ledger_heartbeat_interval_min: 10, // Write heartbeat every 10 min
-  ledger_stale_alert_min: 15, // Alert if last_written_at >15 min
+  ledger_heartbeat_interval_min: 10,
+  ledger_stale_alert_min: 15,
 } as const;
 
 export const CANARY_CONFIG = {
@@ -92,10 +91,10 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'pilot_only', // 2% APPROVED per CEO decision
+  B2C_CAPTURE: 'paused', // SEV-1: KILLED
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 2, // 2% APPROVED - Gate-1 (5%) remains NO-GO
+  TRAFFIC_CAP_B2C_PILOT: 0, // SEV-1: TRAFFIC_CAP=0%
 } as const;
 
 export const TELEMETRY_GATE = {
@@ -196,10 +195,10 @@ export const B2B_CONFIG = {
 };
 
 export function isPilotUser(userId: string): boolean {
-  if (FEATURE_FLAGS.B2C_CAPTURE !== 'pilot_only') {
-    return true;
+  if (FEATURE_FLAGS.B2C_CAPTURE === 'paused') {
+    return false;
   }
-  return false;
+  return true;
 }
 
 export function isWithinBudget(currentSpend: number, currentUsers: number): boolean {
@@ -214,15 +213,15 @@ export function isSafetyLockActive(): boolean {
 }
 
 export function isKillSwitchActive(): boolean {
-  return SEV2_INCIDENT.active === true && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT < 1;
+  return SEV1_INCIDENT.active === true && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT < 1;
 }
 
 export function isChangeFreezeActive(): boolean {
-  return SEV2_INCIDENT.change_freeze === true;
+  return SEV1_INCIDENT.change_freeze === true;
 }
 
 export function canProcessB2CCharge(): boolean {
-  return SEV2_INCIDENT.active === false && FEATURE_FLAGS.B2C_CAPTURE === 'pilot_only';
+  return SEV1_INCIDENT.active === false && FEATURE_FLAGS.B2C_CAPTURE !== 'paused';
 }
 
 export function canProcessRefund(): boolean {
