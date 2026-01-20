@@ -1,0 +1,113 @@
+
+Time
+Deployment
+Source
+Log
+2026-01-20 02:17:54.69
+21b86af0
+User
+{"timestamp":"2026-01-20T09:17:54.695Z","level":"WARN","message":"Slow request detected","requestId":"cbdd8873-81f8-4a4f-8331-fc74e8569270","method":"GET","path":"/api/login","duration":248,"threshold":120}
+2026-01-20 03:12:30.43
+21b86af0
+User
+⚠️ Slow login: 210ms (target <200ms)
+2026-01-20 03:12:56.54
+21b86af0
+User
+{"timestamp":"2026-01-20T10:12:56.545Z","level":"WARN","message":"Slow request detected","requestId":"629912f6-be23-41f1-83a6-9ec93ec09ca4","method":"GET","path":"/api/login","duration":239,"threshold":120}
+2026-01-20 03:12:56.54
+21b86af0
+User
+⚠️ Slow login: 240ms (target <200ms)
+2026-01-20 03:14:05.07
+21b86af0
+User
+{"timestamp":"2026-01-20T10:14:05.073Z","level":"WARN","message":"Slow request detected","requestId":"1fd0e689-c95a-41e5-8732-2d69be7f2516","method":"GET","path":"/health","duration":142,"threshold":120}
+2026-01-20 03:14:17.62
+21b86af0
+User
+{"timestamp":"2026-01-20T10:14:17.620Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768903757618-6jjj6jxtn","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 03:14:17.62
+21b86af0
+User
+{"timestamp":"2026-01-20T10:14:17.619Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768903757618-x9xtulja1","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 03:14:59.56
+21b86af0
+User
+{"timestamp":"2026-01-20T10:14:59.568Z","level":"WARN","message":"Slow request detected","requestId":"31a33851-a2f3-421b-aee2-c9dccc005b82","method":"GET","path":"/api/login","duration":211,"threshold":120}
+2026-01-20 03:14:59.56
+21b86af0
+User
+⚠️ Slow login: 212ms (target <200ms)
+2026-01-20 03:17:30.44
+21b86af0
+User
+{"timestamp":"2026-01-20T10:17:30.448Z","level":"WARN","message":"Slow request detected","requestId":"50c35582-a938-4f48-bcda-b145a81238c8","method":"GET","path":"/api/login","duration":224,"threshold":120}
+2026-01-20 03:17:30.44
+21b86af0
+User
+⚠️ Slow login: 224ms (target <200ms)
+2026-01-20 03:18:02.88
+21b86af0
+User
+{"timestamp":"2026-01-20T10:18:02.885Z","level":"WARN","message":"Slow request detected","requestId":"f49eda0d-a796-4b3a-a6d5-124f62161077","method":"GET","path":"/api/login","duration":205,"threshold":120}
+2026-01-20 03:18:02.88
+21b86af0
+User
+⚠️ Slow login: 204ms (target <200ms)
+2026-01-20 03:19:59.79
+21b86af0
+User
+⚠️ Slow login: 218ms (target <200ms)
+2026-01-20 03:19:59.79
+21b86af0
+User
+{"timestamp":"2026-01-20T10:19:59.791Z","level":"WARN","message":"Slow request detected","requestId":"44d0480b-4c40-4ac3-86b4-7ff5628899e6","method":"GET","path":"/api/login","duration":219,"threshold":120}
+2026-01-20 03:22:22.28
+21b86af0
+User
+{"timestamp":"2026-01-20T10:22:22.281Z","level":"WARN","message":"Slow request detected","requestId":"0295da54-29b2-44d0-8907-ec3407aec7c5","method":"GET","path":"/api/login","duration":244,"threshold":120}
+2026-01-20 03:22:22.28
+21b86af0
+User
+⚠️ Slow login: 244ms (target <200ms)
+2026-01-20 03:25:00.46
+21b86af0
+User
+⚠️ Slow login: 218ms (target <200ms)
+2026-01-20 03:25:00.46
+21b86af0
+User
+{"timestamp":"2026-01-20T10:25:00.462Z","level":"WARN","message":"Slow request detected","requestId":"df44ab20-ceda-4081-852b-0f77b8a2ceaa","method":"GET","path":"/api/login","duration":219,"threshold":120}
+2026-01-20 03:27:22.30
+21b86af0
+User
+⚠️ Slow login: 257ms (target <200ms)
+2026-01-20 03:27:22.30
+21b86af0
+User
+{"timestamp":"2026-01-20T10:27:22.301Z","level":"WARN","message":"Slow request detected","requestId":"ff63d914-cf0c-4b73-b3fe-b0831c44f0d2","method":"GET","path":"/api/login","duration":256,"threshold":120}
+2026-01-20 03:30:00.47
+21b86af0
+User
+{"timestamp":"2026-01-20T10:30:00.470Z","level":"WARN","message":"Slow request detected","requestId":"2fe6acc7-337d-4e81-997a-30d2889fed2b","method":"GET","path":"/api/login","duration":224,"threshold":120}
+2026-01-20 03:30:00.47
+21b86af0
+User
+⚠️ Slow login: 224ms (target <200ms)
+2026-01-20 03:32:22.27
+21b86af0
+User
+{"timestamp":"2026-01-20T10:32:22.276Z","level":"WARN","message":"Slow request detected","requestId":"dbbb128c-7d31-4f10-9317-60dcc6b1eeb4","method":"GET","path":"/api/login","duration":220,"threshold":120}
+2026-01-20 03:32:22.27
+21b86af0
+User
+⚠️ Slow login: 221ms (target <200ms)
+2026-01-20 03:35:00.46
+21b86af0
+User
+⚠️ Slow login: 218ms (target <200ms)
+2026-01-20 03:35:00.46
+21b86af0
+User
+{"timestamp":"2026-01-20T10:35:00.464Z","level":"WARN","message":"Slow request detected","requestId":"afbfa05a-3835-41e6-957e-bfb60d58c305","method":"GET","path":"/api/login","duration":219,"threshold":120}
