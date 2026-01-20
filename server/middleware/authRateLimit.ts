@@ -10,6 +10,7 @@
 
 import type { Request, Response, NextFunction } from 'express';
 import { secureLogger } from '../logging/secureLogger';
+import { isTrustedIngress } from '../config/wafConfig';
 
 interface RateLimitEntry {
   count: number;
@@ -246,6 +247,13 @@ class AuthRateLimiter {
     const ip = this.getClientIP(req);
     const correlationId = (req as any).correlationId;
     const accountId = req.body?.email || req.body?.username;
+
+    // WHITELIST: Skip rate limiting for trusted infrastructure IPs (health probes, monitoring)
+    // Hotfix: CIR-1768945183 - GCP health probes were being rate-limited causing 21% error rate
+    if (isTrustedIngress(ip)) {
+      secureLogger.debug('Rate limit bypassed for trusted IP', { clientIP: ip });
+      return { allowed: true };
+    }
 
     // Check IP limits first
     const ipCheck = this.checkIPLimits(ip, correlationId);

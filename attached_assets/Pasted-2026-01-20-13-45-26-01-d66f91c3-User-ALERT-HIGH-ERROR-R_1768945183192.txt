@@ -1,0 +1,108 @@
+2026-01-20 13:45:26.01
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 5.3% error rate (1/19)
+2026-01-20 13:45:26.01
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:26.016Z","level":"WARN","message":"IP rate limit exceeded - minute window","correlationId":"920594d2-9b69-4623-b755-6c563970a073","clientIP":"34.74.38.171","attempts":6,"lockoutDuration":68544}
+2026-01-20 13:45:26.01
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:26.017Z","level":"WARN","message":"Authentication request blocked by rate limiter","correlationId":"920594d2-9b69-4623-b755-6c563970a073","method":"GET","path":"/api/login","reason":"Too many attempts per minute","retryAfter":69,"clientIP":"35.190.170.134"}
+2026-01-20 13:45:43.22
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:43.228Z","level":"WARN","message":"IP blocked during active lockout period","correlationId":"cd74c435-e90b-4061-aa64-393e81c1ddca","clientIP":"34.74.38.171","period":"minute","lockoutRemaining":52}
+2026-01-20 13:45:43.22
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:43.228Z","level":"WARN","message":"Authentication request blocked by rate limiter","correlationId":"cd74c435-e90b-4061-aa64-393e81c1ddca","method":"GET","path":"/api/login","reason":"IP locked out","retryAfter":52,"clientIP":"34.74.197.8"}
+2026-01-20 13:45:46.38
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:46.386Z","level":"WARN","message":"IP blocked during active lockout period","correlationId":"7dd7d4fc-ec29-4094-8ae2-c59eeb016d6f","clientIP":"34.74.38.171","period":"minute","lockoutRemaining":49}
+2026-01-20 13:45:46.38
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:46.386Z","level":"WARN","message":"Authentication request blocked by rate limiter","correlationId":"7dd7d4fc-ec29-4094-8ae2-c59eeb016d6f","method":"GET","path":"/api/login","reason":"IP locked out","retryAfter":49,"clientIP":"35.231.177.91"}
+2026-01-20 13:45:49.52
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:49.524Z","level":"WARN","message":"Authentication request blocked by rate limiter","correlationId":"4b11d6f8-19ce-421e-9a58-8b203011f7ba","method":"GET","path":"/api/login","reason":"IP locked out","retryAfter":46,"clientIP":"35.190.170.134"}
+2026-01-20 13:45:49.52
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:49.524Z","level":"WARN","message":"IP blocked during active lockout period","correlationId":"4b11d6f8-19ce-421e-9a58-8b203011f7ba","clientIP":"34.74.38.171","period":"minute","lockoutRemaining":46}
+2026-01-20 13:45:52.63
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:52.632Z","level":"WARN","message":"IP blocked during active lockout period","correlationId":"0b07cafd-2d15-4e28-8d9d-335877aaee46","clientIP":"34.74.38.171","period":"minute","lockoutRemaining":42}
+2026-01-20 13:45:52.63
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:52.632Z","level":"WARN","message":"Authentication request blocked by rate limiter","correlationId":"0b07cafd-2d15-4e28-8d9d-335877aaee46","method":"GET","path":"/api/login","reason":"IP locked out","retryAfter":42,"clientIP":"34.23.182.216"}
+2026-01-20 13:45:55.75
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:55.750Z","level":"WARN","message":"IP blocked during active lockout period","correlationId":"831dfa79-60b8-4645-87b7-236328a9f6fa","clientIP":"34.74.38.171","period":"minute","lockoutRemaining":39}
+2026-01-20 13:45:55.75
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:45:55.751Z","level":"WARN","message":"Authentication request blocked by rate limiter","correlationId":"831dfa79-60b8-4645-87b7-236328a9f6fa","method":"GET","path":"/api/login","reason":"IP locked out","retryAfter":39,"clientIP":"35.196.109.179"}
+2026-01-20 13:51:57.93
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 21.4% error rate (6/28)
+2026-01-20 13:57:33.42
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 19.4% error rate (6/31)
+2026-01-20 13:58:59.76
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:58:59.769Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768942439670-06twv52ld","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 13:58:59.76
+d66f91c3
+User
+{"timestamp":"2026-01-20T20:58:59.769Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768942439670-c14oslkmm","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 14:03:52.52
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 17.6% error rate (6/34)
+2026-01-20 14:11:39.78
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 16.2% error rate (6/37)
+2026-01-20 14:18:52.47
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 15.0% error rate (6/40)
+2026-01-20 14:21:39.81
+d66f91c3
+User
+{"timestamp":"2026-01-20T21:21:39.817Z","level":"WARN","message":"Slow request detected","requestId":"3f57a418-2a71-4ddb-afc1-ef6c2daaa27b","method":"GET","path":"/api/login","duration":312,"threshold":300}
+2026-01-20 14:21:39.81
+d66f91c3
+User
+⚠️ Slow login: 313ms (target <300ms)
+2026-01-20 14:23:52.49
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 14.3% error rate (6/42)
+2026-01-20 14:28:59.47
+d66f91c3
+User
+{"timestamp":"2026-01-20T21:28:59.470Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768944239469-abh1rqfgr","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 14:28:59.47
+d66f91c3
+User
+{"timestamp":"2026-01-20T21:28:59.470Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768944239469-gbc0oc02j","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 14:33:52.51
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 13.6% error rate (6/44)
+2026-01-20 14:38:52.65
+d66f91c3
+User
+🚨 [ALERT] HIGH ERROR RATE: GET:/api/login has 13.3% error rate (6/45)
