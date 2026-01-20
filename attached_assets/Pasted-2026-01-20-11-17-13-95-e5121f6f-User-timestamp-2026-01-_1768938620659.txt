@@ -1,0 +1,108 @@
+2026-01-20 11:17:13.95
+e5121f6f
+User
+{"timestamp":"2026-01-20T18:17:13.958Z","level":"WARN","message":"Slow request detected","requestId":"f7bd46c6-75ca-4e40-b641-26e0eaa0edb0","method":"GET","path":"/api/health","duration":423,"threshold":150}
+2026-01-20 11:18:10.44
+e5121f6f
+User
+Tue, 20 Jan 2026 18:18:10 GMT express deprecated req.host: Use req.hostname instead at file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
+2026-01-20 11:28:46.83
+e5121f6f
+User
+{"timestamp":"2026-01-20T18:28:46.832Z","level":"WARN","message":"Slow request detected","requestId":"a96bfe48-5051-4d95-ba7f-faba805c74c2","method":"GET","path":"/health","duration":159,"threshold":150}
+2026-01-20 11:35:56.13
+e5121f6f
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-20 11:42:56.23
+e5121f6f
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-20 11:49:52.78
+e5121f6f
+User
+{"timestamp":"2026-01-20T18:49:52.783Z","level":"WARN","message":"Slow request detected","requestId":"ad2968dd-74a3-4b90-8802-dd963c7631d8","method":"GET","path":"/health","duration":167,"threshold":150}
+2026-01-20 11:52:05.93
+e5121f6f
+User
+{"timestamp":"2026-01-20T18:52:05.926Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768934825925-wz7jw5p3d","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 11:52:05.93
+e5121f6f
+User
+{"timestamp":"2026-01-20T18:52:05.927Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768934825926-us7cv5ezp","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 11:55:50.39
+e5121f6f
+User
+{"timestamp":"2026-01-20T18:55:50.391Z","level":"WARN","message":"Slow request detected","requestId":"2e72ac01-b3c2-4900-ab3f-2a868e9144d1","method":"GET","path":"/health","duration":2513,"threshold":150}
+2026-01-20 11:55:50.39
+e5121f6f
+User
+🚨 [ALERT] HIGH LATENCY: GET:/health took 2514ms (threshold: 1000ms)
+2026-01-20 12:01:19.98
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:01:19.984Z","level":"WARN","message":"Slow request detected","requestId":"5ea70971-011f-4391-a454-27eaee36a963","method":"GET","path":"/health","duration":530,"threshold":150}
+2026-01-20 12:01:22.36
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:01:22.362Z","level":"WARN","message":"Slow request detected","requestId":"34f4bbd2-8b0b-4933-a1f4-eedf798d95bf","method":"GET","path":"/api/login","duration":2270,"threshold":300}
+2026-01-20 12:01:22.36
+e5121f6f
+User
+🚨 [ALERT] HIGH LATENCY: GET:/api/login took 2271ms (threshold: 1000ms)
+2026-01-20 12:01:22.36
+e5121f6f
+User
+⚠️ Slow login: 2270ms (target <300ms)
+2026-01-20 12:01:58.24
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:01:58.240Z","level":"WARN","message":"Slow request detected","requestId":"04fa8fbe-e013-4f2e-8c59-acbab7f5fa94","method":"GET","path":"/health","duration":2129,"threshold":150}
+2026-01-20 12:01:58.24
+e5121f6f
+User
+🚨 [ALERT] HIGH LATENCY: GET:/health took 2130ms (threshold: 1000ms)
+2026-01-20 12:03:37.58
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:03:37.586Z","level":"WARN","message":"Slow request detected","requestId":"1e226a03-3445-4b28-8fa6-ccf0813f1843","method":"GET","path":"/health","duration":153,"threshold":150}
+2026-01-20 12:07:35.84
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:07:35.845Z","level":"WARN","message":"Slow request detected","requestId":"0bdd6de5-e615-4cb2-82d3-41900ea06625","method":"GET","path":"/health","duration":154,"threshold":150}
+2026-01-20 12:15:56.21
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:15:56.212Z","level":"WARN","message":"Slow request detected","requestId":"6e96bf4d-a19f-4a2f-b61f-ed31771bf531","method":"GET","path":"/health","duration":152,"threshold":150}
+2026-01-20 12:22:05.83
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:22:05.834Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768936625834-7vhduiwo5","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 12:22:05.83
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:22:05.834Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768936625834-kfsivljus","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 12:28:57.44
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:28:57.446Z","level":"WARN","message":"Slow request detected","requestId":"4c2696ec-df58-434d-af2b-9d87a8277c2e","method":"GET","path":"/health","duration":154,"threshold":150}
+2026-01-20 12:31:25.17
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:31:25.176Z","level":"WARN","message":"Slow request detected","requestId":"8be519b2-9b08-4000-9d06-77619fb52608","method":"GET","path":"/health","duration":163,"threshold":150}
+2026-01-20 12:32:57.07
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:32:57.079Z","level":"WARN","message":"Slow request detected","requestId":"bac40430-1dff-4010-8279-eea39721c57e","method":"GET","path":"/health","duration":179,"threshold":150}
+2026-01-20 12:35:55.78
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:35:55.780Z","level":"WARN","message":"Slow request detected","requestId":"e9aa8738-467a-4be1-845b-c861b77a261a","method":"GET","path":"/health","duration":158,"threshold":150}
+2026-01-20 12:40:26.96
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:40:26.961Z","level":"WARN","message":"Slow request detected","requestId":"6203cd1f-a288-4c71-9cd8-131769be6c94","method":"GET","path":"/health","duration":171,"threshold":150}
+2026-01-20 12:46:26.34
+e5121f6f
+User
+{"timestamp":"2026-01-20T19:46:26.349Z","level":"WARN","message":"Slow request detected","requestId":"00484128-591e-4815-8070-daccdd714e9a","method":"GET","path":"/health","duration":176,"threshold":150}

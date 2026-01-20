@@ -87,12 +87,11 @@ export class ProductionMetricsCollector {
         // Increment request count
         productionMetrics.incrementRequestCount(`${method}:${path}`);
         
-        // Log slow requests (thresholds adjusted for cloud infrastructure)
+        // Log slow requests (thresholds adjusted for cloud infrastructure + cold start)
         // - /api/login: 300ms (OIDC flows include network hops to auth provider + cold start)
-        // - /health, /api/health: 150ms (lightweight checks, but can spike on cold start)
+        // - /health, /api/health: 200ms (can spike on cold start/GC)
         // - General API: 200ms (includes Neon DB RTT + network variance)
-        const slowThreshold = path.includes('/api/login') ? 300 
-          : (path.includes('/health') ? 150 : 200);
+        const slowThreshold = path.includes('/api/login') ? 300 : 200;
         
         if (duration > slowThreshold) {
           secureLogger.warn('Slow request detected', {
