@@ -11,10 +11,16 @@
     "security_headers_report.md": "cc208d5a9881a28dcb03c61f7b15b6405de8d8f31969eee15e5ebf551d883fe1",
     "neon_pooling_report.md": "24507357551d09e1d06af22354e2bfe2e1936defd25f7d6e02ef802c3cee48c2",
     "gate2_perf_summary.md": "f8379804e0f1305447552409253c49b51812b489aa6d4da5c59fa53c5d77d9e4",
-    "fee_lineage.json": "b9028c35b79c706fe3c8bc87ebfd26decf17bace910901e4ccc51a64aad6000b"
+    "fee_lineage.json": "b9028c35b79c706fe3c8bc87ebfd26decf17bace910901e4ccc51a64aad6000b",
+    "ecosystem_double_confirm.md": "26018dfbaa62b897b7685093ee800fc8be9ab6f1149596cf78ce34a001a5c440",
+    "gate2_open_report.md": "0574405ff07a96d1f45f2de84b7e528a970573cbc0941d81f483e4a58ef86387",
+    "go_no_go_report.md": "989c3d53a927c28c4e0b8661e072dc3c62a168eb96e6ffc507bd376957646d58",
+    "gate2_env_diff.md": "ba97150022683991ceb2b62586d6b1308e18a3d5a59b7ce1fb1113fa729f726e",
+    "hitl_approvals.log": "1f1a99dcd62d0b332bb56fd835d1feb15663c9ad01c5e44ed70bc979b10ff477",
+    "system_map.json": "1918b48bb54af4db7896b218047c4c720beb25904f131eab7d3e0c892c5de369"
   },
   "verification_command": "sha256sum -c checksums.json",
-  "artifact_count": 8,
+  "artifact_count": 14,
   "all_gates_pass": true,
   "hard_gate_results": {
     "a1_login_p95_ms": {
