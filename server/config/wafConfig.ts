@@ -44,7 +44,7 @@ export const WAF_CONFIG = {
   
   // Underscore key handling (telemetry-safe)
   // Policy: Allow _meta for internal signals; block prototype pollution vectors
-  UNDERSCORE_KEY_POLICY: 'selective' as const, // Options: 'block_all', 'log_and_drop', 'allow_all', 'selective'
+  UNDERSCORE_KEY_POLICY: 'selective' as 'block_all' | 'log_and_drop' | 'allow_all' | 'selective',
   
   // ALLOWLIST: These underscore keys are permitted (infra signals)
   UNDERSCORE_KEYS_ALLOWED: ['_meta', '_trace', '_correlation'] as const,
