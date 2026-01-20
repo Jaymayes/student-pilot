@@ -1,0 +1,7 @@
+{
+  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE4-042",
+  "generated_at": "2026-01-20T22:49:30Z",
+  "algorithm": "SHA256",
+  "verdict": "ABORTED",
+  "note": "Gate-4 aborted due to login latency breach"
+}
