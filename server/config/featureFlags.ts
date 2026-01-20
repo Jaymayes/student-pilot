@@ -7,11 +7,14 @@
  * CIR ID: CIR-1768837580
  * 
  * T0 Actions - Feature Toggle Set:
- * - B2C_CAPTURE: paused (KILL SWITCH)
+ * - B2C_CAPTURE: active (Gate-1 @ 10%)
  * - MICROCHARGE_REFUND: enabled (refunds still allowed)
  * - SAFETY_LOCK: active
- * - TRAFFIC_CAP_B2C_PILOT: 0% (HARD STOP)
- * - CHANGE_FREEZE: active
+ * - TRAFFIC_CAP_B2C_PILOT: 10% (Gate-1)
+ * - CHANGE_FREEZE: lifted for Gate-1
+ * 
+ * Gate-1 Opened: 2026-01-20T10:24:09Z
+ * HITL_ID: HITL-CEO-20260120-OPEN-TRAFFIC-G1
  */
 
 export const SEV1_INCIDENT = {
@@ -91,10 +94,10 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'paused', // SEV-1: KILLED
+  B2C_CAPTURE: 'active', // Gate-1: Enabled at 10% per HITL-CEO-20260120-OPEN-TRAFFIC-G1
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 0, // SEV-1: TRAFFIC_CAP=0%
+  TRAFFIC_CAP_B2C_PILOT: 10, // Gate-1: TRAFFIC_CAP=10% per HITL-CEO-20260120-OPEN-TRAFFIC-G1
 } as const;
 
 export const TELEMETRY_GATE = {
@@ -195,7 +198,8 @@ export const B2B_CONFIG = {
 };
 
 export function isPilotUser(userId: string): boolean {
-  if (FEATURE_FLAGS.B2C_CAPTURE === 'paused') {
+  // Gate-1: B2C_CAPTURE is 'active', so all users are pilot users at 10%
+  if ((FEATURE_FLAGS.B2C_CAPTURE as string) === 'paused') {
     return false;
   }
   return true;
@@ -213,15 +217,18 @@ export function isSafetyLockActive(): boolean {
 }
 
 export function isKillSwitchActive(): boolean {
-  return SEV1_INCIDENT.active === true && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT < 1;
+  // Check if SEV1 incident is active (runtime check, not compile-time)
+  return (SEV1_INCIDENT.active as boolean) && FEATURE_FLAGS.TRAFFIC_CAP_B2C_PILOT < 1;
 }
 
 export function isChangeFreezeActive(): boolean {
-  return SEV1_INCIDENT.change_freeze === true;
+  // Check if change freeze is active (runtime check)
+  return SEV1_INCIDENT.change_freeze as boolean;
 }
 
 export function canProcessB2CCharge(): boolean {
-  return SEV1_INCIDENT.active === false && FEATURE_FLAGS.B2C_CAPTURE !== 'paused';
+  // Gate-1: SEV1 resolved, can process if B2C not paused
+  return !(SEV1_INCIDENT.active as boolean) && (FEATURE_FLAGS.B2C_CAPTURE as string) !== 'paused';
 }
 
 export function canProcessRefund(): boolean {

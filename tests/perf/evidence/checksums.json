@@ -11,7 +11,10 @@
   "perf_summary_prod.md": "ea7264683c448cef1c8b76ab6b38f4b1a4bcb5b071a3f719dbe9d7d412fd5422",
   "waf_hotfix_prod.md": "19aed00485992b000720fb4eeb3da6d7030eb63b019a20780f805a9db265f979",
   "incidents/sev1_exec_block.md": "3aedcfc231056d27a327583d9f93fa6c72fb38ee2785b39c4449311654673499",
+  "reopen_gate1_report.md": "dfde8e84cb5eab09de7869a2270616242ca48008343b2329856fca50f99032b0",
   "_run_id": "CEOSPRINT-20260120-SEV1-HOTFIX-DEPLOY-001",
+  "_hitl_id": "HITL-CEO-20260120-OPEN-TRAFFIC-G1",
   "_protocol": "AGENT3_HANDSHAKE v30 (Prod-First + Scorched Earth + 2-of-3)",
-  "_generated_at": "2026-01-20T08:38:00.000Z"
+  "_generated_at": "2026-01-20T10:26:00.000Z",
+  "_gate1_opened_at": "2026-01-20T10:24:09.000Z"
 }
