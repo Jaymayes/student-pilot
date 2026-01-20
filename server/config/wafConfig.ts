@@ -18,6 +18,7 @@ export const WAF_CONFIG = {
   
   // Trusted ingress IP ranges (Replit infrastructure)
   TRUSTED_INGRESS_CIDRS: [
+    '35.184.0.0/13',   // GCP us-central1 (primary)
     '35.192.0.0/12',   // GCP us-central1
     '35.224.0.0/12',   // GCP us-central1
     '34.0.0.0/8',      // GCP global
@@ -26,6 +27,16 @@ export const WAF_CONFIG = {
     '172.16.0.0/12',   // Private RFC1918 (internal)
     '192.168.0.0/16',  // Private RFC1918 (internal)
   ] as const,
+  
+  // S2S Telemetry Trust-by-Secret Configuration
+  S2S_TELEMETRY_CONFIG: {
+    // Paths that can bypass SQLi inspection with valid shared secret
+    ALLOWED_PATHS: ['/api/telemetry/ingest', '/telemetry/ingest', '/events', '/api/events'],
+    // Header containing shared secret for bypass
+    SECRET_HEADER: 'x-scholar-shared-secret',
+    // Environment variable containing the secret
+    SECRET_ENV_VAR: 'SHARED_SECRET',
+  } as const,
   
   // Trusted internal addresses
   TRUSTED_INTERNALS: [
@@ -55,6 +66,23 @@ export const WAF_CONFIG = {
   // SEV-1 bypass mode
   SEV1_MODE: true,
   SEV1_BYPASS_HEADER_VALIDATION: true, // Auto-generate missing headers under SEV-1
+  
+  // SQLi detection patterns (strong patterns only - overbroad regex removed)
+  SQLI_PATTERNS: [
+    /union\s+select/i,           // UNION SELECT injection
+    /or\s+1\s*=\s*1/i,           // OR 1=1 bypass
+    /--\s*$/,                    // SQL comment terminator
+    /;\s*drop\s+/i,              // DROP statement
+    /;\s*delete\s+/i,            // DELETE statement
+    /;\s*truncate\s+/i,          // TRUNCATE statement
+    /xp_cmdshell/i,              // SQL Server command exec
+    /sp_executesql/i,            // SQL Server dynamic SQL
+    /load_file\s*\(/i,           // MySQL file read
+    /into\s+outfile/i,           // MySQL file write
+    /benchmark\s*\(/i,           // Time-based injection
+    /sleep\s*\(/i,               // Time-based injection
+    /waitfor\s+delay/i,          // SQL Server time-based
+  ] as const,
 } as const;
 
 /**
@@ -137,6 +165,57 @@ export function sanitizeUnderscoreKeys(obj: Record<string, unknown>): Record<str
     result[key] = value;
   }
   return result;
+}
+
+/**
+ * Check if request qualifies for S2S Trust-by-Secret bypass
+ * All three conditions must be met:
+ * 1. Valid shared secret header
+ * 2. Client IP in trusted CIDR
+ * 3. Path is allowed telemetry path
+ */
+export function shouldBypassSqliInspection(
+  clientIp: string,
+  path: string,
+  headers: Record<string, string | string[] | undefined>
+): { bypass: boolean; reason: string } {
+  const config = WAF_CONFIG.S2S_TELEMETRY_CONFIG;
+  
+  // Check 1: Path is allowed telemetry path
+  const isAllowedPath = config.ALLOWED_PATHS.some(p => 
+    path === p || path.startsWith(p + '?') || path.startsWith(p + '/')
+  );
+  if (!isAllowedPath) {
+    return { bypass: false, reason: 'path_not_allowed' };
+  }
+  
+  // Check 2: Valid shared secret
+  const secretHeader = headers[config.SECRET_HEADER] || headers[config.SECRET_HEADER.toLowerCase()];
+  const expectedSecret = process.env[config.SECRET_ENV_VAR];
+  const secretValue = Array.isArray(secretHeader) ? secretHeader[0] : secretHeader;
+  
+  if (!expectedSecret || !secretValue || secretValue !== expectedSecret) {
+    return { bypass: false, reason: 'invalid_or_missing_secret' };
+  }
+  
+  // Check 3: Client IP in trusted CIDR
+  if (!isTrustedIngress(clientIp)) {
+    return { bypass: false, reason: 'ip_not_trusted' };
+  }
+  
+  return { bypass: true, reason: 'trust_by_secret' };
+}
+
+/**
+ * Check request body for SQLi patterns (strong patterns only)
+ */
+export function detectSqli(body: string): { detected: boolean; pattern: string | null } {
+  for (const pattern of WAF_CONFIG.SQLI_PATTERNS) {
+    if (pattern.test(body)) {
+      return { detected: true, pattern: pattern.source };
+    }
+  }
+  return { detected: false, pattern: null };
 }
 
 export type WafConfig = typeof WAF_CONFIG;
