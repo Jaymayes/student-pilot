@@ -43,8 +43,14 @@ export const WAF_CONFIG = {
   ] as const,
   
   // Underscore key handling (telemetry-safe)
-  UNDERSCORE_KEY_POLICY: 'log_and_drop' as const, // Options: 'block', 'log_and_drop', 'allow'
-  UNDERSCORE_KEYS_BLOCKED: ['_meta', '_internal', '_debug'] as const,
+  // Policy: Allow _meta for internal signals; block prototype pollution vectors
+  UNDERSCORE_KEY_POLICY: 'selective' as const, // Options: 'block_all', 'log_and_drop', 'allow_all', 'selective'
+  
+  // ALLOWLIST: These underscore keys are permitted (infra signals)
+  UNDERSCORE_KEYS_ALLOWED: ['_meta', '_trace', '_correlation'] as const,
+  
+  // BLOCKLIST: These underscore keys are ALWAYS blocked (security)
+  UNDERSCORE_KEYS_BLOCKED: ['__proto__', 'constructor', 'prototype', '_internal', '_debug'] as const,
   
   // SEV-1 bypass mode
   SEV1_MODE: true,
@@ -98,17 +104,36 @@ export function shouldPreserveXForwardedHost(clientIp: string, host: string | un
 }
 
 /**
- * Strip underscore keys from object (telemetry-safe)
+ * Sanitize underscore keys from object (telemetry-safe, selective policy)
+ * 
+ * Policy:
+ * - ALLOWED keys (_meta, _trace, _correlation): PRESERVE
+ * - BLOCKED keys (__proto__, constructor, prototype): ALWAYS DROP + LOG
+ * - Other underscore keys: DROP + LOG (do NOT 4xx)
  */
 export function sanitizeUnderscoreKeys(obj: Record<string, unknown>): Record<string, unknown> {
-  if (WAF_CONFIG.UNDERSCORE_KEY_POLICY === 'allow') return obj;
+  if (WAF_CONFIG.UNDERSCORE_KEY_POLICY === 'allow_all') return obj;
   
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
-    if (key.startsWith('_') && WAF_CONFIG.UNDERSCORE_KEYS_BLOCKED.some(k => key === k)) {
-      console.log(`[WAF] Dropped underscore key: ${key}`);
+    // Security: Always block prototype pollution vectors
+    if (WAF_CONFIG.UNDERSCORE_KEYS_BLOCKED.some(k => key === k || key.includes(k))) {
+      console.warn(`[WAF] [SECURITY] Blocked dangerous key: ${key}`);
       continue;
     }
+    
+    // Allow explicitly permitted underscore keys
+    if (key.startsWith('_') && WAF_CONFIG.UNDERSCORE_KEYS_ALLOWED.some(k => key === k)) {
+      result[key] = value;
+      continue;
+    }
+    
+    // Drop other underscore keys (but don't 4xx)
+    if (key.startsWith('_')) {
+      console.log(`[WAF] Dropped non-allowlisted underscore key: ${key}`);
+      continue;
+    }
+    
     result[key] = value;
   }
   return result;
