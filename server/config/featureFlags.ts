@@ -15,18 +15,18 @@
  */
 
 export const SEV1_INCIDENT = {
-  active: true, // SEV-1 CRITICAL - WAF regression broke Auth/OIDC
+  active: false, // SEV-1 resolved → SEV-2 monitoring mode
   cir_id: 'CIR-1768893338',
   a8_event_id: 'evt_sev1_waf_regression',
   error_codes: ['WAF_HEADER_STRIP', 'OIDC_BASE_URL_FAIL', 'HEALTH_410_GONE', 'LOCALHOST_SYNTHETIC'],
   sev1_declared_at: '2026-01-20T07:15:38.000Z',
   root_cause: 'WAF stripped x-forwarded-host header',
-  resolved_at: null as string | null,
-  change_freeze: true,
-  canary_authorized: false,
-  canary_started_at: null as string | null,
-  b2c_pilot_approved: false, // KILLED - 0% traffic
-  gate1_status: 'NO_GO',
+  resolved_at: '2026-01-20T10:23:00.000Z' as string | null,
+  change_freeze: false, // Lifted for Gate-1
+  canary_authorized: true, // HITL-CEO-20260120-OPEN-TRAFFIC-G1
+  canary_started_at: '2026-01-20T10:23:00.000Z' as string | null,
+  b2c_pilot_approved: true, // Gate-1 approved
+  gate1_status: 'IN_PROGRESS',
 } as const;
 
 export const FINANCE_CONTROLS = {
@@ -43,8 +43,8 @@ export const CONTAINMENT_CONFIG = {
   internal_schedulers_capped: true,
   permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] as const,
   blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting', 'settlement'] as const,
-  stripe_cap_6h: 0, // KILLED
-  pilot_traffic_pct: 0, // SEV-1: TRAFFIC_CAP=0%
+  stripe_cap_6h: 0, // Finance freeze active
+  pilot_traffic_pct: 10, // GATE-1: TRAFFIC_CAP=10% per HITL-CEO-20260120-OPEN-TRAFFIC-G1
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
