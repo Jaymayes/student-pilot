@@ -1,0 +1,29 @@
+{
+  "run_id": "CEOSPRINT-20260120-VERIFY-ZT3G-GATE3-038",
+  "generated_at": "2026-01-20T20:48:00Z",
+  "algorithm": "SHA256",
+  "reports": {
+    "a1_login_latency_gate3.md": "1833d39977183a228a701d78d52f14e38c26531dc26d7dd742ffc712906d7fb2",
+    "a8_telemetry_audit.md": "5001402a37715d19e121d7bd0df1eae3e13ef0277c322847c14bc01ea85260ae",
+    "b2b_flywheel_validation.md": "347c408504654861d10b4d64b08864537424f264e9a8caad2fa0ee071ddbff28",
+    "ecosystem_double_confirm.md": "a61a6f435cd375affb28470907546e51753cff0e894b75f2f41f8d4724e39414",
+    "gate3_env_diff.md": "be82a42a338b145564c88ddc3571652632bcb4cd228d54025615a9cd84ddf6ea",
+    "gate3_perf_summary.md": "df6bbbcd9de6c09c1789a2e170c4f7f5367ae905377c86483974ba8b65992c21",
+    "neon_gate3_report.md": "d62dd43418804fe1b102d6243d2730f8239bf7f2046f09b43a1bc317bf6bd35d",
+    "raw_truth_summary.md": "1ae9f5e725685c065a579da57c8de8fb0d9564cfce9cc4f33530a72d5475c236",
+    "rl_observation.md": "3f4e074d352924a1b4392006af3c07f3ed1540c405ff4f7876f92b39c15c923e",
+    "security_headers_report.md": "0fda128c2b86afb7a579e44375f07986306e6e0eb0718027e49822c7a1215f36",
+    "ui_ux_integrity_matrix.md": "fc7b8ce46f1335d77102324375fcf4578a328e21ce58df0a0156cc3741034d59",
+    "system_map.json": "b78156ace4e99cc41238abaa6eba1f45b7910e191b42f0c285c14526e9faf50f",
+    "version_manifest.json": "0f30641a377167c42bb1df65b9fbc7d0eb6f7eeef86e45dcc4e372158f936682"
+  },
+  "evidence": {
+    "raw_curl_evidence.txt": "31d674cbbc455bee6d5b48345007357a4946049713493b5a8cf5cea2650f9d12",
+    "fee_lineage.json": "04b767dcb41d70020dc701aa8d179440eedcc1e2fa21787d15d2b83efe7a0437"
+  },
+  "verification": {
+    "a8_roundtrip": "PASS",
+    "all_checksums_computed": true,
+    "integrity": "VERIFIED"
+  }
+}
