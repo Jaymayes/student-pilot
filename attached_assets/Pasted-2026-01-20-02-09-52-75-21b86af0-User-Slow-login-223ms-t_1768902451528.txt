@@ -1,0 +1,152 @@
+2026-01-20 02:09:52.75
+21b86af0
+User
+⚠️ Slow login: 223ms (target <200ms)
+2026-01-20 02:12:54.66
+21b86af0
+User
+{"timestamp":"2026-01-20T09:12:54.666Z","level":"WARN","message":"Slow request detected","requestId":"e4f68f4c-c8bd-4ed4-9788-49177fbf9e41","method":"GET","path":"/api/login","duration":227,"threshold":120}
+2026-01-20 02:12:54.66
+21b86af0
+User
+⚠️ Slow login: 227ms (target <200ms)
+2026-01-20 02:14:52.75
+21b86af0
+User
+{"timestamp":"2026-01-20T09:14:52.752Z","level":"WARN","message":"Slow request detected","requestId":"cb700ddc-52ef-40a8-b680-e3ec5057482a","method":"GET","path":"/api/login","duration":225,"threshold":120}
+2026-01-20 02:14:52.75
+21b86af0
+User
+⚠️ Slow login: 225ms (target <200ms)
+2026-01-20 02:17:54.69
+21b86af0
+User
+{"timestamp":"2026-01-20T09:17:54.695Z","level":"WARN","message":"Slow request detected","requestId":"cbdd8873-81f8-4a4f-8331-fc74e8569270","method":"GET","path":"/api/login","duration":248,"threshold":120}
+2026-01-20 02:17:54.69
+21b86af0
+User
+⚠️ Slow login: 248ms (target <200ms)
+2026-01-20 02:19:52.76
+21b86af0
+User
+{"timestamp":"2026-01-20T09:19:52.764Z","level":"WARN","message":"Slow request detected","requestId":"21fcc959-53a7-4a9b-8e56-7908911b1769","method":"GET","path":"/api/login","duration":237,"threshold":120}
+2026-01-20 02:19:52.76
+21b86af0
+User
+⚠️ Slow login: 237ms (target <200ms)
+2026-01-20 02:22:54.66
+21b86af0
+User
+{"timestamp":"2026-01-20T09:22:54.665Z","level":"WARN","message":"Slow request detected","requestId":"0bc54e8f-e9ea-4810-968f-712c724711b4","method":"GET","path":"/api/login","duration":229,"threshold":120}
+2026-01-20 02:22:54.66
+21b86af0
+User
+⚠️ Slow login: 228ms (target <200ms)
+2026-01-20 02:24:52.76
+21b86af0
+User
+{"timestamp":"2026-01-20T09:24:52.762Z","level":"WARN","message":"Slow request detected","requestId":"1fbd3032-da3f-4e4a-90c3-b0844ec86d88","method":"GET","path":"/api/login","duration":212,"threshold":120}
+2026-01-20 02:24:52.76
+21b86af0
+User
+⚠️ Slow login: 212ms (target <200ms)
+2026-01-20 02:27:54.66
+21b86af0
+User
+{"timestamp":"2026-01-20T09:27:54.668Z","level":"WARN","message":"Slow request detected","requestId":"6e15e985-e9b6-4f13-905e-1cf40b77ab76","method":"GET","path":"/api/login","duration":223,"threshold":120}
+2026-01-20 02:27:54.67
+21b86af0
+User
+⚠️ Slow login: 223ms (target <200ms)
+2026-01-20 02:29:52.75
+21b86af0
+User
+⚠️ Slow login: 227ms (target <200ms)
+2026-01-20 02:29:52.75
+21b86af0
+User
+{"timestamp":"2026-01-20T09:29:52.752Z","level":"WARN","message":"Slow request detected","requestId":"c133be94-62e5-47c6-89e4-f6e898ce5042","method":"GET","path":"/api/login","duration":227,"threshold":120}
+2026-01-20 02:32:54.67
+21b86af0
+User
+{"timestamp":"2026-01-20T09:32:54.674Z","level":"WARN","message":"Slow request detected","requestId":"b5985135-ab72-42ef-83e8-f2313a0b3d56","method":"GET","path":"/api/login","duration":225,"threshold":120}
+2026-01-20 02:32:54.67
+21b86af0
+User
+⚠️ Slow login: 225ms (target <200ms)
+2026-01-20 02:34:52.73
+21b86af0
+User
+{"timestamp":"2026-01-20T09:34:52.736Z","level":"WARN","message":"Slow request detected","requestId":"02724ab7-d667-4a2a-a467-8c6176ad672c","method":"GET","path":"/api/login","duration":212,"threshold":120}
+2026-01-20 02:34:52.73
+21b86af0
+User
+⚠️ Slow login: 213ms (target <200ms)
+2026-01-20 02:36:41.43
+21b86af0
+User
+{"timestamp":"2026-01-20T09:36:41.437Z","level":"WARN","message":"Slow request detected","requestId":"d8fe52df-906d-451d-b8f4-ca3cd02287ab","method":"GET","path":"/health","duration":156,"threshold":120}
+2026-01-20 02:37:41.43
+21b86af0
+User
+{"timestamp":"2026-01-20T09:37:41.433Z","level":"WARN","message":"Slow request detected","requestId":"f29a877d-d07c-4c44-808e-1f73d61723fe","method":"GET","path":"/health","duration":153,"threshold":120}
+2026-01-20 02:37:54.68
+21b86af0
+User
+{"timestamp":"2026-01-20T09:37:54.680Z","level":"WARN","message":"Slow request detected","requestId":"090db4a0-01db-4d53-9f2c-7b3b4ac6d84f","method":"GET","path":"/api/login","duration":219,"threshold":120}
+2026-01-20 02:37:54.68
+21b86af0
+User
+⚠️ Slow login: 219ms (target <200ms)
+2026-01-20 02:39:08.93
+21b86af0
+User
+{"timestamp":"2026-01-20T09:39:08.935Z","level":"WARN","message":"Slow request detected","requestId":"92cd9dfa-a044-42fc-b7e5-404371037316","method":"GET","path":"/health","duration":135,"threshold":120}
+2026-01-20 02:40:08.29
+21b86af0
+User
+{"timestamp":"2026-01-20T09:40:08.294Z","level":"WARN","message":"Slow request detected","requestId":"f063cd45-3d60-4a17-b81e-a577b1027034","method":"GET","path":"/health","duration":125,"threshold":120}
+2026-01-20 02:41:08.37
+21b86af0
+User
+{"timestamp":"2026-01-20T09:41:08.379Z","level":"WARN","message":"Slow request detected","requestId":"e93a039e-a3f0-43c1-a185-e436394fc855","method":"GET","path":"/health","duration":163,"threshold":120}
+2026-01-20 02:42:10.14
+21b86af0
+User
+{"timestamp":"2026-01-20T09:42:10.146Z","level":"WARN","message":"Slow request detected","requestId":"0ba5195f-43cf-49f4-af9f-71976cd72b3b","method":"GET","path":"/health","duration":147,"threshold":120}
+2026-01-20 02:42:43.33
+21b86af0
+User
+{"timestamp":"2026-01-20T09:42:43.338Z","level":"WARN","message":"Slow request detected","requestId":"c4c2fdb8-66a5-42f2-9585-483fe926b489","method":"GET","path":"/health","duration":133,"threshold":120}
+2026-01-20 02:43:00.18
+21b86af0
+User
+{"timestamp":"2026-01-20T09:43:00.184Z","level":"WARN","message":"Slow request detected","requestId":"f90466ea-789c-4c50-addb-68d256fadbea","method":"GET","path":"/api/login","duration":205,"threshold":120}
+2026-01-20 02:43:00.18
+21b86af0
+User
+⚠️ Slow login: 205ms (target <200ms)
+2026-01-20 02:43:38.18
+21b86af0
+User
+{"timestamp":"2026-01-20T09:43:38.187Z","level":"WARN","message":"Slow request detected","requestId":"758c7585-316b-4011-9c3b-c4d0d1fcc0be","method":"GET","path":"/health","duration":137,"threshold":120}
+2026-01-20 02:44:08.88
+21b86af0
+User
+{"timestamp":"2026-01-20T09:44:08.880Z","level":"WARN","message":"Slow request detected","requestId":"b86b5b90-b720-48a8-a444-db48693871dc","method":"GET","path":"/health","duration":123,"threshold":120}
+2026-01-20 02:44:17.41
+21b86af0
+User
+{"timestamp":"2026-01-20T09:44:17.319Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768901957318-tdki03tfr","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 02:44:17.61
+21b86af0
+User
+{"timestamp":"2026-01-20T09:44:17.618Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768901957318-e1vpmzmz6","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 02:45:08.75
+21b86af0
+User
+{"timestamp":"2026-01-20T09:45:08.755Z","level":"WARN","message":"Slow request detected","requestId":"d1254a48-d027-4291-96ae-7db53044e20e","method":"GET","path":"/health","duration":133,"threshold":120}
+2026-01-20 02:46:42.03
+21b86af0
+User
+{"timestamp":"2026-01-20T09:46:42.035Z","level":"WARN","message":"Slow request detected","requestId":"554e0d28-e305-4d56-8109-8955c69742df","method":"GET","path":"/health","duration":134,"threshold":120}

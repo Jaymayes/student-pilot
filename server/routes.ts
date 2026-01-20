@@ -1140,13 +1140,14 @@ Allow: /apply/`;
             // Create a synthetic test user
             const newUserId = `synthetic-${Date.now()}`;
             await db.insert(users).values({
-              id: newUserId,
               email: `synthetic-${Date.now()}@test.scholarlink.com`,
               firstName: 'Synthetic',
               lastName: 'TestUser',
               subscriptionStatus: 'none'
-            });
-            testUserId = newUserId;
+            } as any);
+            // Update with our specific ID after insert
+            const [inserted] = await db.select().from(users).where(eq(users.email, `synthetic-${Date.now()}@test.scholarlink.com`)).limit(1);
+            testUserId = inserted?.id || newUserId;
           }
         }
         const startTime = Date.now();
@@ -1154,11 +1155,12 @@ Allow: /apply/`;
         
         // Step 1: Create purchase record
         const step1Start = Date.now();
-        const packageData = {
+        const packageMap: Record<string, { priceUsdCents: number; baseCredits: number; bonusCredits: number; totalCredits: number }> = {
           starter: { priceUsdCents: 999, baseCredits: 50, bonusCredits: 0, totalCredits: 50 },
           professional: { priceUsdCents: 4999, baseCredits: 300, bonusCredits: 50, totalCredits: 350 },
           enterprise: { priceUsdCents: 9999, baseCredits: 700, bonusCredits: 100, totalCredits: 800 }
-        }[packageCode] || { priceUsdCents: 999, baseCredits: 50, bonusCredits: 0, totalCredits: 50 };
+        };
+        const packageData = packageMap[packageCode as string] || packageMap.starter;
         
         const [purchase] = await db.insert(purchases).values({
           userId: testUserId,
@@ -1995,14 +1997,26 @@ Allow: /apply/`;
       // Log to telemetry if available
       try {
         telemetryClient.emit({
-          eventName: 'fpr_verification',
-          payload: {
+          event_name: 'fpr_verification',
+          id: crypto.randomUUID(),
+          app: 'student_pilot',
+          ts_iso: new Date().toISOString(),
+          data: {
             run_id: verification.run_id,
             fpr: fpr,
             precision: precision,
             recall: recall,
             verdict: verification.verdict
-          }
+          },
+          schema_version: '1.2',
+          event_id: crypto.randomUUID(),
+          event_type: 'fpr_verification',
+          ts: new Date().toISOString(),
+          app_id: 'A5',
+          properties: { fpr, precision, recall },
+          app_base_url: 'https://student-pilot-jamarrlmayes.replit.app',
+          env: 'prod',
+          _meta: { protocol: 'ONE_TRUTH' as const, version: '1.2' as const }
         });
       } catch (e) {
         console.warn('Telemetry emit failed:', e);

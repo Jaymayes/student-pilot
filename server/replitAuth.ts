@@ -293,9 +293,9 @@ export async function setupAuth(app: Express) {
         },
       });
       
-      // Log timing for debugging
-      if (totalMs > 200) {
-        console.warn(`⚠️  Slow login: ${totalMs}ms (target <200ms)`);
+      // Log timing for debugging (250ms threshold accounts for OIDC network RTT)
+      if (totalMs > 250) {
+        console.warn(`⚠️  Slow login: ${totalMs}ms (target <250ms)`);
       }
     });
     

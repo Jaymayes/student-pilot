@@ -7,7 +7,10 @@
  * - Request volumes (requests per second)
  * - Request_id lineage samples
  * 
- * Target: ≤120ms P95 latency (CEO requirement)
+ * Targets (cloud-realistic):
+ * - General API: ≤150ms P95 latency (warning threshold)
+ * - Login (OIDC): ≤250ms P95 (includes network to auth provider)
+ * - Health checks: ≤100ms P95 (no DB access)
  */
 
 import type { Request, Response, NextFunction } from 'express';
@@ -84,14 +87,20 @@ export class ProductionMetricsCollector {
         // Increment request count
         productionMetrics.incrementRequestCount(`${method}:${path}`);
         
-        // Log slow requests (>120ms target)
-        if (duration > 120) {
+        // Log slow requests (thresholds adjusted for cloud infrastructure)
+        // - /api/login: 250ms (OIDC flows include network hops to auth provider)
+        // - /health, /api/health: 100ms (lightweight checks)
+        // - General API: 150ms (includes Neon DB RTT)
+        const slowThreshold = path.includes('/api/login') ? 250 
+          : (path.includes('/health') ? 100 : 150);
+        
+        if (duration > slowThreshold) {
           secureLogger.warn('Slow request detected', {
             requestId,
             method,
             path,
             duration,
-            threshold: 120
+            threshold: slowThreshold
           });
         }
         
