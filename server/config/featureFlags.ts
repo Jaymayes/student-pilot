@@ -14,38 +14,49 @@
  * - CHANGE_FREEZE: active
  */
 
-export const SEV1_INCIDENT = {
-  active: true, // SEV-1 REGRESSION - Hard fixes in progress
+export const SEV2_INCIDENT = {
+  active: true, // SEV-2 MONITORING - Downgraded from SEV-1 per CEO decision
   cir_id: 'CIR-1768864546',
-  a8_event_id: 'evt_1768842911704_bk0d6109d',
+  a8_event_id: 'evt_1768870925169_yd4km70zv',
   error_codes: ['AUTH_RATE_LIMITED', 'IP_BLOCKED_LOCKOUT', 'HIGH_ERROR_RATE', 'TELEMETRY_428', 'GREEN_MIRAGE', 'LEDGER_MISSING', 'SPOOL_IO_ERROR'],
-  kill_switch_activated_at: '2026-01-19T23:15:00.000Z',
-  stability_hold_passed_at: null as string | null,
+  sev1_started_at: '2026-01-19T23:15:00.000Z',
+  sev2_downgrade_at: '2026-01-20T03:23:00.000Z',
+  stability_60min_passed_at: '2026-01-20T02:02:00.000Z',
   resolved_at: null as string | null,
-  change_freeze: true,
-  canary_authorized: false,
+  change_freeze: false, // Lifted for 2% pilot
+  canary_authorized: false, // Gate-1 (5%) remains NO-GO
   canary_started_at: null as string | null,
-  b2c_paused: true, // REVERTED TO 0% - SEV-1 regression
-  ledger_freeze: true, // Freeze provider invoicing until ledger created
-  b2b_billing_frozen: true, // No B2B billing events
+  b2c_pilot_approved: true, // 2% APPROVED per CEO
+  gate1_status: 'NO_GO', // Requires 24h stability
+} as const;
+
+export const FINANCE_CONTROLS = {
+  ledger_freeze: true, // RE-ENGAGED per CEO - no invoicing until CFO sign-off
+  provider_invoicing_paused: true, // NO downstream invoicing
+  fee_postings_paused: true, // NO fee settlements
+  persist_ledger_entries: true, // Continue writing to overnight_protocols_ledger
+  require_cfo_signoff: true, // Reconciliation report + CFO approval required
+  canonical_table: 'overnight_protocols_ledger',
 } as const;
 
 export const CONTAINMENT_CONFIG = {
   fleet_seo_paused: true,
   internal_schedulers_capped: true,
-  permitted_jobs: ['auth', 'payments', 'watchtower'] as const,
-  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting'] as const,
+  permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] as const,
+  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting', 'settlement'] as const,
   stripe_cap_6h: 4,
-  pilot_traffic_pct: 0, // SEV-1 REGRESSION - HARD STOP
+  pilot_traffic_pct: 2, // 2% APPROVED per CEO decision
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
-  scheduler_tokens_revoked: true,
+  scheduler_tokens_revoked: false, // Lifted for heartbeat
   localhost_probes_disabled: true,
   metrics_p95_probes_disabled: true,
-  a8_stopped_until_patch: true, // Self-DDoS guard
-  synthetic_ip_allowlist: true, // Provider flow synthetic IPs
-  rate_limit_abuse_ips: true, // Abuse IP suppression
+  a8_stopped_until_patch: false, // Restored after patch
+  synthetic_ip_allowlist: true,
+  rate_limit_abuse_ips: true,
+  ledger_heartbeat_interval_min: 10, // Write heartbeat every 10 min
+  ledger_stale_alert_min: 15, // Alert if last_written_at >15 min
 } as const;
 
 export const CANARY_CONFIG = {
@@ -81,10 +92,10 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'paused', // SEV-1 REGRESSION - HARD STOP
+  B2C_CAPTURE: 'pilot_only', // 2% APPROVED per CEO decision
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 0, // SEV-1 REGRESSION - HARD STOP until 60-min green
+  TRAFFIC_CAP_B2C_PILOT: 2, // 2% APPROVED - Gate-1 (5%) remains NO-GO
 } as const;
 
 export const TELEMETRY_GATE = {
