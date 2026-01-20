@@ -1,40 +1,17 @@
 {
-  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE3-037",
-  "generated_at": "2026-01-20T20:42:08Z",
-  "commit": "abb718ba70766e88fe079e8d4aa7cc5ac917c066",
-  "commit_message": "Published your App",
-  "hotfixes_verified": {
-    "trust_proxy_at_top": {
-      "file": "server/index.ts",
-      "line": 107,
-      "verified": true
-    },
-    "waf_trust_by_secret": {
-      "file": "server/config/wafConfig.ts",
-      "functions": ["S2S_TELEMETRY_CONFIG", "shouldBypassSqliInspection"],
-      "verified": true
-    },
-    "probe_storm_fix": {
-      "file": "server/lib/scheduled-probing.ts",
-      "pattern": "lock before jitter",
-      "verified": true
-    },
-    "event_loop_300ms": {
-      "file": "server/lib/capacity-monitoring.ts",
-      "threshold_ms": 300,
-      "verified": true
-    }
-  },
-  "gate2_caps": {
-    "TRAFFIC_CAP": 0.25,
-    "TRAFFIC_CAP_B2C_PILOT": 25,
-    "verified": true
-  },
-  "recent_commits": [
-    "abb718b - Published your App",
-    "e597ba7 - Adjust monitoring thresholds",
-    "a9359af - Saved progress at the end of the loop",
-    "865ef3c - Stabilize system performance and security",
-    "8058125 - Improve security and stability"
-  ]
+  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE4-042",
+  "timestamp": "2026-01-20T22:45:18Z",
+  "git_commit": "571f444",
+  "node_version": "v20.20.0",
+  "npm_version": "10.8.2",
+  "gate": 4,
+  "step": "precondition",
+  "traffic_cap": 0.50,
+  "finance_freeze": true,
+  "features_verified": {
+    "trust_proxy": true,
+    "waf_trust_by_secret": true,
+    "rate_limiter_whitelist": true,
+    "neon_pool": true
+  }
 }

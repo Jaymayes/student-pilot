@@ -1,61 +1,32 @@
 {
-  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE3-037",
-  "generated_at": "2026-01-20T20:42:08Z",
-  "gate": "Gate-3 Preparation",
-  "ecosystem": {
-    "A1": {
-      "name": "Scholar Auth",
-      "url": "https://scholar-auth-jamarrlmayes.replit.app",
-      "status": "healthy",
-      "http_code": 200,
-      "response_time_ms": 82,
-      "markers": ["system_identity=scholar_auth", "db_connected=true", "sev2_active=true"]
-    },
-    "A2": {
-      "name": "Scholarship API",
-      "url": "https://scholarship-api-jamarrlmayes.replit.app",
-      "status": "healthy",
-      "http_code": 200,
-      "response_time_ms": 248,
-      "markers": ["events_last_hour=326", "unique_apps=5", "data_source=postgres"]
-    },
-    "A3": {
-      "name": "Scholarship Agent",
-      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
-      "status": "healthy",
-      "http_code": 200,
-      "response_time_ms": 186,
-      "markers": ["db_connected=true", "pool_idle=1"]
-    },
-    "A5": {
-      "name": "Student Pilot",
-      "url": "https://student-pilot-jamarrlmayes.replit.app",
-      "status": "healthy",
-      "http_code": 200,
-      "response_time_ms": 2687,
-      "note": "Cold start spike - transient",
-      "markers": ["database=ok", "auth=ok", "telemetry=ok"]
-    },
-    "A6": {
-      "name": "Provider Portal",
-      "url": "https://provider-portal-jamarrlmayes.replit.app",
-      "status": "unavailable",
-      "http_code": 404,
-      "note": "Non-blocking for B2C Gate-3"
-    },
-    "A8": {
-      "name": "Auto Com Center",
-      "url": "https://auto-com-center-jamarrlmayes.replit.app",
-      "status": "healthy",
-      "http_code": 200,
-      "response_time_ms": 103,
-      "markers": ["system_identity=auto_com_center"]
-    }
+  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE4-042",
+  "verification_run_id": "CEOSPRINT-20260120-VERIFY-ZT3G-GATE4-043",
+  "hitl_id": "HITL-CEO-20260120-OPEN-TRAFFIC-G4",
+  "protocol": "AGENT3_HANDSHAKE_v32",
+  "generated_at": "2026-01-20T22:45:00Z",
+  "apps": {
+    "A1": {"name": "scholar_auth", "url": "https://scholar-auth-jamarrlmayes.replit.app", "status": "healthy"},
+    "A2": {"name": "scholarship_api", "url": "https://scholarship-api-jamarrlmayes.replit.app", "status": "unknown"},
+    "A3": {"name": "scholarship_agent", "url": "https://scholarship-agent-jamarrlmayes.replit.app", "status": "unknown"},
+    "A4": {"name": "scholarlink_marketing", "url": "https://scholarlink-marketing-jamarrlmayes.replit.app", "status": "unknown"},
+    "A5": {"name": "student_pilot", "url": "https://student-pilot-jamarrlmayes.replit.app", "status": "healthy"},
+    "A6": {"name": "provider_portal", "url": "https://provider-portal-jamarrlmayes.replit.app", "status": "404"},
+    "A7": {"name": "auto_page_maker", "url": "https://auto-page-maker-jamarrlmayes.replit.app", "status": "unknown"},
+    "A8": {"name": "auto_com_center", "url": "https://auto-com-center-jamarrlmayes.replit.app", "status": "healthy"}
   },
-  "token_endpoint_check": {
-    "url": "https://scholar-auth-jamarrlmayes.replit.app/oidc/token",
-    "expected": "invalid_client or invalid_request",
-    "actual": "invalid_request",
-    "pass": true
+  "gate4_config": {
+    "step1_target": 0.75,
+    "step2_target": 1.00,
+    "step1_observe_min": 30,
+    "step2_observe_min": 60,
+    "rollback_to": 0.50
+  },
+  "hard_gates": {
+    "login_p95_max_ms": 240,
+    "login_any_max_ms": 320,
+    "neon_p95_max_ms": 150,
+    "error_rate_max_pct": 0.5,
+    "event_loop_max_ms": 300,
+    "telemetry_min_pct": 99
   }
 }
