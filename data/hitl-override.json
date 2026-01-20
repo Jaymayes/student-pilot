@@ -1,0 +1,19 @@
+{
+  "gate": "Gate-3",
+  "traffic_cap": 0.50,
+  "traffic_cap_b2c_pilot": 50,
+  "hitl_id": "HITL-CEO-20260120-OPEN-TRAFFIC-G3",
+  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE3-037",
+  "applied_at": "2026-01-20T20:43:00Z",
+  "expires_at": null,
+  "rollback_to": {
+    "traffic_cap": 0.25,
+    "traffic_cap_b2c_pilot": 25
+  },
+  "finance_freeze": {
+    "LEDGER_FREEZE": true,
+    "PROVIDER_INVOICING_PAUSED": true,
+    "FEE_POSTINGS_PAUSED": true,
+    "LIVE_STRIPE_CHARGES": "BLOCKED"
+  }
+}

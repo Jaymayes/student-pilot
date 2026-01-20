@@ -10,13 +10,14 @@
  * - B2C_CAPTURE: active (Gate-2 @ 25%)
  * - MICROCHARGE_REFUND: enabled (refunds still allowed)
  * - SAFETY_LOCK: active
- * - TRAFFIC_CAP_B2C_PILOT: 25% (Gate-2)
+ * - TRAFFIC_CAP_B2C_PILOT: 50% (Gate-3)
  * - CHANGE_FREEZE: lifted
  * - FINANCE_FREEZE: ACTIVE (no fund movement)
  * 
  * Gate-1 Opened: 2026-01-20T10:24:09Z
  * Gate-2 Opened: 2026-01-20T16:40:38Z
- * HITL_ID: HITL-CEO-20260120-OPEN-TRAFFIC-G2
+ * Gate-3 Opened: 2026-01-20T20:43:00Z
+ * HITL_ID: HITL-CEO-20260120-OPEN-TRAFFIC-G3
  */
 
 export const SEV1_INCIDENT = {
@@ -32,7 +33,8 @@ export const SEV1_INCIDENT = {
   canary_started_at: '2026-01-20T10:23:00.000Z' as string | null,
   b2c_pilot_approved: true, // Gate-1 approved
   gate1_status: 'COMPLETE',
-  gate2_status: 'IN_PROGRESS',
+  gate2_status: 'COMPLETE',
+  gate3_status: 'IN_PROGRESS',
 } as const;
 
 export const FINANCE_CONTROLS = {
@@ -50,7 +52,7 @@ export const CONTAINMENT_CONFIG = {
   permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] as const,
   blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting', 'settlement'] as const,
   stripe_cap_6h: 0, // Finance freeze active
-  pilot_traffic_pct: 25, // GATE-2: TRAFFIC_CAP=25% per HITL-CEO-20260120-OPEN-TRAFFIC-G2
+  pilot_traffic_pct: 50, // GATE-3: TRAFFIC_CAP=50% per HITL-CEO-20260120-OPEN-TRAFFIC-G3
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
@@ -97,10 +99,10 @@ export const CANARY_CONFIG = {
 } as const;
 
 export const FEATURE_FLAGS = {
-  B2C_CAPTURE: 'active', // Gate-2: Enabled at 25% per HITL-CEO-20260120-OPEN-TRAFFIC-G2
+  B2C_CAPTURE: 'active', // Gate-3: Enabled at 50% per HITL-CEO-20260120-OPEN-TRAFFIC-G3
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 25, // Gate-2: TRAFFIC_CAP=25% per HITL-CEO-20260120-OPEN-TRAFFIC-G2
+  TRAFFIC_CAP_B2C_PILOT: 50, // Gate-3: TRAFFIC_CAP=50% per HITL-CEO-20260120-OPEN-TRAFFIC-G3
 } as const;
 
 export const TELEMETRY_GATE = {
