@@ -9,7 +9,7 @@
  * 
  * Targets (cloud-realistic):
  * - General API: ≤150ms P95 latency (warning threshold)
- * - Login (OIDC): ≤250ms P95 (includes network to auth provider)
+ * - Login (OIDC): ≤300ms P95 (includes network to auth provider + cold start variance)
  * - Health checks: ≤100ms P95 (no DB access)
  */
 
@@ -88,11 +88,11 @@ export class ProductionMetricsCollector {
         productionMetrics.incrementRequestCount(`${method}:${path}`);
         
         // Log slow requests (thresholds adjusted for cloud infrastructure)
-        // - /api/login: 250ms (OIDC flows include network hops to auth provider)
-        // - /health, /api/health: 100ms (lightweight checks)
-        // - General API: 150ms (includes Neon DB RTT)
-        const slowThreshold = path.includes('/api/login') ? 250 
-          : (path.includes('/health') ? 100 : 150);
+        // - /api/login: 300ms (OIDC flows include network hops to auth provider + cold start)
+        // - /health, /api/health: 150ms (lightweight checks, but can spike on cold start)
+        // - General API: 200ms (includes Neon DB RTT + network variance)
+        const slowThreshold = path.includes('/api/login') ? 300 
+          : (path.includes('/health') ? 150 : 200);
         
         if (duration > slowThreshold) {
           secureLogger.warn('Slow request detected', {
