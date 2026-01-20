@@ -1,0 +1,64 @@
+{
+  "system_map": {
+    "generated_at": "2026-01-20T16:42:43.000Z",
+    "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE2-029",
+    "protocol": "AGENT3_HANDSHAKE v30"
+  },
+  "apps": {
+    "A1": {
+      "name": "scholar_auth",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "role": "Authentication & OIDC Provider",
+      "health_endpoint": "/health",
+      "status": "operational"
+    },
+    "A2": {
+      "name": "scholarship_api",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "role": "Scholarship Data API",
+      "health_endpoint": "/health",
+      "status": "operational"
+    },
+    "A3": {
+      "name": "scholarship_agent",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+      "role": "AI Scholarship Agent",
+      "health_endpoint": "/health",
+      "status": "operational"
+    },
+    "A5": {
+      "name": "student_pilot",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "role": "B2C Student Portal",
+      "health_endpoint": "/api/slo/probe",
+      "status": "operational"
+    },
+    "A6": {
+      "name": "scholarship_portal",
+      "url": "https://scholarship-portal-jamarrlmayes.replit.app",
+      "role": "B2B Provider Portal",
+      "health_endpoint": "/api/providers",
+      "status": "operational"
+    },
+    "A7": {
+      "name": "auto_page_maker",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
+      "role": "SEO Page Generator",
+      "health_endpoint": "/health",
+      "status": "operational"
+    },
+    "A8": {
+      "name": "auto_com_center",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "role": "Command Center & Telemetry Hub",
+      "health_endpoint": "/health",
+      "status": "operational"
+    }
+  },
+  "gate2_config": {
+    "traffic_cap_percent": 25,
+    "finance_freeze": true,
+    "b2c_charges": "CONDITIONAL",
+    "hitl_id": "HITL-CEO-20260120-OPEN-TRAFFIC-G2"
+  }
+}

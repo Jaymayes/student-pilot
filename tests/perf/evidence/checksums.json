@@ -1,0 +1,54 @@
+{
+  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE2-029",
+  "hitl_id": "HITL-CEO-20260120-OPEN-TRAFFIC-G2",
+  "generated_at": "2026-01-20T16:48:42.000Z",
+  "protocol": "AGENT3_HANDSHAKE v30",
+  "checksums": {
+    "a1_login_latency_gate2.md": "dbde861bdc3a61ccfc62ad6729d4610f95a767ac4aa96126cf3971e16b5badfe",
+    "b2b_flywheel_validation.md": "6e00f7b8ce1b0525d869453b2e6062b7f58c04492f2597aba5d42a7860da3dac",
+    "seo_under_load.md": "c41252f69f4a849f3ce6a5d61ca21e76fccc10321c90c80a906e19e812556114",
+    "a1_cookie_validation.md": "c9357b22d1899922559c3a57c1bc358d3c06d040c5b9794fc5f433d3749c1fe0",
+    "security_headers_report.md": "cc208d5a9881a28dcb03c61f7b15b6405de8d8f31969eee15e5ebf551d883fe1",
+    "neon_pooling_report.md": "24507357551d09e1d06af22354e2bfe2e1936defd25f7d6e02ef802c3cee48c2",
+    "gate2_perf_summary.md": "f8379804e0f1305447552409253c49b51812b489aa6d4da5c59fa53c5d77d9e4",
+    "fee_lineage.json": "b9028c35b79c706fe3c8bc87ebfd26decf17bace910901e4ccc51a64aad6000b"
+  },
+  "verification_command": "sha256sum -c checksums.json",
+  "artifact_count": 8,
+  "all_gates_pass": true,
+  "hard_gate_results": {
+    "a1_login_p95_ms": {
+      "target": 200,
+      "observed": 143,
+      "pass": true
+    },
+    "error_rate_5xx_pct": {
+      "target": 0.5,
+      "observed": 0,
+      "pass": true
+    },
+    "neon_db_p95_ms": {
+      "target": 100,
+      "observed": 33,
+      "pass": true
+    },
+    "telemetry_acceptance_pct": {
+      "target": 99,
+      "observed": 100,
+      "pass": true
+    },
+    "waf_meta_blocks": {
+      "target": 0,
+      "observed": 0,
+      "pass": true
+    }
+  },
+  "issues": [
+    {
+      "app": "A6",
+      "issue": "All endpoints returning 404",
+      "impact": "B2B provider flow cannot be validated",
+      "recommendation": "Verify A6 deployment status"
+    }
+  ]
+}
