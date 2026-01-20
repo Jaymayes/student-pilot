@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-01-20T19:08:00Z",
+  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE2-STABILIZE-033",
+  "artifacts": {
+    "a1_login_latency_gate2.md": "2c77321f61fc9785a11ba862641b449c5f5ad8a48d62686431e925d66b4eb5bf",
+    "a2_monitoring_fix.md": "33fcc4a6413891293968f02494f2cd59ab309e2486e692bd947685a034e5e084",
+    "a8_telemetry_audit.md": "d0cd8bb3e819fade52eb83f064808eb9ab1f6a4f4f10dcaf0e22fd337c135c9d",
+    "ecosystem_double_confirm.md": "ca24196787de52c9ab25ce0375f43c70edc5e106c530aa5d5705cc87fe4c03c4",
+    "event_loop_threshold_change.md": "f44251a4e7a8a7014098d772106e6de9537b7a884d2c7243111916cbbb6cc9b6",
+    "gate2_stabilize_report.md": "74e2ef832b2a2f7b1929bbc133745760dc8fb56dc2e25626d8463dfeaff4e65c",
+    "neon_pooling_report.md": "2a99b1b7fc753ca589a9f6e2974b191418a70ee27428a1a0fc84d0acaba9cc40",
+    "probe_mutex_verification.md": "9e1b46458ddbc10a33897bb2b09fced6aed94fb2c95635c6012640c51e9d0aac",
+    "raw_truth_summary.md": "d49fe4d1c52c0ed8df7e95f0581d77c4e070f0aefb91ded0cc1b5b6c5f7b881d",
+    "rl_observation.md": "f34f4b519a80e86c9ccb4686ef42febbd6d94f7ba995d93d169f534ebc84610d",
+    "spot_checks_after_stabilization.md": "d6955437b9fc36cf1fb71278349bc06f1374f692fea68d8a7fdff332dca8f5c0",
+    "waf_cidr_config.md": "11ee77311f3878c8c28aa879851d11aac288d422fa7f9fd6782b911a3e3cf696",
+    "waf_regression_tests.md": "44796597a379ca4db28562415faf38e9bce823d104637c5238f1ec990b825d49",
+    "waf_trust_by_secret_patch.md": "92ea72c6c85202a63c114be98d549552798b439c3a8b5d706a27c4eba24194c9",
+    "hitl_approvals.log": "bc40ce9bd2b29f2e53835767122b46c10f1ca542cbf93b7266b893134f14235a",
+    "_generated": "true"
+  }
+}
