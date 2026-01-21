@@ -1,56 +1,94 @@
 # Revenue Anomaly Guardrails
 
-**Run ID**: CEOSPRINT-20260121-VERIFY-ZT3G-D1-SOAK-057  
-**Timestamp**: 2026-01-21T08:30:00Z
+**Version**: 1.0.0  
+**Date**: 2026-01-21
 
-## Revenue Caps
+## Overview
 
-| Cap Type | Limit | Current | Status |
-|----------|-------|---------|--------|
-| Global/day | $10,000 | $0.00 | ✅ |
-| Per-user/day | $500 | $0.00 | ✅ |
-| Per-transaction | $200 | $0.00 | ✅ |
-| Provider payout/day | $5,000 | $0.00 | ✅ |
+Automated anomaly detection and rate limiting for revenue operations.
 
-## Anomaly Detection (Z-Score/EWMA)
+## Caps and Limits
 
-| Metric | EWMA | Z-Score | Threshold | Status |
-|--------|------|---------|-----------|--------|
-| Transaction volume | 0 | 0.00 | ±3σ | ✅ |
-| Transaction amount | $0 | 0.00 | ±3σ | ✅ |
-| Refund rate | 0% | 0.00 | ±2σ | ✅ |
-| Failed payments | 0% | 0.00 | ±2σ | ✅ |
+### Global Caps
 
-## Shadow Mirror Reconciliation
+| Cap | Limit | Window |
+|-----|-------|--------|
+| Global Daily Revenue | $50,000 | 24h rolling |
+| Global Per-Hour | $5,000 | 1h rolling |
+| Peak Hour Multiplier | 2.0x | During peak |
 
-| Metric | Live | Shadow | Diff | Status |
-|--------|------|--------|------|--------|
-| Entry count | 2 | 2 | 0 | ✅ |
-| Sum (cents) | 0 | 0 | 0 | ✅ |
-| Orphan entries | 0 | 0 | 0 | ✅ |
+### Per-User Caps
 
-## Alert Thresholds
+| Cap | Limit | Window |
+|-----|-------|--------|
+| Per-User Daily | $500 | 24h |
+| Per-User Transaction | $100 | Single |
+| Transaction Count | 10 | 24h |
 
-1. **WARN** (CFO notification):
-   - Z-score >2σ on any metric
-   - Transaction >50% of cap
-   
-2. **CRITICAL** (Auto-block):
-   - Z-score >3σ on any metric
-   - Cap exceeded
-   - Reconciliation diff >0
+### Provider Payout Caps
 
-## Audit Log
+| Cap | Limit | Window |
+|-----|-------|--------|
+| Provider Daily Payout | $10,000 | 24h |
+| Provider Transaction | $5,000 | Single |
 
-| Time | Event | Amount | Cap Check | Status |
-|------|-------|--------|-----------|--------|
-| (No transactions in monitoring window) |
+## Anomaly Detection
 
-## Guardrail Status
+### Z-Score Thresholds
 
-- [x] Revenue caps configured
-- [x] Z-score/EWMA monitoring active
-- [x] Shadow mirror reconciliation
-- [x] Audit logging enabled
+| Metric | Threshold | Action |
+|--------|-----------|--------|
+| Revenue spike | Z > 3.0 | Alert + Hold |
+| Volume spike | Z > 2.5 | Alert |
+| Avg transaction size | Z > 2.0 | Monitor |
 
-**Overall Status**: ✅ GREEN (All guardrails active)
+### EWMA Configuration
+
+```typescript
+{
+  alpha: 0.3,  // Smoothing factor
+  window: 60,  // Minutes
+  threshold: 2.0  // Standard deviations
+}
+```
+
+## Enforcement Actions
+
+### On Threshold Breach
+
+1. **Alert Level 1**: Log + Telemetry event
+2. **Alert Level 2**: Slack notification
+3. **Alert Level 3**: Auto-pause + Escalation
+
+### On Cap Breach
+
+```typescript
+// Automatic enforcement
+if (userDailyTotal > PER_USER_DAILY_CAP) {
+  reject({ code: 'DAILY_LIMIT_REACHED' });
+  emit('cap_breach', { userId, cap: 'per_user_daily' });
+}
+```
+
+## Telemetry Events
+
+| Event | Trigger |
+|-------|---------|
+| revenue_anomaly_detected | Z-score breach |
+| cap_breach | Limit exceeded |
+| payment_held | Manual review required |
+| payment_released | After review |
+
+## Monitoring Dashboard
+
+Real-time visibility into:
+- Hourly revenue vs baseline
+- Z-score trends
+- Cap utilization %
+- Anomaly alerts
+
+## Rollback Integration
+
+Anomaly guardrails integrate with rollback triggers:
+- Sustained anomalies (>15 min) → Finance rollback consideration
+- Fraud patterns → Immediate pause + investigation

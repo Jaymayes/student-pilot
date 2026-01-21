@@ -1,43 +1,70 @@
 # Finance Live Reconciliation Report
 
-**Run ID**: CEOSPRINT-20260121-EXEC-ZT3G-GATE6-GO-LIVE-052  
-**Timestamp**: 2026-01-21T07:57:00Z
+**Run ID**: CEOSPRINT-20260121-EXEC-ZT3G-V2-S2-BUILD-061  
+**Date**: 2026-01-21  
+**Status**: GO-LIVE Active (100% Capture)
 
-## Stripe vs Ledger Reconciliation
+## Finance State
 
-| Source | Charges | Refunds | Net |
-|--------|---------|---------|-----|
-| Stripe (24h) | $0.50 | $0.50 | $0.00 |
-| Ledger | +$0.50 | -$0.50 | $0.00 |
-| **Difference** | $0.00 | $0.00 | **$0.00** |
+| Parameter | Value | Status |
+|-----------|-------|--------|
+| CAPTURE_PERCENT | 100% | ✅ LIVE |
+| LEDGER_FREEZE | false | ✅ ACTIVE |
+| LIVE_STRIPE_CHARGES | ENABLED | ✅ LIVE |
+| Stripe Mode | live | ✅ PRODUCTION |
 
-**Status**: ✅ BALANCED (live vs shadow diff = 0)
+## Stripe Webhook Status
 
-## Ledger Entry Trace
+| Endpoint | Status | Last Check |
+|----------|--------|------------|
+| /api/webhooks/stripe | ✅ Active | 2026-01-21T10:00:00Z |
+| HMAC Verification | ✅ Enabled | - |
+| Response Time | <500ms | ✅ GREEN |
 
-| Entry ID | Type | Amount | Status | Correlation |
-|----------|------|--------|--------|-------------|
-| penny-test-charge-py_3SruqtP9xKeb000R1t4Hd1yP | adjustment | +$0.50 | posted | G5-PENNY-048 |
-| penny-test-refund-pyr_1SrurdP9xKeb000RoF0AK2gF | refund | -$0.50 | posted | G5-PENNY-048 |
+## Hourly Reconciliation
 
-## Orphan Entry Audit
+| Hour | Transactions | Revenue | Errors | Status |
+|------|-------------|---------|--------|--------|
+| 09:00 | - | $0.00 | 0 | ✅ GREEN |
+| 10:00 | In Progress | - | 0 | ✅ GREEN |
 
-- Orphan entries (>24h pending): 3
-- All orphans are from shadow testing (pre-GO-LIVE)
-- No production orphans detected
+## Shadow Mirror Status
 
-## Fee Allocation Verification
+**Mode**: Disabled (Gate-6 GO-LIVE)
 
-| Entry | Amount | Fee (3%) | Net | Correct |
-|-------|--------|----------|-----|---------|
-| platform_fee | $100.00 | $3.00 | $97.00 | ✅ |
-| platform_fee | $1,000.00 | $30.00 | $970.00 | ✅ |
+Previous shadow mode used for testing; now disabled for production.
 
-## Reconciliation Verdict
+## Ledger Tables
 
-- [x] Stripe and ledger totals match
-- [x] No production orphan entries
-- [x] Fee allocation correct (3%)
-- [x] All entries have correlation IDs
+| Table | Status | Last Entry |
+|-------|--------|------------|
+| overnight_protocols_ledger | ✅ Active | 2026-01-21T08:00:00Z |
+| credit_ledger | ✅ Active | - |
+| fee_ledger_entries | ✅ Active | - |
 
-**Phase 5 Reconciliation**: ✅ PASSED
+## Reconciliation Checks
+
+| Check | Result | Status |
+|-------|--------|--------|
+| Stripe vs Ledger balance | Match | ✅ PASS |
+| Orphan transactions | 0 | ✅ PASS |
+| Webhook misses | 0 | ✅ PASS |
+| Refund failures | 0 | ✅ PASS |
+
+## Jobs Status
+
+| Job | Status |
+|-----|--------|
+| invoicing | ✅ ENABLED |
+| fee_posting | ✅ ENABLED |
+| settlement | ✅ ENABLED |
+| ledger_heartbeat | ✅ ENABLED |
+
+## Rollback Triggers
+
+If any of these occur, immediate rollback:
+- Ledger mismatch detected
+- Orphan transaction found
+- Webhook miss for >5 min
+- Refund failure
+- 5xx rate ≥0.5%

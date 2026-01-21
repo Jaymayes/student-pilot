@@ -119,6 +119,28 @@ export const FEATURE_FLAGS = {
   TRAFFIC_CAP_B2C_PILOT: 100, // Gate-4 VERIFIED @100% per CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
 } as const;
 
+/**
+ * DataService V2 Canary Cutover Configuration
+ * V2 Sprint-2: Progressive rollout from A2 to DataService
+ */
+export const DATASERVICE_READ_CANARY = {
+  enabled: true,
+  percentage: 0, // Start at 0%, increment via canary plan
+  buckets: [5, 25, 50, 100], // Progressive rollout percentages
+  rollbackOnError: true,
+  monitoringWindow: {
+    phase1: { percentage: 5, durationMinutes: 10 },
+    phase2: { percentage: 25, durationMinutes: 30 },
+    phase3: { percentage: 50, durationMinutes: 60 },
+    phase4: { percentage: 100, durationMinutes: 'stable' },
+  },
+  thresholds: {
+    maxErrorRate: 0.005, // 0.5%
+    maxP95LatencyMs: 150,
+    maxDbErrors: 0,
+  },
+} as const;
+
 export const TELEMETRY_GATE = {
   strict_mode: false, // SEV-1: DISABLED - Accept all events
   require_idempotency: false, // SEV-1: DISABLED - Accept without headers
