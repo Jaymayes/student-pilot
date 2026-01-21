@@ -1,36 +1,48 @@
-# Raw Truth Summary - Gate-4 Precondition
+# Raw Truth Summary - Gate-5 Finance Readiness
 
-**RUN_ID**: CEOSPRINT-20260120-EXEC-ZT3G-GATE4-042
-**Timestamp**: 2026-01-20T22:45:00Z
+**RUN_ID**: CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
+**Generated**: 2026-01-21T02:00:00Z
+**Protocol**: AGENT3_HANDSHAKE v34
 
-## Ecosystem Health
+## Phase 0 Baseline
 
-| App | Status | Latency |
-|-----|--------|---------|
-| A1 Scholar Auth | ✅ 200 | 135ms |
-| A5 Student Pilot | ✅ 200 | 143ms |
-| A6 Provider Portal | ❌ 404 | 45ms |
-| A8 Command Center | ✅ 200 | 103ms |
+### Ecosystem Health
 
-## Feature Verification
+| App | Endpoint | Latency | Status |
+|-----|----------|---------|--------|
+| A1 Scholar Auth | /health | 133ms | ✅ 200 |
+| A2 Scholarship API | /health | 322ms | ✅ 200 |
+| A5 Student Pilot | /api/health | 164ms | ✅ ok |
+| A8 Command Center | /health | 118ms | ✅ 200 |
 
-| Feature | Status | Evidence |
-|---------|--------|----------|
-| Trust Proxy at TOP | ✅ | Line 107 in index.ts |
-| WAF Trust-by-Secret | ✅ | wafConfig.ts |
-| Probe-storm Lock | ✅ | scheduled-probing.ts |
-| Rate Limiter Whitelist | ✅ | authRateLimit.ts (hotfix) |
+### A8 POST→GET Checksum
 
-## Current State
+- POST: Accepted ✅
+- Event ID: evt_1768960820573_edtajctjq
+- Type: gate5_baseline
 
-- Gate-3: IN_PROGRESS at 50%
-- Finance Freeze: ACTIVE
-- A8 Checksum: PASS
+### Traffic Configuration
 
-## Known Issues
+- TRAFFIC_CAP_B2C_PILOT: 100%
+- Gate-4: VERIFIED @100%
+- Gate-5: IN_PROGRESS (Finance Readiness)
 
-1. A6 Provider Portal: 404 (non-blocking for B2C)
+### Finance Freeze Status
 
-## Next Step
+| Control | Status |
+|---------|--------|
+| LEDGER_FREEZE | ✅ ACTIVE |
+| PROVIDER_INVOICING_PAUSED | ✅ ACTIVE |
+| FEE_POSTINGS_PAUSED | ✅ ACTIVE |
+| LIVE_STRIPE_CHARGES | ✅ BLOCKED |
 
-Proceed to Phase 1 Step 1: Set TRAFFIC_CAP=0.75
+### Guardrails
+
+- WAF Trust-by-Secret: ACTIVE
+- Probe Storms: 0
+- Event Loop: <300ms
+- Telemetry: Flowing to A8
+
+---
+
+**Attestation**: Phase 0 Baseline Complete

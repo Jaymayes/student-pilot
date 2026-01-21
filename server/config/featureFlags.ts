@@ -34,8 +34,8 @@ export const SEV1_INCIDENT = {
   b2c_pilot_approved: true, // Gate-1 approved
   gate1_status: 'COMPLETE',
   gate2_status: 'COMPLETE',
-  gate3_status: 'IN_PROGRESS', // ROLLED BACK from Gate-4
-  gate4_status: 'ABORTED',
+  gate3_status: 'COMPLETE',
+  gate4_status: 'COMPLETE', // Gate-4 VERIFIED per CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
 } as const;
 
 export const FINANCE_CONTROLS = {
@@ -53,7 +53,7 @@ export const CONTAINMENT_CONFIG = {
   permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] as const,
   blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting', 'settlement'] as const,
   stripe_cap_6h: 0, // Finance freeze active
-  pilot_traffic_pct: 50, // ROLLED BACK from Gate-4 to Gate-3 (50%) due to login latency breach
+  pilot_traffic_pct: 100, // Gate-4 VERIFIED @100% per CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
   safety_lock: true,
   auto_refunds: true,
   waf_sitemap_block: true,
@@ -103,7 +103,7 @@ export const FEATURE_FLAGS = {
   B2C_CAPTURE: 'active', // Gate-3: Enabled at 50% per HITL-CEO-20260120-OPEN-TRAFFIC-G3
   MICROCHARGE_REFUND: true, // Refunds enabled - KEEP ACTIVE
   SAFETY_LOCK: true, // Safety lock active - KEEP ACTIVE
-  TRAFFIC_CAP_B2C_PILOT: 50, // ROLLED BACK from Gate-4 to Gate-3 (50%) due to login latency breach
+  TRAFFIC_CAP_B2C_PILOT: 100, // Gate-4 VERIFIED @100% per CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
 } as const;
 
 export const TELEMETRY_GATE = {

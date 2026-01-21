@@ -1,17 +1,22 @@
 {
-  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE4-042",
-  "timestamp": "2026-01-20T22:45:18Z",
-  "git_commit": "571f444",
-  "node_version": "v20.20.0",
-  "npm_version": "10.8.2",
-  "gate": 4,
-  "step": "precondition",
-  "traffic_cap": 0.50,
-  "finance_freeze": true,
-  "features_verified": {
-    "trust_proxy": true,
-    "waf_trust_by_secret": true,
-    "rate_limiter_whitelist": true,
-    "neon_pool": true
+  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046",
+  "timestamp": "2026-01-21T02:00:00Z",
+  "protocol": "AGENT3_HANDSHAKE v34",
+  "components": {
+    "A5_student_pilot": {
+      "version": "1.0.0",
+      "commit": "07833d35",
+      "telemetry_protocol": "v3.5.1"
+    },
+    "feature_flags": {
+      "B2C_CAPTURE": "active",
+      "TRAFFIC_CAP": 100,
+      "SAFETY_LOCK": true
+    },
+    "finance_controls": {
+      "ledger_freeze": true,
+      "shadow_ledger": false,
+      "live_charges": "BLOCKED"
+    }
   }
 }
