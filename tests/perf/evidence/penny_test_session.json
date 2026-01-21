@@ -1,18 +1,9 @@
 {
-  "session_id": "cs_live_a1UndhyHQI4avAw1xaLLDMMF6GgoIfyNEBnkfQ4VuIHNSgZ0HAA4whFpyB",
-  "checkout_url": "https://checkout.stripe.com/c/pay/cs_live_a1UndhyHQI4avAw1xaLLDMMF6GgoIfyNEBnkfQ4VuIHNSgZ0HAA4whFpyB#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blppbHNgWjA0VEpsVEdVPH1OYGc1NTVXPGxoaXxnd39KUTRETVVpaGBERGZxUjxjSkB3X2dAMDNwVTxzdjE2N1xqYTFSN1x8UmJ1YVdsTDRKN39dVHRKN0h3Q2tkbGtfNTU9MHJCSEFxYycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl",
+  "session_id": "cs_live_a1B41FVNNjxIBlWkJjXubfTRezC5EBrby3cJUxTQ6WajPDd7D7N5CtT1wJ",
+  "checkout_url": "https://checkout.stripe.com/c/pay/cs_live_a1B41FVNNjxIBlWkJjXubfTRezC5EBrby3cJUxTQ6WajPDd7D7N5CtT1wJ#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blppbHNgWjA0VEpsVEdVPH1OYGc1NTVXPGxoaXxnd39KUTRETVVpaGBERGZxUjxjSkB3X2dAMDNwVTxzdjE2N1xqYTFSN1x8UmJ1YVdsTDRKN39dVHRKN0h3Q2tkbGtfNTU9MHJCSEFxYycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8ndmxrYmlgWmxxYGgnKSdga2RnaWBVaWRmYG1qaWFgd3YnP3F3cGB4JSUl",
   "amount_cents": 50,
   "x_trace_id": "CEOSPRINT-20260121-EXEC-ZT3G-G5-PENNY-048.stripe.charge",
-  "idempotency_key": "4d1e13d9-5cbe-43d3-b724-109fa84fea64",
-  "created_at": "2026-01-21T05:16:01.837Z",
-  "expires_at": "2026-01-21T05:46:01.000Z",
-  "metadata": {
-    "amount_cents": "50",
-    "customer_type": "b2c_micro",
-    "refund_sla_seconds": "60",
-    "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-G5-PENNY-048",
-    "scenario": "penny_test",
-    "test_flag": "true",
-    "x_trace_id": "CEOSPRINT-20260121-EXEC-ZT3G-G5-PENNY-048.stripe.charge"
-  }
+  "idempotency_key": "7f520e19-5bae-4f4a-b091-012316a165d6",
+  "created_at": "2026-01-21T06:40:50.923Z",
+  "expires_at": "2026-01-21T07:40:50.000Z"
 }
