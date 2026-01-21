@@ -1,0 +1,104 @@
+2026-01-20 21:53:41.65
+5a494496
+User
+{"timestamp":"2026-01-21T04:53:41.650Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768970921650-lte3vtuv8","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 21:54:59.11
+3110d016
+User
+- AUTH_API_BASE_URL (application will operate in degraded mode)
+2026-01-20 21:54:59.11
+3110d016
+User
+📋 Configure these URLs when upstream services are deployed.
+2026-01-20 21:54:59.11
+3110d016
+User
+- PROVIDER_REGISTER_BASE_URL (application will operate in degraded mode)
+2026-01-20 21:54:59.11
+3110d016
+User
+- STUDENT_PILOT_BASE_URL (application will operate in degraded mode)
+2026-01-20 21:54:59.11
+3110d016
+User
+⚠️ WARNING: Some microservice URLs not configured in production:
+2026-01-20 21:54:59.11
+3110d016
+User
+- AGENT_API_BASE_URL (application will operate in degraded mode)
+2026-01-20 21:54:59.11
+3110d016
+User
+✅ 2/7 microservice URLs configured
+2026-01-20 21:54:59.11
+3110d016
+User
+- SAGE_API_BASE_URL (application will operate in degraded mode)
+2026-01-20 21:54:59.16
+3110d016
+User
+⚠️ SENTRY_DSN format invalid - error monitoring disabled (update DSN in secrets)
+2026-01-20 21:54:59.40
+3110d016
+User
+at async file:///home/runner/workspace/dist/index.js:26442:5
+2026-01-20 21:54:59.40
+3110d016
+User
+Failed to register with Command Center: Error: Registration failed: 404 Not Found
+2026-01-20 21:54:59.40
+3110d016
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-01-20 21:54:59.40
+3110d016
+User
+at AgentBridge.register (file:///home/runner/workspace/dist/index.js:13113:15)
+2026-01-20 21:54:59.40
+3110d016
+User
+at async AgentBridge.start (file:///home/runner/workspace/dist/index.js:13059:7)
+2026-01-20 21:59:00.50
+3110d016
+User
+Wed, 21 Jan 2026 04:59:00 GMT express deprecated req.host: Use req.hostname instead at file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
+2026-01-20 22:04:01.45
+3110d016
+User
+{"timestamp":"2026-01-21T05:04:01.459Z","level":"WARN","message":"Slow request detected","requestId":"ff3cd442-6a75-4408-8c7d-b56e567fa9dd","method":"GET","path":"/api/login","duration":307,"threshold":300}
+2026-01-20 22:04:01.46
+3110d016
+User
+⚠️ Slow login: 307ms (target <300ms)
+2026-01-20 23:04:18.21
+3110d016
+User
+⚠️ Slow login: 305ms (target <300ms)
+2026-01-20 23:04:18.21
+3110d016
+User
+{"timestamp":"2026-01-21T06:04:18.217Z","level":"WARN","message":"Slow request detected","requestId":"8f1f1614-1cb7-4813-9112-227b7c98719b","method":"GET","path":"/api/login","duration":304,"threshold":300}
+2026-01-20 23:16:05.68
+3110d016
+User
+⚠️ Command Center: Report queued for retry
+2026-01-20 23:21:06.77
+3110d016
+User
+⚠️ Command Center: Report queued for retry
+2026-01-20 23:39:54.03
+3110d016
+User
+⚠️ Slow login: 301ms (target <300ms)
+2026-01-20 23:39:54.03
+3110d016
+User
+{"timestamp":"2026-01-21T06:39:54.037Z","level":"WARN","message":"Slow request detected","requestId":"41b4463c-320e-4988-948f-a915b63c41e2","method":"GET","path":"/api/login","duration":301,"threshold":300}
+2026-01-20 23:55:34.71
+3110d016
+User
+⚠️ Slow login: 319ms (target <300ms)
+2026-01-20 23:55:34.71
+3110d016
+User
+{"timestamp":"2026-01-21T06:55:34.716Z","level":"WARN","message":"Slow request detected","requestId":"ef369156-58ba-4062-bb7a-8fc2663eadb5","method":"GET","path":"/api/login","duration":319,"threshold":300}
