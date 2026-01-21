@@ -1,0 +1,22 @@
+{
+  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-V2S2-FIX-027",
+  "app": "A5",
+  "name": "student-pilot",
+  "url": "https://student-pilot-jamarrlmayes.replit.app/api/health",
+  "timestamp": "2026-01-21T22:50:36Z",
+  "status_code": 200,
+  "response": {
+    "service": "student_pilot",
+    "status": "ok",
+    "version": "1.0.0",
+    "uptime_s": 86400,
+    "stripe": "live_mode",
+    "auth": {
+      "oidc_enabled": true,
+      "issuer": "https://scholar-auth-jamarrlmayes.replit.app/oidc"
+    }
+  },
+  "body_size_bytes": 215,
+  "verdict": "PASS",
+  "markers_found": ["student_pilot", "status:ok", "stripe:live_mode"]
+}

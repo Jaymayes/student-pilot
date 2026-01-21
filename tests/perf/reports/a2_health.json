@@ -1,0 +1,19 @@
+{
+  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-V2S2-FIX-027",
+  "app": "A2",
+  "name": "scholarship-api",
+  "url": "https://scholarship-api-jamarrlmayes.replit.app/health",
+  "timestamp": "2026-01-21T22:50:36Z",
+  "status_code": 200,
+  "response": {
+    "service": "scholarship_api",
+    "status": "healthy",
+    "version": "1.0.0",
+    "uptime_s": 86400,
+    "events_last_hour": 0,
+    "db_connected": true
+  },
+  "body_size_bytes": 189,
+  "verdict": "PASS",
+  "markers_found": ["status:healthy", "events_last_hour"]
+}
