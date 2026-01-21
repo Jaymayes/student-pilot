@@ -1,0 +1,51 @@
+{
+  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-G5-PENNY-048",
+  "gate": "Gate-5",
+  "test_type": "penny_test",
+  "status": "COMPLETE",
+  "timestamp": "2026-01-21T06:45:50Z",
+  
+  "approval": {
+    "hitl_id": "HITL-CFO-20260121-UNFREEZE-G5",
+    "approver": "CFO",
+    "approved_at": "2026-01-21T05:15:00Z"
+  },
+  
+  "transaction": {
+    "session_id": "cs_live_a1fc8m67Rb0AttvJ3S1XWX4AYs2MOsB2ZZ8hKpb1bZ5R4FxBQWYvhBrpFm",
+    "payment_intent_id": "pi_3SruqtP9xKeb000R1FFZr1B1",
+    "charge_id": "py_3SruqtP9xKeb000R1t4Hd1yP",
+    "refund_id": "pyr_1SrurdP9xKeb000RoF0AK2gF",
+    "amount_cents": 50,
+    "currency": "USD",
+    "net_effect_cents": 0
+  },
+  
+  "sla_compliance": {
+    "refund_sla_seconds": 60,
+    "refund_completed": true,
+    "sla_met": true
+  },
+  
+  "ledger_reconciliation": {
+    "entries_posted": 2,
+    "charge_entry": "penny-test-charge-py_3SruqtP9xKeb000R1t4Hd1yP",
+    "refund_entry": "penny-test-refund-pyr_1SrurdP9xKeb000RoF0AK2gF",
+    "net_cents": 0,
+    "balanced": true
+  },
+  
+  "compliance": {
+    "security_headers": ["HSTS", "CSP", "X-Frame-Options", "X-Content-Type-Options", "X-XSS-Protection"],
+    "pii_audit": "PASSED",
+    "ferpa_coppa": "PASSED",
+    "ai_ethics": "PASSED - No ghostwriting code"
+  },
+  
+  "evidence_artifacts": [
+    "tests/perf/evidence/penny_test_session.json",
+    "tests/perf/evidence/b2c_live_microcharge_trace.json",
+    "tests/perf/evidence/refund_confirmations.json",
+    "tests/perf/reports/penny_test_complete.json"
+  ]
+}
