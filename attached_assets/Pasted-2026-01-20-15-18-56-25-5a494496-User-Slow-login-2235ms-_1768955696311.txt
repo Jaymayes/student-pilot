@@ -1,0 +1,64 @@
+2026-01-20 15:18:56.25
+5a494496
+User
+⚠️ Slow login: 2235ms (target <300ms)
+2026-01-20 15:23:44.87
+5a494496
+User
+{"timestamp":"2026-01-20T22:23:44.869Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768947524868-49c0vm3tv","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 15:23:44.96
+5a494496
+User
+{"timestamp":"2026-01-20T22:23:44.968Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768947524869-y38sho147","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 15:42:36.03
+5a494496
+User
+{"timestamp":"2026-01-20T22:42:36.033Z","level":"WARN","message":"Slow request detected","requestId":"2fdf92b6-36f9-40f5-aa55-b2fcab7510f9","method":"GET","path":"/health","duration":3104,"threshold":200}
+2026-01-20 15:42:36.03
+5a494496
+User
+🚨 [ALERT] HIGH LATENCY: GET:/health took 3105ms (threshold: 1000ms)
+2026-01-20 15:46:29.84
+5a494496
+User
+{"timestamp":"2026-01-20T22:46:29.846Z","level":"WARN","message":"Slow request detected","requestId":"c2024a69-d2e7-4419-a194-f7e1028d2539","method":"GET","path":"/health","duration":502,"threshold":200}
+2026-01-20 15:53:44.46
+5a494496
+User
+{"timestamp":"2026-01-20T22:53:44.468Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768949324468-8prfdg24b","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 15:53:44.46
+5a494496
+User
+{"timestamp":"2026-01-20T22:53:44.468Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768949324468-aak18g9k3","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 15:54:14.76
+5a494496
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-20 16:23:41.47
+5a494496
+User
+{"timestamp":"2026-01-20T23:23:41.470Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768951121468-48dx9h179","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 16:23:41.47
+5a494496
+User
+{"timestamp":"2026-01-20T23:23:41.469Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768951121468-du27p92ns","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 16:53:41.76
+5a494496
+User
+{"timestamp":"2026-01-20T23:53:41.769Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768952921768-qh1vd6w4s","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-20 16:53:41.76
+5a494496
+User
+{"timestamp":"2026-01-20T23:53:41.769Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768952921768-76qpl1x2j","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 17:15:44.46
+5a494496
+User
+⚠️ Command Center: Report queued for retry
+2026-01-20 17:23:41.16
+5a494496
+User
+{"timestamp":"2026-01-21T00:23:41.168Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768954721168-86b67ev7v","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-20 17:23:41.16
+5a494496
+User
+{"timestamp":"2026-01-21T00:23:41.168Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1768954721168-jsu9ndpid","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
