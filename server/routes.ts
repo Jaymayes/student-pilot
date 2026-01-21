@@ -51,6 +51,7 @@ import { serviceConfig } from "./serviceConfig";
 import { metricsCollector } from "./monitoring/metrics";
 import { registerTemporaryCreditEndpoints } from "./routes/creditsApiTemp";
 import { csrfProtection, getCsrfToken, exemptFromCsrf, conditionalCsrfProtection } from "./middleware/csrfProtection";
+import { minorPrivacyMiddleware, shouldAllowThirdPartySharing, shouldAllowAnalytics, DataServicePrivacyPolicy } from "./middleware/privacyByDefault";
 
 // Extend Express Request type to include user with claims
 interface AuthenticatedUser {

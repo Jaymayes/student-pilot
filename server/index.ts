@@ -34,6 +34,8 @@ import { globalIdentityMiddleware } from "./middleware/globalIdentity";
 import { wafMiddleware, telemetrySanitizer } from "./middleware/wafMiddleware";
 // SEV-1: /metrics/p95 endpoint
 import { metricsP95Router, recordLatency } from "./routes/metricsP95";
+// C5: Privacy-by-Default middleware for minors (13-17) - COPPA/FERPA/CCPA compliance
+import { privacyByDefaultMiddleware, minorPrivacyMiddleware, trackingGuardMiddleware } from "./middleware/privacyByDefault";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 function isValidSentryDsn(dsn: string): boolean {
@@ -282,6 +284,16 @@ app.use('/api/billing', billingLimiter);
 
 // CEO Option B: Production metrics collection with request_id lineage
 app.use(correlationIdMiddleware);
+
+// C5: Privacy-by-Default middleware chain for minors (13-17) - COPPA/FERPA/CCPA compliance
+// 1. Base privacy settings (GPC/DNT header detection)
+app.use(privacyByDefaultMiddleware);
+// 2. Minor-specific privacy protections (age-based restrictions) - applied after auth for API routes
+// Note: minorPrivacyMiddleware requires user context, so it's applied per-route after auth
+// 3. Tracking guard (CSP headers for tracking pixel blocking)
+app.use(trackingGuardMiddleware);
+console.log('✅ C5: Privacy-by-Default middleware registered (GPC/DNT/COPPA/FERPA compliance)');
+
 app.use(productionMetrics.middleware());
 
 // Performance monitoring middleware - collect metrics for all requests
