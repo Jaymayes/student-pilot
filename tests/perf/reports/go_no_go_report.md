@@ -80,7 +80,7 @@ V2 Sprint-2 build phase complete. DataService v2 and Onboarding Orchestrator are
 | revenue_anomaly_guardrails.md | ✅ Created |
 | a8_telemetry_audit.md | ✅ Created |
 | ecosystem_double_confirm.md | ✅ Created |
-| checksums.json | ✅ Pending |
+| checksums.json | ✅ Created (verified) |
 
 ## Next Steps
 
@@ -96,3 +96,9 @@ V2 Sprint-2 build phase complete. DataService v2 and Onboarding Orchestrator are
 ---
 
 **Attestation**: VERIFIED LIVE (ZT3G) — V2 Sprint-2 BUILD MOVING TO CUTOVER
+
+## Security Fix Applied (2026-01-21T10:20:00Z)
+
+**Issue**: JWT verification was using base64 decode only without signature verification
+**Fix**: Updated auth middleware to use jose library with proper JWKS signature verification
+**Status**: ✅ FIXED - Now validates signatures against AUTH_ISSUER_URL JWKS endpoint

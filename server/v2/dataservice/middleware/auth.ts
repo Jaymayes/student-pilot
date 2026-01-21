@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as crypto from 'crypto';
+import * as jose from 'jose';
 
 export interface AuthContext {
   userId: string;
@@ -21,25 +22,46 @@ declare global {
 const S2S_API_KEY = process.env.S2S_API_KEY;
 const AUTH_ISSUER_URL = process.env.AUTH_ISSUER_URL;
 
-function verifyJwt(token: string): AuthContext | null {
+let jwksCache: jose.JWTVerifyGetKey | null = null;
+let jwksCacheTime = 0;
+const JWKS_CACHE_TTL = 3600000;
+
+async function getJwks(): Promise<jose.JWTVerifyGetKey> {
+  const now = Date.now();
+  if (jwksCache && now - jwksCacheTime < JWKS_CACHE_TTL) {
+    return jwksCache;
+  }
+  
+  if (!AUTH_ISSUER_URL) {
+    throw new Error('AUTH_ISSUER_URL not configured');
+  }
+  
+  const issuerUrl = AUTH_ISSUER_URL.replace(/\/$/, '');
+  const jwksUrl = `${issuerUrl}/.well-known/jwks.json`;
+  
+  jwksCache = jose.createRemoteJWKSet(new URL(jwksUrl));
+  jwksCacheTime = now;
+  
+  return jwksCache;
+}
+
+async function verifyJwt(token: string): Promise<AuthContext | null> {
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    const jwks = await getJwks();
     
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
-    
-    if (payload.exp && Date.now() >= payload.exp * 1000) {
-      return null;
-    }
+    const { payload } = await jose.jwtVerify(token, jwks, {
+      issuer: AUTH_ISSUER_URL?.replace(/\/$/, ''),
+    });
     
     return {
-      userId: payload.sub || payload.user_id,
-      email: payload.email,
-      roles: payload.roles || [],
-      isFerpaCovered: payload.is_ferpa_covered || false,
-      isSchoolOfficial: payload.roles?.includes('school_official') || false,
+      userId: (payload.sub || payload.user_id) as string,
+      email: payload.email as string | undefined,
+      roles: (payload.roles as string[]) || [],
+      isFerpaCovered: (payload.is_ferpa_covered as boolean) || false,
+      isSchoolOfficial: ((payload.roles as string[])?.includes('school_official')) || false,
     };
-  } catch {
+  } catch (error) {
+    console.warn('[DataService Auth] JWT verification failed:', error instanceof Error ? error.message : 'Unknown error');
     return null;
   }
 }
@@ -63,14 +85,14 @@ function verifyApiKey(apiKey: string, serviceId: string): AuthContext | null {
   };
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
+export async function authMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   const apiKey = req.headers['x-api-key'] as string | undefined;
   const serviceId = req.headers['x-service-id'] as string | undefined;
   
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.slice(7);
-    const context = verifyJwt(token);
+    const context = await verifyJwt(token);
     
     if (context) {
       req.authContext = context;
@@ -102,14 +124,15 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   });
 }
 
-export function optionalAuth(req: Request, res: Response, next: NextFunction): void {
+export async function optionalAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   const apiKey = req.headers['x-api-key'] as string | undefined;
   const serviceId = req.headers['x-service-id'] as string | undefined;
   
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.slice(7);
-    req.authContext = verifyJwt(token) || undefined;
+    const context = await verifyJwt(token);
+    req.authContext = context || undefined;
   } else if (apiKey && serviceId) {
     req.authContext = verifyApiKey(apiKey, serviceId) || undefined;
   }

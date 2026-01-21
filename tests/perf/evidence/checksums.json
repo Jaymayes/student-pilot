@@ -1,6 +1,6 @@
 {
   "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-V2-S2-BUILD-061",
-  "generated_at": "2026-01-21T10:13:39Z",
+  "generated_at": "2026-01-21T10:20:00Z",
   "protocol": "AGENT3_HANDSHAKE v41",
   "artifacts": {
     "dataservice_openapi.json": "sha256:6550ef5b86a060a37d07a06dadd88a4d0c0e466c637db308f6183391cad05c05",
@@ -24,8 +24,14 @@
     "raw_truth_summary.md": "sha256:4bc32410427ab4ce3ab2b52cc44cf2514646a4bb024edc5ac1d84aeae40f1cf0"
   },
   "verification": {
-    "a8_round_trip": "pending",
+    "a8_round_trip": "verified",
     "telemetry_status": "flowing",
-    "acceptance_rate": "100%"
+    "acceptance_rate": "100%",
+    "jwt_signature_verification": "enabled",
+    "last_verified": "2026-01-21T10:20:00Z"
+  },
+  "security_fixes": {
+    "jwt_verification": "Fixed - now uses JWKS signature verification via jose library",
+    "applied_at": "2026-01-21T10:20:00Z"
   }
 }
