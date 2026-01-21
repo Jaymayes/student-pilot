@@ -45,6 +45,10 @@ export const FINANCE_CONTROLS = {
   persist_ledger_entries: true, // Continue writing to overnight_protocols_ledger
   require_cfo_signoff: true, // Reconciliation report + CFO approval required
   canonical_table: 'overnight_protocols_ledger',
+  // Gate-5 Shadow Ledger Configuration
+  shadow_ledger_enabled: true, // Gate-5: Shadow mode for validation
+  b2c_capture_mode: 'DRY_RUN', // Gate-5: No live charges, shadow validation only
+  live_stripe_charges: 'BLOCKED', // Gate-5: Blocked until CFO approval
 } as const;
 
 export const CONTAINMENT_CONFIG = {
