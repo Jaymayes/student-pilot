@@ -1,0 +1,148 @@
+2026-01-21 04:08:45.59
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:11:45.58
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:14:45.88
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:16:45.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:17:45.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:18:45.60
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:20:05.88
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:26:45.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:33:46.48
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:34:46.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:48:46.88
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:52:47.18
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 04:57:47.28
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 05:29:28.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 05:49:28.98
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 05:50:58.98
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 06:21:24.81
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 06:44:26.38
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 07:21:58.64
+3110d016
+User
+{"timestamp":"2026-01-21T14:21:58.644Z","level":"WARN","message":"Slow request detected","requestId":"e082d358-1801-46d6-9c4f-71ac6607cefa","method":"GET","path":"/health","duration":230,"threshold":200}
+2026-01-21 07:31:26.88
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 07:45:07.47
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 08:36:33.64
+3110d016
+User
+{"timestamp":"2026-01-21T15:36:33.642Z","level":"WARN","message":"Slow request detected","requestId":"bfc7807e-406e-41d5-bd8e-adfe6a6f8531","method":"GET","path":"/health","duration":204,"threshold":200}
+2026-01-21 08:38:33.93
+3110d016
+User
+{"timestamp":"2026-01-21T15:38:33.937Z","level":"WARN","message":"Slow request detected","requestId":"025a272b-0d66-46ce-a571-a70f090acc4b","method":"GET","path":"/health","duration":217,"threshold":200}
+2026-01-21 08:56:21.98
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:14:06.87
+3110d016
+User
+{"timestamp":"2026-01-21T16:14:06.872Z","level":"WARN","message":"Slow request detected","requestId":"91f46dfd-e7cd-41bc-a121-fdc65090a568","method":"GET","path":"/health","duration":207,"threshold":200}
+2026-01-21 09:23:11.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:26:51.91
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:29:11.98
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:30:11.71
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:35:13.28
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:38:53.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:55:23.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:56:23.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 10:04:24.04
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 10:16:24.71
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 10:24:25.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 11:07:27.38
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
