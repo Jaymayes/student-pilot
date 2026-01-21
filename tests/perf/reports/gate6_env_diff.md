@@ -29,3 +29,13 @@
 
 ## Status
 Gate-6 GO-LIVE configuration applied successfully.
+
+## CONTAINMENT_CONFIG Changes (Updated)
+
+| Setting | Before | After |
+|---------|--------|-------|
+| permitted_jobs | ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] | **+['invoicing', 'fee_posting', 'settlement']** |
+| blocked_jobs | includes 'invoicing', 'fee_posting', 'settlement' | **removed** (only SEO/scheduler jobs blocked) |
+| stripe_cap_6h | 0 (freeze active) | **-1** (no cap) |
+
+Finance jobs are now UNBLOCKED for GO-LIVE.

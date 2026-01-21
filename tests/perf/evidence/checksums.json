@@ -1,0 +1,24 @@
+{
+  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-GATE6-GO-LIVE-052",
+  "timestamp": "2026-01-21T07:58:58Z",
+  "gate": "Gate-6",
+  "status": "GO-LIVE",
+  "version": 2,
+  "note": "Updated after CONTAINMENT_CONFIG alignment",
+  "checksums": {
+    "a3_revenue_ready_report.md": "50b816dda6d3c641d4040e9099492b72c47f73f8df2ded846c4dd201618b060d",
+    "a8_telemetry_audit.md": "01aae9f0a791b36ce73b9916e2394e23e41c45b3df6236d5885cb96b574e1bb3",
+    "ecosystem_double_confirm.md": "1eb97d07a538f8769d1f51dec2248ee74f29021451bccf79982b0de069796a7d",
+    "finance_live_reconciliation.md": "08da2f9a9f1ebaec983db6d0db07f916c62dcbed9df64500de9527937fc1427c",
+    "functional_revenue_check.md": "85a9a32dd6f23303c74771a4cc356ff8abd103c3487c72549fba18e27f36a8ad",
+    "gate6_env_diff.md": "37266cd4a76b801a9db536608f4306d0c7fde5abd9e057b47bc50b0a4948fb53",
+    "gate6_perf_summary.md": "b3d8e18dc30c75c62fe4ee11ef13659bcbd9b226e2053f57ab7822072b2f8293",
+    "go_no_go_report.md": "a101188f7707e4837710ae45b0376209497881c1e1443ee90458685b6c25abd1",
+    "raw_truth_summary.md": "0997ff3c95ae619050f9e30607d4a14135d280d9f7fd5863e4039f76fbc4fd16",
+    "stripe_webhook_delivery_report.md": "f9d60044355128739cb33c013e125e5f0af6feefd7798da5d010e851b7b4d12d",
+    "stripe_webhook_hardening.md": "adfd39be15bb0bdce51bd7262096f411854d0eead77dd3e8d8cb5deafd3d2dfc",
+    "live_purchase_evidence.json": "9b07865e9cb3b4c0a368ff2da35079c9223c060d076b252988427f7bd96ca101",
+    "system_map.json": "450d6189fc1f0208b28ea89b53eb557dd4b655c1f4613b5bab5f9ac8eb118a20",
+    "version_manifest.json": "1ab20500533335a267aaa0373f379f566ef500ada7f5311b2bd068617b9aa23c"
+  }
+}

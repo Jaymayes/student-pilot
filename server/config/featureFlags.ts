@@ -60,11 +60,12 @@ export const FINANCE_CONTROLS = {
 } as const;
 
 export const CONTAINMENT_CONFIG = {
+  // Gate-6 GO-LIVE: SEO/scheduler containment retained, finance jobs UNBLOCKED
   fleet_seo_paused: true,
   internal_schedulers_capped: true,
-  permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat'] as const,
-  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron', 'invoicing', 'fee_posting', 'settlement'] as const,
-  stripe_cap_6h: 0, // Finance freeze active
+  permitted_jobs: ['auth', 'payments', 'watchtower', 'ledger_heartbeat', 'invoicing', 'fee_posting', 'settlement'] as const,
+  blocked_jobs: ['page_builds', 'sitemap_fetches', 'etl', 'analytics_transforms', 'seo_fetch', 'cron', 'node-cron'] as const,
+  stripe_cap_6h: -1, // Gate-6 GO-LIVE: No cap on Stripe charges (HITL-CEO-20260121-GATE6-GO-LIVE)
   pilot_traffic_pct: 100, // Gate-4 VERIFIED @100% per CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
   safety_lock: true,
   auto_refunds: true,
