@@ -40,6 +40,8 @@ import { privacyByDefaultMiddleware, minorPrivacyMiddleware, trackingGuardMiddle
 import { prewarmOidcDiscovery } from "./replitAuth";
 // DataService v2 module for core domain object management
 import { dataServiceRouter } from "./v2/dataservice";
+// Onboarding Orchestrator v2 module for guest-to-student conversion flow
+import { onboardingRouter } from "./v2/onboarding";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 function isValidSentryDsn(dsn: string): boolean {
@@ -507,6 +509,10 @@ app.use((req, res, next) => {
   // Mount DataService v2 router
   app.use('/api/v2/dataservice', dataServiceRouter);
   console.log('✅ DataService v2 mounted at /api/v2/dataservice');
+
+  // Mount Onboarding Orchestrator v2 router
+  app.use('/api/v2/onboarding', onboardingRouter);
+  console.log('✅ Onboarding Orchestrator v2 mounted at /api/v2/onboarding');
 
   // Register all application routes
   await registerRoutes(app);
