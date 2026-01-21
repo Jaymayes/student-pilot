@@ -8,6 +8,7 @@ import { usageEvents, creditLedger } from '../../shared/schema';
 import { sql, desc, and, gte } from 'drizzle-orm';
 import { secureLogger } from '../logging/secureLogger';
 import { alertManager } from './alertManager';
+import { FINANCE_CONTROLS } from '../config/featureFlags';
 
 interface FreshnessMetric {
   dataSource: string;
@@ -25,6 +26,7 @@ interface ArrFreshnessReport {
   metrics: FreshnessMetric[];
   alerts: string[];
   recommendations: string[];
+  financeFreezeActive?: boolean;
 }
 
 class ArrFreshnessMonitor {
@@ -217,28 +219,38 @@ class ArrFreshnessMonitor {
       }
 
       // Generate alerts for critical/stale data
+      // Suppress alerts during finance freeze (stale data is expected when no transactions are occurring)
       const alerts: string[] = [];
+      const financeFreezeActive = FINANCE_CONTROLS.ledger_freeze;
+      
       for (const metric of metrics) {
         if (metric.status === 'critical') {
           alerts.push(`${metric.dataSource}: Data is ${metric.ageHours.toFixed(1)} hours old (threshold: ${metric.threshold}h)`);
           
-          // Create system alert
-          await alertManager.createAlert({
-            severity: 'critical',
-            service: 'arr-monitoring',
-            title: `Stale ARR Data: ${metric.dataSource}`,
-            description: `${metric.dataSource} data is ${metric.ageHours.toFixed(1)} hours old, exceeding ${metric.threshold}h threshold`,
-            source: 'arr-freshness-monitor',
-            metadata: {
-              dataSource: metric.dataSource,
-              ageHours: metric.ageHours,
-              threshold: metric.threshold,
-              recordCount: metric.recordCount,
-            },
-          });
+          // Only create system alerts if finance freeze is NOT active
+          if (!financeFreezeActive) {
+            await alertManager.createAlert({
+              severity: 'critical',
+              service: 'arr-monitoring',
+              title: `Stale ARR Data: ${metric.dataSource}`,
+              description: `${metric.dataSource} data is ${metric.ageHours.toFixed(1)} hours old, exceeding ${metric.threshold}h threshold`,
+              source: 'arr-freshness-monitor',
+              metadata: {
+                dataSource: metric.dataSource,
+                ageHours: metric.ageHours,
+                threshold: metric.threshold,
+                recordCount: metric.recordCount,
+              },
+            });
+          }
         } else if (metric.status === 'stale') {
           alerts.push(`${metric.dataSource}: Data is getting stale (${metric.ageHours.toFixed(1)}h old)`);
         }
+      }
+      
+      // Add finance freeze note if active
+      if (financeFreezeActive && alerts.length > 0) {
+        alerts.push('[SUPPRESSED] Alerts not escalated due to active finance freeze');
       }
 
       // Generate recommendations
@@ -259,6 +271,7 @@ class ArrFreshnessMonitor {
         metrics,
         alerts,
         recommendations,
+        financeFreezeActive,
       };
     } catch (error) {
       secureLogger.error('Failed to generate ARR freshness report', error as Error);
@@ -342,10 +355,13 @@ export const arrFreshnessMonitor = new ArrFreshnessMonitor();
 setInterval(async () => {
   try {
     const report = await arrFreshnessMonitor.generateFreshnessReport();
+    const financeFreezeActive = FINANCE_CONTROLS.ledger_freeze;
     secureLogger.info('ARR freshness check completed', {
       overallStatus: report.overallStatus,
       alertCount: report.alerts.length,
       criticalMetrics: report.metrics.filter(m => m.status === 'critical').length,
+      alertsEscalated: !financeFreezeActive,
+      financeFreezeActive,
     });
   } catch (error) {
     secureLogger.error('ARR freshness check failed', error as Error);
