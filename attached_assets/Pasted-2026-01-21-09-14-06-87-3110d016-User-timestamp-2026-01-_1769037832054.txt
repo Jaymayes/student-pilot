@@ -1,0 +1,100 @@
+2026-01-21 09:14:06.87
+3110d016
+User
+{"timestamp":"2026-01-21T16:14:06.872Z","level":"WARN","message":"Slow request detected","requestId":"91f46dfd-e7cd-41bc-a121-fdc65090a568","method":"GET","path":"/health","duration":207,"threshold":200}
+2026-01-21 09:23:11.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:26:51.91
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:29:11.98
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:30:11.71
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:35:13.28
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:38:53.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:55:23.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 09:56:23.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 10:04:24.04
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 10:16:24.71
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 10:24:25.78
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 11:07:27.38
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 13:50:04.47
+3110d016
+User
+{"timestamp":"2026-01-21T20:50:04.479Z","level":"WARN","message":"Slow request detected","requestId":"f9eec7d6-72d1-483c-ad9c-4948cdff907f","method":"GET","path":"/health","duration":212,"threshold":200}
+2026-01-21 13:50:12.90
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 13:59:11.72
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 15:03:49.08
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 15:11:48.68
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 15:25:15.38
+3110d016
+User
+⚠️ Command Center: Report queued for retry
+2026-01-21 15:25:18.67
+3110d016
+User
+{"timestamp":"2026-01-21T22:25:18.678Z","level":"WARN","message":"Slow request detected","requestId":"63d1da62-3ee3-41e6-aa67-f4b14829aa40","method":"GET","path":"/api/login","duration":304,"threshold":300}
+2026-01-21 15:25:18.67
+3110d016
+User
+⚠️ Slow login: 304ms (target <300ms)
+2026-01-21 15:35:37.18
+3110d016
+User
+⚠️ Command Center: Report queued for retry
+2026-01-21 15:50:19.75
+3110d016
+User
+{"timestamp":"2026-01-21T22:50:19.753Z","level":"WARN","message":"Slow request detected","requestId":"4f97655c-3eb8-4c0a-9a5f-4672d186f839","method":"GET","path":"/api/login","duration":317,"threshold":300}
+2026-01-21 15:50:19.75
+3110d016
+User
+⚠️ Slow login: 318ms (target <300ms)
+2026-01-21 16:01:50.41
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
