@@ -45,10 +45,13 @@ export const FINANCE_CONTROLS = {
   persist_ledger_entries: true, // Continue writing to overnight_protocols_ledger
   require_cfo_signoff: true, // Reconciliation report + CFO approval required
   canonical_table: 'overnight_protocols_ledger',
-  // Gate-5 Shadow Ledger Configuration
+  // Gate-5 Penny Test Configuration (HITL-CFO-20260121-UNFREEZE-G5)
   shadow_ledger_enabled: true, // Gate-5: Shadow mode for validation
-  b2c_capture_mode: 'DRY_RUN', // Gate-5: No live charges, shadow validation only
-  live_stripe_charges: 'BLOCKED', // Gate-5: Blocked until CFO approval
+  b2c_capture_mode: 'PENNY_TEST', // Gate-5: Limited live charge for penny test only
+  live_stripe_charges: 'LIMITED', // Gate-5: LIMITED for penny test (CFO approved 2026-01-21)
+  penny_test_max_amount_cents: 50, // $0.50 max for penny test
+  penny_test_max_transactions: 1, // Max 1 transaction allowed
+  penny_test_refund_sla_seconds: 60, // Refund within 60s required
 } as const;
 
 export const CONTAINMENT_CONFIG = {
