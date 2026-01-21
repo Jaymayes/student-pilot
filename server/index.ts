@@ -38,6 +38,8 @@ import { metricsP95Router, recordLatency } from "./routes/metricsP95";
 import { privacyByDefaultMiddleware, minorPrivacyMiddleware, trackingGuardMiddleware } from "./middleware/privacyByDefault";
 // A1 Hot-path: OIDC discovery prewarm for faster logins
 import { prewarmOidcDiscovery } from "./replitAuth";
+// DataService v2 module for core domain object management
+import { dataServiceRouter } from "./v2/dataservice";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 function isValidSentryDsn(dsn: string): boolean {
@@ -501,6 +503,10 @@ app.use((req, res, next) => {
   });
   
   console.log('✅ Canary endpoints registered in index.ts BEFORE registerRoutes()');
+
+  // Mount DataService v2 router
+  app.use('/api/v2/dataservice', dataServiceRouter);
+  console.log('✅ DataService v2 mounted at /api/v2/dataservice');
 
   // Register all application routes
   await registerRoutes(app);

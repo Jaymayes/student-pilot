@@ -49,6 +49,8 @@ export const users = pgTable("users", {
   parentalConsentDate: timestamp("parental_consent_date"),
   subscriptionStatus: subscriptionStatusEnum("subscription_status").default("inactive"), // Premium subscription status
   stripeCustomerId: varchar("stripe_customer_id"), // Stripe customer ID for payment management
+  doNotSell: boolean("do_not_sell").default(false), // CCPA do not sell flag
+  privacyMode: boolean("privacy_mode").default(false), // Enhanced privacy mode
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -1136,3 +1138,101 @@ export const insertProviderBacklogSchema = createInsertSchema(providerBacklog).o
 });
 export type ProviderBacklog = typeof providerBacklog.$inferSelect;
 export type InsertProviderBacklog = z.infer<typeof insertProviderBacklogSchema>;
+
+// ========== DATASERVICE V2 SCHEMA EXTENSIONS ==========
+
+// Provider type enum for scholarship providers
+export const providerTypeEnum = pgEnum("provider_type", [
+  "school",
+  "foundation",
+  "corporate"
+]);
+
+// Audit action enum for audit trail
+export const auditActionEnum = pgEnum("audit_action", [
+  "CREATE",
+  "UPDATE",
+  "DELETE"
+]);
+
+// Providers table - scholarship provider organizations
+export const providers = pgTable("providers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  type: providerTypeEnum("type").notNull(),
+  contactEmail: varchar("contact_email"),
+  isVerified: boolean("is_verified").default(false),
+  isFerpaCovered: boolean("is_ferpa_covered").default(false),
+  doNotSell: boolean("do_not_sell").default(false),
+  privacyMode: boolean("privacy_mode").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_providers_type").on(table.type),
+  index("IDX_providers_verified").on(table.isVerified),
+  index("IDX_providers_ferpa").on(table.isFerpaCovered),
+]);
+
+// Events table - domain events for event sourcing
+export const events = pgTable("events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventType: varchar("event_type").notNull(),
+  entityType: varchar("entity_type").notNull(),
+  entityId: varchar("entity_id").notNull(),
+  actorId: varchar("actor_id"),
+  payload: jsonb("payload"),
+  traceId: varchar("trace_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_events_entity_type").on(table.entityType),
+  index("IDX_events_entity_id").on(table.entityId),
+  index("IDX_events_trace_id").on(table.traceId),
+  index("IDX_events_created_at").on(table.createdAt),
+]);
+
+// Audit trail table - FERPA-compliant audit logging
+export const auditTrail = pgTable("audit_trail", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  action: auditActionEnum("action").notNull(),
+  entityType: varchar("entity_type").notNull(),
+  entityId: varchar("entity_id").notNull(),
+  actorId: varchar("actor_id"),
+  actorType: actorTypeEnum("actor_type"),
+  actorIp: varchar("actor_ip"),
+  changes: jsonb("changes"),
+  ferpaAccess: boolean("ferpa_access").default(false),
+  requestId: varchar("request_id"),
+  correlationId: varchar("correlation_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_audit_trail_entity").on(table.entityType, table.entityId),
+  index("IDX_audit_trail_actor").on(table.actorId),
+  index("IDX_audit_trail_request").on(table.requestId),
+  index("IDX_audit_trail_ferpa").on(table.ferpaAccess),
+  index("IDX_audit_trail_created_at").on(table.createdAt),
+]);
+
+// Insert schemas for DataService v2
+export const insertProviderSchema = createInsertSchema(providers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEventSchema = createInsertSchema(events).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAuditTrailSchema = createInsertSchema(auditTrail).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for DataService v2
+export type Provider = typeof providers.$inferSelect;
+export type InsertProvider = z.infer<typeof insertProviderSchema>;
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+export type AuditTrailEntry = typeof auditTrail.$inferSelect;
+export type InsertAuditTrailEntry = z.infer<typeof insertAuditTrailSchema>;
