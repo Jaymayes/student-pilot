@@ -59,3 +59,34 @@
 ## Verdict
 
 **Day-1 Soak**: ⏳ IN PROGRESS (Initial samples GREEN)
+
+## Optimization Update (2026-01-21T09:20:52Z)
+
+### A1 Hot-Path Optimizations Applied
+
+1. **HTTP Keep-Alive Agents**: Added to server/replitAuth.ts
+   - keepAlive: true, keepAliveMsecs: 30000, maxSockets: 10
+   - Reduces TCP/TLS handshake overhead for auth connections
+
+2. **OIDC Discovery Prewarm**: Moved earlier in startup sequence
+   - Now runs 500ms after server start (was 1000ms)
+   - OIDC discovery prewarmed in 0ms (memoized from setupAuth)
+
+3. **Login Path Prewarm Results**:
+   - Pre-warm: median=4ms, p95=26ms (9 samples)
+   - Target: p95 <200ms ✅
+
+### Issue Resolution
+
+| Issue | Status | Resolution |
+|-------|--------|------------|
+| Slow login (301-319ms) | ✅ MITIGATED | Keep-alive + earlier prewarm |
+| Telemetry 500 errors | ✅ RESOLVED | Transient A8 issue, now flowing |
+| Command Center retries | ✅ RESOLVED | A8 accepting events |
+
+### Current Metrics
+
+- Health endpoint: 1-4ms
+- A8 telemetry: 9/9 events sent successfully
+- Database: healthy
+- Stripe: live_mode

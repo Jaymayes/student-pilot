@@ -36,6 +36,8 @@ import { wafMiddleware, telemetrySanitizer } from "./middleware/wafMiddleware";
 import { metricsP95Router, recordLatency } from "./routes/metricsP95";
 // C5: Privacy-by-Default middleware for minors (13-17) - COPPA/FERPA/CCPA compliance
 import { privacyByDefaultMiddleware, minorPrivacyMiddleware, trackingGuardMiddleware } from "./middleware/privacyByDefault";
+// A1 Hot-path: OIDC discovery prewarm for faster logins
+import { prewarmOidcDiscovery } from "./replitAuth";
 
 // Initialize Sentry for error and performance monitoring (CEO Directive: REQUIRED NOW)
 function isValidSentryDsn(dsn: string): boolean {
@@ -765,15 +767,18 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
     
-    // CODE RED: Pre-warm /api/login immediately after server starts
+    // CODE RED: Pre-warm OIDC and /api/login immediately after server starts
     // This eliminates cold start latency that was causing p95=1235ms
     setTimeout(async () => {
       try {
+        // A1 Hot-path: Prewarm OIDC discovery first (network-bound)
+        await prewarmOidcDiscovery();
+        // Then prewarm the login path (local endpoints)
         await prewarmLoginPath();
       } catch (error) {
         console.warn('⚠️  Pre-warm failed (non-blocking):', error);
       }
-    }, 1000);
+    }, 500); // Reduced from 1000ms to 500ms for faster warmup
     
     // Protocol ONE_TRUTH v1.2: Emit success confirmation after 5s warmup
     setTimeout(() => {

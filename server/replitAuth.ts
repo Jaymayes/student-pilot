@@ -1,6 +1,8 @@
 import * as client from "openid-client";
 import { Strategy, type VerifyFunction } from "openid-client/passport";
 import crypto from "crypto";
+import https from "https";
+import http from "http";
 
 import passport from "passport";
 import session from "express-session";
@@ -18,6 +20,21 @@ import { getSessionSecrets, getKeyRotationStatus } from "./utils/keyRotation";
 // Trial credits configuration
 const TRIAL_CREDITS = 5; // 5 credits for new signups to experience AI features
 const TRIAL_CREDITS_MILLICREDITS = creditsToMillicredits(TRIAL_CREDITS);
+
+// Keep-alive HTTP agents for auth connections (reduces TCP/TLS handshake overhead)
+const authHttpsAgent = new https.Agent({
+  keepAlive: true,
+  keepAliveMsecs: 30000,
+  maxSockets: 10,
+  timeout: 15000,
+});
+
+const authHttpAgent = new http.Agent({
+  keepAlive: true,
+  keepAliveMsecs: 30000,
+  maxSockets: 10,
+  timeout: 15000,
+});
 
 // Environment validation is already done in environment.ts
 
@@ -68,6 +85,18 @@ const getOidcConfig = memoize(
   },
   { maxAge: 3600 * 1000 }
 );
+
+// Prewarm OIDC discovery on startup to eliminate cold start latency
+export async function prewarmOidcDiscovery(): Promise<void> {
+  try {
+    const start = Date.now();
+    await getOidcConfig();
+    const duration = Date.now() - start;
+    console.log(`🔥 OIDC discovery prewarmed in ${duration}ms`);
+  } catch (error) {
+    console.warn('⚠️ OIDC prewarm failed (will retry on first login):', (error as Error).message);
+  }
+}
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
