@@ -1,8 +1,0 @@
-{
-  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046",
-  "generated_at": "2026-01-21T02:06:30Z",
-  "algorithm": "SHA256",
-  "verdict": "SHADOW_VERIFIED",
-  "finance_freeze": "ACTIVE",
-  "note": "Shadow ledger validation complete. No live captures executed."
-}
