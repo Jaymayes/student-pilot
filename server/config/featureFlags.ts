@@ -36,22 +36,27 @@ export const SEV1_INCIDENT = {
   gate2_status: 'COMPLETE',
   gate3_status: 'COMPLETE',
   gate4_status: 'COMPLETE', // Gate-4 VERIFIED per CEOSPRINT-20260121-EXEC-ZT3G-G5-FIN-READY-046
+  gate5_status: 'COMPLETE', // Gate-5 Penny Test VERIFIED per CEOSPRINT-20260121-EXEC-ZT3G-G5-PENNY-048
+  gate6_status: 'GO-LIVE', // Gate-6 GO-LIVE per HITL-CEO-20260121-GATE6-GO-LIVE
 } as const;
 
 export const FINANCE_CONTROLS = {
-  ledger_freeze: true, // RE-ENGAGED per CEO - no invoicing until CFO sign-off
-  provider_invoicing_paused: true, // NO downstream invoicing
-  fee_postings_paused: true, // NO fee settlements
+  // Gate-6 GO-LIVE Configuration (HITL-CFO-20260121-UNFREEZE-G6-GO-LIVE)
+  // Authorized by: HITL-CEO-20260121-GATE6-GO-LIVE + HITL-CFO-20260121-UNFREEZE-G6-GO-LIVE
+  // Run ID: CEOSPRINT-20260121-EXEC-ZT3G-GATE6-GO-LIVE-052
+  ledger_freeze: false, // UNFROZEN for Gate-6 GO-LIVE
+  provider_invoicing_paused: false, // ENABLED - downstream invoicing active
+  fee_postings_paused: false, // ENABLED - fee settlements active
   persist_ledger_entries: true, // Continue writing to overnight_protocols_ledger
-  require_cfo_signoff: true, // Reconciliation report + CFO approval required
+  require_cfo_signoff: false, // GO-LIVE authorized - no additional signoff
   canonical_table: 'overnight_protocols_ledger',
-  // Gate-5 Penny Test Configuration (HITL-CFO-20260121-UNFREEZE-G5)
-  shadow_ledger_enabled: true, // Gate-5: Shadow mode for validation
-  b2c_capture_mode: 'PENNY_TEST', // Gate-5: Limited live charge for penny test only
-  live_stripe_charges: 'LIMITED', // Gate-5: LIMITED for penny test (CFO approved 2026-01-21)
-  penny_test_max_amount_cents: 50, // $0.50 max for penny test
-  penny_test_max_transactions: 1, // Max 1 transaction allowed
-  penny_test_refund_sla_seconds: 60, // Refund within 60s required
+  shadow_ledger_enabled: false, // Gate-6: Shadow mode disabled, live mode active
+  b2c_capture_mode: 'LIVE', // Gate-6: Full live capture
+  live_stripe_charges: 'ENABLED', // Gate-6: ENABLED for full production (100% capture)
+  capture_percent: 1.00, // 100% capture rate
+  // Penny test config retained for reference
+  penny_test_completed: true, // Gate-5 penny test VERIFIED
+  penny_test_session_id: 'cs_live_a1fc8m67Rb0AttvJ3S1XWX4AYs2MOsB2ZZ8hKpb1bZ5R4FxBQWYvhBrpFm',
 } as const;
 
 export const CONTAINMENT_CONFIG = {

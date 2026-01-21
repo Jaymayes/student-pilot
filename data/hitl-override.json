@@ -1,16 +1,18 @@
 {
-  "override_active": true,
-  "hitl_id": "HITL-CEO-20260120-ROLLBACK-G4",
-  "run_id": "CEOSPRINT-20260120-EXEC-ZT3G-GATE4-042",
-  "applied_at": "2026-01-20T22:49:00Z",
-  "traffic_cap": 0.50,
-  "rollback_reason": "Login latency breached 320ms threshold (390ms, 549ms)",
-  "gate": 3,
-  "status": "ROLLED_BACK_FROM_GATE4",
-  "finance_freeze": {
-    "ledger_freeze": true,
-    "provider_invoicing_paused": true,
-    "fee_postings_paused": true,
-    "live_stripe_charges": "BLOCKED"
+  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-GATE6-GO-LIVE-052",
+  "timestamp": "2026-01-21T07:51:22Z",
+  "gate": "Gate-6",
+  "status": "GO-LIVE",
+  "authorizations": {
+    "ceo": "HITL-CEO-20260121-GATE6-GO-LIVE",
+    "cfo": "HITL-CFO-20260121-UNFREEZE-G6-GO-LIVE"
+  },
+  "finance_controls": {
+    "ledger_freeze": false,
+    "provider_invoicing_paused": false,
+    "fee_postings_paused": false,
+    "live_stripe_charges": "ENABLED",
+    "capture_percent": 1.00,
+    "b2c_capture_mode": "LIVE"
   }
 }
