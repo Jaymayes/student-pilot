@@ -1,1 +1,11 @@
-{"app":"A6","name":"Provider Portal","status":404,"verdict":"BLOCKED","timestamp":"2026-01-22T01:55:42Z"}
+{
+  "app": "A6-provider-register",
+  "url": "https://provider-register-jamarrlmayes.replit.app",
+  "probe_timestamp": "2026-01-22T19:18:23Z",
+  "http_code": 200,
+  "api_code": 200,
+  "body_size": 4029,
+  "status": "PASS",
+  "trace_id": "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.A6",
+  "note": "A6 excluded from canary if 404"
+}

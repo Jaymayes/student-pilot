@@ -1,0 +1,35 @@
+=== ZT3G CURL EVIDENCE LOG ===
+Run ID: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027
+Timestamp: 2026-01-22T19:18:00Z
+
+--- A1 scholar-auth ---
+curl -vL -H "Cache-Control: no-cache" "https://scholar-auth-jamarrlmayes.replit.app/"
+HTTP: 200 | Size: 3628 bytes | Contains: auth markers
+set-cookie: GAESA=... (SameSite not explicit but functional)
+
+--- A2 scholarship-api ---
+curl -vL -H "Cache-Control: no-cache" "https://scholarship-api-jamarrlmayes.replit.app/health"
+HTTP: 200 | Size: 178 bytes | Contains: healthy, status
+
+--- A3 scholarship-agent ---
+curl -vL -H "Cache-Control: no-cache" "https://scholarship-agent-jamarrlmayes.replit.app/health"
+HTTP: 200 | Size: 322 bytes | Contains: scholarship-agent, healthy
+
+--- A4 scholarship-sage ---
+curl -vL -H "Cache-Control: no-cache" "https://scholarship-sage-jamarrlmayes.replit.app/health"
+HTTP: 200 | Size: 490 bytes | Contains: scholarship-sage, healthy
+
+--- A5 student-pilot ---
+curl -vL -H "Cache-Control: no-cache" "https://student-pilot-jamarrlmayes.replit.app/pricing"
+HTTP: 200 | Size: 4508 bytes | Contains: stripe.js (1 ref)
+
+--- A6 provider-register ---
+curl -vL -H "Cache-Control: no-cache" "https://provider-register-jamarrlmayes.replit.app/"
+HTTP: 200 | Size: 4029 bytes | /api/providers: 200
+
+--- A7 auto-page-maker ---
+curl -vL -H "Cache-Control: no-cache" "https://auto-page-maker-jamarrlmayes.replit.app/health"
+HTTP: 200 | Size: 113 bytes | sitemap.xml: 200
+
+--- A8 auto-com-center ---
+POST /events: 200 | event_id: evt_1769109516623_x4s8q4zkr | persisted: true

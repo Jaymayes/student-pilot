@@ -1,0 +1,15 @@
+{
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-FIX-027",
+  "timestamp": "2026-01-22T19:20:00Z",
+  "fee_structure": {
+    "platform_fee_percent": 3,
+    "ai_markup_multiplier": 4,
+    "configured": true
+  },
+  "a6_status": {
+    "http_code": 200,
+    "api_providers_code": 200,
+    "functional": true
+  },
+  "a8_correlation": "pending_transaction"
+}

@@ -1,37 +1,63 @@
 {
-  "a8_telemetry_audit.md": "sha256:755467424bc31f85",
-  "ecosystem_double_confirm.md": "sha256:15afc329af7fb7a8",
-  "go_no_go_report.md": "sha256:805daeb745f7a27f",
-  "go_no_go_T+18h.md": "sha256:5991e7d198ab48c6",
-  "infra_sli_rollup.md": "sha256:14e233976fa2dff4",
-  "infra_sli_stage4_T+12h.md": "sha256:c9155a4dfb55872f",
-  "infra_sli_stage4_T+18h.md": "sha256:06819173433ce10a",
-  "infra_sli_stage4_T+2h.md": "sha256:6f2c47b55b3ddc76",
-  "infra_sli_stage4_T+4h.md": "sha256:952fcaeae923792f",
-  "infra_sli_stage4_T+6h.md": "sha256:2eea9ac89849c430",
-  "infra_sli_stage4_T+8h.md": "sha256:9fea9192e01f7e8f",
-  "manual_intervention_manifest.md": "sha256:0e49992a5d4e5e71",
-  "perf_summary.md": "sha256:214b9ff4c861a2af",
-  "perf_summary_stage4_T+12h.md": "sha256:a8651b4a6bd4836c",
-  "perf_summary_stage4_T+18h.md": "sha256:68328fbc179e99f8",
-  "perf_summary_stage4_T+2h.md": "sha256:66b05d319ba2ce52",
-  "perf_summary_stage4_T+4h.md": "sha256:247f278f69b2e7e2",
-  "perf_summary_stage4_T+6h.md": "sha256:8861aaac83b7d54f",
-  "perf_summary_stage4_T+8h.md": "sha256:4a1281a601a0dcd0",
-  "privacy_audit_T+18h.md": "sha256:a4ef36f05cbeef16",
-  "rate_limit_activity.md": "sha256:351180acc22b6b84",
-  "rl_observation.md": "sha256:22965bd551986a92",
-  "security_headers_report.md": "sha256:edd0875278209378",
-  "seo_generation_T+18h.md": "sha256:08d3d3ac2c025757",
-  "seo_report_T+12h.md": "sha256:7eb09acac759f374",
-  "seo_report_T+18h.md": "sha256:7774dd45e3db66d4",
-  "seo_verdict.md": "sha256:3e94d135253d781a",
-  "slow_log_delta_T+18h.md": "sha256:1c6e4fce124239bc",
-  "stripe_safety_ledger_T+12h.md": "sha256:2f7ecbcf2c1bdd7d",
-  "stripe_safety_ledger_T+18h.md": "sha256:c8d17ac8e58650d7",
-  "stripe_webhook_canary.md": "sha256:c1a5c53a85baf7f4",
-  "stripe_webhook_soak.md": "sha256:b74577168b6c1e3d",
-  "t12h_discrepancy_analysis.md": "sha256:d551af7082557c3c",
-  "ungate_checklist_T+12h.md": "sha256:4b39ce266d0d3982",
-  "hitl_approvals.log": "sha256:5b5c4b8a32c99811"
+  "a1_cookie_validation.md": "sha256:0fac80520fff1be3"
+,
+  "a1_warmup_report.md": "sha256:ac750ffd0a9af1f8"
+,
+  "a3_orchestration_runlog.md": "sha256:3a2a986965d9115a"
+,
+  "a8_telemetry_audit.md": "sha256:e910ce791a69b348"
+,
+  "b2b_funnel_verdict.md": "sha256:3af369f2c053738f"
+,
+  "b2c_funnel_verdict.md": "sha256:29540279790dd4dc"
+,
+  "canonical_a8_heatmap_t24h.md": "sha256:f6d50557401fa7d3"
+,
+  "ecosystem_double_confirm.md": "sha256:035ae6be2510f4ad"
+,
+  "go_no_go_report.md": "sha256:a4a6a0427daae4db"
+,
+  "go_no_go_t24h.md": "sha256:f5f928b5c434ae1d"
+,
+  "infra_verification_t24h.md": "sha256:0032e3dff2dbe671"
+,
+  "perf_summary.md": "sha256:86f834f804ee75ac"
+,
+  "privacy_audit_t24h.md": "sha256:b72f1977dee35617"
+,
+  "raw_truth_summary.md": "sha256:bc453fe632a481a0"
+,
+  "rl_observation.md": "sha256:afe4fcbeaa1ee6d6"
+,
+  "security_headers_report.md": "sha256:fb0302085770f314"
+,
+  "seo_url_delta_t24h.md": "sha256:4b9aada7b80cd033"
+,
+  "seo_verdict.md": "sha256:991c47f3c956b17b"
+,
+  "stripe_safety_ledger_t24h.md": "sha256:1b3dd61ab79a0b28"
+,
+  "ui_ux_integrity_matrix.md": "sha256:96b25cce7de82d28"
+,
+  "a1_health.json": "sha256:7c217225f784ef95"
+,
+  "a2_health.json": "sha256:a18531dec7721816"
+,
+  "a3_health.json": "sha256:86cec05dbd0ecc83"
+,
+  "a4_health.json": "sha256:7f5b9e74ba90e6d2"
+,
+  "a5_health.json": "sha256:2e0de0ff13a3f49a"
+,
+  "a6_health.json": "sha256:25be94bf8870cc7e"
+,
+  "a7_health.json": "sha256:930f46d85b48f356"
+,
+  "a8_health.json": "sha256:d853342d25dd968f"
+,
+  "system_map.json": "sha256:bff43885927a8bc2"
+,
+  "version_manifest.json": "sha256:7354defe471df28c"
+,
+  "hitl_approvals.log": "sha256:959a71118ae07d57"
 }

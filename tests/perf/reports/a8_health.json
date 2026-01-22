@@ -1,1 +1,10 @@
-{"app":"A8","name":"Auto Com Center","status":200,"verdict":"PASS","timestamp":"2026-01-22T01:55:42Z"}
+{
+  "app": "A8-auto-com-center",
+  "url": "https://auto-com-center-jamarrlmayes.replit.app",
+  "probe_timestamp": "2026-01-22T19:18:36Z",
+  "post_code": 200,
+  "event_id": "evt_1769109516623_x4s8q4zkr",
+  "idempotency_key": "633938b9-643c-42ee-a058-d0b533ea3ded",
+  "status": "PASS",
+  "trace_id": "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.A8"
+}
