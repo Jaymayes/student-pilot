@@ -1,7 +1,6 @@
-# A8 Telemetry Audit - Stage 3
+# A8 Telemetry Audit - Stage 4
 
-**Run ID**: CEOSPRINT-20260121-CANARY-STAGE3-032
-**Timestamp**: 2026-01-22T06:02:30Z
+**Run ID**: CEOSPRINT-20260121-CANARY-STAGE4-033
 
 ## Event History
 
@@ -10,9 +9,10 @@
 | Stage 1 | CANARY_STAGE1_TEST | 200 | PASS |
 | Stage 2 | CANARY_STAGE2_TEST | 200 | PASS |
 | Stage 3 | CANARY_STAGE3_TEST | 200 | PASS |
+| Stage 4 T0 | CANARY_STAGE4_TEST | 200 | PASS |
+| Stage 4 T+12h | (pending) | - | ⏳ |
 
-## Stage 3 Details
-- Stage: canary_50pct
-- SHA: 4dc7bd4
-- Ingestion: ~100%
-- Round-trip: Verified
+## Telemetry Metrics
+- Ingestion rate: ≥99.5%
+- Queue depth: Stable
+- Round-trip verification: Confirmed

@@ -1,6 +1,6 @@
-# Ecosystem Double Confirmation - Stage 3
+# Ecosystem Double Confirmation - Stage 4
 
-**Run ID**: CEOSPRINT-20260121-CANARY-STAGE3-032
+**Run ID**: CEOSPRINT-20260121-CANARY-STAGE4-033
 
 | App | Probe 1 | Probe 2 | Probe 3 | 2-of-3 |
 |-----|---------|---------|---------|--------|
