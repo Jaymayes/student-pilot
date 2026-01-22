@@ -1,0 +1,94 @@
+2026-01-21 18:03:41.97
+4f495b94
+User
+{"timestamp":"2026-01-22T01:03:41.974Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769043520474-dnwq1ghr0","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 18:03:41.97
+4f495b94
+User
+{"timestamp":"2026-01-22T01:03:41.974Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769043520474-yzsg43xej","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 18:33:39.17
+4f495b94
+User
+{"timestamp":"2026-01-22T01:33:39.173Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769045319172-v7j4ju2kz","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 18:33:39.17
+4f495b94
+User
+{"timestamp":"2026-01-22T01:33:39.173Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769045319172-u30jmf3vg","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 18:35:10.42
+4f495b94
+User
+{"timestamp":"2026-01-22T01:35:10.423Z","level":"WARN","message":"Slow request detected","requestId":"bba98344-e7d8-45ce-9738-c2cabe87a997","method":"GET","path":"/api/login","duration":892,"threshold":300}
+2026-01-21 18:35:10.42
+4f495b94
+User
+⚠️ Slow login: 894ms (target <300ms)
+2026-01-21 18:59:24.88
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 19:03:39.05
+4f495b94
+User
+{"timestamp":"2026-01-22T02:03:39.054Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769047119053-wu6orcszf","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 19:03:39.05
+4f495b94
+User
+{"timestamp":"2026-01-22T02:03:39.054Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769047119053-qfpzj5h0o","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 19:33:39.27
+4f495b94
+User
+{"timestamp":"2026-01-22T02:33:39.274Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769048919273-z2it5i9c2","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 19:33:39.27
+4f495b94
+User
+{"timestamp":"2026-01-22T02:33:39.274Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769048919273-9mdnos37i","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 19:41:42.37
+4f495b94
+User
+⚠️ Command Center: Report queued for retry
+2026-01-21 20:03:39.07
+4f495b94
+User
+{"timestamp":"2026-01-22T03:03:39.072Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769050719072-58889w0mr","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 20:03:39.07
+4f495b94
+User
+{"timestamp":"2026-01-22T03:03:39.072Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769050719072-lw9lkd21a","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 20:12:06.67
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 20:33:40.67
+4f495b94
+User
+{"timestamp":"2026-01-22T03:33:40.673Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769052520672-aj7qezlki","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 20:33:40.67
+4f495b94
+User
+{"timestamp":"2026-01-22T03:33:40.673Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769052520672-memhhoshh","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 20:43:06.87
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 20:57:07.27
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 21:03:38.77
+4f495b94
+User
+{"timestamp":"2026-01-22T04:03:38.775Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769054318773-0zi6gpiy3","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 21:03:38.77
+4f495b94
+User
+{"timestamp":"2026-01-22T04:03:38.774Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769054318773-6riaz7y7h","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 21:13:07.67
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 21:13:27.84
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+Wrap
+Colors
