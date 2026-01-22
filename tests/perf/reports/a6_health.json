@@ -1,14 +1,1 @@
-{
-  "run_id": "CEOSPRINT-20260121-EXEC-ZT3G-V2S2-FIX-027",
-  "app": "A6",
-  "name": "provider-portal",
-  "url": "https://provider-portal-jamarrlmayes.replit.app/health",
-  "timestamp": "2026-01-21T22:50:36Z",
-  "status_code": 404,
-  "response": "Not Found",
-  "body_size_bytes": 9,
-  "verdict": "BLOCKED",
-  "markers_found": [],
-  "error": "Health endpoint not responding - app may not be deployed or running",
-  "manual_intervention_required": true
-}
+{"app":"A6","name":"Provider Portal","url":"https://provider-portal-jamarrlmayes.replit.app","status":404,"verdict":"BLOCKED","reason":"404 Not Found","timestamp":"2026-01-22T00:24:35Z"}
