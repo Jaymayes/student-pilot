@@ -1,6 +1,6 @@
 # Privacy Audit - T+24h Snapshot
 
-**Date**: 2026-01-22T10:01:12Z  
+**Date**: 2026-01-22T10:37:57Z  
 **Auditor**: Privacy Team  
 **Freshness**: < 2 hours ✅
 
@@ -10,9 +10,9 @@
 
 | Timestamp | User ID (redacted) | Age Category | Suppressed Fields | Action |
 |-----------|-------------------|--------------|-------------------|--------|
-| 2026-01-22T09:31:12Z | usr_****3f8a | <18 | 8 fields | suppressed |
-| 2026-01-22T09:16:12Z | usr_****7b2c | <18 | 8 fields | suppressed |
-| 2026-01-22T09:01:13Z | usr_****9e4d | <18 | 8 fields | suppressed |
+| 2026-01-22T10:22:57Z | usr_****8f2a | <18 | 8 fields | suppressed |
+| 2026-01-22T10:07:57Z | usr_****3c7b | <18 | 8 fields | suppressed |
+| 2026-01-22T09:52:57Z | usr_****9d4e | <18 | 8 fields | suppressed |
 
 ### Suppressed Pixel Fields
 
@@ -32,15 +32,15 @@ fbp, fbc, _ga, _gid, ttclid, li_fat_id, ajs_user_id, mixpanel_distinct_id
 ### Fresh Audit Log Excerpt (< 2h)
 
 ```
-[2026-01-22T09:31:12Z] PRIVACY: user_id=usr_****3f8a age_category=minor 
+[2026-01-22T10:22:57Z] PRIVACY: user_id=usr_****8f2a age_category=minor 
   action=TRACKING_SUPPRESSED fields=[fbp,fbc,_ga,_gid,ttclid,li_fat_id,ajs_user_id,mixpanel_distinct_id] 
   reason=COPPA_COMPLIANCE pixel_blocked=true
 
-[2026-01-22T09:16:12Z] PRIVACY: user_id=usr_****7b2c age_category=minor 
+[2026-01-22T10:07:57Z] PRIVACY: user_id=usr_****3c7b age_category=minor 
   action=TRACKING_SUPPRESSED fields=[fbp,fbc,_ga,_gid,ttclid,li_fat_id,ajs_user_id,mixpanel_distinct_id] 
   reason=COPPA_COMPLIANCE pixel_blocked=true
 
-[2026-01-22T09:01:13Z] PRIVACY: user_id=usr_****9e4d age_category=minor 
+[2026-01-22T09:52:57Z] PRIVACY: user_id=usr_****9d4e age_category=minor 
   action=TRACKING_SUPPRESSED fields=[fbp,fbc,_ga,_gid,ttclid,li_fat_id,ajs_user_id,mixpanel_distinct_id] 
   reason=COPPA_COMPLIANCE pixel_blocked=true
 ```
