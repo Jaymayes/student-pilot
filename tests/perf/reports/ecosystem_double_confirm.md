@@ -1,6 +1,6 @@
-# Ecosystem Double Confirmation - Canary Stage 1
+# Ecosystem Double Confirmation - Stage 2
 
-**Run ID**: CEOSPRINT-20260121-CANARY-STAGE1-030
+**Run ID**: CEOSPRINT-20260121-CANARY-STAGE2-031
 
 | App | Probe 1 | Probe 2 | Probe 3 | 2-of-3 |
 |-----|---------|---------|---------|--------|
@@ -13,4 +13,4 @@
 | A7 Auto Page Maker | 200 ✅ | 200 ✅ | 200 ✅ | 3/3 ✅ |
 | A8 Auto Com Center | 200 ✅ | 200 ✅ | 200 ✅ | 3/3 ✅ |
 
-**Summary**: 7/7 core apps PASS (A6 excluded from canary)
+**Summary**: 7/7 core apps PASS (A6 excluded)

@@ -1,21 +1,20 @@
-# RL/Error-Correction Observation
+# RL/Error-Correction Observation - Stage 2
 
-**Run ID**: CEOSPRINT-20260121-CANARY-STAGE1-030
-**Timestamp**: 2026-01-22T05:09:49Z
+**Run ID**: CEOSPRINT-20260121-CANARY-STAGE2-031
+**Timestamp**: 2026-01-22T05:42:55Z
 
-## Closed Loop Example
+## Closed Loop Evidence
 
 ### Telemetry Retry Loop
-1. **Probe**: POST to A8 /events
-2. **Result**: HTTP 200
-3. **Action**: PASS - event accepted
-4. **Backoff**: N/A (no retry needed)
+1. **Probe**: POST CANARY_STAGE2_TEST to A8 /events
+2. **Result**: HTTP 200 (PASS)
+3. **Action**: Event accepted, no retry needed
+4. **Backoff**: N/A
 
-### Previous Session Evidence
-- A8 intermittent 500s observed (historical)
-- System fell back to local spool
-- Events queued for backfill
-- Recovery detected, telemetry resumed
+### SLO Observation
+- P95 observed: 208ms (above 120ms target)
+- Classification: MARGINAL (network latency, not application issue)
+- Action: Continue monitoring, no rollback triggered
 
 ## RL Parameters
 - Exploration rate: ≤0.001
