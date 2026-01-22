@@ -1,13 +1,12 @@
 {
-  "a1_health.json": "sha256:a2c31677281820a8",
-  "a2_health.json": "sha256:8ff4cee6fdb96f55",
-  "a3_health.json": "sha256:73d80f8d8443eeb0",
-  "a4_health.json": "sha256:54a4c8e9f5978729",
-  "a5_health.json": "sha256:276baed7ee12f642",
-  "a6_health.json": "sha256:e68f8cfa44e10aca",
-  "a7_health.json": "sha256:29d60e11aa1623c7",
-  "a8_health.json": "sha256:74eedf2443b30a78",
-  "ecosystem_double_confirm.md": "sha256:f62ab531b1c5b6b7",
-  "go_no_go_report.md": "sha256:ef27fd81eb18ebc7",
-  "manual_intervention_manifest.md": "sha256:0e49992a5d4e5e71"
+  "a8_telemetry_audit.md": "sha256:bb6812cdfbb3d7c5",
+  "ecosystem_double_confirm.md": "sha256:7d1494ee4d7d1b1b",
+  "go_no_go_report.md": "sha256:e8f53884c27f5131",
+  "manual_intervention_manifest.md": "sha256:0e49992a5d4e5e71",
+  "perf_summary.md": "sha256:cf4b4bead03840ad",
+  "rate_limit_activity.md": "sha256:76919f027c813e7a",
+  "rl_observation.md": "sha256:8f6f733f9714a307",
+  "seo_verdict.md": "sha256:bf6af55a8369804e",
+  "stripe_webhook_canary.md": "sha256:7eecd0651abc76a7",
+  "hitl_approvals.log": "sha256:6587b7ebfc979be6"
 }
