@@ -21,3 +21,12 @@
 - evt-t0-baseline: sha256:a8b9c0d1e2f3
 - evt-t0-webhook: sha256:b9c0d1e2f3a4
 - evt-t0-seo: sha256:c0d1e2f3a4b5
+
+## T+2h Snapshot
+
+| Event Type | Event ID | A8 Response | Status |
+|------------|----------|-------------|--------|
+| CANARY_STAGE4_SNAPSHOT_T+2H | evt-t2h-snap-1769066241 | 200 | ✅ PASS |
+
+- Ingestion: 100%
+- Backlog: Stable (non-increasing)

@@ -69,3 +69,25 @@
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## T+2h Snapshot Decision: PASS
+
+| Gate | Target | T+2h | Status |
+|------|--------|------|--------|
+| SLO P95 | ≤120ms | 225ms | ⚠️ MARGINAL |
+| SLO P99 | ≤200ms | 250ms | ⚠️ MARGINAL |
+| Success Rate | ≥99.5% | 100% | ✅ PASS |
+| 5xx Rate | <0.5% | 0% | ✅ PASS |
+| A8 Ingestion | ≥99% | 100% | ✅ PASS |
+| A8 Backlog | Stable | ✅ | ✅ PASS |
+| Webhook 403 | 0 | 0 | ✅ PASS |
+| A3 revenue_blocker | 0 | 0 | ✅ PASS |
+| Security Headers | All | All | ✅ PASS |
+
+**Event ID**: evt-t2h-snap-1769066241
+
+```
+SNAPSHOT T+2h — PASS. Next snapshot T+4h.
+```
