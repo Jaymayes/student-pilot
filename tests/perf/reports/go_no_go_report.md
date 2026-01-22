@@ -106,3 +106,29 @@ Event: evt-t6h-snap-1769067386 | URLs: 2859
 ## T+8h Snapshot: PASS
 P95=177ms P99=183ms | Success: 100% | A8: 200 | Webhook 403: 0
 Event: evt-t8h-snap-1769068341 | URLs: 2859
+
+---
+## T+12h Snapshot: PASS
+
+### Aggregate Metrics
+P95=217ms P99=291ms | Success: 100% | 5xx: 0%
+
+### Per-Endpoint P99
+- /: 213ms
+- /pricing: 209ms
+- /browse: 153ms
+- /health: 291ms
+
+### Gates
+- A8: 200 ✅
+- Webhook 403: 0 ✅
+- Security: All ✅
+- SEO URLs: 2859 (delta: 0)
+- Stripe: FROZEN ✅ (4/25 remaining)
+- Error Budget: 0/7.2 min ✅
+
+### Ungate Status
+- Score: 9/11 🟡
+- Ready: NO (need T+18h confirmation)
+
+Event: evt-t12h-snap-1769071883

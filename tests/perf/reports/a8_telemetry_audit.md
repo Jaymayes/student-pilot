@@ -48,3 +48,10 @@
 |-------|-----|--------|
 | SNAPSHOT_T+8H | evt-t8h-snap-1769068341 | ✅ 200 |
 - Backlog: Stable
+
+## T+12h Snapshot
+| Event | ID | Status |
+|-------|-----|--------|
+| SNAPSHOT_T+12H | evt-t12h-snap-1769071883 | ✅ 200 |
+- Backlog: Stable
+- Circuit breaker: CLOSED
