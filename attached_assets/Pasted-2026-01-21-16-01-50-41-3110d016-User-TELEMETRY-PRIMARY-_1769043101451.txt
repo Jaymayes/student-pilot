@@ -1,0 +1,96 @@
+2026-01-21 16:01:50.41
+3110d016
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 16:28:35.39
+4f495b94
+User
+⚠️ WARNING: Some microservice URLs not configured in production:
+2026-01-21 16:28:35.39
+4f495b94
+User
+- STUDENT_PILOT_BASE_URL (application will operate in degraded mode)
+2026-01-21 16:28:35.39
+4f495b94
+User
+- AGENT_API_BASE_URL (application will operate in degraded mode)
+2026-01-21 16:28:35.39
+4f495b94
+User
+✅ 2/7 microservice URLs configured
+2026-01-21 16:28:35.39
+4f495b94
+User
+- PROVIDER_REGISTER_BASE_URL (application will operate in degraded mode)
+2026-01-21 16:28:35.39
+4f495b94
+User
+📋 Configure these URLs when upstream services are deployed.
+2026-01-21 16:28:35.39
+4f495b94
+User
+- AUTH_API_BASE_URL (application will operate in degraded mode)
+2026-01-21 16:28:35.39
+4f495b94
+User
+- SAGE_API_BASE_URL (application will operate in degraded mode)
+2026-01-21 16:28:35.48
+4f495b94
+User
+⚠️ SENTRY_DSN format invalid - error monitoring disabled (update DSN in secrets)
+2026-01-21 16:28:35.95
+4f495b94
+User
+at async AgentBridge.start (file:///home/runner/workspace/dist/index.js:13177:7)
+2026-01-21 16:28:35.95
+4f495b94
+User
+at AgentBridge.register (file:///home/runner/workspace/dist/index.js:13231:15)
+2026-01-21 16:28:35.95
+4f495b94
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-01-21 16:28:35.95
+4f495b94
+User
+at async file:///home/runner/workspace/dist/index.js:27544:5
+2026-01-21 16:28:35.95
+4f495b94
+User
+Failed to register with Command Center: Error: Registration failed: 404 Not Found
+2026-01-21 16:30:04.98
+4f495b94
+User
+Wed, 21 Jan 2026 23:30:04 GMT express deprecated req.host: Use req.hostname instead at file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
+2026-01-21 17:03:38.17
+4f495b94
+User
+{"timestamp":"2026-01-22T00:03:37.372Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769039916882-mr3pg7n9o","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 17:03:38.17
+4f495b94
+User
+{"timestamp":"2026-01-22T00:03:37.372Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769039916883-wkx455v5k","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 17:33:36.87
+4f495b94
+User
+{"timestamp":"2026-01-22T00:33:36.874Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769041716872-8pkgs9ygb","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 17:33:36.87
+4f495b94
+User
+{"timestamp":"2026-01-22T00:33:36.874Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769041716872-ox47r6wi3","title":"Stale ARR Data: usage_events","ageMinutes":5}
+2026-01-21 17:35:13.49
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 17:35:23.87
+4f495b94
+User
+🚨 TELEMETRY PRIMARY FAILED: 500 - Internal Server Error
+2026-01-21 17:40:07.90
+4f495b94
+User
+{"timestamp":"2026-01-22T00:40:07.907Z","level":"WARN","message":"Slow request detected","requestId":"b72c0f5d-9fb5-4fc5-81fb-f306b1faf63b","method":"GET","path":"/api/login","duration":302,"threshold":300}
+2026-01-21 17:40:07.90
+4f495b94
+User
+⚠️ Slow login: 302ms (target <300ms)
