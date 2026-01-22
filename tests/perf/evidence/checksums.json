@@ -1,65 +1,65 @@
 {
-  "a1_cookie_validation.md": "sha256:7fe972a355ecc41f"
+  "a1_cookie_validation.md": "sha256:b1dcda502ab66c75"
 ,
-  "a1_warmup_report.md": "sha256:d1a5bdca02c7fe2d"
+  "a1_warmup_report.md": "sha256:efe8ede2189ddc32"
 ,
-  "a3_orchestration_runlog.md": "sha256:90b63d1f4d33616f"
+  "a3_orchestration_runlog.md": "sha256:7a6add08f5f8e6a6"
 ,
-  "a8_telemetry_audit.md": "sha256:3aca3ea1532e5829"
+  "a8_telemetry_audit.md": "sha256:c17857bb5d7d9135"
 ,
-  "b2b_funnel_verdict.md": "sha256:fa2a3b2e5eb2f5de"
+  "b2b_funnel_verdict.md": "sha256:5ac345704c253f70"
 ,
-  "b2c_funnel_verdict.md": "sha256:92be1d88f6fcbb49"
+  "b2c_funnel_verdict.md": "sha256:8177d74cb292d978"
 ,
-  "canonical_a8_heatmap_t24h.md": "sha256:0d53e141e24647cd"
+  "canonical_a8_heatmap_t24h.md": "sha256:a570a29bf9d8623b"
 ,
-  "ecosystem_double_confirm.md": "sha256:da6153ae3b7ac791"
+  "ecosystem_double_confirm.md": "sha256:eacbba0cba2d63d3"
 ,
-  "go_no_go_report.md": "sha256:b33a90c17ff9db54"
+  "go_no_go_report.md": "sha256:398009682d0505e4"
 ,
-  "go_no_go_t24h.md": "sha256:3b6cd04a83c0e468"
+  "go_no_go_t24h.md": "sha256:c4cd4c05b3266a7a"
 ,
-  "infra_verification_t24h.md": "sha256:37d7a9c60c2bb0f7"
+  "infra_verification_t24h.md": "sha256:0f9625960deb4a64"
 ,
-  "perf_summary.md": "sha256:cf901e72d569ceaf"
+  "perf_summary.md": "sha256:738de41760609a57"
 ,
-  "post_republish_diff.md": "sha256:f076adba26f13c7b"
+  "post_republish_diff.md": "sha256:e99e74252c8c8737"
 ,
-  "privacy_audit_t24h.md": "sha256:948528dd0bac07ff"
+  "privacy_audit_t24h.md": "sha256:191d44b87c63190a"
 ,
-  "raw_truth_summary.md": "sha256:a694c4343f630612"
+  "raw_truth_summary.md": "sha256:29cb98bcca41d963"
 ,
-  "rl_observation.md": "sha256:68a9572b9ab98182"
+  "rl_observation.md": "sha256:aaec8ca57f6beef3"
 ,
-  "security_headers_report.md": "sha256:d54664e6c9c5e60c"
+  "security_headers_report.md": "sha256:5665ed154db3939c"
 ,
-  "seo_url_delta_t24h.md": "sha256:74ef74263fd2cca3"
+  "seo_url_delta_t24h.md": "sha256:36f0d5287af9339a"
 ,
-  "seo_verdict.md": "sha256:5ecddab16a5bb541"
+  "seo_verdict.md": "sha256:72663220ab2dbaba"
 ,
-  "stripe_safety_ledger_t24h.md": "sha256:0f264d833feda35b"
+  "stripe_safety_ledger_t24h.md": "sha256:d289ad66a521e4f2"
 ,
-  "ui_ux_integrity_matrix.md": "sha256:8b6ccb49617c2630"
+  "ui_ux_integrity_matrix.md": "sha256:18e4c69a26f90b63"
 ,
-  "a1_health.json": "sha256:1c4b6d8435fb8e52"
+  "a1_health.json": "sha256:12c4b9a1b709e5c5"
 ,
-  "a2_health.json": "sha256:901ea48eea3eb3f2"
+  "a2_health.json": "sha256:cfa706547333384f"
 ,
-  "a3_health.json": "sha256:b9310c19de7d5569"
+  "a3_health.json": "sha256:06966bfdf0fc0c35"
 ,
-  "a4_health.json": "sha256:3a11155758d1d955"
+  "a4_health.json": "sha256:d23bfe990eec47fd"
 ,
-  "a5_health.json": "sha256:79039971f191c601"
+  "a5_health.json": "sha256:be8d33332eff0584"
 ,
-  "a6_health.json": "sha256:96393dbe81d7d3af"
+  "a6_health.json": "sha256:e8a8ddce3333fbc8"
 ,
-  "a7_health.json": "sha256:1792d0fa64219ff4"
+  "a7_health.json": "sha256:3c3acff005dd620e"
 ,
-  "a8_health.json": "sha256:8a76b2e038c7d510"
+  "a8_health.json": "sha256:d4297287c57c6d48"
 ,
-  "system_map.json": "sha256:97472dcd14e3eaaf"
+  "system_map.json": "sha256:cdcb3e95fab4acba"
 ,
-  "version_manifest.json": "sha256:e7d5c99773b491af"
+  "version_manifest.json": "sha256:168b15f7265e2bb6"
 ,
-  "hitl_approvals.log": "sha256:90217ca15fe846dd"
+  "hitl_approvals.log": "sha256:28c3691e0d489431"
 }

@@ -1,22 +1,12 @@
-# B2C Funnel Verdict - ZT3G Sprint FIX-029
+# B2C Funnel - FIX-033
 
 **Status**: CONDITIONAL ⚠️
 
-## Stripe Readiness
-
 | Check | Status |
 |-------|--------|
-| stripe.js loaded | ✅ (1 ref) |
-| pk_ key | Dynamic (JS) |
-| Checkout CTA | Dynamic (React) |
-
-## Safety
-
-| Metric | Value |
-|--------|-------|
+| stripe.js | ✅ 1 ref |
+| Checkout CTA | Dynamic |
 | Remaining | 4/25 |
 | Mode | FROZEN |
-| HITL override | None |
-| Live attempts | 0 |
 
-**B2C: CONDITIONAL** - Readiness verified; charges gated.
+**B2C: CONDITIONAL** (readiness verified)
