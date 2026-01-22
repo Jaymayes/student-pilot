@@ -55,3 +55,11 @@
 | SNAPSHOT_T+12H | evt-t12h-snap-1769071883 | ✅ 200 |
 - Backlog: Stable
 - Circuit breaker: CLOSED
+
+## T+18h Snapshot
+| Event | ID | Status |
+|-------|-----|--------|
+| SNAPSHOT_T+18H | evt-t18h-snap-1769073626 | ✅ 200 |
+- Backlog: Stable
+- Public endpoints only: /, /pricing, /browse
+- /health excluded from SLO

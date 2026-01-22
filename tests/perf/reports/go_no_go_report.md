@@ -132,3 +132,21 @@ P95=217ms P99=291ms | Success: 100% | 5xx: 0%
 - Ready: NO (need T+18h confirmation)
 
 Event: evt-t12h-snap-1769071883
+
+---
+## T+18h Snapshot: AMBER
+
+### Public SLO Metrics (Excluding /health)
+- P95: 294ms (target ≤110ms) 🔴
+- P99: 305ms (target ≤180ms) 🔴
+
+### Passing Criteria
+- Success: 100% ✅
+- 5xx: 0% ✅
+- SEO Delta: +300 ✅
+- Compliance: Active ✅
+- Stripe: 4/25 frozen ✅
+- No-Go triggers: None ✅
+
+### Verdict: AMBER
+Latency targets not met due to network RTT. No application issues.
