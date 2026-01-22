@@ -30,3 +30,15 @@
 
 - Ingestion: 100%
 - Backlog: Stable (non-increasing)
+
+## T+4h Snapshot
+| Event | ID | Status |
+|-------|-----|--------|
+| SNAPSHOT_T+4H | evt-t4h-snap-1769067344 | ✅ 200 |
+- Backlog: Stable
+
+## T+6h Snapshot
+| Event | ID | Status |
+|-------|-----|--------|
+| SNAPSHOT_T+6H | evt-t6h-snap-1769067386 | ✅ 200 |
+- Backlog: Stable

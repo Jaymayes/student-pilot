@@ -91,3 +91,13 @@
 ```
 SNAPSHOT T+2h — PASS. Next snapshot T+4h.
 ```
+
+---
+## T+4h Snapshot: PASS
+P95=198ms P99=267ms | Success: 100% | A8: 200 | Webhook 403: 0
+Event: evt-t4h-snap-1769067344
+
+---
+## T+6h Snapshot: PASS
+P95=141ms P99=143ms | Success: 100% | A8: 200 | Webhook 403: 0
+Event: evt-t6h-snap-1769067386 | URLs: 2859
