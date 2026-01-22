@@ -1,11 +1,1 @@
-{
-  "app": "A6-provider-register",
-  "url": "https://provider-register-jamarrlmayes.replit.app",
-  "probe_timestamp": "2026-01-22T19:18:23Z",
-  "http_code": 200,
-  "api_code": 200,
-  "body_size": 4029,
-  "status": "PASS",
-  "trace_id": "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.A6",
-  "note": "A6 excluded from canary if 404"
-}
+{"app":"A6","http_code":200,"api_code":200,"body_size":4031,"timestamp":"2026-01-22T20:00:40Z","status":"PASS"}

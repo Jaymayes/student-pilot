@@ -1,11 +1,1 @@
-{
-  "app": "A7-auto-page-maker",
-  "url": "https://auto-page-maker-jamarrlmayes.replit.app",
-  "probe_timestamp": "2026-01-22T19:18:29Z",
-  "http_code": 200,
-  "sitemap_code": 200,
-  "body_size": 113,
-  "body_sample": "{"status":"healthy","service":"onboarding-orchestrator","version":"2.0.0","timestamp":"2026-01-22T19:18:28.750Z"} ",
-  "status": "PASS",
-  "trace_id": "X-Trace-Id: CEOSPRINT-20260113-EXEC-ZT3G-FIX-027.A7"
-}
+{"app":"A7","http_code":200,"sitemap_code":200,"body_size":114,"timestamp":"2026-01-22T20:00:40Z","status":"PASS"}
