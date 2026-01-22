@@ -1,0 +1,156 @@
+2026-01-21 23:02:37.25
+5f1bea07
+User
+code: undefined,
+2026-01-21 23:02:37.25
+5f1bea07
+User
+raw: { message: 'Unable to extract timestamp and signatures from header' },
+2026-01-21 23:02:37.25
+5f1bea07
+User
+type: 'StripeSignatureVerificationError',
+2026-01-21 23:02:37.25
+5f1bea07
+User
+at Object.verifyHeader (file:///home/runner/workspace/node_modules/stripe/esm/Webhooks.js:63:102)
+2026-01-21 23:02:37.25
+5f1bea07
+User
+at parseEventDetails (file:///home/runner/workspace/node_modules/stripe/esm/Webhooks.js:110:19)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+payment_intent: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+statusCode: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at Route.dispatch (/home/runner/workspace/node_modules/express/lib/router/route.js:119:3) {
+2026-01-21 23:04:38.54
+5f1bea07
+User
+}
+2026-01-21 23:04:38.54
+5f1bea07
+User
+payment_method: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+payload: { type: 'checkout.session.completed', data: { object: {} } }
+2026-01-21 23:04:38.54
+5f1bea07
+User
+detail: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+doc_url: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+type: 'StripeSignatureVerificationError',
+2026-01-21 23:04:38.54
+5f1bea07
+User
+charge: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+code: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+requestId: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at Object.verifyHeader (file:///home/runner/workspace/node_modules/stripe/esm/Webhooks.js:63:102)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+[08a371a7-ce06-47cf-8e80-c749cc606e1a] Webhook signature verification failed: StripeSignatureVerificationError: Unable to extract timestamp and signatures from header
+2026-01-21 23:04:38.54
+5f1bea07
+User
+rawType: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at Object.constructEvent (file:///home/runner/workspace/node_modules/stripe/esm/Webhooks.js:12:32)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+header: 'invalid_soak_signature_t0',
+2026-01-21 23:04:38.54
+5f1bea07
+User
+raw: { message: 'Unable to extract timestamp and signatures from header' },
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at file:///home/runner/workspace/dist/index.js:23658:32
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at rawParser (/home/runner/workspace/node_modules/body-parser/lib/types/raw.js:58:7)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+payment_method_type: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at parseEventDetails (file:///home/runner/workspace/node_modules/stripe/esm/Webhooks.js:110:19)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+userMessage: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+decline_code: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+param: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+setup_intent: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+headers: undefined,
+2026-01-21 23:04:38.54
+5f1bea07
+User
+at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)
+2026-01-21 23:04:38.54
+5f1bea07
+User
+source: undefined,
+2026-01-21 23:12:44.90
+5f1bea07
+User
+{"timestamp":"2026-01-22T06:12:44.903Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769062064902-3bazsrxb8","title":"Stale ARR Data: ledger_entries","ageMinutes":5}
+2026-01-21 23:12:44.90
+5f1bea07
+User
+{"timestamp":"2026-01-22T06:12:44.903Z","level":"WARN","message":"Critical alert escalation","alertId":"alert-1769062064902-aas5aef6j","title":"Stale ARR Data: usage_events","ageMinutes":5}
