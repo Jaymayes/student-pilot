@@ -1,6 +1,6 @@
-# SEO Verdict - T+6h Snapshot
+# SEO Verdict - T+8h Snapshot
 
-| Metric | Stage 3 | T+6h | Delta |
+| Metric | Stage 3 | T+8h | Delta |
 |--------|---------|------|-------|
 | URLs | 2859 | 2859 | 0 |
 

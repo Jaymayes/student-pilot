@@ -42,3 +42,9 @@
 |-------|-----|--------|
 | SNAPSHOT_T+6H | evt-t6h-snap-1769067386 | ✅ 200 |
 - Backlog: Stable
+
+## T+8h Snapshot
+| Event | ID | Status |
+|-------|-----|--------|
+| SNAPSHOT_T+8H | evt-t8h-snap-1769068341 | ✅ 200 |
+- Backlog: Stable
