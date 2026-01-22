@@ -1,22 +1,18 @@
-# A8 Telemetry Audit - Stage 2
+# A8 Telemetry Audit - Stage 3
 
-**Run ID**: CEOSPRINT-20260121-CANARY-STAGE2-031
-**Timestamp**: 2026-01-22T05:42:54Z
+**Run ID**: CEOSPRINT-20260121-CANARY-STAGE3-032
+**Timestamp**: 2026-01-22T06:02:30Z
 
-## Stage 1 Event
-- Type: CANARY_STAGE1_TEST
-- Status: PASS
+## Event History
 
-## Stage 2 Event
-| Parameter | Value |
-|-----------|-------|
-| Event Type | TEST |
-| Stage | canary_25pct |
-| SHA | c29385d |
-| A8 POST | HTTP 200 |
-| Status | PASS |
+| Stage | Event Type | A8 Response | Status |
+|-------|------------|-------------|--------|
+| Stage 1 | CANARY_STAGE1_TEST | 200 | PASS |
+| Stage 2 | CANARY_STAGE2_TEST | 200 | PASS |
+| Stage 3 | CANARY_STAGE3_TEST | 200 | PASS |
 
-## Round-Trip Verification
-- POST to /events: 200
-- Ingestion estimate: ≥99%
-- Graceful degradation: Active
+## Stage 3 Details
+- Stage: canary_50pct
+- SHA: 4dc7bd4
+- Ingestion: ~100%
+- Round-trip: Verified
