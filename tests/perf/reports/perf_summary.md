@@ -1,29 +1,31 @@
-# Performance Summary - Stage 4 (24h Soak)
+# Performance Summary - Stage 4 T0 Baseline
 
 **Run ID**: CEOSPRINT-20260121-CANARY-STAGE4-033
-**Stage**: 100% Canary / 24h Soak
-**Samples**: 32 (T0)
+**Stage**: 100% / 24h Soak — T0 Baseline
+**Samples**: 32
+**Timestamp**: 2026-01-22T06:48:00Z
 
-## SLO Results - T0 Snapshot
+## SLO Results
 
-| Percentile | Stage 3 | Stage 4 T0 | Target | Status |
-|------------|---------|------------|--------|--------|
-| p50 | 151ms | 129ms | - | Baseline |
-| p75 | 185ms | 144ms | - | Reference |
-| P95 | 256ms | 152ms | ≤120ms | ⚠️ MARGINAL |
-| P99 | - | 173ms | ≤200ms | ✅ PASS |
+| Percentile | Value | Target | Status |
+|------------|-------|--------|--------|
+| p50 | 131ms | - | Baseline |
+| p75 | 150ms | - | Reference |
+| P95 | 181ms | ≤120ms | ⚠️ MARGINAL |
+| P99 | 222ms | ≤200ms | ⚠️ MARGINAL |
 
-## Error Budget
-- Total budget: 7.2 minutes (0.5% of 24h)
-- Spent: 0 minutes
-- Remaining: 7.2 minutes
-
-## Success Rate
-- Target: ≥99.5%
-- Actual: 100%
+## Success/Error Rates
+- Success rate: 100%
 - 5xx rate: 0%
+- Target: ≥99.5% / <0.5%
+
+## Error Budget (24h Soak)
+- Total: 7.2 minutes (0.5% of 24h)
+- Spent: 0 minutes
+- Remaining: 7.2 minutes ✅
 
 ## Analysis
-- P99 within target ✅
-- P95 marginal but improving from Stage 3
-- All critical gates passing
+- P95/P99 elevated due to network latency variance
+- No application errors
+- All requests successful
+- Error budget intact

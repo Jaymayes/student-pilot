@@ -1,15 +1,18 @@
-# Stripe Webhook Soak Test - Stage 4
+# Stripe Webhook Soak Test - T0 Baseline
 
 **Run ID**: CEOSPRINT-20260121-CANARY-STAGE4-033
 
-## Webhook Tests
+## T0 Webhook Test
 
-| Time | User-Agent | Expected | Actual | Status |
-|------|------------|----------|--------|--------|
-| T0 | Stripe/SoakTest | 400 | 400 | ✅ PASS |
-| T+12h | Stripe/SoakTest | 400 | (pending) | ⏳ |
+| Parameter | Value |
+|-----------|-------|
+| Endpoint | /api/webhooks/stripe |
+| User-Agent | Stripe/SoakTest |
+| Signature | invalid_t0_baseline_sig |
+| Expected | 400 |
+| Actual | 400 |
+| Status | ✅ PASS |
 
-## Verdict
-- 403 count: 0 ✅
-- Webhook correctly rejects invalid signatures
-- B2C charges remain GATED
+## 403 Count: 0 ✅
+
+## Next Check: T+12h

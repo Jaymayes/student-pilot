@@ -1,7 +1,7 @@
-# Infrastructure SLI Rollup - Stage 4
+# Infrastructure SLI Rollup - T0 Baseline
 
 **Run ID**: CEOSPRINT-20260121-CANARY-STAGE4-033
-**Protocol**: 24h Soak
+**Timestamp**: 2026-01-22T06:48:00Z
 
 ## T0 Snapshot
 
@@ -13,10 +13,8 @@
 | DB pool wait p95 | ~15ms | ≤50ms | ✅ PASS |
 | DB errors | 0 | 0 | ✅ PASS |
 | Slow queries/min | 0 | ≤2 | ✅ PASS |
+| Queue depth | Stable | Non-increasing | ✅ PASS |
 | A8 POST latency p95 | ~100ms | ≤200ms | ✅ PASS |
-| Webhook 403 | 0 | 0 | ✅ PASS |
+| Webhook 403 count | 0 | 0 | ✅ PASS |
 
-## Notes
-- All infra gates within acceptable limits
-- No OOM or restarts during sampling
-- DB connection pool healthy
+## Infra Gate Status: ALL PASS ✅
