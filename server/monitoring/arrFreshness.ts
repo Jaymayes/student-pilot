@@ -27,6 +27,7 @@ interface ArrFreshnessReport {
   alerts: string[];
   recommendations: string[];
   financeFreezeActive?: boolean;
+  preLaunchMode?: boolean;
 }
 
 class ArrFreshnessMonitor {
@@ -205,12 +206,18 @@ class ArrFreshnessMonitor {
       ]);
 
       const metrics = [usageMetric, ledgerMetric, arrMetric];
-      const criticalCount = metrics.filter(m => m.status === 'critical').length;
-      const staleCount = metrics.filter(m => m.status === 'stale').length;
+      
+      // PRE-LAUNCH FIX: Empty tables (recordCount=0) indicate no data yet, not stale data
+      // Suppress critical alerts when tables are empty (expected pre-launch behavior)
+      const hasEmptyTables = metrics.some(m => m.recordCount === 0);
+      const criticalCount = metrics.filter(m => m.status === 'critical' && m.recordCount > 0).length;
+      const staleCount = metrics.filter(m => m.status === 'stale' && m.recordCount > 0).length;
 
-      // Determine overall status
+      // Determine overall status - empty tables are "healthy" (no data to be stale)
       let overallStatus: 'healthy' | 'degraded' | 'critical';
-      if (criticalCount > 0) {
+      if (hasEmptyTables && criticalCount === 0 && staleCount === 0) {
+        overallStatus = 'healthy'; // Pre-launch: no data = healthy
+      } else if (criticalCount > 0) {
         overallStatus = 'critical';
       } else if (staleCount > 0) {
         overallStatus = 'degraded';
@@ -219,16 +226,23 @@ class ArrFreshnessMonitor {
       }
 
       // Generate alerts for critical/stale data
-      // Suppress alerts during finance freeze (stale data is expected when no transactions are occurring)
+      // Suppress alerts during finance freeze OR when tables are empty (pre-launch)
       const alerts: string[] = [];
       const financeFreezeActive = FINANCE_CONTROLS.ledger_freeze;
+      const suppressAlertsPreLaunch = hasEmptyTables;
       
       for (const metric of metrics) {
+        // Skip alerting on empty tables - no data yet is not a failure
+        if (metric.recordCount === 0) {
+          alerts.push(`${metric.dataSource}: No data yet (pre-launch)`);
+          continue;
+        }
+        
         if (metric.status === 'critical') {
           alerts.push(`${metric.dataSource}: Data is ${metric.ageHours.toFixed(1)} hours old (threshold: ${metric.threshold}h)`);
           
-          // Only create system alerts if finance freeze is NOT active
-          if (!financeFreezeActive) {
+          // Only create system alerts if finance freeze is NOT active AND we have real data
+          if (!financeFreezeActive && !suppressAlertsPreLaunch) {
             await alertManager.createAlert({
               severity: 'critical',
               service: 'arr-monitoring',
@@ -248,8 +262,10 @@ class ArrFreshnessMonitor {
         }
       }
       
-      // Add finance freeze note if active
-      if (financeFreezeActive && alerts.length > 0) {
+      // Add suppression notes
+      if (suppressAlertsPreLaunch) {
+        alerts.push('[PRE-LAUNCH] Alerts suppressed - tables empty, awaiting first transactions');
+      } else if (financeFreezeActive && alerts.length > 0) {
         alerts.push('[SUPPRESSED] Alerts not escalated due to active finance freeze');
       }
 
@@ -272,6 +288,7 @@ class ArrFreshnessMonitor {
         alerts,
         recommendations,
         financeFreezeActive,
+        preLaunchMode: hasEmptyTables, // DEBUG: pre-launch detection
       };
     } catch (error) {
       secureLogger.error('Failed to generate ARR freshness report', error as Error);
@@ -356,13 +373,25 @@ setInterval(async () => {
   try {
     const report = await arrFreshnessMonitor.generateFreshnessReport();
     const financeFreezeActive = FINANCE_CONTROLS.ledger_freeze;
-    secureLogger.info('ARR freshness check completed', {
-      overallStatus: report.overallStatus,
-      alertCount: report.alerts.length,
-      criticalMetrics: report.metrics.filter(m => m.status === 'critical').length,
-      alertsEscalated: !financeFreezeActive,
-      financeFreezeActive,
-    });
+    const hasEmptyTables = report.metrics.some(m => m.recordCount === 0);
+    const preLaunchMode = hasEmptyTables;
+    
+    // Only log if there are real issues (not pre-launch empty tables)
+    if (preLaunchMode) {
+      secureLogger.info('ARR freshness check: pre-launch mode (no data yet)', {
+        overallStatus: report.overallStatus,
+        emptyTables: report.metrics.filter(m => m.recordCount === 0).map(m => m.dataSource),
+        alertsSuppressed: true,
+      });
+    } else {
+      secureLogger.info('ARR freshness check completed', {
+        overallStatus: report.overallStatus,
+        alertCount: report.alerts.length,
+        criticalMetrics: report.metrics.filter(m => m.status === 'critical').length,
+        alertsEscalated: !financeFreezeActive,
+        financeFreezeActive,
+      });
+    }
   } catch (error) {
     secureLogger.error('ARR freshness check failed', error as Error);
   }
