@@ -1,0 +1,8 @@
+{
+  "run_id": "CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-009",
+  "timestamp": "2026-01-23T12:35:00Z",
+  "fees_executed": false,
+  "reason": "HITL: No live charges authorized",
+  "stripe_quota": "4/25 FROZEN",
+  "lineage": []
+}

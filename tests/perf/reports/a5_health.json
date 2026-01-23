@@ -1,0 +1,21 @@
+{
+  "run_id": "CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-009",
+  "timestamp": "2026-01-23T12:33:00Z",
+  "endpoints": {
+    "/": {"http_code": 200, "avg_latency_ms": 152},
+    "/pricing": {"http_code": 200, "avg_latency_ms": 138},
+    "/browse": {"http_code": 200, "avg_latency_ms": 133},
+    "/health": {"http_code": 200, "avg_latency_ms": 163}
+  },
+  "pkce": {
+    "code_challenge": true,
+    "code_challenge_method": "S256",
+    "auto_generated": true
+  },
+  "cookies": {
+    "secure": true,
+    "sameSite": "None",
+    "httpOnly": true
+  },
+  "verdict": "PASS"
+}

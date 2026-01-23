@@ -1,7 +1,7 @@
 # Reinforcement Learning Observation
 
-**RUN_ID**: CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-005
-**Timestamp**: 2026-01-23T11:07:00Z
+**RUN_ID**: CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-009
+**Timestamp**: 2026-01-23T12:34:00Z
 
 ---
 
@@ -9,23 +9,23 @@
 
 | Observation | Learning |
 |-------------|----------|
-| A1 claims S256 support but rejects it | Validate actual behavior, not just discovery claims |
-| A5 PKCE works correctly | openid-client v6 handles PKCE automatically |
-| A6 down (404) | Monitor all app health, not just critical path |
-| Localhost returns 401 | Auth strategies are hostname-specific |
+| A1 S256 now in discovery | Previous fix applied successfully |
+| A1 DB pool stable | Cold-start issues resolved |
+| A5 PKCE auto-working | openid-client v6 handles PKCE automatically |
+| A6 still down | Requires separate restart/redeploy |
 
 ---
 
 ## HITL Compliance
 
-| Constraint | Enforced | Evidence |
-|------------|----------|----------|
-| No live charges | ✅ | No Stripe calls made |
-| Cross-workspace limits | ✅ | Generated manual manifest |
-| Rollback available | ✅ | Documented in HITL log |
+| Constraint | Enforced |
+|------------|----------|
+| No live charges | ✅ |
+| Cross-workspace limits | ✅ (A6 manifest generated) |
+| Rollback available | ✅ |
 
 ---
 
 ## Verdict
 
-**RL**: ✅ Error-correction learning documented. HITL constraints enforced.
+**RL**: ✅ Error-correction documented. HITL enforced.

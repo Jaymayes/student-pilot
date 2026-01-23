@@ -1,0 +1,10 @@
+{
+  "run_id": "CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-009",
+  "timestamp": "2026-01-23T12:33:00Z",
+  "versions": {
+    "A1": {"version": "1.0.0", "commit": "unknown", "build_time": "2026-01-23T10:19:49.349Z"},
+    "A3": {"version": "1.0.0", "uptime_s": 18376},
+    "A5": {"version": "current", "openid-client": "v6", "pkce": "auto"},
+    "A8": {"version": "4fa55646-1275-44f3-93fd-a9fa64aca5be", "uptime_s": 18470}
+  }
+}

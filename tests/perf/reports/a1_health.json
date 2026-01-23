@@ -1,0 +1,14 @@
+{
+  "run_id": "CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-009",
+  "timestamp": "2026-01-23T12:33:00Z",
+  "endpoints": {
+    "/health": {"status": "alive", "http_code": 200},
+    "/readyz": {"status": "ready", "db": "healthy", "circuit_breaker": "CLOSED"},
+    "/api/health": {"status": "ok", "http_code": 200}
+  },
+  "discovery": {
+    "code_challenge_methods_supported": ["S256"],
+    "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic"]
+  },
+  "verdict": "PASS"
+}
