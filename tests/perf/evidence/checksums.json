@@ -1,43 +1,43 @@
 {
-  "a1_cookie_validation.md": "sha256:b1dcda502ab66c75"
+  "a1_cookie_validation.md": "sha256:ac1cb9974d5ff472"
 ,
   "a1_warmup_report.md": "sha256:efe8ede2189ddc32"
 ,
-  "a3_orchestration_runlog.md": "sha256:7a6add08f5f8e6a6"
+  "a3_orchestration_runlog.md": "sha256:c8762ed7fe2fc1b0"
 ,
-  "a8_telemetry_audit.md": "sha256:c17857bb5d7d9135"
+  "a8_telemetry_audit.md": "sha256:8c657feb4ada57fd"
 ,
-  "b2b_funnel_verdict.md": "sha256:5ac345704c253f70"
+  "b2b_funnel_verdict.md": "sha256:7e62b732dd974dc2"
 ,
-  "b2c_funnel_verdict.md": "sha256:8177d74cb292d978"
+  "b2c_funnel_verdict.md": "sha256:e8f54893d2ff7f31"
 ,
-  "canonical_a8_heatmap_t24h.md": "sha256:a570a29bf9d8623b"
+  "canonical_a8_heatmap_t30h.md": "sha256:5d4bca18b95debb9"
 ,
-  "ecosystem_double_confirm.md": "sha256:eacbba0cba2d63d3"
+  "ecosystem_double_confirm.md": "sha256:b5c0d046f974f011"
 ,
-  "go_no_go_report.md": "sha256:398009682d0505e4"
+  "go_no_go_report.md": "sha256:a9ed29b8eba47bce"
 ,
-  "go_no_go_t24h.md": "sha256:c4cd4c05b3266a7a"
+  "go_no_go_t30h.md": "sha256:a2f0dd4a77648b40"
 ,
-  "infra_verification_t24h.md": "sha256:0f9625960deb4a64"
+  "infra_verification_t30h.md": "sha256:8f46457278090295"
 ,
-  "perf_summary.md": "sha256:738de41760609a57"
+  "perf_summary.md": "sha256:a1ab7134a1916a17"
 ,
   "post_republish_diff.md": "sha256:e99e74252c8c8737"
 ,
-  "privacy_audit_t24h.md": "sha256:191d44b87c63190a"
+  "privacy_audit_t30h.md": "sha256:c18c1c6efafb7ab7"
 ,
-  "raw_truth_summary.md": "sha256:29cb98bcca41d963"
+  "raw_truth_summary.md": "sha256:191ef6de8e10ef21"
 ,
   "rl_observation.md": "sha256:aaec8ca57f6beef3"
 ,
   "security_headers_report.md": "sha256:5665ed154db3939c"
 ,
-  "seo_url_delta_t24h.md": "sha256:36f0d5287af9339a"
+  "seo_url_delta_t30h.md": "sha256:e392a1ee408c5011"
 ,
   "seo_verdict.md": "sha256:72663220ab2dbaba"
 ,
-  "stripe_safety_ledger_t24h.md": "sha256:d289ad66a521e4f2"
+  "stripe_safety_ledger_t30h.md": "sha256:aa9d1e85019be605"
 ,
   "ui_ux_integrity_matrix.md": "sha256:18e4c69a26f90b63"
 ,
@@ -45,9 +45,9 @@
 ,
   "a2_health.json": "sha256:cfa706547333384f"
 ,
-  "a3_health.json": "sha256:06966bfdf0fc0c35"
+  "a3_health.json": "sha256:3d41591df14be21a"
 ,
-  "a4_health.json": "sha256:d23bfe990eec47fd"
+  "a4_health.json": "sha256:4587712e55f9d222"
 ,
   "a5_health.json": "sha256:be8d33332eff0584"
 ,
@@ -55,11 +55,11 @@
 ,
   "a7_health.json": "sha256:3c3acff005dd620e"
 ,
-  "a8_health.json": "sha256:d4297287c57c6d48"
+  "a8_health.json": "sha256:bb6ec4633ed61979"
 ,
-  "system_map.json": "sha256:cdcb3e95fab4acba"
+  "system_map.json": "sha256:bc680715b5cae944"
 ,
-  "version_manifest.json": "sha256:168b15f7265e2bb6"
+  "version_manifest.json": "sha256:3eb9cc1ef0fb83e4"
 ,
   "hitl_approvals.log": "sha256:28c3691e0d489431"
 }

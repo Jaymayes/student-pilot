@@ -1,4 +1,4 @@
-# B2C Funnel - FIX-033
+# B2C Funnel - T+30h FIX-035
 
 **Status**: CONDITIONAL ⚠️
 
@@ -9,4 +9,4 @@
 | Remaining | 4/25 |
 | Mode | FROZEN |
 
-**B2C: CONDITIONAL** (readiness verified)
+**B2C: CONDITIONAL** (readiness verified; charges gated)

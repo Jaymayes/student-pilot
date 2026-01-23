@@ -1,10 +1,10 @@
-=== ZT3G CURL EVIDENCE - FIX-033 ===
+=== ZT3G T+30h CURL EVIDENCE - FIX-035 ===
 A1: 200 (3628B)
 A2: 200 (178B)
-A3: 200 (320B)
-A4: 200 (491B)
+A3: 200 (322B)
+A4: 200 (488B)
 A5: 200 (4508B, stripe.js: 1)
 A6: 200 (4029B, API: 200)
 A7: 200 (sitemap: 200)
-A8: 200 (event_id: evt_1769116969510_9kk6gs7iw)
-T24H: event_id: evt_1769117065239_pzs5wplci
+A8: 200 (event_id: evt_1769139615202_kdo5scr9h)
+T30H: event_id: evt_1769139727179_lqzlaaiki

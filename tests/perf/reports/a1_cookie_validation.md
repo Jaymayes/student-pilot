@@ -1,1 +1,1 @@
-# A1 Cookie Validation - FUNCTIONAL ✅
+# A1 Cookie - FUNCTIONAL ✅

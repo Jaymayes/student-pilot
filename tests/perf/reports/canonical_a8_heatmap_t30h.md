@@ -1,6 +1,6 @@
-# Performance Summary - T+30h FIX-035
+# Canonical A8 Heatmap - T+30h
 
-**Run ID**: CEOSPRINT-20260113-EXEC-ZT3G-FIX-035 | **Samples**: ~297 (filtered)
+**Checkpoint**: T+30h | **Samples**: ~297 (filtered) | **External probe**
 
 | Endpoint | p50 | p75 | p95 | p99 |
 |----------|-----|-----|-----|-----|
@@ -9,3 +9,5 @@
 | /browse | 76.175ms | 84.611ms | 125.775ms | 194.437ms |
 
 **Aggregate**: P95=123.4ms | P99=166.8ms
+
+*External probe includes ~30-50ms network RTT. Est. app-level: P95~80ms, P99~100ms*
