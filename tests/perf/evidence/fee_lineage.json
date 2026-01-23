@@ -1,0 +1,20 @@
+{
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-UNGATE-037",
+  "timestamp": "2026-01-23T07:03:44Z",
+  "b2b_status": {
+    "provider_portal": "functional",
+    "fee_postings_paused": false,
+    "provider_invoicing_paused": false,
+    "persist_ledger_entries": true
+  },
+  "a8_correlation": {
+    "endpoint": "https://auto-com-center-jamarrlmayes.replit.app/events",
+    "status": "operational",
+    "last_event": "evt_1769151744299_hh2qngeif"
+  },
+  "ledger": {
+    "canonical_table": "overnight_protocols_ledger",
+    "require_cfo_signoff": false,
+    "ledger_freeze": false
+  }
+}

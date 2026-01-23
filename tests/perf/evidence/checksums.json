@@ -1,0 +1,53 @@
+{
+  "run_id": "CEOSPRINT-20260113-EXEC-ZT3G-UNGATE-037",
+  "timestamp": "2026-01-23T07:04:51Z",
+  "algorithm": "SHA256",
+  "artifacts": {
+    "reports/a1_cookie_validation.md": "17afc5c17b43754dd54aca2170e82c2588b3d4f1c7b0ee37852b91063a02d23b"
+,
+    "reports/a8_telemetry_audit.md": "26aed1df7c9b396ead0bc0a327a5379a244a3351182f90b898bafc9ad0cff041"
+,
+    "reports/b2b_funnel_verdict.md": "d2e3c022b408ef8bb571c3a40e5569061f0433affb2238cc0d994413319b8c4e"
+,
+    "reports/b2c_funnel_verdict.md": "6a3e48261198edde4fae4d901b48bbf8f6626d1a07f86ba67c2a1a3b6972539a"
+,
+    "reports/canonical_a8_heatmap_post_ungate.md": "f8d0f57654ca66032b2a7e280a4a04510879928a1d514f108e6de2d27bde8eda"
+,
+    "reports/data_service_integrity.md": "e78f2bf6ff9584f5d9706c07cfeb60de7994eaec6c308f638a27352ae375a43a"
+,
+    "reports/ecosystem_double_confirm.md": "ea2ec5cd75286eaa53c2b993fbcb80c78b6a4b82804c6ce3ec88e126ae6f9fde"
+,
+    "reports/infra_verification_post.md": "f88a516ccb0a6e24599988049bbcc526d9b51b031f0285abc482bbf97b4ed8de"
+,
+    "reports/live_telemetry_rollout.md": "cb7381f6447dde1c8a2ab13f6a81697f5552893cf3f873ebb217b7a9778041ba"
+,
+    "reports/perf_summary.md": "88cc132c3361bc454fb23df216c385533e60cbfa95a284f9d5e1e0cfeb3b8f4f"
+,
+    "reports/privacy_audit_post.md": "02fa36d84498d0dbbe65ad8c96a08ddbce4a6070c560ee9cab9b98135208c1da"
+,
+    "reports/rate_limit_change_log.md": "1e407b83fd1c6641fd46187061aa31b398b0ff710f87d9f62a6b5cc91b78db2c"
+,
+    "reports/seo_verdict.md": "df96614611a01ede06dd47b3fc80c3e16df10340997617556c1a2708b64397b6"
+,
+    "reports/A1_health.json": "38e7ba041b30635e2786bd1a0a8647da7fe148f1cac49880da1b4af42ad1ab8d"
+,
+    "reports/A2_health.json": "a07d128204b00b5d4912d87f08c165aeddf57fea2f13ee871e41da3f44d00091"
+,
+    "reports/A3_health.json": "78a7f694509c1884a9903daa538d312e643cf47d177299f01366542f5327c986"
+,
+    "reports/A4_health.json": "9e12b2136259d57aeff88df37b6b29bdb06db91239bd41682c20b0c3bc25793c"
+,
+    "reports/A5_health.json": "ab1f8dd00d0f9d30c5aa1389c7f985fd1182bb9f578967e672fd2ee8837531f2"
+,
+    "reports/A6_health.json": "0707080a6c737a8951af28cb73e3b0dcf640f79ecf6bbcdb0dcb06a2f577c7bc"
+,
+    "reports/A7_health.json": "8b60601e9641bb67e1c49a16b089d9b1a7503679f88f2d42493505193111333f"
+,
+    "reports/A8_health.json": "9004cdd135a769751c09a467bd4df6143abbabc1da11208f7d43b0b3533ad7f5"
+,
+    "reports/system_map.json": "b472344ee2d2faba4e392f16f4fe4031221bff9edb41318eff231310024fe765"
+,
+    "evidence/fee_lineage.json": "02a10c4c89afa4fcfecd3f3c92c0e9ad4fdbf590f853de9c7e3cc6e80eb0efa4"
+
+  }
+}
