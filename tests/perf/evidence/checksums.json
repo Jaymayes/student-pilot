@@ -1,0 +1,39 @@
+{
+  "run_id": "CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-005",
+  "timestamp": "2026-01-23T11:05:00Z",
+  "files": [
+    {"path": "tests/perf/reports/a8_telemetry_audit.md", "sha256": "550203688dad9493fcc607b151c62b887dafe0ad318aa8552daed4578380138e", "size": 841}
+,
+    {"path": "tests/perf/reports/b2b_funnel_verdict.md", "sha256": "23386148afc29056d10e1fda359d6c2d73ac3d1ace1885281c489bfc8f836b17", "size": 999}
+,
+    {"path": "tests/perf/reports/b2c_funnel_verdict.md", "sha256": "f6e9037321f10fc4580a62b8f012c94bb95b29c651dae21181ff92a72a5a0518", "size": 1733}
+,
+    {"path": "tests/perf/reports/client_env_validation.md", "sha256": "e4c8344ead00ed7032f9838a7725c53e3ee5f4a3488df20b82092be2f9518ce9", "size": 1422}
+,
+    {"path": "tests/perf/reports/manual_intervention_manifest.md", "sha256": "88eafdd38264c3f340be0a9a90bcfd481ca84afd41d20c602ef1edad14b18eda", "size": 6026}
+,
+    {"path": "tests/perf/reports/perf_summary.md", "sha256": "471f461dae94037117032eea525c731935e5ed6417148edd32f44a5870b1d7cb", "size": 1280}
+,
+    {"path": "tests/perf/reports/raw_truth_summary.md", "sha256": "0e9dc17a915a30e4fd59fc6da4924058ac9f1b4119bb9ed0975ee67639d5e94c", "size": 2949}
+,
+    {"path": "tests/perf/reports/a1_health_readyz.json", "sha256": "1a7ca898106d1af0a7c664b27184534329bbe2ddc703a1fd08ee56d9461fbaf8", "size": 1018}
+,
+    {"path": "tests/perf/reports/system_map.json", "sha256": "e1a0eec4f4b3793459335a91a59c820deafaf623fd65cb3f5f0f3e9b9d662aae", "size": 1722}
+,
+    {"path": "tests/perf/reports/hitl_approvals.log", "sha256": "1a23f3c2c739f2e7d36c8fbb283461a4b86742fffcdc7b7dae065883543abd74", "size": 1005}
+,
+    {"path": "tests/perf/evidence/a1_api_health.json", "sha256": "800f512a21b1c8b02621fa3c75eca9379223ce34089c2c7703d5917c62d65c4f", "size": 309}
+,
+    {"path": "tests/perf/evidence/a1_discovery.json", "sha256": "cda668618abfbbcca848e76af2b5b989e5e18441ea5b887df2bc3d8992e51ab2", "size": 1362}
+,
+    {"path": "tests/perf/evidence/a1_health.json", "sha256": "7b47c55c6b1f9d73f29aff50f492ad302509e6173e287d238e110f4e4c59cef4", "size": 173}
+,
+    {"path": "tests/perf/evidence/a1_readyz.json", "sha256": "2a204247b1eb5a576cb84f700aee4200fe7e19c8b64262344ad81d181dfb44a6", "size": 590}
+,
+    {"path": "tests/perf/evidence/checksums.json", "sha256": "d3abd48f00fe4ab6180045ac81bf888eeed2ac74737e87d9dd7e31d2ab013606", "size": 2198}
+,
+    {"path": "tests/perf/evidence/a1_headers.txt", "sha256": "aa20400cbc667321482de77575b7c03a7f527bfa363c8454542d8562f010a645", "size": 2929}
+,
+    {"path": "tests/perf/evidence/raw_curl_evidence.txt", "sha256": "e7c3ede1787620667d265b9dad212f8ba50dddcf164b184c2d3b1ba9b2dc49bf", "size": 5033}
+  ]
+}

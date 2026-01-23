@@ -1,0 +1,81 @@
+=== PHASE 2: FUNCTIONAL DEEP-DIVE PROBES ===
+RUN_ID: CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-005
+Timestamp: 2026-01-23T11:01:26Z
+
+=== A5 /pricing PROBE ===
+Testing: https://student-pilot-jamarrlmayes.replit.app/pricing
+Response size: 4508 bytes
+❌ stripe.js NOT found
+⚠️  pk_ key not in initial HTML (may be loaded dynamically)
+
+=== A5 /api/login PROBE ===
+HTTP/2 401 
+access-control-expose-headers: ETag
+content-security-policy: default-src 'self';base-uri 'none';object-src 'none';frame-ancestors 'none';img-src 'self' data:;script-src 'self' https://js.stripe.com;style-src 'self';font-src 'self' data:;connect-src 'self' https://scholarship-api-jamarrlmayes.replit.app https://auto-com-center-jamarrlmayes.replit.app https://auto-page-maker-jamarrlmayes.replit.app https://api.stripe.com;frame-src https://js.stripe.com https://hooks.stripe.com;form-action 'self' https://hooks.stripe.com
+content-type: text/html
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+date: Fri, 23 Jan 2026 11:01:27 GMT
+origin-agent-cluster: ?1
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=()
+ratelimit-limit: 300
+ratelimit-policy: 300;w=60
+ratelimit-remaining: 299
+ratelimit-reset: 60
+referrer-policy: strict-origin-when-cross-origin
+server: Google Frontend
+set-cookie: GAESA=Cp4BMDA1ZWI2OTc0Y2Y4YTJjNTM2ODEwYThiZjlkOTViYTBhNmFhNjA1Nzk4M2M2MmFmMWFjZjliN2FhODE4YzhiMDVkNDMxOGMxOGQ4MmJkOTE0MDYwM2UyZDZkNmNiZGE3ODU1YWM5ZDYwNTIyZDAyOTg4YzQ5MjIwY2JkOGFkMWMxMTMwODRmZTU4YzRiNWVjZGY4NzhiNGQ2MmVkNDkQpsmQ1L4z; expires=Sun, 22-Feb-2026 11:01:27 GMT; path=/
+strict-transport-security: max-age=63072000; includeSubDomains
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Origin
+x-base-url: https://student-pilot-jamarrlmayes.replit.app
+x-cloud-trace-context: e5c5e779e7d4178c2a28a83ff0e9bea0
+x-content-type-options: nosniff
+x-correlation-id: c6013ab0-8a99-4cdd-a742-c4fa2283762b
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-privacy-policy-version: 1.0.0
+x-system-identity: student_pilot
+x-xss-protection: 0
+via: 1.1 google
+alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+
+
+=== A5 /health PROBE ===
+{"service":"student_pilot","status":"healthy","timestamp":"2026-01-23T11:01:27.599Z","uptime_seconds":12988.046385124,"version":"dev","checks":{"database":"ok","auth":"ok","telemetry":"ok"}}
+
+=== A5 /api/health PROBE ===
+{"status":"ok","app":"student_pilot","baseUrl":"https://student-pilot-jamarrlmayes.replit.app","timestamp":"2026-01-23T11:01:27.743Z","service":"scholarlink-api","checks":{"database":"healthy","cache":"healthy","stripe":"live_mode"}}
+
+=== A1 OIDC DISCOVERY PROBE ===
+{"issuer":"https://scholar-auth-jamarrlmayes.replit.app/oidc","authorization_endpoint":"https://scholar-auth-jamarrlmayes.replit.app/oidc/auth","token_endpoint":"https://scholar-auth-jamarrlmayes.replit.app/oidc/token","userinfo_endpoint":"https://scholar-auth-jamarrlmayes.replit.app/oidc/me","jwks_uri":"https://scholar-auth-jamarrlmayes.replit.app/oidc/jwks","end_session_endpoint":"https://scholar-auth-jamarrlmayes.replit.app/oidc/session/end","scopes_supported":["openid","email","profile","roles","read:scholarships","read:students_anonymized"],"response_types_supported":["code"],"response_modes_supported":["query","fragment"],"grant_types_supported":["authorization_code","refresh_token","client_credentials"],"subject_types_supported":["public"],"id_token_signing_alg_values_supported":["RS256"],"token_endpoint_auth_methods_supported":["client_secret_post","client_secret_basic"],"claims_supported":["sub","email","email_verified","name","first_name","last_name","profile_image_url","roles"],"code_challenge_methods_supported":["S256"],"introspection_endpoint":"https://scholar-auth-jamarrlmayes.replit.app/oidc/token/introspection","revocation_endpoint":"https://scholar-auth-jamarrlmayes.replit.app/oidc/token/revocation","claim_types_supported":["normal"],"system_identity":"scholar_auth","base_url":"https://scholar-auth-jamarrlmayes.replit.app"}
+=== A6 PROBE ===
+Not Found
+HTTP: 404
+
+A6 /api/providers:
+Not Found
+HTTP: 404
+
+=== A8 PROBE ===
+A8 /api/health:
+{"service":"ScholarshipAI Command Center","env":"production","version":"4fa55646-1275-44f3-93fd-a9fa64aca5be","status":"healthy","timestamp":"2026-01-23T11:01:41.481Z","db":{"status":"healthy","latency_ms":240},"uptimeSeconds":13049,"responseTime_ms":240}
+HTTP: 200
+
+=== A2 PROBE ===
+A2 /api/health:
+{"service":"scholarship_api","env":"staging","error":{"message":"Missing or invalid API key","code":"unauthorized","status":401,"details":null},"ts":1769166101643}
+HTTP: 401
+
+=== A3 PROBE ===
+A3 /api/health:
+{"status":"ok","app":"scholarship_agent","baseUrl":"https://scholarship-agent-jamarrlmayes.replit.app","version":"1.0.0","uptime_s":12956,"timestamp":"2026-01-23T11:01:41.815Z"}
+HTTP: 200
+
+=== A7 PROBE ===
+A7 /api/health:
+{"status":"ok","timestamp":"2026-01-23T11:01:41.978Z"}
+HTTP: 200
+

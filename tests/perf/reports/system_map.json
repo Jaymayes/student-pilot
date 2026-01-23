@@ -1,0 +1,68 @@
+{
+  "run_id": "CEOSPRINT-20260123-EXEC-ZT3G-FIX-AUTH-005",
+  "timestamp": "2026-01-23T11:05:00Z",
+  "ecosystem": {
+    "A1": {
+      "name": "ScholarAuth",
+      "url": "https://scholar-auth-jamarrlmayes.replit.app",
+      "status": "DEGRADED",
+      "health": "OK",
+      "issues": ["invalid_client", "PKCE S256 validation bug"]
+    },
+    "A2": {
+      "name": "Scholarship API",
+      "url": "https://scholarship-api-jamarrlmayes.replit.app",
+      "status": "AUTH_GATED",
+      "health": "401"
+    },
+    "A3": {
+      "name": "Scholarship Agent",
+      "url": "https://scholarship-agent-jamarrlmayes.replit.app",
+      "status": "HEALTHY",
+      "health": "200"
+    },
+    "A5": {
+      "name": "Student Pilot",
+      "url": "https://student-pilot-jamarrlmayes.replit.app",
+      "status": "HEALTHY",
+      "health": "200",
+      "workspace": "THIS"
+    },
+    "A6": {
+      "name": "Provider Portal",
+      "url": "https://provider-portal-jamarrlmayes.replit.app",
+      "status": "DOWN",
+      "health": "404"
+    },
+    "A7": {
+      "name": "Auto Page Maker",
+      "url": "https://auto-page-maker-jamarrlmayes.replit.app",
+      "status": "HEALTHY",
+      "health": "200"
+    },
+    "A8": {
+      "name": "Auto Com Center",
+      "url": "https://auto-com-center-jamarrlmayes.replit.app",
+      "status": "HEALTHY",
+      "health": "200"
+    }
+  },
+  "dependencies": {
+    "B2C": ["A5", "A1"],
+    "B2B": ["A6", "A1"],
+    "Telemetry": ["A8"],
+    "Orchestration": ["A3", "A7"]
+  },
+  "blockers": [
+    {
+      "source": "A1",
+      "issue": "invalid_client + PKCE S256 bug",
+      "affects": ["B2C", "B2B"]
+    },
+    {
+      "source": "A6",
+      "issue": "App down (404)",
+      "affects": ["B2B"]
+    }
+  ]
+}
